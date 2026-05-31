@@ -1,0 +1,7 @@
+@import 'tailwindcss';
+
+@theme {
+    --font-sans: 'Figtree', var(--font-sans);
+}
+
+@plugin '@tailwindcss/forms';

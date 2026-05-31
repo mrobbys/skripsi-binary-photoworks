@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "skills": {
+        "laravel-specialist": {
+            "source": "jeffallan/claude-skills",
+            "sourceType": "github",
+            "skillPath": "skills/laravel-specialist/SKILL.md",
+            "computedHash": "d58e2ed3488398cb94a039f25b9d270e55dc434e16102abff9035608bec3db90"
+        },
+        "modern-javascript-patterns": {
+            "source": "wshobson/agents",
+            "sourceType": "github",
+            "skillPath": "plugins/javascript-typescript/skills/modern-javascript-patterns/SKILL.md",
+            "computedHash": "ef81ef5b5b70287b3962dd0fce50c90b27c636e940ec4e80f9a0b216587be549"
+        },
+        "php-pro": {
+            "source": "jeffallan/claude-skills",
+            "sourceType": "github",
+            "skillPath": "skills/php-pro/SKILL.md",
+            "computedHash": "c163f6d5d26ddbf4a4d79e8dc95d3b41e447f1659486cf0aae8c070d950a9d86"
+        },
+        "spatie-laravel-php": {
+            "source": "spatie/guidelines-skills",
+            "sourceType": "github",
+            "skillPath": "resources/boost/skills/spatie-laravel-php/SKILL.md",
+            "computedHash": "9c93332d7f84626db41dee9bf66534209250d99efd08295c8eac422e3a1af178"
+        },
+        "supabase-postgres-best-practices": {
+            "source": "supabase/agent-skills",
+            "sourceType": "github",
+            "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+            "computedHash": "292c93e5a86e2429204bc37abe26b3c9023c4760eb02418462887f2082f118ce"
+        },
+        "tailwind-css-patterns": {
+            "source": "giuseppe-trisciuoglio/developer-kit",
+            "sourceType": "github",
+            "skillPath": "plugins/developer-kit-typescript/skills/tailwind-css-patterns/SKILL.md",
+            "computedHash": "6092620c3af955a46ea2b94ca8a40197ac8392e6bbdc8c7515659328b186c770"
+        }
+    }
+}

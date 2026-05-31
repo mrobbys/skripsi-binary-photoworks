@@ -1,0 +1,42 @@
+{
+    "name": "@shamimstack/laravel-13-skills",
+    "version": "1.0.1",
+    "description": "AI skill package for Laravel 13 PHP 8 attributes - write new code and refactor old Laravel code to attribute syntax",
+    "main": "SKILL.md",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"No tests specified\" && exit 0"
+    },
+    "keywords": [
+        "laravel",
+        "laravel-13",
+        "php-attributes",
+        "php-8",
+        "refactor",
+        "eloquent",
+        "queue",
+        "commands",
+        "ai",
+        "skill"
+    ],
+    "homepage": "https://github.com/shamimlaravel/laravel-13-skills-npm",
+    "author": {
+        "name": "Shamim",
+        "email": "shamimstack@gmail.com"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/shamimlaravel/laravel-13-skills-npm.git"
+    },
+    "bugs": {
+        "url": "https://github.com/shamimlaravel/laravel-13-skills-npm/issues"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "funding": {
+        "type": "github",
+        "url": "https://github.com/shamimlaravel/laravel-13-skills-npm"
+    }
+}

@@ -1,0 +1,14 @@
+/node_modules
+/vendor
+/public/build
+/public/hot
+/public/storage
+/storage
+/bootstrap/cache
+/dist
+.env
+package-lock.json
+composer.lock
+.phpunit.cache
+*.min.css
+*.min.js
