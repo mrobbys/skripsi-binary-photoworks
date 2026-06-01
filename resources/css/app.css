@@ -4,4 +4,16 @@
     --font-sans: 'Figtree', var(--font-sans);
 }
 
+/* bg-color bg-stone-50 */
+:root {
+    --bg-color: #fafaf9;
+}
+
+
 @plugin '@tailwindcss/forms';
+
+body {
+    background-color: var(--bg-color);
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+}
