@@ -16,7 +16,7 @@
                 </div>
                 <div class="w-full">
                     <input type="password" name="password" id="password" autocomplete="off" placeholder="•••••••"
-                        value="Passwords1" required>
+                        value="Password1" required>
                     @error('password')
                         <div>
                             <small class="text-red-500">{{ $message }}</small>
@@ -32,11 +32,9 @@
                 </button>
 
                 {{-- login dengan google --}}
-                <form action="">
-                    <button type="submit" class="bg-stone-400 text-stone-50 w-full py-3 px-4">
-                        Login dengan Google
-                    </button>
-                </form>
+                <a href="{{ route('login.google') }}" class="bg-stone-400 text-stone-50 w-full py-3 px-4">
+                    Login dengan Google
+                </a>
 
                 {{-- link to register page --}}
                 <a href="{{ route('register') }}" class="text-center block my-4 text-blue-500 underline">Daftar Akun</a>

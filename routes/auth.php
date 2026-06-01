@@ -8,11 +8,15 @@ Route::middleware('guest')->group(function () {
 
   // login routes
   Route::get('login', [LoginController::class, 'index'])->name('login');
-  Route::post('login', [LoginController::class, 'store'])->name('login.store');
+  Route::post('auth/login', [LoginController::class, 'store'])->name('login.store');
 
   // register routes
   Route::get('register', [RegisterController::class, 'index'])->name('register');
-  Route::post('register', [RegisterController::class, 'store'])->name('register.store');
+  Route::post('auth/register', [RegisterController::class, 'store'])->name('register.store');
+
+  // login with google | socialite
+  Route::get('auth/google', [LoginController::class, 'redirectToGoogle'])->name('login.google');
+  Route::get('auth/google/callback', [LoginController::class, 'handleGoogleCallback'])->name('login.google.callback');
 });
 
-Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
+Route::post('auth/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');

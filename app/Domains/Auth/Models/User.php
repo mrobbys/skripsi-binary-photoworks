@@ -13,10 +13,10 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 
 #[UseFactory(UserFactory::class)]
-#[Fillable(['name', 'email', 'password', 'phone'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'google_id', 'google_token'])]
+#[Hidden(['password', 'remember_token', 'google_token'])]
 class User extends Authenticatable
-{
+{   
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
