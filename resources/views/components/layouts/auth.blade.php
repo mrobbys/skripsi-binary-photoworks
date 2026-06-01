@@ -10,16 +10,25 @@
     {{-- TODO: buat logic ketika mode dark pakai yang 'binary-logo-white.png', jika tidak pakai 'binary-logo-black.png' --}}
     <link rel="icon" href="{{ asset('assets/binary-logo/binary-logo-white.png') }}" type="image/png" />
 
-    <title>{{ $title }} | {{ config('app.name', 'Laravel') }}</title>
+    <title>{{ $title ?? '' }} | {{ config('app.name', 'Laravel') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+    {{ $styles ?? '' }}
 </head>
 
-<body>
+<body data-feature="{{ $featureName ?? '' }}" data-page="{{ $pageName ?? '' }}">
     <main class="h-dvh w-full mx-auto max-w-7xl flex items-center justify-center p-4">
         {{ $content ?? '' }}
     </main>
 
+    {{-- trigger alert dan toast berdasarkan session  --}}
+    <x-scripts.alert-toast />
     {{-- for javascript --}}
     {{ $scripts ?? '' }}
 </body>

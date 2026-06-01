@@ -53,8 +53,10 @@ class LoginController extends Controller
     RateLimiter::clear($request->throttleKey());
     $request->session()->regenerate();
 
-    // return redirect()->route('backdoor.dashboard');
-    return $this->redirectPath(Auth::user());
+    return $this->redirectPath(Auth::user())->with('toast', [
+      'type' => 'success',
+      'title' => 'Login Berhasil',
+    ]);
   }
 
   public function redirectToGoogle(): RedirectResponse
@@ -76,7 +78,6 @@ class LoginController extends Controller
     Auth::login($user);
     request()->session()->regenerate();
 
-    // return redirect()->route('backdoor.dashboard');
     return $this->redirectPath(Auth::user());
   }
 
@@ -92,6 +93,9 @@ class LoginController extends Controller
     $this->authService->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
-    return redirect()->route('login');
+    return redirect()->route('login')->with('toast', [
+      'type' => 'success',
+      'title' => 'Logout Berhasil',
+    ]);
   }
 }

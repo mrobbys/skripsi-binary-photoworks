@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone', 15)->nullable()->unique();
             $table->rememberToken();
-            $table->string('google_token')->nullable()->unique();
+            $table->text('google_token')->nullable();
             $table->timestamps();
         });
 

@@ -65,7 +65,7 @@ class AuthService
     }
 
     // jika belum terdaftar sama sekali, create user
-    return $this->userRepository->create([
+    $newUser = $this->userRepository->create([
       'name' => $socialiteUser->getName(),
       'email' => $socialiteUser->getEmail(),
       'phone' => null,
@@ -73,6 +73,9 @@ class AuthService
       'google_id' => $socialiteUser->getId(),
       'google_token' => $socialiteUser->token,
     ]);
+    $newUser->assignRole('user');
+
+    return $newUser;
   }
 
   /**

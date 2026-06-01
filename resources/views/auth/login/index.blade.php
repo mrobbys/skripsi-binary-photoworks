@@ -1,4 +1,4 @@
-<x-layouts.auth title='Masuk'>
+<x-layouts.auth title='Masuk' feature-name='auth' page-name='login'>
     <x-slot:content>
         <div>
             <h1 class="text-center my-4 text-xl font-semibold">Form Login</h1>
@@ -7,7 +7,7 @@
                 @csrf
                 <div class="w-full">
                     <input type="email" name="email" id="email" autocomplete="off" placeholder="your@email.com"
-                        value="robby@gmail.com" required>
+                        value="superadmin@gmail.com" required>
                     @error('email')
                         <div>
                             <small class="text-red-500">{{ $message }}</small>
