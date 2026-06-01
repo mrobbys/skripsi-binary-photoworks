@@ -42,7 +42,7 @@ Ketika pop-up Midtrans Snap mendeteksi aksi dari pengguna, sistem front-end waji
 
 ---
 
-## 3. Implementasi Skrip Terisolasi (Front-End Constraints - SFC Style)
+## 3. Implementasi Skrip Terisolasi (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Seluruh pemanggilan fungsi SDK Midtrans Snap (seperti metode `snap.pay()`) haram ditulis langsung pada atribut tag HTML (Bebas murni dari kode mentah `onclick="snap.pay(...)"`).
 - **Protokol Pemuatan Berkas SDK**: Berkas pustaka JavaScript utama milik Midtrans (`snap.js`) dimuat secara luring/daring pada tata letak induk `<x-layouts.frontdoor>`.

@@ -42,5 +42,5 @@ Mengembangkan aplikasi pemesanan dan penjadwalan layanan pada studio foto Binary
 ## Engineering Constraints (Aturan Mutlak Lab)
 
 - **No Inline HTML Scripts:** Melarang keras penulisan script JavaScript secara inline di dalam file HTML/Blade view.
-- **Encapsulated Alpine Component:** Seluruh logika front-end interaktif wajib dipisahkan ke dalam blok tag skrip khusus menggunakan pola standarisasi `document.addEventListener('alpine:init')` dan `Alpine.data()`.
+- **Encapsulated Alpine Component:** Seluruh logika front-end interaktif yang bersifat kompleks wajib dipisahkan ke dalam berkas JavaScript mandiri di `resources/js/features/{fitur}/{halaman}.js` menggunakan pola `export { init }` dan `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](./05-dynamic-loader.md).
 - **Asynchronous Communication:** Manfaatkan pustaka Axios dikombinasikan dengan teknik _Debouncing_ untuk menangani fitur penyimpanan otomatis (_auto-save_) maupun operasi AJAX tanpa memicu pemuatan ulang halaman (_reload_).

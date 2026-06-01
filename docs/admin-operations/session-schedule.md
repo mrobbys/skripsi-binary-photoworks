@@ -51,7 +51,7 @@ Sistem kalender secara otomatis akan mewarnai seluruh kotak hari terkait menjadi
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Segala bentuk penanganan aksi klik tombol ganti bulan di kalender, pembukaan pop-up detail event, ketikan _live search_, haram ditulis langsung pada atribut tag HTML (Steril penuh dari atribut mentah `onclick="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

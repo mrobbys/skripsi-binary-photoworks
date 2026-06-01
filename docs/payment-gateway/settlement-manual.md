@@ -41,13 +41,13 @@ $$
 
 ---
 
-## 3. Implementasi Skrip Terisolasi Sisi Admin (SFC Pattern - Anti-Inline Script)
+## 3. Implementasi Skrip Terisolasi Sisi Admin (Feature-Based Modules - Anti-Inline Script)
 
 Sesuai dengan hukum arsitektur utama, inisialisasi objek SDK Midtrans Snap diisolasi murni di dalam berkas pendukung co-location dan dipanggil menggunakan perintah `@include` di bagian bawah halaman detail.
 
 ```javascript
-// resources/views/backdoor/manajemen-pemesanan/partials/settlement-script.blade.php
-document.addEventListener('alpine:init', () => {
+// resources/js/features/booking/settlement.js
+export function init(Alpine) {
     Alpine.data('adminMidtransSettlementHandler', () => ({
         isProcessing: false,
 
@@ -78,5 +78,5 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
-});
+}
 ```

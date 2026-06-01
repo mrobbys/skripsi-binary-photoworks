@@ -66,7 +66,7 @@ Jendela modal muncul di tengah layar dengan latar belakang gelap transparan (_ba
 ## 4. Batasan Implementasi Front-End & Kontrol Aliran Data
 
 - **Aturan Mutlak Anti-Inline Attribute Script**: Dilarang keras menuliskan baris penanganan logika buka-tutup modal atau pembacaan nilai toggle langsung di dalam atribut tag HTML komponen Blade view (seperti menghindari penggunaan atribut fungsional mentah `onclick="..."` atau `onchange="..."`).
-- **Enkapsulasi Reaktif Alpine.js (SFC Style)**: Manajemen status keterbukaan modal (`isOpen: false`), penyimpanan data id kategori terpilih untuk diedit, dan manipulasi visual tombol wajib diisolasi rapi menggunakan standardisasi pola `document.addEventListener('alpine:init')` dan dipicu melalui direktif `Alpine.data()` di dalam tag `<script>` khusus yang diletakkan di bagian bawah berkas `.blade.php` yang sama.
+- **Enkapsulasi Reaktif Alpine.js (Feature-Based Module)**: Manajemen status keterbukaan modal (`isOpen: false`), penyimpanan data id kategori terpilih untuk diedit, dan manipulasi visual tombol wajib diisolasi rapi di dalam berkas JavaScript mandiri `resources/js/features/` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 - **Optimasi AJAX & Debounce Pencarian**:
     - Proses pemfilteran data tabel melalui input pencarian nama kategori wajib dikirim menggunakan pustaka **Axios**.
     - Aksi pengetikan kata kunci wajib dikawal oleh fungsi pengaman **Debounce minimal 400ms** untuk mencegah penembakan query database secara berlebihan (_spamming queries_) setiap kali pengguna menekan tombol papan ketik.

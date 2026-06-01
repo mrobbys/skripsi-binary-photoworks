@@ -63,6 +63,6 @@ Setelah session dinyatakan valid (baik via form manual maupun via Google), siste
 
 ## 4. Batasan Implementasi Front-End & Pengiriman Data
 
-- **Pola Enkapsulasi Logika (SFC)**: Seluruh logika visual (seperti efek animasi loading pada tombol submit dan fungsi buka-tutup teks password) wajib ditulis rapi di dalam tag `<script>` khusus yang diletakkan pada bagian bawah file `.blade.php` yang sama menggunakan pola `document.addEventListener('alpine:init')` dan dijalankan via `Alpine.data()`.
+- **Pola Enkapsulasi Logika (Feature-Based Module)**: Seluruh logika visual (seperti efek animasi loading pada tombol submit dan fungsi buka-tutup teks password) wajib ditulis di dalam berkas JavaScript mandiri `resources/js/features/auth/login.js` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 - **Larangan Skrip Atribut**: Dilarang keras menaruh logika JavaScript langsung pada atribut tag HTML (_No Inline Attribute Scripts_).
 - **Efisiensi Payload AJAX**: Pengiriman data otentikasi asinkronus (jika ada) wajib divalidasi dan dikirim menggunakan Axios melalui fungsi pengaman pengetukan (_Debounce Control_).

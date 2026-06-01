@@ -41,7 +41,7 @@ Sebelum aliran data menyentuh tabel `users`, sistem wajib melakukan inspeksi ket
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Seluruh penanganan animasi pemuatan tombol (_loading state spinner_), pencegatan tombol submit, dan validasi reaktif sisi depan haram hukumnya ditulis langsung di dalam atribut elemen HTML (Bebas penuh dari instruksi mentah `onsubmit="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

@@ -60,7 +60,7 @@ Ketika operator mengklik tombol aksi tiga titik pada baris data, sistem akan men
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Seluruh interaksi pembukaan dropdown aksi, pengetikan _live search_, dan pemanggilan modal input dilarang keras ditulis langsung di dalam atribut bawaan tag HTML (Bebas penuh dari instruksi mentah `onclick="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

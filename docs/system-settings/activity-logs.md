@@ -50,7 +50,7 @@ $$
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Proses pembukaan modal detail log data lama/baru haram ditulis langsung di dalam atribut elemen HTML (Bebas total dari kode mentah `onclick="..."`).
 - **Mekanisme Pemuatan Bersisian (Co-location Style)**:

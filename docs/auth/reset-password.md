@@ -82,5 +82,5 @@ Semua field input pada tahapan ini bersifat wajib diisi:
 
 ## 5. Batasan Implementasi Front-End
 
-- **Enkapsulasi Alpine.js (SFC Style)**: Logika visual front-end seperti fungsi membuka mata sandi pada field password baru dan konfirmasi sandi wajib diisolasi rapi di dalam tag `<script>` khusus yang diletakkan pada bagian bawah file `.blade.php` yang sama via objek `Alpine.data()`.
+- **Enkapsulasi Alpine.js (Feature-Based Module)**: Logika visual front-end seperti fungsi membuka mata sandi pada field password baru dan konfirmasi sandi wajib diisolasi rapi di dalam berkas JavaScript mandiri `resources/js/features/auth/reset-password.js` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 - **Larangan Skrip Atribut**: Dilarang keras menaruh logika JavaScript langsung pada atribut elemen tag HTML (_No Inline Attribute Scripts_).

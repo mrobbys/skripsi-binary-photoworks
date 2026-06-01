@@ -46,7 +46,7 @@ $$
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Segala bentuk penanganan interaksi pengetikan kata kunci pencarian, pembukaan menu drop-down aksi, maupun perpindahan halaman pagination haram dituliskan langsung di dalam atribut bawaan tag HTML (Bebas penuh dari instruksi mentah `onkeyup="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

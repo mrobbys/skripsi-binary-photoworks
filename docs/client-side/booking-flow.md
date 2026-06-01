@@ -92,7 +92,7 @@ $$
 
 ---
 
-## 3. Batasan Implementasi Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Implementasi Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Haram hukumnya menaruh baris penanganan perubahan langkah wizard, manipulasi angka konter add-on, atau klik pilihan penanggalan langsung di dalam atribut tag HTML elemen view (Wajib steril dari penggunaan atribut mentah seperti `onclick="..."` atau `onchange="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

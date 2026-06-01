@@ -53,7 +53,7 @@ $$
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Mekanisme pemicu perubahan dropdown filter tahun, interaksi klik navigasi sidebar, maupun animasi hovering grafik haram ditulis langsung di dalam atribut tag HTML mentah elemen view (Bebas dari kode mentah `onchange="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

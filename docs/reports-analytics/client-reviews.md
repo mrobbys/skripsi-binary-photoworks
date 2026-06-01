@@ -50,7 +50,7 @@ $$
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Proses penghapusan ulasan spam menggunakan tombol aksi maupun interaksi penyaringan dropdown filter rating haram ditulis langsung di dalam atribut tag HTML (Steril total dari instruksi mentah `onclick="..."` atau `onchange="..."`).
 - **Mekanisme Pemuatan Bersisian (Co-location Style)**:

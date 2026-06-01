@@ -75,7 +75,7 @@ $user->assignRole($request->input('role')); // Sinkronisasi otomatis Spatie RBAC
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Proses pembukaan modal, pengisian data objek, dan interaksi penembakan AJAX dilarang keras ditulis di dalam atribut tag HTML (Steril total dari instruksi mentah `onclick="..."`).
 - **Mekanisme Pemuatan Bersisian (Co-location Style)**:

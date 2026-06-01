@@ -61,6 +61,6 @@ Setiap kali operasi pembuatan atau pembaruan data dikirim, server Laravel akan m
 
 ## 4. Batasan Implementasi Sisi Depan (Front-End Constraints)
 
-- **Enkapsulasi Skrip Lokal (SFC Style)**: Logika inisialisasi FilePond, pengaturan pratinjau gambar, dan penanganan respons eror dilarang ditulis sebagai skrip inline di dalam atribut tag HTML. Semua wajib dikemas di dalam tag `<script>` khusus pada bagian bawah berkas `.blade.php` yang sama menggunakan struktur `document.addEventListener('alpine:init')` melalui entitas `Alpine.data()`.
+- **Enkapsulasi Skrip Lokal (Feature-Based Module)**: Logika inisialisasi FilePond, pengaturan pratinjau gambar, dan penanganan respons eror dilarang ditulis sebagai skrip inline di dalam atribut tag HTML. Semua wajib ditulis di dalam berkas JavaScript mandiri `resources/js/features/` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 - **Kontrol Pengetikan Pencarian (Debounce)**: Aksi pemfilteran baris tabel Grid.js melalui input pencarian nama background wajib dikawal fungsi **Debounce minimal 400ms** via Axios agar tidak membebani performa pembacaan database.
 - **Eksekusi Sakelar Status Instan**: Ketika tombol sakelar status aktif/non-aktif pada kolom tabel digeser, komponen Alpine.js harus langsung menembakkan HTTP Request PATCH secara asinkronus menggunakan **Axios** untuk memperbarui nilai `is_active` secara _real-time_ tanpa memicu pemuatan ulang halaman (_zero reload page_).

@@ -60,7 +60,7 @@ $$
 
 ---
 
-## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Pembatasan Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Seluruh interaksi penandaan massal kotak centang (_Select All Checkboxes_), ketikan pencarian, maupun pengiriman formulir haram menyentuh atribut mentah tag HTML (Bebas 100% dari instruksi `onclick="..."` atau `onsubmit="..."`).
 - **Mekanisme Pemuatan Bersisian (Co-location Style)**:

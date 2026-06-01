@@ -71,7 +71,7 @@ class AnalyticsChartController extends Controller
 
 ---
 
-## 3. Komponen Front-End Terisolasi (SFC Pattern & Anti-Inline Script)
+## 3. Komponen Front-End Terisolasi (Feature-Based Modules SFC Pattern & Anti-Inline Script Anti-Inline Script)
 
 Sesuai dengan hukum mutlak laboratorium **Binary Photoworks**, inisialisasi pustaka grafik (seperti Chart.js atau ApexCharts) dilarang keras ditulis di dalam tag HTML ataupun menggunakan atribut segaris `onchange="..."`.
 

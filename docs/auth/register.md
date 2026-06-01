@@ -76,6 +76,6 @@ Setelah proses pembuatan baris data user baru di database dinyatakan sukses:
 
 ## 4. Batasan Implementasi Front-End (Alpine.js & Axios Constraints)
 
-- **Enkapsulasi Skrip Lokal (SFC)**: Seluruh fungsi interaksi antarmuka (seperti aksi klik ikon mata untuk mengintip kata sandi, validasi kesamaan teks konfirmasi sandi) wajib diletakkan di dalam tag `<script>` khusus yang diletakkan pada bagian bawah file `.blade.php` yang sama menggunakan modul komponen `Alpine.data()`.
+- **Enkapsulasi Skrip Lokal (Feature-Based Module)**: Seluruh fungsi interaksi antarmuka (seperti aksi klik ikon mata untuk mengintip kata sandi, validasi kesamaan teks konfirmasi sandi) wajib ditulis di dalam berkas JavaScript mandiri `resources/js/features/auth/register.js` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 - **Larangan Skrip Atribut**: Dilarang menuliskan logika penanganan JavaScript langsung pada atribut tag elemen HTML Blade view.
 - **Komunikasi Asinkronus**: Proses pengecekan ketersediaan email (jika menggunakan fitur _live-availability check_) wajib dikirim melalui Axios menggunakan pembatas waktu pengetikan (_Debounce Control_) minimal 500ms agar tidak membebani performa database server.

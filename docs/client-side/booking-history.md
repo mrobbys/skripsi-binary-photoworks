@@ -49,7 +49,7 @@ Sistem memisahkan baris data berdasarkan nilai kolom `status` pada tabel databas
 
 ---
 
-## 3. Batasan Implementasi Sisi Depan (Front-End Constraints - SFC Style)
+## 3. Batasan Implementasi Sisi Depan (Front-End Constraints - Feature-Based Modules)
 
 - **Hukum Anti-Inline HTML Attribute Script**: Peralihan kelas aktif menu, penukaran filter tab `Akan Datang` vs `Selesai`, dan fungsi pemicu buka modal haram dituliskan langsung di dalam atribut tag HTML mentah elemen view (Bebas penuh dari atribut mentah `onclick="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:

@@ -46,7 +46,7 @@ Setiap kali terjadi perubahan data dari elemen input tabel, server Laravel wajib
 
 - **Hukum Anti-Inline Attribute JavaScript**: Haram hukumnya menuliskan fungsi pemicu event perubahan, inisialisasi flatpickr, atau manipulasi status sakelar langsung di dalam tag atribut elemen HTML Blade view.
 
-- **Enkapsulasi Struktur Alpine.js (SFC Style)**: Seluruh penanganan logika penangkapan data (seperti mendeteksi perubahan nilai pada input jam buka/tutup dan modifikasi sakelar status aktif) wajib diisolasi penuh menggunakan pola standardisasi `document.addEventListener('alpine:init')` dan dijalankan melalui modul `Alpine.data()` di dalam tag `<script>` khusus pada bagian bawah berkas `.blade.php` yang sama.
+- **Enkapsulasi Struktur Alpine.js (Feature-Based Module)**: Seluruh penanganan logika penangkapan data (seperti mendeteksi perubahan nilai pada input jam buka/tutup dan modifikasi sakelar status aktif) wajib diisolasi penuh di dalam berkas JavaScript mandiri `resources/js/features/` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 
 - **Alur Simpan Otomatis Asinkronus (Auto-Save Context)**:
     - Kehilangan fokus input (_blur event_) pada kolom `Jam Buka` atau `Jam Tutup` akan langsung memicu pengiriman data payload ke server secara otomatis.

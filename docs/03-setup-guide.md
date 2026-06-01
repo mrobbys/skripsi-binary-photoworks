@@ -167,13 +167,22 @@ Struktur direktori `resources/` mengadopsi kombinasi modularitas _Component Co-l
 ```text
 resources/
  ├── js/
- │    ├── app.js                        # Default Laravel entry point (Compiled via Vite)
+ │    ├── app.js                        # Entry point utama: setup Alpine + Dynamic Page Loader
  │    ├── bootstrap.js                  # Default Laravel bootstrap layer
  │    │
  │    ├── lib/                          # KONFIGURASI CENTRAL THIRD-PARTY LIBRARIES
  │    │    ├── axios.js                 # Axios Instance + Interceptors Global (Zero 419/500 Error)
  │    │    ├── grid.js                  # Pengaturan tema, localization, & boilerplate Grid.js
  │    │    └── sweetalert.js            # Preset & Mixin bawaan notifikasi SweetAlert2
+ │    │
+ │    ├── features/                     # MODULAR JS BERBASIS FITUR (Vite Code-Splitting)
+ │    │    ├── auth/                    # Klaster JS Domain: Autentikasi
+ │    │    │    ├── login.js            # Logika & komponen Alpine halaman login
+ │    │    │    └── register.js         # Logika & komponen Alpine halaman register
+ │    │    ├── booking/                 # Klaster JS Domain: Reservasi
+ │    │    │    └── flow.js             # Logika multi-step form booking
+ │    │    └── dashboard/              # Klaster JS Domain: Dasbor
+ │    │         └── chart-widget.js    # Inisialisasi Chart.js widget analitik
  │    │
  │    └── utils/                        # KLASTER KODE HELPER GLOBAL (React Barrel Pattern)
  │         └── index.js                 # Export tunggal utilitas (formatRupiah, debounce, dll)
@@ -309,7 +318,8 @@ resources/
 ### A. Aturan Isolasi Berkas Berbasis Fitur (Domain Views Isolation)
 
 - Seluruh halaman utama diletakkan di dalam folder `views/domains/{fitur}/` untuk mencerminkan arsitektur domain backend secara 1-to-1.
-- Berkas view wajib ditulis menggunakan metode **Single File Component (SFC) Style**, di mana elemen HTML/Tailwind berada di atas, dan logika reaktif Alpine.js dibungkus rapi di dalam tag `<script>` khusus pada bagian paling bawah file yang sama.
+- Logika reaktif Alpine.js **dipisahkan ke dalam berkas JavaScript mandiri** di dalam folder `resources/js/features/{fitur}/{halaman}.js`, kemudian dimuat secara otomatis oleh *Dynamic Page Loader* di `app.js`. Logika Alpine sederhana (*stateless toggle*, dll) tetap diperbolehkan ditulis secara *inline* langsung pada atribut `x-data` di Blade.
+- Setiap berkas modul fitur wajib mengekspor fungsi `init(Alpine)` sebagai *entry point* standar yang menerima instance Alpine untuk registrasi komponen.
 
 ### B. Klaster Komponen Global (Shared UI Primitives)
 
@@ -367,5 +377,6 @@ FONNTE_TOKEN=
 ## 7. Absolute Engineering Constraints (Aturan Mutlak Front-End)
 
 - **ANTI INLINE HTML ATTRIBUTE SCRIPTS**: Haram hukumnya menuliskan baris kode eksekusi JavaScript langsung di dalam atribut tag elemen HTML Blade view (menghindari penggunaan atribut fungsional mentah seperti `onclick="..."` atau `onchange="..."`).
-- **FRONTEND LOGIC ENCAPSULATION (SFC STYLE)**: Logika reaktif komponen wajib dikemas rapi di dalam blok tag `<script>` khusus yang diletakkan di bagian paling bawah pada file `.blade.php` yang sama. Inisialisasi wajib menggunakan struktur standarisasi `document.addEventListener('alpine:init')` dan dipanggil via direktif `Alpine.data()`. Hal ini memangkas ketergantungan pendaftaran file asset baru di `vite.config.js`.
+- **FRONTEND LOGIC ENCAPSULATION (FEATURE-BASED MODULES)**: Logika reaktif komponen yang bersifat kompleks wajib dikemas ke dalam berkas JavaScript mandiri di dalam `resources/js/features/{fitur}/{halaman}.js`. Setiap berkas modul wajib mengekspor fungsi `init(Alpine)` sebagai standar *entry point*. Registrasi komponen Alpine (`Alpine.data()`) dilakukan di dalam fungsi ini sebelum `Alpine.start()` dipanggil oleh loader global di `app.js`. Lihat panduan lengkap di [docs/05-dynamic-loader.md](./05-dynamic-loader.md).
+- **PENGECUALIAN LOGIKA SEDERHANA**: Logika Alpine yang bersifat sangat sederhana dan tidak memiliki ketergantungan library eksternal (seperti `x-data="{ open: false }"`) diperbolehkan ditulis *inline* langsung di atribut HTML Blade untuk menjaga efisiensi.
 - **AJAX & AUTO-SAVE CONTEXT**: Operasi kirim data tanpa interupsi reload (seperti fitur auto-save pada pengaturan jam kerja operasional atau filter pencarian data master) wajib dieksekusi via Axios dengan kawalan fungsi _Debounce_ demi efisiensi performa server.
