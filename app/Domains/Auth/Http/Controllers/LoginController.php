@@ -7,11 +7,9 @@ use App\Domains\Auth\Services\AuthService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
-use Laravel\Socialite\Facades\Socialite;
 use App\Domains\Auth\Traits\RedirectsUsers;
 
 class LoginController extends Controller
@@ -56,46 +54,6 @@ class LoginController extends Controller
     return $this->redirectPath(Auth::user())->with('toast', [
       'type' => 'success',
       'title' => 'Login Berhasil',
-    ]);
-  }
-
-  public function redirectToGoogle(): RedirectResponse
-  {
-    return Socialite::driver('google')->redirect();
-  }
-
-  public function handleGoogleCallback(): RedirectResponse
-  {
-    try {
-      $googleUser = Socialite::driver('google')->user();
-    } catch (\Exception $e) {
-      return redirect()->route('login')->withErrors([
-        'email' => 'Gagal login dengan Google. Silahkan coba lagi.'
-      ]);
-    }
-
-    $user = $this->authService->loginWithGoogle($googleUser);
-    Auth::login($user);
-    request()->session()->regenerate();
-
-    return $this->redirectPath(Auth::user());
-  }
-
-  /**
-   * Function logout.
-   *
-   * Setelah logout, pengguna dikembalikan ke halaman login.
-   * @param Request $request
-   * @return RedirectResponse
-   */
-  public function destroy(Request $request): RedirectResponse
-  {
-    $this->authService->logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect()->route('login')->with('toast', [
-      'type' => 'success',
-      'title' => 'Logout Berhasil',
     ]);
   }
 }

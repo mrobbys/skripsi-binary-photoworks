@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Domains\Auth\Http\Controllers;
+
+use App\Domains\Auth\Services\AuthService;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
+use App\Domains\Auth\Traits\RedirectsUsers;
+
+class AuthGoogleController extends Controller
+{
+  use RedirectsUsers;
+
+  public function __construct(protected AuthService $authService) {}
+
+  /**
+   * Arahkan login ke Google OAuth
+   *
+   * @return RedirectResponse
+   */
+  public function redirectToGoogle(): RedirectResponse
+  {
+    return Socialite::driver('google')->redirect();
+  }
+
+  /**
+   * Handle google OAuth callback
+   *
+   * @return RedirectResponse
+   */
+  public function handleGoogleCallback(): RedirectResponse
+  {
+    try {
+      $googleUser = Socialite::driver('google')->user();
+    } catch (\Exception $e) {
+      return redirect()->route('login')->withErrors([
+        'email' => 'Gagal login dengan Google. Silahkan coba lagi.'
+      ]);
+    }
+
+    [$user, $isNewUser] = $this->authService->loginWithGoogle($googleUser);
+    Auth::login($user);
+    request()->session()->regenerate();
+
+    $newUserMessage = [
+      'type' => 'success',
+      'title' => 'Berhasil Daftar Akun!',
+    ];
+
+    $oldUserMessage = [
+      'type' => 'success',
+      'title' => 'Berhasil Login!',
+    ];
+
+    $message = $isNewUser ? $newUserMessage : $oldUserMessage;
+
+    return $this->redirectPath(Auth::user())->with('toast', $message);
+  }
+}

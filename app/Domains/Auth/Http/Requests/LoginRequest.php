@@ -31,17 +31,21 @@ class LoginRequest extends FormRequest
             'email' => [
                 'required',
                 'string',
-                'max:100',
-                'email:dns'
+                'max:255',
+                'email:rfc,dns'
             ],
             'password' => [
                 'required',
                 'string',
                 Password::min(8)
-                    ->max(100)
+                    ->max(255)
                     ->mixedCase()
                     ->numbers()
             ],
+            'remember' => [
+                'nullable',
+                'boolean'
+            ]
         ];
     }
 
@@ -52,10 +56,12 @@ class LoginRequest extends FormRequest
      */
     public function toDto(): LoginData
     {
+        $validated = $this->validated();
+
         return new LoginData(
-            email: $this->string('email')->trim(),
-            password: $this->string('password'),
-            remember: $this->boolean('remember')
+            email: trim($validated['email']),
+            password: $validated['password'],
+            remember: $validated['remember'] ?? false
         );
     }
 
@@ -96,15 +102,16 @@ class LoginRequest extends FormRequest
         return [
             'email.required' => 'Email harus diisi.',
             'email.string' => 'Email harus berupa string.',
-            'email.max' => 'Email tidak boleh lebih dari 100 karakter.',
+            'email.max' => 'Email tidak boleh lebih dari 255 karakter.',
             'email.email' => 'Format email tidak valid.',
+            'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
             'email.dns' => 'Domain email tidak valid.',
             'email.not_in' => 'Email tidak terdaftar.',
 
             'password.required' => 'Password harus diisi.',
             'password.string' => 'Password harus berupa string.',
             'password.min' => 'Password harus terdiri dari minimal 8 karakter.',
-            'password.max' => 'Password tidak boleh lebih dari 100 karakter.',
+            'password.max' => 'Password tidak boleh lebih dari 255 karakter.',
             'password.mixed' => 'Password harus mengandung huruf besar dan kecil.',
             'password.numbers' => 'Password harus mengandung angka.',
         ];

@@ -3,12 +3,14 @@
 namespace App\Domains\Auth\Services;
 
 use App\Domains\Auth\DTOs\LoginData;
+use App\Domains\Auth\DTOs\RegisterData;
 use App\Domains\Auth\Models\User;
 use App\Domains\Auth\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
+use App\Domains\Auth\Enums\RoleType;
 
 class AuthService
 {
@@ -37,9 +39,9 @@ class AuthService
    * Handle login dengan google
    * 
    * @param SocialiteUser $socialiteUser
-   * @return User
+   * @return array
    */
-  public function loginWithGoogle(SocialiteUser $socialiteUser): User
+  public function loginWithGoogle(SocialiteUser $socialiteUser): array
   {
     // cari user berdasarkan google id
     $user = $this->userRepository->findByGoogleId($socialiteUser->getId());
@@ -49,7 +51,7 @@ class AuthService
       $user->update([
         'google_token' => $socialiteUser->token,
       ]);
-      return $user;
+      return [$user, false];
     }
 
     // jika google id tidak ada, cari berdasarkan email
@@ -61,7 +63,7 @@ class AuthService
         'google_id' => $socialiteUser->getId(),
         'google_token' => $socialiteUser->token,
       ]);
-      return $user;
+      return [$user, false];
     }
 
     // jika belum terdaftar sama sekali, create user
@@ -73,9 +75,22 @@ class AuthService
       'google_id' => $socialiteUser->getId(),
       'google_token' => $socialiteUser->token,
     ]);
-    $newUser->assignRole('user');
+    $newUser->assignRole(RoleType::USER->value);
 
-    return $newUser;
+    return [$newUser, true];
+  }
+
+  public function register(RegisterData $registerData): User
+  {
+    $user = $this->userRepository->create([
+      'name' => $registerData->name,
+      'email' => $registerData->email,
+      'phone' => $registerData->phone,
+      'password' => Hash::make($registerData->password),
+    ]);
+    $user->assignRole(RoleType::USER->value);
+
+    return $user;
   }
 
   /**
