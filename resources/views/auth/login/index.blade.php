@@ -32,7 +32,7 @@
                 </button>
 
                 {{-- login dengan google --}}
-                <a href="{{ route('login.google') }}" class="bg-stone-400 text-stone-50 w-full py-3 px-4">
+                <a href="{{ route('auth.google') }}" class="bg-stone-400 text-stone-50 w-full py-3 px-4">
                     Login dengan Google
                 </a>
 
