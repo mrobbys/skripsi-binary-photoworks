@@ -24,9 +24,10 @@ class LogoutController extends Controller
     $this->authService->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
-    return redirect()->route('login')->with('toast', [
-      'type' => 'success',
-      'title' => 'Logout Berhasil',
-    ]);
+
+    return redirect()->route('login')
+      ->with('toast', $this->toast(
+        title: 'Logout Berhasil'
+      ));
   }
 }

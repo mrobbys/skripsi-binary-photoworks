@@ -44,18 +44,13 @@ class AuthGoogleController extends Controller
     Auth::login($user);
     request()->session()->regenerate();
 
-    $newUserMessage = [
-      'type' => 'success',
-      'title' => 'Berhasil Daftar Akun!',
-    ];
+    /**
+     * * jika user baru (isNewUser) message = Daftar Akun Berhasil! 
+     * * jika user lama (isNewUser) message = Login Berhasil!
+     */
+    $message = $isNewUser ? 'Daftar Akun Berhasil' : 'Login Berhasil!';
 
-    $oldUserMessage = [
-      'type' => 'success',
-      'title' => 'Berhasil Login!',
-    ];
-
-    $message = $isNewUser ? $newUserMessage : $oldUserMessage;
-
-    return $this->redirectPath(Auth::user())->with('toast', $message);
+    return $this->redirectPath(Auth::user())
+      ->with('toast', $this->toast($message));
   }
 }

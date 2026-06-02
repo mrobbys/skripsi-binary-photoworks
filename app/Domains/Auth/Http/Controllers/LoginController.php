@@ -51,9 +51,9 @@ class LoginController extends Controller
     RateLimiter::clear($request->throttleKey());
     $request->session()->regenerate();
 
-    return $this->redirectPath(Auth::user())->with('toast', [
-      'type' => 'success',
-      'title' => 'Login Berhasil',
-    ]);
+    return $this->redirectPath(Auth::user())
+      ->with('toast', $this->toast(
+        title: 'Login Berhasil'
+      ));
   }
 }
