@@ -23,10 +23,10 @@ class RegisterController extends Controller
 
     $this->authService->register($registerData);
 
-    return redirect()->route('login')->with('alert', [
-      'type' => 'success',
-      'title' => 'Daftar Akun Berhasil!',
-      'message' => 'Silahkan Login dengan akun anda.'
-    ]);
+    return redirect()->route('login')
+      ->with('alert', $this->alert(
+        title: 'Daftar Akun Berhasil!',
+        message: 'Silahkan Login dengan akun anda.'
+      ));
   }
 }
