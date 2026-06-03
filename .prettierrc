@@ -1,16 +1,27 @@
 {
     "semi": true,
     "singleQuote": true,
-    "tabWidth": 4,
+    "tabWidth": 2,
     "useTabs": false,
-    "trailingComma": "es5",
+    "trailingComma": "all",
     "printWidth": 120,
-    "plugins": ["@shufo/prettier-plugin-blade", "prettier-plugin-tailwindcss"],
+    "arrowParens": "always",
+    "endOfLine": "lf",
+    "plugins": [
+        "@shufo/prettier-plugin-blade",
+        "prettier-plugin-tailwindcss"
+    ],
     "overrides": [
         {
             "files": "*.blade.php",
             "options": {
-                "parser": "blade"
+                "parser": "blade",
+                "wrapAttributes": "force-expand-multiline",
+                "wrapLineLength": 120,
+                "endWithNewline": true,
+                "sortTailwindClasses": true,
+                "noStructureSort": true,
+                "noMultipleEmptyLines": true
             }
         }
     ]

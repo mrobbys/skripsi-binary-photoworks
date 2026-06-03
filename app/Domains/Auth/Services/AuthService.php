@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use App\Domains\Auth\Enums\RoleType;
+use App\Domains\Auth\DTOs\ForgotPasswordData;
+use App\Domains\Auth\DTOs\ResetPasswordData;
+use App\Jobs\SendResetPasswordEmailJob;
+use Illuminate\Support\Facades\Password;
 
 class AuthService
 {
@@ -80,6 +84,12 @@ class AuthService
     return [$newUser, true];
   }
 
+  /**
+   * Handle register dan menambahkan role user
+   * 
+   * @param RegisterData $registerData
+   * @return User
+   */
   public function register(RegisterData $registerData): User
   {
     $user = $this->userRepository->create([
@@ -91,6 +101,70 @@ class AuthService
     $user->assignRole(RoleType::USER->value);
 
     return $user;
+  }
+
+  /**
+   * Handle pengiriman link reset password
+   * 
+   * @param ForgotPasswordData $data
+   * @return string
+   */
+  public function sendResetPasswordLink(ForgotPasswordData $data): string
+  {
+    // cari user berdasarkan email
+    $user = $this->userRepository->findByEmail($data->email);
+
+    /**
+     * jika tidak ada, kembalikan pesan reset password link terkirim
+     * 
+     * tujuan: user tidak mengetahui email mana yang terdaftar
+     */
+    if (!$user) {
+      return Password::RESET_LINK_SENT;
+    }
+
+    // hapus token sebelumnya, lalu buat token yang baru
+    Password::deleteToken($user);
+    $token = Password::createToken($user);
+
+    // buat url untuk reset password
+    $resetUrl = url(route('reset.password.index', [
+      'token' => $token,
+      'email' => $user->email,
+    ], false));
+
+    // dispatch job untuk mengirim email reset password
+    SendResetPasswordEmailJob::dispatch(
+      email: $user->email,
+      userName: $user->name,
+      resetUrl: $resetUrl
+    );
+
+    // kirim link reset password
+    return Password::RESET_LINK_SENT;
+  }
+
+  /**
+   * Handle reset password
+   * 
+   * @param ResetPasswordData $data
+   * @return string
+   */
+  public function resetPassword(ResetPasswordData $data): string
+  {
+    return Password::reset(
+      [
+        'email' => $data->email,
+        'password' => $data->password,
+        'password_confirmation' => $data->password,
+        'token' => $data->token,
+      ],
+      function ($user, string $password) {
+        $user->forceFill([
+          'password' => Hash::make($password),
+        ])->save();
+      }
+    );
   }
 
   /**

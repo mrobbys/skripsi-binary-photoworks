@@ -23,9 +23,14 @@
                         </div>
                     @enderror
                 </div>
-                <div>
-                    <input type="checkbox" name="remember" id="remember">
-                    <label for="remember">Ingat saya</label>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <input type="checkbox" name="remember" id="remember">
+                        <label for="remember">Ingat saya</label>
+                    </div>
+                    <div>
+                        <a href="{{ route('forgot.password.index') }}">Lupa Password?</a>
+                    </div>
                 </div>
                 <button type="submit" class="bg-blue-500 text-stone-50 w-full py-3 px-4">
                     Login
