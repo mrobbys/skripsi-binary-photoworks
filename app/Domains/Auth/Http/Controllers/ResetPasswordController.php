@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Domains\Auth\Http\Controllers;
+
+use App\Domains\Auth\Http\Requests\ResetPasswordRequest;
+use App\Domains\Auth\Services\AuthService;
+use App\Http\Controllers\Controller;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Password;
+
+class ResetPasswordController extends Controller
+{
+    public function __construct(protected AuthService $authService) {}
+
+    /**
+     * Tampilkan halaman reset password
+     *
+     * Mengambil token dan email dari URL lalu mengirimkannya ke view
+     */
+    public function index(string $token): View
+    {
+        return view('auth.reset-password.index', [
+            'token' => $token,
+            'email' => request()->query('email', ''),
+        ]);
+    }
+
+    /**
+     * Handle submit form reset password
+     */
+    public function store(ResetPasswordRequest $request): RedirectResponse
+    {
+        $status = $this->authService->resetPassword($request->toDto());
+
+        if ($status === Password::PASSWORD_RESET) {
+            // hapus session forgot email
+            session()->forget('forgot_email');
+
+            // lalu pindah ke halaman login dan kirimkan pesan
+            return redirect()
+                ->route('login')
+                ->with(
+                    'toast',
+                    $this->toast(title: 'Password berhasil diperbarui! Silahkan login.')
+                );
+        }
+
+        return back()->withErrors([
+            'email' => __($status),
+        ]);
+    }
+}
