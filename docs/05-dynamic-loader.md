@@ -107,7 +107,69 @@ export { init };
 
 ---
 
-## 5. Panduan & Best Practices
+---
+
+## 5. Meneruskan Data dari Laravel (Blade) ke Alpine.js
+
+Untuk membagikan data dinamis dari Laravel (seperti status hak akses, rute URL dari helper `route()`, atau status session) ke dalam modul JavaScript Alpine.js secara aman tanpa bentrok memori, ikuti pola standard berikut:
+
+### A. Di File Blade Halaman
+Suntikkan data menggunakan direktif `@js` di dalam slot `<x-slot:heads>` (bukan slot scripts di bawah agar data dirender sebelum file `app.js` utama dijalankan):
+
+```html
+<x-layouts.auth title="Forgot Password" feature-name="auth" page-name="forgot-password">
+    <x-slot:heads>
+        <script>
+            window.pageConfig = @js([
+                'permissions' => [
+                    'canReset' => true,
+                ],
+                'routes' => [
+                    'submit' => route('forgot.password.email'),
+                ]
+            ]);
+        </script>
+    </x-slot:heads>
+
+    <x-slot:content>
+        <div x-data="forgotPasswordManager">
+            <!-- HTML Form -->
+        </div>
+    </x-slot:content>
+</x-layouts.auth>
+```
+
+### B. Di File Javascript (`resources/js/features/...`)
+Ambil data tersebut dari global window, lalu **segera hapus** variabel globalnya (`delete window.pageConfig`) agar tidak mengotori memori window browser dan tidak bentrok dengan halaman berikutnya:
+
+```javascript
+/**
+ * Logika halaman Forgot Password.
+ * @param {import('alpinejs').Alpine} Alpine
+ */
+const init = (Alpine) => {
+    // Ambil data dan segera bersihkan memori global
+    const config = window.pageConfig || {};
+    delete window.pageConfig;
+
+    Alpine.data('forgotPasswordManager', () => ({
+        config: config,
+        email: '',
+
+        async submit() {
+            // Mengakses data rute secara dinamis dari config
+            const url = this.config.routes.submit;
+            console.log('Mengirim ke:', url);
+        }
+    }));
+};
+
+export { init };
+```
+
+---
+
+## 6. Panduan & Best Practices
 
 1. **Gunakan `@if` atau `@include` Notifikasi Melalui Blade Component**:
    Untuk menampilkan notifikasi notifikasi flash Laravel (seperti SweetAlert/Toast), panggil komponen Blade pembantu di layout utama, contoh:

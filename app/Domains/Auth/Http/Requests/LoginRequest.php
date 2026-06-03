@@ -106,7 +106,6 @@ class LoginRequest extends FormRequest
             'email.email' => 'Format email tidak valid.',
             'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
             'email.dns' => 'Domain email tidak valid.',
-            'email.not_in' => 'Email tidak terdaftar.',
 
             'password.required' => 'Password harus diisi.',
             'password.string' => 'Password harus berupa string.',

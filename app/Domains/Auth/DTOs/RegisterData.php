@@ -7,9 +7,9 @@ use Spatie\LaravelData\Data;
 class RegisterData extends Data
 {
     public function __construct(
-        public string $name,
-        public string $email,
-        public string $password,
-        public string $phone,
+        public readonly string $name,
+        public readonly string $email,
+        public readonly string $password,
+        public readonly string $phone,
     ) {}
 }
