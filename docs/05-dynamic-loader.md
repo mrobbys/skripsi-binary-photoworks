@@ -2,11 +2,12 @@
 
 ## 1. Ikhtisar (Overview)
 
-Sistem aplikasi ini menggunakan mekanisme **Dynamic Module & Page Loader** asinkronus pada sisi klien (*client-side*). Logika JavaScript dimuat secara dinamis (*lazy load*) berdasarkan fitur dan halaman yang sedang aktif menggunakan Vite Code-Splitting.
+Sistem aplikasi ini menggunakan mekanisme **Dynamic Module & Page Loader** asinkronus pada sisi klien (_client-side_). Logika JavaScript dimuat secara dinamis (_lazy load_) berdasarkan fitur dan halaman yang sedang aktif menggunakan Vite Code-Splitting.
 
 Tujuan utama dari arsitektur ini adalah:
+
 - **Optimalisasi Performa (Code Splitting)**: Halaman hanya mengunduh berkas JavaScript yang benar-benar diperlukannya saja, sehingga ukuran berkas bundle awal (`app.js`) tetap ramping.
-- **Modularitas Berbasis Fitur**: Struktur folder JS dikelompokkan berdasarkan fungsionalitas bisnis (menyerupai arsitektur *Domain-Driven Design* di backend).
+- **Modularitas Berbasis Fitur**: Struktur folder JS dikelompokkan berdasarkan fungsionalitas bisnis (menyerupai arsitektur _Domain-Driven Design_ di backend).
 - **Inisialisasi Lifecycle Alpine.js yang Aman**: Memastikan seluruh registrasi komponen Alpine.js selesai dilakukan sebelum mesin Alpine berjalan (`Alpine.start()`).
 
 ---
@@ -16,6 +17,7 @@ Tujuan utama dari arsitektur ini adalah:
 Semua logika JS spesifik fitur disimpan di dalam folder `resources/js/features/` dengan pola penamaan: `resources/js/features/[fitur]/[halaman].js`.
 
 Berikut gambaran struktur direktorinya:
+
 ```text
 resources/js/
 ├── app.js                   # Entry point utama (Global Bundle)
@@ -37,41 +39,51 @@ resources/js/
 Mekanisme pemuatan berjalan melalui tiga komponen utama yang terhubung:
 
 ### A. Pengiriman Metadata dari Blade
-Layout utama Blade (`components/layouts/auth.blade.php` atau `components/layouts/app.blade.php`) mengirimkan data identitas fitur dan halaman melalui atribut `data-*` pada tag `<body>`:
+
+Layout utama Blade (`components/layouts/auth.blade.php` atau `components/layouts/frontdoor.blade.php`) mengirimkan data identitas modul melalui atribut `data-module` pada tag `<body>`:
+
 ```html
-<body data-feature="{{ $featureName ?? '' }}" data-page="{{ $pageName ?? '' }}">
+<body data-module="{{ $jsModule ?? '' }}"></body>
 ```
 
 Pada halaman spesifik (misal `auth/login/index.blade.php`), parameter tersebut dikirimkan ke komponen layout:
+
 ```html
-<x-layouts.auth title="Masuk" feature-name="auth" page-name="login">
+<x-layouts.auth title="Masuk" js-module="auth/login"></x-layouts.auth>
 ```
 
 ### B. Eksekusi Pemuatan Asinkronus di `resources/js/app.js`
-Di dalam file [app.js](file:///Users/robbys/WebProjects/Plojek_Laravel/skripsi-binary-photoworks/resources/js/app.js), fungsi `startApplication` membaca atribut dari tag `<body>` dan melakukan dynamic import:
+
+Di dalam file [app.js](file:///Users/robbys/WebProjects/Plojek_Laravel/skripsi-binary-photoworks/resources/js/app.js), fungsi `startApplication` membaca atribut `data-module` dari tag `<body>` dan melakukan dynamic import secara aman menggunakan `import.meta.glob`:
 
 ```javascript
 const startApplication = async () => {
-    const feature = document.body.dataset.feature;
-    const page = document.body.dataset.page;
+  // Ambil path modul dari data-module (misal: "auth/login")
+  const modulePath = document.body.dataset.module;
 
-    if (feature && page) {
-        try {
-            // Mengimpor modul JS secara dinamis saat runtime
-            const module = await import(`./features/${feature}/${page}.js`);
-            
-            // Menjalankan fungsi inisialisasi modul dan mengirim instance Alpine
-            if (module.init) {
-                module.init(Alpine);
-            }
-        } catch (err) {
-            // Mencegah crash jika file tidak ditemukan / gagal di-load
-            console.error(`Gagal memuat JS: features/${feature}/${page}.js`, err);
+  if (modulePath) {
+    try {
+      // Mendaftarkan semua file .js di dalam folder features secara rekursif
+      const modules = import.meta.glob('./features/**/*.js');
+      const key = `./features/${modulePath}.js`;
+
+      if (modules[key]) {
+        // Panggil loader function dari glob untuk import asinkronus
+        const module = await modules[key]();
+
+        if (module.init) {
+          module.init(Alpine);
         }
+      } else {
+        console.warn(`Modul JS tidak ditemukan untuk path: ${key}`);
+      }
+    } catch (err) {
+      console.error(`Gagal memuat JS untuk module: ${modulePath}`, err);
     }
+  }
 
-    // Menjalankan Alpine setelah modul selesai di-load dan teregistrasi
-    Alpine.start();
+  // Jalankan Alpine.js setelah semua registrasi komponen lokal selesai dilakukan
+  Alpine.start();
 };
 startApplication();
 ```
@@ -83,23 +95,24 @@ startApplication();
 Setiap modul halaman wajib mengekspor fungsi bernama `init` yang menerima parameter `Alpine`. Di dalam fungsi ini, Anda bebas meregistrasikan komponen Alpine, memanggil SweetAlert, atau memproses inisialisasi plugin lainnya.
 
 Contoh penulisan pada `resources/js/features/auth/login.js`:
+
 ```javascript
 /**
  * Inisialisasi logika halaman Login.
  * @param {import('alpinejs').Alpine} Alpine
  */
 const init = (Alpine) => {
-    // 1. Registrasi data komponen Alpine khusus untuk form login
-    Alpine.data('loginForm', () => ({
-        showPassword: false,
-        email: '',
+  // 1. Registrasi data komponen Alpine khusus untuk form login
+  Alpine.data('loginForm', () => ({
+    showPassword: false,
+    email: '',
 
-        togglePassword() {
-            this.showPassword = !this.showPassword;
-        }
-    }));
-    
-    console.log('Logika JS halaman login berhasil dimuat.');
+    togglePassword() {
+      this.showPassword = !this.showPassword;
+    },
+  }));
+
+  console.log('Logika JS halaman login berhasil dimuat.');
 };
 
 export { init };
@@ -114,32 +127,34 @@ export { init };
 Untuk membagikan data dinamis dari Laravel (seperti status hak akses, rute URL dari helper `route()`, atau status session) ke dalam modul JavaScript Alpine.js secara aman tanpa bentrok memori, ikuti pola standard berikut:
 
 ### A. Di File Blade Halaman
+
 Suntikkan data menggunakan direktif `@js` di dalam slot `<x-slot:heads>` (bukan slot scripts di bawah agar data dirender sebelum file `app.js` utama dijalankan):
 
 ```html
-<x-layouts.auth title="Forgot Password" feature-name="auth" page-name="forgot-password">
-    <x-slot:heads>
-        <script>
-            window.pageConfig = @js([
-                'permissions' => [
-                    'canReset' => true,
-                ],
-                'routes' => [
-                    'submit' => route('forgot.password.email'),
-                ]
-            ]);
-        </script>
-    </x-slot:heads>
+<x-layouts.auth title="Forgot Password" js-module="auth/forgot-password">
+  <x-slot:heads>
+    <script>
+      window.pageConfig = @js([
+          'permissions' => [
+              'canReset' => true,
+          ],
+          'routes' => [
+              'submit' => route('forgot.password.email'),
+          ]
+      ]);
+    </script>
+  </x-slot:heads>
 
-    <x-slot:content>
-        <div x-data="forgotPasswordManager">
-            <!-- HTML Form -->
-        </div>
-    </x-slot:content>
+  <x-slot:content>
+    <div x-data="forgotPasswordManager">
+      <!-- HTML Form -->
+    </div>
+  </x-slot:content>
 </x-layouts.auth>
 ```
 
 ### B. Di File Javascript (`resources/js/features/...`)
+
 Ambil data tersebut dari global window, lalu **segera hapus** variabel globalnya (`delete window.pageConfig`) agar tidak mengotori memori window browser dan tidak bentrok dengan halaman berikutnya:
 
 ```javascript
@@ -148,20 +163,20 @@ Ambil data tersebut dari global window, lalu **segera hapus** variabel globalnya
  * @param {import('alpinejs').Alpine} Alpine
  */
 const init = (Alpine) => {
-    // Ambil data dan segera bersihkan memori global
-    const config = window.pageConfig || {};
-    delete window.pageConfig;
+  // Ambil data dan segera bersihkan memori global
+  const config = window.pageConfig || {};
+  delete window.pageConfig;
 
-    Alpine.data('forgotPasswordManager', () => ({
-        config: config,
-        email: '',
+  Alpine.data('forgotPasswordManager', () => ({
+    config: config,
+    email: '',
 
-        async submit() {
-            // Mengakses data rute secara dinamis dari config
-            const url = this.config.routes.submit;
-            console.log('Mengirim ke:', url);
-        }
-    }));
+    async submit() {
+      // Mengakses data rute secara dinamis dari config
+      const url = this.config.routes.submit;
+      console.log('Mengirim ke:', url);
+    },
+  }));
 };
 
 export { init };

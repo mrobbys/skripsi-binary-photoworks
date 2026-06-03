@@ -26,27 +26,30 @@ window.Alpine = Alpine;
  * (Vite Code-Splitting) sebelum mesin Alpine.js dijalankan.
  */
 const startApplication = async () => {
-    // Mengambil metadata identitas fitur dan halaman dari data-attribute pada tag <body>
-    const feature = document.body.dataset.feature;
-    const page = document.body.dataset.page;
+  // Ambil path modul dari data-module (misal: "auth/login")
+  const modulePath = document.body.dataset.module;
 
-    if (feature && page) {
-        try {
-            // Melakukan dynamic import berkas JS halaman berdasarkan fitur yang aktif
-            const module = await import(`./features/${feature}/${page}.js`);
-            
-            // Jika modul memiliki fungsi init, jalankan dan kirimkan instance Alpine
-            if (module.init) {
-                module.init(Alpine);
-            }
-        } catch (err) {
-            // Tangkap dan catat error secara anggun jika berkas JS halaman tidak ditemukan atau rusak
-            console.error(`Gagal memuat JS: features/${feature}/${page}.js`, err);
+  if (modulePath) {
+    try {
+      // Mendaftarkan semua file .js di dalam folder features secara rekursif
+      const modules = import.meta.glob('./features/**/*.js');
+      const key = `./features/${modulePath}.js`;
+
+      if (modules[key]) {
+        // Panggil loader function dari glob untuk import asinkronus
+        const module = await modules[key]();
+
+        if (module.init) {
+          module.init(Alpine);
         }
+      } else {
+        console.warn(`Modul JS tidak ditemukan untuk path: ${key}`);
+      }
+    } catch (err) {
+      console.error(`Gagal memuat JS untuk module: ${modulePath}`, err);
     }
+  }
 
-    // Jalankan Alpine.js setelah semua registrasi komponen lokal selesai dilakukan
-    Alpine.start();
+  Alpine.start();
 };
 startApplication();
-
