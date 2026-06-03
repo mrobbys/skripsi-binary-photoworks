@@ -1,41 +1,77 @@
 {
-    "version": 1,
-    "skills": {
-        "laravel-specialist": {
-            "source": "jeffallan/claude-skills",
-            "sourceType": "github",
-            "skillPath": "skills/laravel-specialist/SKILL.md",
-            "computedHash": "d58e2ed3488398cb94a039f25b9d270e55dc434e16102abff9035608bec3db90"
-        },
-        "modern-javascript-patterns": {
-            "source": "wshobson/agents",
-            "sourceType": "github",
-            "skillPath": "plugins/javascript-typescript/skills/modern-javascript-patterns/SKILL.md",
-            "computedHash": "ef81ef5b5b70287b3962dd0fce50c90b27c636e940ec4e80f9a0b216587be549"
-        },
-        "php-pro": {
-            "source": "jeffallan/claude-skills",
-            "sourceType": "github",
-            "skillPath": "skills/php-pro/SKILL.md",
-            "computedHash": "c163f6d5d26ddbf4a4d79e8dc95d3b41e447f1659486cf0aae8c070d950a9d86"
-        },
-        "spatie-laravel-php": {
-            "source": "spatie/guidelines-skills",
-            "sourceType": "github",
-            "skillPath": "resources/boost/skills/spatie-laravel-php/SKILL.md",
-            "computedHash": "9c93332d7f84626db41dee9bf66534209250d99efd08295c8eac422e3a1af178"
-        },
-        "supabase-postgres-best-practices": {
-            "source": "supabase/agent-skills",
-            "sourceType": "github",
-            "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
-            "computedHash": "292c93e5a86e2429204bc37abe26b3c9023c4760eb02418462887f2082f118ce"
-        },
-        "tailwind-css-patterns": {
-            "source": "giuseppe-trisciuoglio/developer-kit",
-            "sourceType": "github",
-            "skillPath": "plugins/developer-kit-typescript/skills/tailwind-css-patterns/SKILL.md",
-            "computedHash": "6092620c3af955a46ea2b94ca8a40197ac8392e6bbdc8c7515659328b186c770"
-        }
+  "version": 1,
+  "skills": {
+    "eloquent-best-practices": {
+      "source": "iserter/laravel-claude-agents",
+      "sourceType": "github",
+      "skillPath": "skills/eloquent-best-practices/SKILL.md",
+      "computedHash": "370e1502efc9d179f5df7470a45a10302de81de9cf378641403e4ade9eb7d67f"
+    },
+    "git-commit": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/git-commit/SKILL.md",
+      "computedHash": "2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21"
+    },
+    "laravel-specialist": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-specialist/SKILL.md",
+      "computedHash": "d58e2ed3488398cb94a039f25b9d270e55dc434e16102abff9035608bec3db90"
+    },
+    "modern-javascript-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/modern-javascript-patterns/SKILL.md",
+      "computedHash": "ef81ef5b5b70287b3962dd0fce50c90b27c636e940ec4e80f9a0b216587be549"
+    },
+    "php-best-practices": {
+      "source": "asyrafhussin/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/php-best-practices/SKILL.md",
+      "computedHash": "1b25a60572ddd8b206eaf68b067cde70a9d002df572de8fefda703532cecfdad"
+    },
+    "php-pro": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/php-pro/SKILL.md",
+      "computedHash": "c163f6d5d26ddbf4a4d79e8dc95d3b41e447f1659486cf0aae8c070d950a9d86"
+    },
+    "spatie-laravel-php": {
+      "source": "spatie/guidelines-skills",
+      "sourceType": "github",
+      "skillPath": "resources/boost/skills/spatie-laravel-php/SKILL.md",
+      "computedHash": "9c93332d7f84626db41dee9bf66534209250d99efd08295c8eac422e3a1af178"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "292c93e5a86e2429204bc37abe26b3c9023c4760eb02418462887f2082f118ce"
+    },
+    "tailwind-css-patterns": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/tailwind-css-patterns/SKILL.md",
+      "computedHash": "6092620c3af955a46ea2b94ca8a40197ac8392e6bbdc8c7515659328b186c770"
+    },
+    "tailwindcss": {
+      "source": "hairyf/skills",
+      "sourceType": "github",
+      "skillPath": "skills/tailwindcss/SKILL.md",
+      "computedHash": "676d95536c3c4a64215535ff09128d6e8d5163eb3fc204ed2cfde61e87b5d892"
+    },
+    "tailwindcss-advanced-layouts": {
+      "source": "josiahsiegel/claude-plugin-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/tailwindcss-master/skills/tailwindcss-advanced-layouts/SKILL.md",
+      "computedHash": "159d8a8f9eb20136492a9971633fd8658be1e34d5f8dc3bcf1afe7bbb4511bdf"
+    },
+    "tailwindcss-animations": {
+      "source": "josiahsiegel/claude-plugin-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/tailwindcss-master/skills/tailwindcss-animations/SKILL.md",
+      "computedHash": "eff5b75d37872c9e20001ec9c168688f88f8faac969af4df4e250fb7c8a71628"
     }
+  }
 }
