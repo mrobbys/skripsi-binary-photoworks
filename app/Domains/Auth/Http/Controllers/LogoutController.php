@@ -2,7 +2,7 @@
 
 namespace App\Domains\Auth\Http\Controllers;
 
-use App\Domains\Auth\Services\AuthService;
+use App\Domains\Auth\Services\LoginService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class LogoutController extends Controller
 {
 
-  public function __construct(protected AuthService $authService) {}
+  public function __construct(protected LoginService $loginService) {}
 
   /**
    * Function logout.
@@ -21,7 +21,7 @@ class LogoutController extends Controller
    */
   public function destroy(Request $request): RedirectResponse
   {
-    $this->authService->logout();
+    $this->loginService->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 

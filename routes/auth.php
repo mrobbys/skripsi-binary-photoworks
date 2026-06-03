@@ -8,9 +8,6 @@ use App\Domains\Auth\Http\Controllers\RegisterController;
 use App\Domains\Auth\Http\Controllers\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 
-/**
- * TODO: jangan lupa diperbaiki untuk route dan middleware
- */
 
 Route::middleware('guest')->group(function () {
   // login routes
@@ -23,7 +20,7 @@ Route::middleware('guest')->group(function () {
   Route::get('register', [RegisterController::class, 'index'])
     ->name('register');
   Route::post('auth/register', [RegisterController::class, 'store'])
-    ->middleware('throttle: 5, 300')
+    ->middleware('throttle:5,300')
     ->name('register.store');
 
   // auth with google | socialite
@@ -36,7 +33,7 @@ Route::middleware('guest')->group(function () {
   Route::get('forgot-password', [ForgotPasswordController::class, 'index'])
     ->name('forgot.password.index');
   Route::post('auth/forgot-password', [ForgotPasswordController::class, 'store'])
-    ->middleware('throttle: 5, 300')
+    ->middleware('throttle:5,300')
     ->name('forgot.password.email');
 
   // halaman check email
@@ -45,14 +42,14 @@ Route::middleware('guest')->group(function () {
 
   // resend email link reset password
   Route::post('auth/forgot-password/resend', [ForgotPasswordController::class, 'resend'])
-    ->middleware('throttle: 5, 300')
+    ->middleware('throttle:5,300')
     ->name('forgot.password.resend');
 
   // reset password
   Route::get('reset-password/{token}', [ResetPasswordController::class, 'index'])
     ->name('reset.password.index');
   Route::post('auth/reset-password', [ResetPasswordController::class, 'store'])
-    ->middleware('throttle: 5, 300')
+    ->middleware('throttle:5,300')
     ->name('reset.password.store');
 });
 

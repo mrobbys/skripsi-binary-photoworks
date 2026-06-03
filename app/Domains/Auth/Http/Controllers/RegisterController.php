@@ -3,14 +3,14 @@
 namespace App\Domains\Auth\Http\Controllers;
 
 use App\Domains\Auth\Http\Requests\RegisterRequest;
-use App\Domains\Auth\Services\AuthService;
+use App\Domains\Auth\Services\RegisterService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class RegisterController extends Controller
 {
-  public function __construct(protected AuthService $authService) {}
+  public function __construct(protected RegisterService $registerService) {}
 
   public function index(): View
   {
@@ -21,7 +21,7 @@ class RegisterController extends Controller
   {
     $registerData = $request->toDto();
 
-    $this->authService->register($registerData);
+    $this->registerService->register($registerData);
 
     return redirect()->route('login')
       ->with('alert', $this->alert(

@@ -2,7 +2,7 @@
 
 namespace App\Domains\Auth\Http\Controllers;
 
-use App\Domains\Auth\Services\AuthService;
+use App\Domains\Auth\Services\GoogleAuthService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ class AuthGoogleController extends Controller
 {
   use RedirectsUsers;
 
-  public function __construct(protected AuthService $authService) {}
+  public function __construct(protected GoogleAuthService $googleAuthService) {}
 
   /**
    * Arahkan login ke Google OAuth
@@ -40,7 +40,7 @@ class AuthGoogleController extends Controller
       ]);
     }
 
-    [$user, $isNewUser] = $this->authService->loginWithGoogle($googleUser);
+    [$user, $isNewUser] = $this->googleAuthService->loginWithGoogle($googleUser);
     Auth::login($user);
     request()->session()->regenerate();
 

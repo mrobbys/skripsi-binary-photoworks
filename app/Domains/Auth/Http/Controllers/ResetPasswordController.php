@@ -3,7 +3,7 @@
 namespace App\Domains\Auth\Http\Controllers;
 
 use App\Domains\Auth\Http\Requests\ResetPasswordRequest;
-use App\Domains\Auth\Services\AuthService;
+use App\Domains\Auth\Services\PasswordResetService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Password;
 
 class ResetPasswordController extends Controller
 {
-    public function __construct(protected AuthService $authService) {}
+    public function __construct(protected PasswordResetService $passwordResetService) {}
 
     /**
      * Tampilkan halaman reset password
@@ -31,7 +31,7 @@ class ResetPasswordController extends Controller
      */
     public function store(ResetPasswordRequest $request): RedirectResponse
     {
-        $status = $this->authService->resetPassword($request->toDto());
+        $status = $this->passwordResetService->resetPassword($request->toDto());
 
         if ($status === Password::PASSWORD_RESET) {
             // hapus session forgot email

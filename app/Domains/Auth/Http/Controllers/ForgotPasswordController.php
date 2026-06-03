@@ -4,7 +4,7 @@ namespace App\Domains\Auth\Http\Controllers;
 
 use App\Domains\Auth\DTOs\ForgotPasswordData;
 use App\Domains\Auth\Http\Requests\ForgotPasswordRequest;
-use App\Domains\Auth\Services\AuthService;
+use App\Domains\Auth\Services\PasswordResetService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
 {
-  public function __construct(protected AuthService $authService) {}
+  public function __construct(protected PasswordResetService $passwordResetService) {}
 
   /**
    * Tampilkan halaman forgot password
@@ -31,7 +31,7 @@ class ForgotPasswordController extends Controller
    */
   public function store(ForgotPasswordRequest $request): RedirectResponse
   {
-    $status = $this->authService->sendResetPasswordLink(
+    $status = $this->passwordResetService->sendResetPasswordLink(
       $request->toDto()
     );
 
@@ -79,7 +79,7 @@ class ForgotPasswordController extends Controller
     }
 
     // kirim ulang link reset password
-    $this->authService->sendResetPasswordLink(new ForgotPasswordData($email));
+    $this->passwordResetService->sendResetPasswordLink(new ForgotPasswordData($email));
 
     return back()->with(
       'toast',
