@@ -44,7 +44,7 @@ class ForgotPasswordController extends Controller
     }
 
     return back()->withErrors([
-      'email' => $status
+      'email' => __($status)
     ]);
   }
 
