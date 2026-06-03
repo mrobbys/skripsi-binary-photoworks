@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
+    /**
+     * Helper notifikasi dengan toast
+     */
     protected function toast(
         string $type = 'success',
         string $title = ''
@@ -14,6 +17,9 @@ abstract class Controller
         ];
     }
 
+    /**
+     * Helper notifikasi dengan alert
+     */
     protected function alert(
         string $type = 'success',
         string $title = '',

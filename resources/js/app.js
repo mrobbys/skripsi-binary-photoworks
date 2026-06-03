@@ -6,6 +6,9 @@ import mask from '@alpinejs/mask';
 import persist from '@alpinejs/persist';
 import Swal from 'sweetalert2';
 import { Toast } from './lib/sweetalert';
+import axios from 'axios';
+
+window.axios = axios;
 
 window.Swal = Swal;
 window.Toast = Toast;

@@ -51,6 +51,6 @@ class AuthGoogleController extends Controller
     $message = $isNewUser ? 'Daftar Akun Berhasil' : 'Login Berhasil!';
 
     return $this->redirectPath(Auth::user())
-      ->with('toast', $this->toast($message));
+      ->with('toast', $this->toast(title: $message));
   }
 }
