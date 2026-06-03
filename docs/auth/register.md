@@ -69,8 +69,10 @@ Sebelum data disimpan ke database Supabase, server akan melakukan pemeriksaan ke
 
 Setelah proses pembuatan baris data user baru di database dinyatakan sukses:
 
-1. Sistem secara otomatis langsung mengaktifkan status masuk (_auto-login session_) bagi user tersebut.
-2. Sistem mengalihkan pengguna secara instan menuju halaman dasbor utama klien di rute: `/dashboard`.
+1. Sistem menampilkan notifikasi sukses berisi pesan _"Daftar Akun Berhasil! Silahkan Login dengan akun anda."_
+2. Sistem mengalihkan pengguna ke halaman **Login** (`/login`) agar user memasukkan kredensial akun yang baru saja didaftarkan secara manual.
+
+> **Catatan Revisi:** Alur ini sengaja tidak menggunakan _auto-login_ pasca registrasi. User diwajibkan untuk login secara eksplisit demi menjaga kejelasan alur autentikasi.
 
 ---
 
