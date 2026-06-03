@@ -23,10 +23,14 @@ Gunakan kode DBML di bawah ini untuk melakukan pemetaan ulang atau visualisasi E
 
 Table users {
   id bigint [primary key, increment]
+  uuid uuid [unique]           // digunakan untuk URL admin (anti-enumeration)
+  google_id varchar [null, unique]
+  google_token text [null]
   name varchar
   email varchar [unique]
   password varchar
-  phone varchar
+  phone varchar(15) [null, unique]
+  remember_token varchar [null]
   created_at timestamp
   updated_at timestamp
 }
@@ -102,7 +106,7 @@ Table activity_log {
 
 Table categories {
   id bigint [primary key, increment]
-  category_code string [unique]
+  category_code char(3) [unique]  // 3 huruf kapital, diisi manual admin, digunakan pada formula booking code
   name varchar
   slug varchar [unique]
   is_active boolean [default: true]
@@ -134,7 +138,7 @@ Table package_variants {
 
 Table schedules {
   id bigint [primary key, increment]
-  day int
+  day int                        // representasi ISO 8601: Senin=1, Selasa=2, ..., Minggu=7 (sesuai Carbon::dayOfWeekIso)
   start_time time
   end_time time
   is_active boolean [default: true]
@@ -144,11 +148,15 @@ Table schedules {
 
 Table features {
   id bigint [primary key, increment]
-  description varchar
-  featureable_type varchar
+  description text               // text (bukan varchar) untuk mengakomodasi deskripsi panjang
+  featureable_type varchar       // polimorfik — 'App\\Domains\\Package\\Models\\Package' atau 'PackageVariant'
   featureable_id bigint
   created_at timestamp
   updated_at timestamp
+
+  Indexes {
+    (featureable_type, featureable_id)  // composite index untuk performa query polimorfik
+  }
 }
 
 Table backgrounds {
