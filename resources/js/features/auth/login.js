@@ -1,4 +1,3 @@
-console.log('Login.js loaded');
 /**
  * Logika interaktif halaman Login.
  *
