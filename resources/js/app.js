@@ -24,29 +24,44 @@ window.Alpine = Alpine;
 /**
  * Menginisialisasi aplikasi dengan memuat modul JavaScript spesifik fitur/halaman secara asinkron
  * (Vite Code-Splitting) sebelum mesin Alpine.js dijalankan.
+ *
+ * Mendukung dua pola penulisan modul:
+ * - Pola baru (React-style): `export default function ComponentName(Alpine) { ... }`
+ *   → Komponen otomatis didaftarkan ke Alpine.data() menggunakan nama file sebagai key.
+ * - Pola lama (fallback): `export { init }` → module.init(Alpine) dipanggil langsung.
  */
 const startApplication = async () => {
-  // Ambil path modul dari data-module (misal: "auth/login")
-  const modulePath = document.body.dataset.module;
+  const modulePathsString = document.body.dataset.module;
 
-  if (modulePath) {
+  if (modulePathsString) {
+    // Memisah modul berdasarkan koma (misal: "auth/Login,auth/Register" -> ["auth/Login", "auth/Register"])
+    const modulePaths = modulePathsString.split(',').map(path => path.trim()).filter(Boolean);
+
     try {
-      // Mendaftarkan semua file .js di dalam folder features secara rekursif
       const modules = import.meta.glob('./features/**/*.js');
-      const key = `./features/${modulePath}.js`;
 
-      if (modules[key]) {
-        // Panggil loader function dari glob untuk import asinkronus
-        const module = await modules[key]();
+      for (const modulePath of modulePaths) {
+        const key = `./features/${modulePath}.js`;
 
-        if (module.init) {
-          module.init(Alpine);
+        if (modules[key]) {
+          const module = await modules[key]();
+
+          // Pola baru: export default function → auto-register Alpine.data()
+          // Nama komponen diambil otomatis dari nama file (tanpa ekstensi .js)
+          if (module.default) {
+            const componentName = key.split('/').pop().replace('.js', '');
+            Alpine.data(componentName, () => module.default(Alpine));
+          }
+          // Fallback: pola lama export { init } tetap didukung
+          else if (module.init) {
+            module.init(Alpine);
+          }
+        } else {
+          console.warn(`Modul JS tidak ditemukan untuk path: ${key}`);
         }
-      } else {
-        console.warn(`Modul JS tidak ditemukan untuk path: ${key}`);
       }
     } catch (err) {
-      console.error(`Gagal memuat JS untuk module: ${modulePath}`, err);
+      console.error(`Gagal memuat JS untuk modules: ${modulePathsString}`, err);
     }
   }
 
