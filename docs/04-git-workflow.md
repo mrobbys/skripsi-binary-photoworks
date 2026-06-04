@@ -83,3 +83,31 @@ git checkout main
 git merge development --no-ff -m "release: deploy stable version to vps server"
 git push origin main
 ```
+
+---
+
+## 4. Penanganan Kasus Sensitivitas Huruf (Case-Sensitivity) pada Nama File/Folder
+
+Sistem operasi lokal seperti **macOS** dan **Windows** secara bawaan menggunakan sistem berkas yang **tidak sensitif terhadap kapitalisasi** (*case-insensitive*), sedangkan repositori **GitHub** dan server **VPS (Linux)** bersifat **sensitivitas tinggi** (*case-sensitive*).
+
+Hal ini sering menyebabkan masalah ketika kita mengganti nama file dari huruf kecil ke huruf besar (misal: `login.js` -> `Login.js`). Git di lingkungan lokal tidak akan mendeteksi perubahan tersebut secara otomatis.
+
+### Protokol Mengubah Kapitalisasi Nama File / Folder
+
+Jika Anda perlu mengubah kapitalisasi nama file atau folder yang sudah terlanjur direkam oleh Git, **jangan hanya mengubah namanya langsung di sidebar editor (VS Code) atau Finder/Explorer**. Gunakan terminal untuk memindahkan file tersebut melalui Git secara langsung:
+
+```bash
+# Struktur: git mv <path/ke/file-lama-lowercase> <path/ke/file-baru-capitalized>
+git mv resources/js/features/auth/login.js resources/js/features/auth/Login.js
+```
+
+Setelah perintah di atas dijalankan:
+1. Git akan langsung merekam perubahan kapitalisasi tersebut ke dalam *staging area* (`Changes to be committed`).
+2. Lakukan komit dan dorong (*push*) perubahan tersebut seperti biasa:
+   ```bash
+   git commit -m "fix(git): rename login.js to Login.js for case-sensitive filesystems"
+   git push origin development
+   ```
+
+> [!WARNING]
+> Menghindari penggunaan perintah `git config core.ignorecase false` pada macOS/Windows, karena opsi tersebut dapat merusak pelacakan indeks Git lokal Anda dan memicu konflik berkas (*file duplication/conflicts*). Selalu gunakan perintah `git mv` sebagai solusi paling aman.
