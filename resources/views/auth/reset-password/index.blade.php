@@ -1,4 +1,4 @@
-<x-layouts.auth title="Perbarui Kata Sandi">
+<x-layouts.auth.index title="Perbarui Kata Sandi">
     <x-slot:content>
         <div>
             <h1 class="text-center my-4 text-xl font-semibold">Perbarui Kata Sandi</h1>

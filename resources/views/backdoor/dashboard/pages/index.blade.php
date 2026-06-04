@@ -1,4 +1,4 @@
-<x-layouts.backdoor>
+<x-layouts.backdoor.index title="Dashboard">
     <x-slot:content>
         @auth
             <form method="POST" action="{{ route('logout') }}">

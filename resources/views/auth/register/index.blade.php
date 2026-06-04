@@ -1,4 +1,4 @@
-<x-layouts.auth title='Masuk'>
+<x-layouts.auth.index title='Daftar'>
     <x-slot:content>
         <div>
             <h1 class="text-center my-4 text-xl font-semibold">Form Register</h1>

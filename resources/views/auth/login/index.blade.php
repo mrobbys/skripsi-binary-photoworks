@@ -1,4 +1,4 @@
-<x-layouts.auth
+<x-layouts.auth.index
   title='Masuk'
   js-module='auth/Login'
 >
