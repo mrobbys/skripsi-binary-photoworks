@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Domains\Auth\Http\Controllers;
+namespace App\Domains\User\Http\Controllers;
 
-use App\Domains\Auth\Services\GoogleAuthService;
+use App\Domains\User\Services\GoogleAuthService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
-use App\Domains\Auth\Traits\RedirectsUsers;
+use App\Domains\User\Traits\RedirectsUsers;
 
 class AuthGoogleController extends Controller
 {

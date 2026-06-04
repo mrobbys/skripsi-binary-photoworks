@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Auth\Models;
+namespace App\Domains\User\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Passwords\CanResetPassword;

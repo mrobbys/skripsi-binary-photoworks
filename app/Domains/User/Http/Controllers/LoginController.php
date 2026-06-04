@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Domains\Auth\Http\Controllers;
+namespace App\Domains\User\Http\Controllers;
 
-use App\Domains\Auth\Http\Requests\LoginRequest;
-use App\Domains\Auth\Services\LoginService;
 use App\Http\Controllers\Controller;
+use App\Domains\User\Http\Requests\LoginRequest;
+use App\Domains\User\Services\LoginService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
-use App\Domains\Auth\Traits\RedirectsUsers;
+use App\Domains\User\Traits\RedirectsUsers;
 
 class LoginController extends Controller
 {

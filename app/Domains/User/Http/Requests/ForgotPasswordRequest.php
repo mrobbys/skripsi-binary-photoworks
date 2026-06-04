@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domains\Auth\Http\Requests;
+namespace App\Domains\User\Http\Requests;
 
-use App\Domains\Auth\DTOs\ForgotPasswordData;
+use App\Domains\User\DTOs\ForgotPasswordData;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;

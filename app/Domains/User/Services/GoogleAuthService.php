@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Domains\Auth\Services;
+namespace App\Domains\User\Services;
 
-use App\Domains\Auth\Repositories\UserRepository;
+use App\Domains\User\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Illuminate\Support\Str;
-use App\Domains\Auth\Enums\RoleType;
+use App\Domains\User\Enums\RoleType;
 
 class GoogleAuthService
 {

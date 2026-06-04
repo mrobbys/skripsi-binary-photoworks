@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domains\Auth\Services;
+namespace App\Domains\User\Services;
 
-use App\Domains\Auth\DTOs\LoginData;
+use App\Domains\User\DTOs\LoginData;
 use Illuminate\Support\Facades\Auth;
 
 class LoginService

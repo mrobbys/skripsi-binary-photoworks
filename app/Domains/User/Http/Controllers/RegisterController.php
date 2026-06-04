@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domains\Auth\Http\Controllers;
+namespace App\Domains\User\Http\Controllers;
 
-use App\Domains\Auth\Http\Requests\RegisterRequest;
-use App\Domains\Auth\Services\RegisterService;
+use App\Domains\User\Http\Requests\RegisterRequest;
+use App\Domains\User\Services\RegisterService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

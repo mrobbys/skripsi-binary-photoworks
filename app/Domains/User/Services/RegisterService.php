@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domains\Auth\Services;
+namespace App\Domains\User\Services;
 
-use App\Domains\Auth\DTOs\RegisterData;
-use App\Domains\Auth\Enums\RoleType;
-use App\Domains\Auth\Models\User;
-use App\Domains\Auth\Repositories\UserRepository;
+use App\Domains\User\DTOs\RegisterData;
+use App\Domains\User\Enums\RoleType;
+use App\Domains\User\Models\User;
+use App\Domains\User\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
 class RegisterService

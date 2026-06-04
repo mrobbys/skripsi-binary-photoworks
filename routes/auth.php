@@ -1,11 +1,11 @@
 <?php
 
-use App\Domains\Auth\Http\Controllers\AuthGoogleController;
-use App\Domains\Auth\Http\Controllers\ForgotPasswordController;
-use App\Domains\Auth\Http\Controllers\LoginController;
-use App\Domains\Auth\Http\Controllers\LogoutController;
-use App\Domains\Auth\Http\Controllers\RegisterController;
-use App\Domains\Auth\Http\Controllers\ResetPasswordController;
+use App\Domains\User\Http\Controllers\AuthGoogleController;
+use App\Domains\User\Http\Controllers\ForgotPasswordController;
+use App\Domains\User\Http\Controllers\LoginController;
+use App\Domains\User\Http\Controllers\LogoutController;
+use App\Domains\User\Http\Controllers\RegisterController;
+use App\Domains\User\Http\Controllers\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 
 

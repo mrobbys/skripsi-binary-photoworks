@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Domains\Auth\Models\User;
+use App\Domains\User\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Domains\Auth\Enums\RoleType;
+use App\Domains\User\Enums\RoleType;
 
 class DatabaseSeeder extends Seeder
 {

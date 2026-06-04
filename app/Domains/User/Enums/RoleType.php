@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Auth\Enums;
+namespace App\Domains\User\Enums;
 
 enum RoleType: string
 {

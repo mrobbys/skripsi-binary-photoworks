@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domains\Auth\Http\Controllers;
+namespace App\Domains\User\Http\Controllers;
 
-use App\Domains\Auth\Http\Requests\ResetPasswordRequest;
-use App\Domains\Auth\Services\PasswordResetService;
+use App\Domains\User\Http\Requests\ResetPasswordRequest;
+use App\Domains\User\Services\PasswordResetService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Domains\Auth\Http\Requests;
+namespace App\Domains\User\Http\Requests;
 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
-use App\Domains\Auth\DTOs\LoginData;
+use App\Domains\User\DTOs\LoginData;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest

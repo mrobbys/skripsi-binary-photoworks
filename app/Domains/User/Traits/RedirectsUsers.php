@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domains\Auth\Traits;
+namespace App\Domains\User\Traits;
 
-use App\Domains\Auth\Models\User;
+use App\Domains\User\Models\User;
 use Illuminate\Http\RedirectResponse;
-use App\Domains\Auth\Enums\RoleType;
+use App\Domains\User\Enums\RoleType;
 
 trait RedirectsUsers
 {

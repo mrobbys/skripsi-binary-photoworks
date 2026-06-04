@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domains\Auth\Http\Requests;
+namespace App\Domains\User\Http\Requests;
 
-use App\Domains\Auth\DTOs\ResetPasswordData;
+use App\Domains\User\DTOs\ResetPasswordData;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;

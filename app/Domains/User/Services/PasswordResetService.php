@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domains\Auth\Services;
+namespace App\Domains\User\Services;
 
-use App\Domains\Auth\Repositories\UserRepository;
+use App\Domains\User\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
-use App\Domains\Auth\DTOs\ForgotPasswordData;
-use App\Domains\Auth\DTOs\ResetPasswordData;
+use App\Domains\User\DTOs\ForgotPasswordData;
+use App\Domains\User\DTOs\ResetPasswordData;
 use App\Jobs\SendResetPasswordEmailJob;
 use Illuminate\Support\Facades\Password;
 
