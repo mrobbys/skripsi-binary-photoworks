@@ -5,13 +5,14 @@ import intersect from '@alpinejs/intersect';
 import mask from '@alpinejs/mask';
 import persist from '@alpinejs/persist';
 import Swal from 'sweetalert2';
-import { Toast } from './lib/sweetalert';
+import { Toast, Modal } from './lib/sweetalert';
 import axios from 'axios';
 import 'remixicon/fonts/remixicon.css';
 
 window.axios = axios;
 
 window.Swal = Swal;
+window.Modal = Modal;
 window.Toast = Toast;
 
 Alpine.plugin(collapse);
