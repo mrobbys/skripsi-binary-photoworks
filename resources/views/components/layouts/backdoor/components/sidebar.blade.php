@@ -18,4 +18,8 @@
   {{-- sidebar brand end --}}
 
   {{ $slot ?? '' }}
+
+  {{-- sidebar profile start --}}
+  <x-layouts.backdoor.components.sidebar-profile />
+  {{-- sidebar profile end --}}
 </aside>

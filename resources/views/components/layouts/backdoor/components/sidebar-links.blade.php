@@ -6,8 +6,8 @@
 --}}
 
 {{-- sidebar links start --}}
-<nav aria-label="Navigasi Menu Utama">
-  <ul class="flex flex-col gap-2 overflow-y-auto pb-6">
+<nav x-cloak aria-label="Navigasi Menu Utama" class="flex-1 overflow-y-auto min-h-0">
+  <ul class="flex flex-col gap-2 pb-6">
 
     {{-- dashboard start --}}
     <x-layouts.backdoor.components.sidebar-link-item
