@@ -1,19 +1,26 @@
 @import 'tailwindcss';
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
 @theme {
-    --font-sans: 'Figtree', var(--font-sans);
+  --font-sans: 'Inter', var(--font-sans);
+  --font-heading: 'Libre Baskerville', serif;
 }
-
-/* bg-color bg-stone-50 */
-:root {
-    --bg-color: #fafaf9;
-}
-
 
 @plugin '@tailwindcss/forms';
 
 body {
-    background-color: var(--bg-color);
-    -webkit-font-smoothing: subpixel-antialiased;
-    -moz-osx-font-smoothing: auto;
+  @apply bg-stone-50;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
 }
