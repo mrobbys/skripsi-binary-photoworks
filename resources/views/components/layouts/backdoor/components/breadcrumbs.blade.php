@@ -5,10 +5,12 @@
    * Props:
       * `items` : array
         Array berisi daftar navigasi breadcrumb. Contoh format:
-        [
+        @ php
+        $breadcrumbs = [
             ['label' => 'Dashboard', 'url' => '/dashboard'],
             ['label' => 'Marketing', 'url' => ''], // Item terakhir (aktif) tidak akan di-render sebagai link
-        ]
+        ];
+        @ endphp
 --}}
 
 @props([
@@ -17,7 +19,7 @@
 
 @if (!empty($items))
   <nav
-    class="hidden md:inline-block text-sm font-medium text-neutral-600"
+    class="hidden md:inline-block text-sm font-medium text-stone-600"
     aria-label="Breadcrumb"
   >
     <ol class="flex flex-wrap items-center gap-1">
@@ -32,7 +34,7 @@
           <li class="flex items-center gap-1">
             <a
               href="{{ $item['url'] ?? '#' }}"
-              class="hover:text-neutral-900 focus-visible:outline focus-visible:outline-neutral-950"
+              class="hover:text-stone-900 focus-visible:outline focus-visible:outline-stone-950"
             >
               {{ $item['label'] ?? '' }}
             </a>
@@ -55,7 +57,7 @@
           {{-- jika item terakhir, maka tampilkan list saja --}}
         @else
           <li
-            class="flex items-center gap-1 font-bold text-neutral-900"
+            class="flex items-center gap-1 font-bold text-stone-900"
             aria-current="page"
           >
             {{ $item['label'] ?? '' }}

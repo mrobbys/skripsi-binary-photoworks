@@ -11,19 +11,25 @@
 
     {{-- dashboard start --}}
     <x-layouts.backdoor.components.sidebar-link-item
-      href="{{ route('backdoor.dashboard') }}"
+      :href="route('backdoor.dashboard')"
       icon='ri-dashboard-line'
       title='Dashboard'
     />
     {{-- dashboard end --}}
 
     {{-- data master start --}}
-    <x-layouts.backdoor.components.sidebar-link-item
-      href="#"
-      icon='ri-database-2-line'
+    <x-layouts.backdoor.components.sidebar-collapse-item
       title='Data Master'
-    />
+      icon='ri-database-2-line'
+      :active="request()->is('backdoor/data-master/*')"
+    >
+      <x-layouts.backdoor.components.sidebar-collapse-link
+        :href="route('backdoor.data-master.category')"
+        title='Kategori Foto'
+      />
+    </x-layouts.backdoor.components.sidebar-collapse-item>
     {{-- data master end --}}
+
   </ul>
 </nav>
 {{-- sidebar links end --}}

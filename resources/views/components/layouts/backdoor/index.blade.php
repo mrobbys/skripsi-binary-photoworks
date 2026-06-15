@@ -8,7 +8,9 @@
         Judul halaman yang akan ditampilkan di title tag
       * `jsModule` : string
         Nama module javascript yang akan digunakan
-
+      * `breadcrumbs` : array
+        Array berisi daftar navigasi breadcrumb
+      
   * Slot :
       * `content` : untuk menampilkan konten
       * `heads`   : untuk menambahkan isi head tambahan
@@ -29,7 +31,7 @@
 
 <head>
   {{-- meta tag dan favicon --}}
-  <x-layouts.shared.head title="{{ $title ?? '' }}" />
+  <x-layouts.shared.head :title="$title ?? ''" />
 
   {{-- isi head tambahan --}}
   {{ $heads ?? '' }}

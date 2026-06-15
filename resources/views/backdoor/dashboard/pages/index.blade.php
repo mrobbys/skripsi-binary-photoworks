@@ -1,4 +1,11 @@
-<x-layouts.backdoor.index title="Dashboard">
+@php
+$breadcrumbs = [
+    ['label' => 'Dashboard', 'url' => '#'],
+];
+@endphp
+
+
+<x-layouts.backdoor.index title="Dashboard" :breadcrumbs="$breadcrumbs">
     <x-slot:content>
         @auth
             <form method="POST" action="{{ route('logout') }}">
@@ -8,4 +15,4 @@
         @endauth
     </x-slot:content>
 
-</x-layouts.backdoor>
+</x-layouts.backdoor.index>

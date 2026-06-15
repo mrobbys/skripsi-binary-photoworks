@@ -27,7 +27,7 @@
 <html lang="id">
 
 <head>
-  <x-layouts.shared.head title="{{ $title ?? '' }}" />
+  <x-layouts.shared.head :title="$title ?? ''" />
   {{ $heads ?? '' }}
 </head>
 

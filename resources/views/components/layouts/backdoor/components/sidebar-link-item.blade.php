@@ -12,17 +12,22 @@
 --}}
 
 @props([
-    'href' => '#',
-    'icon' => 'ri-dashboard-line',
-    'title' => 'Dashboard',
+    "href" => "#",
+    "icon" => "ri-dashboard-line",
+    "title" => "Dashboard",
 ])
+
+@php
+  $isActive = request()->url() === url($href);
+@endphp
 
 <li>
   <a
     href="{{ $href }}"
-    class="flex items-center rounded-sm gap-2 px-2 py-1.5 text-sm font-medium text-stone-50 underline-offset-2 hover:bg-stone-500"
+    class="flex items-center gap-2 px-2 py-1.5 text-sm font-medium
+  text-stone-50 underline-offset-2 border-l-2 transition-all {{ $isActive ? "bg-stone-600 border-stone-50" : "border-transparent hover:bg-stone-500" }}"
   >
     <i class="{{ $icon }} text-3xl"></i>
-    <span class="uppercase font-semibold">{{ $title }}</span>
+    <span class="uppercase font-medium">{{ $title }}</span>
   </a>
 </li>

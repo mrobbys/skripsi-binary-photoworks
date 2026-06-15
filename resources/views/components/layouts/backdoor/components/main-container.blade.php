@@ -3,6 +3,6 @@
    * Wadah kolom kanan untuk topbar header dan konten utama
 --}}
 
-<div class="h-svh w-full overflow-y-auto">
+<div class="h-dvh w-full overflow-y-auto">
   {{ $slot }}
 </div>
