@@ -2,13 +2,8 @@
 <html lang="id">
 
 <head>
-  <x-layouts.components.head />
-  <title>
-    @isset($title)
-      {{ $title }} |
-    @endisset
-    {{ config('app.name', 'Laravel') }}
-  </title>
+  <x-layouts.shared.head title="{{ $title ?? '' }}" />
+  
   {{ $heads ?? '' }}
 </head>
 

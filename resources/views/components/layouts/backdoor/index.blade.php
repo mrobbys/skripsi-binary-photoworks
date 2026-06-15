@@ -29,7 +29,7 @@
 
 <head>
   {{-- meta tag dan favicon --}}
-  <x-layouts.components.head title="{{ $title ?? '' }}" />
+  <x-layouts.shared.head title="{{ $title ?? '' }}" />
 
   {{-- isi head tambahan --}}
   {{ $heads ?? '' }}
@@ -55,9 +55,9 @@
     {{-- sidebar container start --}}
     <x-layouts.backdoor.components.sidebar>
 
-      <x-layouts.backdoor.components.sidebar-links>
-        <x-layouts.backdoor.components.sidebar-link-item />
-      </x-layouts.backdoor.components.sidebar-links>
+      {{-- sidebar links start --}}
+      <x-layouts.backdoor.components.sidebar-links />
+      {{-- sidebar links end --}}
     </x-layouts.backdoor.components.sidebar>
     {{-- sidebar container end --}}
 
