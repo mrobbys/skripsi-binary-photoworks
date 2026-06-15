@@ -1,14 +1,33 @@
+{{-- 
+  * COMPONENT LAYOUTS AUTH
+
+  * Digunakan untuk halaman fitur auth
+
+  * Props :
+      * `title` : string
+        Judul halaman yang akan ditampilkan di title tag
+      * `jsModule` : string
+        Nama module javascript yang akan digunakan
+
+  * Slot :
+      * 'content' : untuk menampilkan konten
+      * 'heads'   : untuk menambahkan isi head tambahan
+      * 'scripts' : untuk menambahkan script tambahan
+
+  * Catatan : 
+      * 'title' : diteruskan ke komponen @component('layouts.components.head')
+--}}
+
+@props([
+    'title' => '',
+    'jsModule' => '',
+])
+
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
-  <x-layouts.components.head />
-  <title>
-    @isset($title)
-      {{ $title }} |
-    @endisset
-    {{ config('app.name', 'Laravel') }}
-  </title>
+  <x-layouts.components.head title="{{ $title ?? '' }}" />
   {{ $heads ?? '' }}
 </head>
 
