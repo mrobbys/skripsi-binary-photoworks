@@ -11,13 +11,13 @@
         Untuk menandai menu aktif
 
   * Slot :
-      - Berisikan @component('layouts.backdoor.components.sidebar-collapse-link')
+      - Berisikan @component("layouts.backdoor.components.sidebar-collapse-link")
 --}}
 
 @props([
-    'title' => '',
-    'icon' => 'ri-folder-line',
-    'active' => false,
+    "title" => "",
+    "icon" => "ri-folder-line",
+    "active" => false,
 ])
 
 <div

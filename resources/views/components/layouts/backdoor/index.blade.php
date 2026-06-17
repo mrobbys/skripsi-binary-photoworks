@@ -17,13 +17,13 @@
       * `scripts` : untuk menambahkan script tambahan
 
   * Catatan : 
-      * 'title' : diteruskan ke komponen @component('layouts.components.head')
+      * 'title' : diteruskan ke komponen @component("layouts.components.head")
 --}}
 
 @props([
-    'title' => '',
-    'jsModule' => '',
-    'breadcrumbs' => [['label' => 'Dashboard', 'url' => '#']],
+    "title" => "",
+    "jsModule" => "",
+    "breadcrumbs" => [["label" => "Dashboard", "url" => "#"]],
 ])
 
 <!DOCTYPE html>
@@ -34,7 +34,7 @@
   <x-layouts.shared.head title="{{ $title }}" />
 
   {{-- isi head tambahan --}}
-  {{ $heads ?? '' }}
+  {{ $heads ?? "" }}
 </head>
 
 <body
@@ -79,7 +79,7 @@
 
       {{-- main content start --}}
       <x-layouts.backdoor.components.main-content>
-        {{ $content ?? '' }}
+        {{ $content ?? "" }}
       </x-layouts.backdoor.components.main-content>
       {{-- main content end --}}
 
@@ -90,7 +90,7 @@
   <x-scripts.alert-toast />
 
   {{-- for javascript --}}
-  {{ $scripts ?? '' }}
+  {{ $scripts ?? "" }}
 </body>
 
 </html>
