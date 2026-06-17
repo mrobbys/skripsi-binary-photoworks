@@ -5,18 +5,25 @@
 
 @php
   $user = Auth::user();
-  $name = $user->name ?? 'Guest';
-  $role = $user ? ($user->getRoleNames()->first() ?? '-') : '-';
+  $name = $user->name ?? "Guest";
+  $role = $user ? $user->getRoleNames()->first() ?? "-" : "-";
 @endphp
 
-<div class="mt-auto px-2 pt-4 border-t border-stone-600">
+<div class="mt-auto px-6 pt-4 border-t border-stone-600"
+  x-data="{
+      async confirmLogout() {
+          const result = await confirmModal('Logout?', 'Anda yakin ingin logout?', 'question', 'Logout');
+          if (!result.isConfirmed) return;
+          $refs.logoutForm.submit();
+      }
+  }">
   <div class="flex items-center justify-between gap-3">
-    
+
     {{-- avatar & info group start --}}
     <div class="flex items-center gap-3 min-w-0">
       {{-- avatar start --}}
-      <div class="flex size-12 shrink-0 items-center justify-center border border-stone-500 bg-stone-800 text-stone-300">
-        <i class="ri-user-line text-2xl"></i>
+      <div class="flex size-10 shrink-0 items-center justify-center border border-stone-500 bg-stone-800 text-stone-300">
+        <i class="ri-user-line text-xl"></i>
       </div>
       {{-- avatar end --}}
 
@@ -35,14 +42,14 @@
 
     {{-- logout button start --}}
     @auth
-      <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+      <form x-ref="logoutForm" method="POST" action="{{ route("logout") }}" class="shrink-0"
+        x-on:submit.prevent="confirmLogout()">
         @csrf
         <button
           type="submit"
-          class="flex size-8 items-center justify-center text-stone-400 hover:text-stone-100 focus-visible:outline-2 focus-visible:outline-stone-300 transition-colors cursor-pointer"
+          class="flex items-center justify-center text-stone-400 hover:text-stone-100 focus-visible:outline-none cursor-pointer transition-transform duration-150 hover:scale-110"
           aria-label="Logout"
-          title="Logout"
-        >
+          title="Logout">
           <i class="ri-logout-box-r-line text-xl"></i>
         </button>
       </form>
