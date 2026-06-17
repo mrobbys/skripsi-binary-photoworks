@@ -21,7 +21,7 @@
 <li>
   <a
     href="{{ $href }}"
-    class="flex items-center pl-8 pr-2 py-2 text-sm font-medium transition-colors uppercase {{ $isActive ? "text-stone-50 bg-stone-600" : "text-stone-400 hover:bg-stone-500 hover:text-stone-50" }}"
+    class="flex items-center px-8 py-2 text-sm font-medium transition-colors {{ $isActive ? 'text-stone-50 bg-stone-600' : 'text-stone-300 hover:bg-stone-600/30 hover:text-stone-50' }}"
   >
     {{ $title }}
   </a>

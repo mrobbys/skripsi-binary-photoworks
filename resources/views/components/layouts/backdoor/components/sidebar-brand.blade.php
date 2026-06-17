@@ -3,12 +3,11 @@
 --}}
 
 <a
-  href="{{ route('backdoor.dashboard') }}"
-  class="px-2 w-fit text-2xl font-bold text-neutral-900 focus-visible:outline focus-visible:outline-neutral-950"
->
+  href="{{ route("backdoor.dashboard") }}"
+  class="border-stone-600 pb-4 border-b">
   <img
-    src="{{ asset('assets/binary-logo/binary-logo-text-white.png') }}"
+    src="{{ asset("assets/binary-logo/binary-logo-text-white.png") }}"
     alt="Binary Photoworks Homepage"
-    class="w-full object-cover"
-  >
+    width="100%"
+    class="object-cover px-6">
 </a>
