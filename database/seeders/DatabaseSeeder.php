@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             ScheduleSeeder::class,
+            CategorySeeder::class,
         ]);
 
         User::factory(5)
