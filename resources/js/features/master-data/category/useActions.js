@@ -1,5 +1,5 @@
 import route from "../../../lib/route";
-import { Modal, Toast, confirmDelete } from "../../../lib/sweetalert";
+import { Modal, Toast, confirmModal } from "../../../lib/sweetalert";
 
 export default function useActions({ state, table }) {
   // Fungsi untuk mengubah status kategori dengan toggle
@@ -39,9 +39,11 @@ export default function useActions({ state, table }) {
     const { name, slug } = category;
 
     // panggil modal confirm sweetalert
-    const result = await confirmDelete(
+    const result = await confirmModal(
       "Hapus Kategori?",
       `Kategori "${name}" akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.`,
+      "warning",
+      "Ya, Hapus"
     );
 
     // jika user menekan cancel, keluar

@@ -7,6 +7,10 @@
 
 @plugin "@tailwindcss/forms";
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   @apply bg-stone-50;
   font-family: var(--font-sans);

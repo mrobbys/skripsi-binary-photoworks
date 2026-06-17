@@ -25,18 +25,18 @@ const Toast = Swal.mixin({
   },
 });
 
-// confirm delete
-const confirmDelete = (title, text) => {
+// confirm 
+const confirmModal = (title, text, icon, confirmBtnText) => {
   return Modal.fire({
     title: `${title}`,
     text: `${text}`,
-    icon: "warning",
+    icon: `${icon}`,
     showCancelButton: true,
-    confirmButtonText: "Ya, hapus",
+    confirmButtonText: `${confirmBtnText}`,
     cancelButtonText: "Tidak",
     confirmButtonColor: "#b91c1c",
     cancelButtonColor: "#78716c",
   });
 };
 
-export { Modal, Toast, confirmDelete };
+export { Modal, Toast, confirmModal };

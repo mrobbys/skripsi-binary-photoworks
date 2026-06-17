@@ -17,13 +17,13 @@
       * `scripts` : untuk menambahkan script tambahan
 
   * Catatan : 
-      * 'title' : diteruskan ke komponen @component('layouts.components.head')
+      * 'title' : diteruskan ke komponen @component("layouts.components.head")
 --}}
 
 @props([
-    'title' => '',
-    'jsModule' => '',
-    'breadcrumbs' => [['label' => 'Dashboard', 'url' => '#']],
+    "title" => "",
+    "jsModule" => "",
+    "breadcrumbs" => [["label" => "Dashboard", "url" => "#"]],
 ])
 
 <!DOCTYPE html>
@@ -31,24 +31,28 @@
 
 <head>
   {{-- meta tag dan favicon --}}
-  <x-layouts.shared.head :title="$title ?? ''" />
+  <x-layouts.shared.head title="{{ $title }}" />
 
   {{-- isi head tambahan --}}
-  {{ $heads ?? '' }}
+  {{ $heads ?? "" }}
 </head>
 
 <body
-  data-module="{{ $jsModule ?? '' }}"
-  class="overflow-x-hidden"
->
+  data-module="{{ $jsModule ?? "" }}"
+  class="overflow-x-hidden">
   <div
-    x-data="{ sidebarIsOpen: false }"
-    x-on:keydown.escape.window="sidebarIsOpen = false"
-    class="relative flex w-full flex-col md:flex-row"
-  >
+    x-data="{ sidebarIsOpen: window.innerWidth >= 768, isHoverOpened: false }"
+    class="relative flex w-full flex-col md:flex-row">
     {{-- screen reader skip link start --}}
     <x-layouts.backdoor.components.skip-link />
     {{-- screen reader skip link end --}}
+
+    {{-- hover trigger area --}}
+    <div
+      x-show="!sidebarIsOpen"
+      x-on:mouseenter="if (window.innerWidth >= 768) { sidebarIsOpen = true; isHoverOpened = true }"
+      class="fixed left-0 top-0 z-20 h-dvh w-5 hidden md:block">
+    </div>
 
     {{-- dark overlay berfungsi ketika sidebar di layar kecil terbuka start --}}
     <x-layouts.backdoor.components.sidebar-overlay />
@@ -75,7 +79,7 @@
 
       {{-- main content start --}}
       <x-layouts.backdoor.components.main-content>
-        {{ $content ?? '' }}
+        {{ $content ?? "" }}
       </x-layouts.backdoor.components.main-content>
       {{-- main content end --}}
 
@@ -86,7 +90,7 @@
   <x-scripts.alert-toast />
 
   {{-- for javascript --}}
-  {{ $scripts ?? '' }}
+  {{ $scripts ?? "" }}
 </body>
 
 </html>

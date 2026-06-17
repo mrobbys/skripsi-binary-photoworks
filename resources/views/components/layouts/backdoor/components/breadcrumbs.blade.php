@@ -19,7 +19,7 @@
 
 @if (!empty($items))
   <nav
-    class="hidden md:inline-block text-sm font-medium text-stone-600"
+    class="inline-block text-xs md:text-sm font-medium text-stone-600"
     aria-label="Breadcrumb"
   >
     <ol class="flex flex-wrap items-center gap-1">
