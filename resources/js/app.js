@@ -5,7 +5,7 @@ import intersect from "@alpinejs/intersect";
 import mask from "@alpinejs/mask";
 import persist from "@alpinejs/persist";
 import Swal from "sweetalert2";
-import { Toast, Modal } from "./lib/sweetalert";
+import { Toast, Modal, confirmModal } from "./lib/sweetalert";
 import axios from "axios";
 import "remixicon/fonts/remixicon.css";
 import tippy from 'tippy.js';
@@ -21,6 +21,7 @@ window.axios = axios;
 window.Swal = Swal;
 window.Modal = Modal;
 window.Toast = Toast;
+window.confirmModal = confirmModal;
 window.autoAnimate = autoAnimate;
 
 Alpine.plugin(collapse);
