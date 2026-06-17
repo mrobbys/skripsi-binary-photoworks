@@ -3,35 +3,38 @@ import useDatatable from "../../../lib/useDatatable";
 import useForm from "./useForm";
 import useActions from "./useActions";
 import useState from "./useState";
+import { Toast } from "../../../lib/sweetalert";
 
 export default function Category(Alpine) {
-  // panggil useDatatable
-  const table = useDatatable(Alpine, route("backdoor.data-master.category.index"));
-
-  // otomatis mengambil activeCount dari response server setiap tabel di-load/reload
-  const originalFetch = table.fetch.bind(table);
-  table.fetch = async () => {
-    const res = await originalFetch();
-    if (res && res.active_count !== undefined) {
-      state.activeCount = res.active_count;
-    }
-    return res;
-  };
-
-  // State
   const state = useState(Alpine);
 
-  const init = function () {
-    // fetch tabel
-    table.fetch();
+  const { state: tableState, fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages } = useDatatable(
+    Alpine,
+    route("backdoor.data-master.category.index"),
+    {
+      onSuccess: (res) => {
+        if (res.active_count !== undefined) {
+          state.activeCount = res.active_count;
+        }
+      },
+      onError: () => {
+        Toast.fire({ icon: "error", title: "Gagal memuat data tabel." });
+      },
+    },
+  );
 
-    // Watch search input to trigger fetch with reset page
-    if (this && typeof this.$watch === "function") {
-      this.$watch("table.search", () => {
-        table.pagination.current_page = 1;
-        table.fetch();
-      });
-    }
+  tableState.fetch = fetch;
+  tableState.setSearch = setSearch;
+  tableState.nextPage = nextPage;
+  tableState.prevPage = prevPage;
+  tableState.goToPage = goToPage;
+  tableState.reload = reload;
+  tableState.getPages = getPages;
+
+  const table = tableState;
+
+  const init = function () {
+    fetch();
   };
 
   const { openModal, closeModal, editCategory, submitForm } = useForm({ state, table });

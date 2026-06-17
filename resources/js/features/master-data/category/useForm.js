@@ -63,7 +63,6 @@ export default function useForm({ state, table }) {
       const response = await window.axios[method](url, state.form);
       closeModal();
 
-      if (response.data.active_count !== undefined) state.activeCount = response.data.active_count;
       table.reload();
 
       Toast.fire({
