@@ -51,8 +51,6 @@ class LoginRequest extends FormRequest
 
     /**
      * Return data yang telah divalidasi ke DTO LoginData
-     *
-     * @return LoginData
      */
     public function toDto(): LoginData
     {

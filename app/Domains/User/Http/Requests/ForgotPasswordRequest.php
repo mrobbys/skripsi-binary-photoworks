@@ -3,9 +3,7 @@
 namespace App\Domains\User\Http\Requests;
 
 use App\Domains\User\DTOs\ForgotPasswordData;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Override;
 
 class ForgotPasswordRequest extends FormRequest
 {
@@ -20,7 +18,7 @@ class ForgotPasswordRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -36,8 +34,6 @@ class ForgotPasswordRequest extends FormRequest
 
     /**
      * Return data yang telah di validasi ke DTO ForgotPasswordData
-     * 
-     * @return ForgotPasswordData
      */
     public function toDto(): ForgotPasswordData
     {

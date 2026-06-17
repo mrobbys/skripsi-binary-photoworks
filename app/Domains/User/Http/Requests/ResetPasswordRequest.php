@@ -3,7 +3,6 @@
 namespace App\Domains\User\Http\Requests;
 
 use App\Domains\User\DTOs\ResetPasswordData;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -20,7 +19,7 @@ class ResetPasswordRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -49,8 +48,6 @@ class ResetPasswordRequest extends FormRequest
 
     /**
      * Return data yang telah di validasi ke DTO ResetPasswordData
-     * 
-     * @return ResetPasswordData
      */
     public function toDto(): ResetPasswordData
     {
