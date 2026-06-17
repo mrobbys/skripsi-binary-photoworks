@@ -2,7 +2,7 @@
 
 ## 1. Halaman Utama: Kelola Paket & Varian (Main Grid View)
 
-Halaman sentral untuk memantau seluruh katalog produk studio yang tersaji menggunakan kerangka kerja data-table **Grid.js** demi performa penyaringan kilat.
+Halaman sentral untuk memantau seluruh katalog produk studio yang tersaji menggunakan tabel native **Alpine.js** demi performa penyaringan kilat.
 
 ### A. Widget Metrik Ringkasan (Top Cards)
 
@@ -14,7 +14,7 @@ Halaman sentral untuk memantau seluruh katalog produk studio yang tersaji menggu
 - **Input Pencarian**: Fitur pencarian terpadu dengan placeholder `Cari nama paket atau kategori...`.
 - **Tombol "+ Tambah Paket"**: Memicu kemunculan _Side-Drawer Form_ untuk memasukkan parameter paket utama baru.
 
-### C. Komponen Tabel Katalog (Dikelola via Grid.js)
+### C. Komponen Tabel Katalog (Dikelola via Native Alpine.js)
 
 Menampilkan baris data paket dengan struktur kolom sebagai berikut:
 
@@ -85,7 +85,7 @@ Panel khusus untuk memanipulasi detail harga dan durasi waktu internal dari sub-
 
 ---
 
-## 5. Batasan Implementasi Front-End (Alpine.js & Grid.js Setup)
+## 5. Batasan Implementasi Front-End (Native Alpine.js Table Setup)
 
 - **Manajemen Array Dinamis**: Penambahan baris, pengosongan nilai placeholder, serta penghapusan indeks baris fasilitas pada kedua komponen drawer dilarang keras menggunakan script manipulasi DOM atau atribut inline HTML. Seluruh status array wajib dibungkus di dalam objek reaktif komponen `Alpine.data()` yang ditanam di dalam berkas JavaScript mandiri `resources/js/features/` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()` (Feature-Based Module). Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
 - **Efek Animasi Drawer**: Efek transisi meluncur lancar (_smooth slide-over animation_) saat membuka dan menutup panel samping wajib memanfaatkan direktif transisi bawaan Tailwind CSS yang dikombinasikan dengan pembatas status boolean Alpine (`x-show` dan `x-transition`).

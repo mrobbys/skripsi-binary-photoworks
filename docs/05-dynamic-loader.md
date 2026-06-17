@@ -191,12 +191,9 @@ export default function NamaFile(Alpine) {
  * @param {import('alpinejs').Alpine} Alpine
  * @returns {object}
  */
+import route from "../../../lib/route";
+
 export default function Category(Alpine) {
-  // ---------------------------------------------------------------------------
-  // Ambil data dari Blade dan segera hapus dari memori global
-  // ---------------------------------------------------------------------------
-  const config = window.pageConfig ?? {};
-  delete window.pageConfig;
 
   // ---------------------------------------------------------------------------
   // State — terpusat, mirip useState() di React
@@ -231,7 +228,7 @@ export default function Category(Alpine) {
     state.errors = {};
 
     try {
-      await axios.post(config.routes?.store, {
+      await axios.post(route('backdoor.categories.store'), {
         name: state.name,
         slug: state.slug,
       });
@@ -291,54 +288,34 @@ Arrow function menggunakan **lexical scope** — mereka "mengingat" konteks di m
 
 ## 5. Meneruskan Data dari Laravel (Blade) ke Alpine.js
 
-Untuk membagikan data dinamis dari Laravel (URL rute, konfigurasi, status sesi) ke modul JavaScript secara aman:
+### A. Rute Laravel via Ziggy (Default)
 
-### A. Di File Blade Halaman
-
-Suntikkan data menggunakan direktif `@js` di dalam `<x-slot:heads>` — **bukan** di slot scripts bawah, agar data tersedia sebelum `app.js` dieksekusi:
-
-```html
-<x-layouts.backdoor title="Kategori" js-module="master-data/Category">
-  <x-slot:heads>
-    <script>
-      window.pageConfig = @js([
-        'routes' => [
-          'store'  => route('backdoor.categories.store'),
-          'update' => route('backdoor.categories.update', ':id'),
-        ],
-      ]);
-    </script>
-  </x-slot:heads>
-
-  <x-slot:content>
-    <div x-data="Category">
-      {{-- konten --}}
-    </div>
-  </x-slot:content>
-</x-layouts.backdoor>
-```
-
-### B. Di File JavaScript
-
-Ambil `window.pageConfig` di awal fungsi komponen, lalu **segera hapus** agar tidak mengotori memori `window` lintas halaman:
+Sistem sudah mengintegrasikan **Ziggy**, yang memungkinkan Anda menggunakan fungsi `route()` bawaan Laravel langsung di dalam file JavaScript. Ini menghapus kebutuhan untuk menyuntikkan URL rute secara manual via Blade.
 
 ```javascript
+// Impor fungsi route (wajib)
+import route from "../../../lib/route";
+
 export default function Category(Alpine) {
-  // ✅ Ambil dan langsung bersihkan
-  const config = window.pageConfig ?? {};
-  delete window.pageConfig;
-
-  // Gunakan config di dalam method
   const submit = async () => {
-    await axios.post(config.routes.store, { ... });
+    // Gunakan fungsi route() persis seperti di PHP
+    await axios.post(route('backdoor.categories.store'), { ... });
   };
+  
+  const update = async (id) => {
+    // Mendukung parameter rute
+    await axios.put(route('backdoor.categories.update', id), { ... });
+  }
 
-  // ...
+  return { submit, update };
 }
 ```
 
-> **Kenapa harus `delete window.pageConfig`?**
-> Karena Alpine.js menggunakan navigasi SPA-like (tanpa full page reload di beberapa kasus). Jika tidak dihapus, data dari halaman sebelumnya bisa "bocor" ke halaman berikutnya.
+> **Catatan:** Jangan lupa menjalankan `npm run build` jika Anda baru saja menambahkan rute baru di `web.php` atau `api.php`, agar file referensi Ziggy diperbarui!
+
+### B. Konfigurasi Non-Rute (opsional via window.pageConfig)
+
+Jika Anda perlu melempar data selain rute (misal: boolean status, id unik, dsb) dalam jumlah banyak, Anda masih bisa menyuntikkannya via `window.pageConfig` di `<x-slot:heads>`, lalu menghapusnya di JS menggunakan `delete window.pageConfig`. Namun sebisa mungkin, gunakan `data-*` attribute pada HTML jika datanya spesifik untuk satu komponen.
 
 ---
 

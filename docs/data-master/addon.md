@@ -2,7 +2,7 @@
 
 ## 1. Komponen Antarmuka Utama (Main Grid View)
 
-Halaman panel pengelola untuk memanipulasi seluruh item layanan tambahan studio. Penyajian data memanfaatkan pustaka **Grid.js** untuk mendukung performa pencarian dan pembagian halaman yang optimal.
+Halaman panel pengelola untuk memanipulasi seluruh item layanan tambahan studio. Penyajian data memanfaatkan tabel native **Alpine.js** untuk mendukung performa pencarian dan pembagian halaman yang optimal.
 
 ### A. Widget Metrik Ringkasan
 
@@ -13,7 +13,7 @@ Halaman panel pengelola untuk memanipulasi seluruh item layanan tambahan studio.
 - **Input Pencarian**: Bidang isian teks dengan icon kaca pembesar dan placeholder `Cari nama add-on...`.
 - **Tombol "+ Tambah Add-On"**: Tombol aksi berwarna terang untuk memicu kemunculan formulir penambahan data item baru.
 
-### C. Komponen Tabel Layanan Tambahan (Dikelola via Grid.js)
+### C. Komponen Tabel Layanan Tambahan (Dikelola via Native Alpine.js)
 
 Menampilkan data komprehensif add-on dengan susunan kolom sebagai berikut:
 
@@ -50,6 +50,6 @@ Setiap paket kiriman data dari formulir tambah/ubah wajib lolos pengujian kriter
 ## 3. Batasan Implementasi Sisi Depan (Front-End Constraints)
 
 - **Hukum Anti-Inline Attribute JavaScript**: Dilarang keras menuliskan fungsi penanganan klik, manipulasi baris penghitung, atau kontrol status sakelar secara langsung di dalam tag atribut elemen HTML Blade view.
-- **Enkapsulasi Struktur Alpine.js (Feature-Based Module)**: Seluruh pengelolaan logika antarmuka (seperti pembukaan modal penambahan, penentuan visual tipe input counter/checkbox pada form, dan pemfilteran Grid.js) wajib diisolasi penuh di dalam berkas JavaScript mandiri `resources/js/features/` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
-- **Pengaman Detak Pencarian (Debounce Control)**: Fitur filter pencarian nama add-on pada komponen Grid.js wajib dikawal menggunakan fungsi **Debounce minimal 400ms** dengan media pengiriman data asinkronus via pustaka **Axios** demi efisiensi query database.
+- **Enkapsulasi Struktur Alpine.js (Feature-Based Module)**: Seluruh pengelolaan logika antarmuka (seperti pembukaan modal penambahan, penentuan visual tipe input counter/checkbox pada form, dan pemfilteran tabel) wajib diisolasi penuh di dalam berkas JavaScript mandiri `resources/js/features/` menggunakan fungsi `init(Alpine)` dan diregistrasikan via `Alpine.data()`. Lihat [docs/05-dynamic-loader.md](../05-dynamic-loader.md).
+- **Pengaman Detak Pencarian (Debounce Control)**: Fitur filter pencarian nama add-on pada tabel Native Alpine wajib dikawal menggunakan debounce (via Alpine `$watch`) minimal 400ms dengan media pengiriman data asinkronus via pustaka **Axios** demi efisiensi query database.
 - **Penyimpanan Sakelar Status Instan**: Mengubah status sakelar aktif/non-aktif pada kolom tabel akan langsung memicu penembakan payload HTTP Request PATCH secara asinkronus menggunakan **Axios** di latar belakang. Status database diperbarui secara instan tanpa perlu memicu muat ulang halaman web (_zero page reload_).

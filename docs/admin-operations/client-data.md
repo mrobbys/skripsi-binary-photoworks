@@ -14,7 +14,7 @@ Halaman pengelolaan data pelanggan ini berada di bawah kendali komponen pelindun
 - **Komponen Tampilan (`Data Klien.png`)**:
     - Menyediakan satu kotak input pencarian (_Live Search Box_) di sisi kiri atas tabel dengan placeholder teks `Cari klien...` untuk menyaring baris data secara asinkronus via Alpine.js.
 
-### C. Komponen Struktur DataTables Klien (Grid.js Integration)
+### C. Komponen Struktur DataTables Klien (Native Alpine Integration)
 
 - **Komponen Tampilan (`Data Klien.png`)**: Menyajikan struktur tabel dinamis yang memetakan data kolom sebagai berikut:
     1. **No.**: Penomoran indeks urutan baris data pada halaman berjalan.
@@ -51,7 +51,7 @@ $$
 - **Hukum Anti-Inline HTML Attribute Script**: Segala bentuk penanganan interaksi pengetikan kata kunci pencarian, pembukaan menu drop-down aksi, maupun perpindahan halaman pagination haram dituliskan langsung di dalam atribut bawaan tag HTML (Bebas penuh dari instruksi mentah `onkeyup="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:
     - Struktur tata letak tabel dan widget diletakkan pada berkas views utama bernama `index.blade.php`.
-    - Seluruh konfigurasi pustaka Grid.js, penanganan request asinkronus Axios, dan fungsi pemfilteran diisolasi penuh di dalam berkas pendukung bernama `client-script.blade.php`.
+    - Seluruh konfigurasi pustaka tabel Native Alpine, penanganan request asinkronus Axios, dan fungsi pemfilteran diisolasi penuh menggunakan pola Composables JS.
     - Proses penyatuan berkas dikunci menggunakan direktif `@include` lokal pada bagian baris paling bawah berkas view induk:
 
 ```html
