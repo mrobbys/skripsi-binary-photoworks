@@ -1,4 +1,4 @@
-<x-layouts.auth title='Forgot Password'>
+<x-layouts.auth.index title='Forgot Password'>
   <x-slot:content>
     <div>
       <h1 class="text-center my-4 text-xl font-semibold">

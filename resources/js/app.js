@@ -1,17 +1,27 @@
-import Alpine from 'alpinejs';
-import collapse from '@alpinejs/collapse';
-import focus from '@alpinejs/focus';
-import intersect from '@alpinejs/intersect';
-import mask from '@alpinejs/mask';
-import persist from '@alpinejs/persist';
-import Swal from 'sweetalert2';
-import { Toast } from './lib/sweetalert';
-import axios from 'axios';
+import Alpine from "alpinejs";
+import collapse from "@alpinejs/collapse";
+import focus from "@alpinejs/focus";
+import intersect from "@alpinejs/intersect";
+import mask from "@alpinejs/mask";
+import persist from "@alpinejs/persist";
+import Swal from "sweetalert2";
+import { Toast, Modal } from "./lib/sweetalert";
+import axios from "axios";
+import "remixicon/fonts/remixicon.css";
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import dayjs from 'dayjs';
+import currency from 'currency.js';
+import autoAnimate from "@formkit/auto-animate";
 
+window.currency = currency;
+window.dayjs = dayjs;
+window.tippy = tippy;
 window.axios = axios;
-
 window.Swal = Swal;
+window.Modal = Modal;
 window.Toast = Toast;
+window.autoAnimate = autoAnimate;
 
 Alpine.plugin(collapse);
 Alpine.plugin(focus);
@@ -35,10 +45,13 @@ const startApplication = async () => {
 
   if (modulePathsString) {
     // Memisah modul berdasarkan koma (misal: "auth/Login,auth/Register" -> ["auth/Login", "auth/Register"])
-    const modulePaths = modulePathsString.split(',').map(path => path.trim()).filter(Boolean);
+    const modulePaths = modulePathsString
+      .split(",")
+      .map((path) => path.trim())
+      .filter(Boolean);
 
     try {
-      const modules = import.meta.glob('./features/**/*.js');
+      const modules = import.meta.glob("./features/**/*.js");
 
       for (const modulePath of modulePaths) {
         const key = `./features/${modulePath}.js`;
@@ -49,7 +62,7 @@ const startApplication = async () => {
           // Pola baru: export default function → auto-register Alpine.data()
           // Nama komponen diambil otomatis dari nama file (tanpa ekstensi .js)
           if (module.default) {
-            const componentName = key.split('/').pop().replace('.js', '');
+            const componentName = key.split("/").pop().replace(".js", "");
             Alpine.data(componentName, () => module.default(Alpine));
           }
           // Fallback: pola lama export { init } tetap didukung

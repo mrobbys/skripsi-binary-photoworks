@@ -39,7 +39,7 @@
 8. **`remixicon`**: Pustaka ikon berbasis open-source untuk kebutuhan antarmuka visual yang modern.
 9. **`sweetalert2`**: Pembuat pop-up notifikasi cantik dan responsif sebagai pengganti alert standar peramban.
 10. **`choices.js`**: Elemen kendali input khusus untuk select box tingkat lanjut dengan fitur pencarian dan kustomisasi.
-11. **`grid.js`**: Pustaka data table yang ringan dan modular untuk menangani pencarian, pengurutan (sorting), serta pembagian halaman (pagination) data secara dinamis pada panel pengelola.
+11. **`useDatatable.js`**: Custom hook Alpine.js ringan untuk tabel, menangani pencarian, pengurutan, dan pagination data dinamis.
 
 ---
 
@@ -172,7 +172,7 @@ resources/
  │    │
  │    ├── lib/                          # KONFIGURASI CENTRAL THIRD-PARTY LIBRARIES
  │    │    ├── axios.js                 # Axios Instance + Interceptors Global (Zero 419/500 Error)
- │    │    ├── grid.js                  # Pengaturan tema, localization, & boilerplate Grid.js
+ │    │    ├── useDatatable.js          # Reusable logic tabel Alpine.js
  │    │    └── sweetalert.js            # Preset & Mixin bawaan notifikasi SweetAlert2
  │    │
  │    ├── features/                     # MODULAR JS BERBASIS FITUR (Vite Code-Splitting)
@@ -267,7 +267,7 @@ resources/
            │    └── list.blade.php      # Alternatif Tampilan: Daftar baris jadwal internal
            │
            ├── manajemen-pemesanan/     # Klaster Fitur: Data Transaksi Order
-           │    ├── index.blade.php     # DataTables / Grid.js transaksi reservasi global
+           │    ├── index.blade.php     # DataTables Native Alpine transaksi reservasi global
            │    └── script.blade.php    # Handler status update, link GDrive, & pelunasan kasir
            │
            ├── data-klien/              # Klaster Fitur: Registri Pelanggan Terdaftar

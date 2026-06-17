@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/backdoor/dashboard', function () {
-    return view('backdoor.dashboard.pages.index');
+    return view('backdoor.dashboard.index');
 })->middleware(['auth'])->name('backdoor.dashboard');

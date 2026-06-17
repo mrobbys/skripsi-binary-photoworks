@@ -4,7 +4,7 @@
 
 Halaman panel pengelola untuk menentukan batasan waktu operasional harian studio. Antarmuka menyajikan matriks baris statis yang merepresentasikan 7 hari dalam seminggu.
 
-### A. Komponen Tabel Konfigurasi (Dikelola via Grid.js)
+### A. Komponen Tabel Konfigurasi (Dikelola via Native Alpine.js)
 
 Menampilkan data jam kerja operasional dengan susunan kolom sebagai berikut:
 

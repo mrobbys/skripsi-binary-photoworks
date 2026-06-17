@@ -1,4 +1,4 @@
-# Documentation: Admin Operations - Booking Management (Grid.js DataTables) Functional Specification
+# Documentation: Admin Operations - Booking Management (Native Alpine DataTables) Functional Specification
 
 ## 1. Komponen Antarmuka Manajemen Pemesanan (UI Layout Mapping)
 
@@ -17,7 +17,7 @@ Halaman operasional administrasi ini menggunakan kerangka dasar komponen kustom 
     - **Live Search Input Box**: Elemen pencarian reaktif dengan placeholder teks `Cari kode booking atau nama klien...`.
     - **Tombol Tambah Data**: Tombol `+ Tambah Booking` di sisi kanan untuk memicu pembukaan form pembuatan reservasi manual oleh staff/admin via admin panel.
 
-### C. Komponen Struktur DataTables (Sektor Pustaka Grid.js)
+### C. Komponen Struktur DataTables (Sektor Native Alpine)
 
 - **Komponen Tampilan (`Manajemen Pemesanan.png`)**: Menyajikan struktur tabel dinamis dengan pemetaan kolom sebagai berikut:
     1. **No.**: Penomoran indeks baris data yang berurutan.
@@ -65,7 +65,7 @@ Ketika operator mengklik tombol aksi tiga titik pada baris data, sistem akan men
 - **Hukum Anti-Inline HTML Attribute Script**: Seluruh interaksi pembukaan dropdown aksi, pengetikan _live search_, dan pemanggilan modal input dilarang keras ditulis langsung di dalam atribut bawaan tag HTML (Bebas penuh dari instruksi mentah `onclick="..."`).
 - **Enkapsulasi Berkas Bersisian (Co-location Style via @include)**:
     - Struktur layout utama tabel, search box, dan kartu statistik diletakkan pada berkas views utama bernama `index.blade.php`.
-    - Seluruh konfigurasi pustaka Grid.js, setup request AJAX Axios pencarian, dan handler modifikasi status data diisolasi penuh di dalam berkas pendukung bernama `script.blade.php`.
+    - Seluruh konfigurasi pustaka tabel Native Alpine, setup request AJAX Axios pencarian, dan handler modifikasi status data diisolasi penuh di dalam komponen JS (misal `useDatatable.js`).
     - Proses penyatuan berkas dikunci secara mutlak menggunakan direktif `@include` lokal pada bagian paling bawah file:
 
 ```html

@@ -1,4 +1,4 @@
-<x-layouts.auth title="Periksa Email Anda">
+<x-layouts.auth.index title="Periksa Email Anda">
   <x-slot:content>
     <div>
       <h1 class="text-center my-4 text-xl font-semibold">Cek email anda</h1>

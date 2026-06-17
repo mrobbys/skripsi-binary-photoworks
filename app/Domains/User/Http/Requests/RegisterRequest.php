@@ -59,8 +59,6 @@ class RegisterRequest extends FormRequest
 
     /**
      * Return data yang telah divalidasi ke DTO RegisterData
-     *
-     * @return RegisterData
      */
     public function toDto(): RegisterData
     {

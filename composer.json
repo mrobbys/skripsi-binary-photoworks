@@ -20,9 +20,11 @@
         "spatie/laravel-medialibrary": "^11.23",
         "spatie/laravel-pdf": "^2.11",
         "spatie/laravel-permission": "^8.0",
-        "spatie/laravel-sluggable": "^4.0"
+        "spatie/laravel-sluggable": "^4.0",
+        "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.23",
         "fruitcake/laravel-debugbar": "^4.2",
         "laravel-lang/common": "^6.8",

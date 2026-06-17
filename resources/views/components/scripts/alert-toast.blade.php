@@ -1,7 +1,7 @@
 <script type="module">
 
     @if (session()->has('alert'))
-        Swal.fire({
+        Modal.fire({
             icon: '{{ e(session('alert.type')) }}',
             title: '{{ e(session('alert.title')) }}',
             text: '{{ e(session('alert.message')) }}',
