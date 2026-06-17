@@ -38,7 +38,7 @@
 </head>
 
 <body
-  data-module="{{ $jsModule ?? "" }}"
+  data-module="{{ $jsModule ?? '' }}"
   class="overflow-x-hidden">
   <div
     x-data="{ sidebarIsOpen: window.innerWidth >= 768, isHoverOpened: false }"

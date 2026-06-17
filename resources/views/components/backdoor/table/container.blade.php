@@ -2,12 +2,12 @@
     * TABLE CONTAINER
 --}}
 
-@props(["headers" => null])
+@props(['headers' => null])
 
 @php
   // Konversi $headers dari String (comma-separated) menjadi sebuah Array
   if (is_string($headers)) {
-      $headers = explode(",", $headers);
+      $headers = explode(',', $headers);
   }
 @endphp
 
@@ -23,7 +23,7 @@
     <tbody class="divide-y divide-stone-200 text-sm" x-init="autoAnimate($el)">
       {{-- state loading start --}}
       <tr x-show="table.isLoading" x-cloak>
-        <td colspan="{{ count($headers) }}" class="px-6 py-12 text-center text-stone-500">
+        <td colspan="{{ count($headers) }}" class="px-6 py-14 text-center text-stone-500">
           <i class="ri-loader-2-line animate-spin inline-block text-xl mr-2 align-middle"></i>
           <span class="align-middle">Memuat data...</span>
         </td>

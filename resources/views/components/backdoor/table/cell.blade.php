@@ -10,11 +10,11 @@
 --}}
 
 @props([
-    "value" => null,
+    'value' => null,
 ])
 
-<td {{ $attributes->merge(["class" => "px-6 py-4"]) }}>
-  @if (!$attributes->has("x-text"))
+<td {{ $attributes->merge(['class' => 'px-6 py-4']) }}>
+  @if (!$attributes->has('x-text'))
     {{ $value ?? $slot }}
   @endif
 </td>

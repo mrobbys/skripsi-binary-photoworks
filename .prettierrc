@@ -1,29 +1,26 @@
 {
-    "semi": true,
-    "singleQuote": false,
-    "tabWidth": 2,
-    "useTabs": false,
-    "trailingComma": "all",
-    "printWidth": 120,
-    "arrowParens": "always",
-    "endOfLine": "lf",
-    "plugins": [
-        "@shufo/prettier-plugin-blade",
-        "prettier-plugin-tailwindcss"
-    ],
-    "overrides": [
-        {
-            "files": "*.blade.php",
-            "options": {
-                "parser": "blade",
-                "wrapAttributes": "preserve",
-                "singleQuote": false,
-                "wrapLineLength": 120,
-                "endWithNewline": true,
-                "sortTailwindClasses": true,
-                "noStructureSort": true,
-                "noMultipleEmptyLines": true
-            }
-        }
-    ]
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "useTabs": false,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "plugins": ["@shufo/prettier-plugin-blade", "prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "files": "*.blade.php",
+      "options": {
+        "parser": "blade",
+        "wrapAttributes": "preserve",
+        "singleQuote": true,
+        "wrapLineLength": 120,
+        "endWithNewline": true,
+        "sortTailwindClasses": true,
+        "noStructureSort": true,
+        "noMultipleEmptyLines": true
+      }
+    }
+  ]
 }

@@ -25,7 +25,7 @@ const Toast = Swal.mixin({
   },
 });
 
-// confirm 
+// confirm
 const confirmModal = (title, text, icon, confirmBtnText) => {
   return Modal.fire({
     title: `${title}`,

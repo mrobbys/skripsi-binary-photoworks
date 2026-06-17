@@ -8,10 +8,10 @@ import Swal from "sweetalert2";
 import { Toast, Modal, confirmModal } from "./lib/sweetalert";
 import axios from "axios";
 import "remixicon/fonts/remixicon.css";
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-import dayjs from 'dayjs';
-import currency from 'currency.js';
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
+import dayjs from "dayjs";
+import currency from "currency.js";
 import autoAnimate from "@formkit/auto-animate";
 
 window.currency = currency;

@@ -54,14 +54,15 @@ export default function useForm({ state, table }) {
       return;
     }
 
-    const url = state.isEdit ? route("backdoor.data-master.category.update", state.categoryId) : route("backdoor.data-master.category.store");
+    const url = state.isEdit
+      ? route("backdoor.data-master.category.update", state.categoryId)
+      : route("backdoor.data-master.category.store");
     const method = state.isEdit ? "put" : "post";
 
     try {
       const response = await window.axios[method](url, state.form);
       closeModal();
 
-      if (response.data.active_count !== undefined) state.activeCount = response.data.active_count;
       table.reload();
 
       Toast.fire({

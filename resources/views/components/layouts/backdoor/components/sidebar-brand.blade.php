@@ -3,7 +3,7 @@
 --}}
 
 <a
-  href="{{ route("backdoor.dashboard") }}"
+  href="{{ route('backdoor.dashboard') }}"
   class="border-stone-600 pb-4 border-b">
   <img
     src="{{ asset("assets/binary-logo/binary-logo-text-white.png") }}"

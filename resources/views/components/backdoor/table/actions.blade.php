@@ -6,7 +6,7 @@
   *   * `slot` : Elemen tombol / link aksi yang dimasukkan di dalam dropdown (misal: Edit, Hapus).
 --}}
 
-<td {{ $attributes->merge(["class" => "px-6 py-4"]) }} x-data="{
+<td {{ $attributes->merge(['class' => 'px-6 py-4']) }} x-data="{
     tippyInstance: null,
     closeDropdown() {
         if (this.tippyInstance) this.tippyInstance.hide();

@@ -11,22 +11,53 @@
 
     {{-- dashboard start --}}
     <x-layouts.backdoor.components.sidebar-link-item
+      {{-- prettier-ignore --}}
       :href="route('backdoor.dashboard')"
       icon='ri-dashboard-line'
-      title='Dashboard'
-    />
+      title='Dashboard' />
     {{-- dashboard end --}}
 
     {{-- data master start --}}
     <x-layouts.backdoor.components.sidebar-collapse-item
       title='Data Master'
       icon='ri-database-2-line'
-      :active="request()->is('backdoor/data-master/*')"
-    >
+      {{-- prettier-ignore --}}
+      :active="request()->is('backdoor/data-master/*')">
+      {{-- kategori start --}}
       <x-layouts.backdoor.components.sidebar-collapse-link
-        :href="route('backdoor.data-master.category.index')"
-        title='Kategori Foto'
-      />
+      {{-- prettier-ignore --}}
+      :href="route('backdoor.data-master.category.index')"
+      title='Kategori Foto' />
+    {{-- kategori end --}}
+
+    {{-- 
+      TODO: tambahkan props href yang belum ditambahkan 
+        * kelola paket,
+        * background,
+        * layanan tambahan,
+        * jadwal operasional
+      --}}
+
+    {{-- kelola paket & varian start --}}
+    <x-layouts.backdoor.components.sidebar-collapse-link
+      title='Kelola Paket & Varian' />
+    {{-- kelola paket & varian end --}}
+
+    {{-- background start --}}
+    <x-layouts.backdoor.components.sidebar-collapse-link
+      title='Background' />
+    {{-- background end --}}
+
+    {{-- layanan tambahan start --}}
+    <x-layouts.backdoor.components.sidebar-collapse-link
+      title='Layanan Tambahan' />
+    {{-- layanan tambahan end --}}
+
+    {{-- jadwal operasional start --}}
+    <x-layouts.backdoor.components.sidebar-collapse-link
+      title='Jadwal Operasional' />
+    {{-- jadwal operasional end --}}
+
     </x-layouts.backdoor.components.sidebar-collapse-item>
     {{-- data master end --}}
 
