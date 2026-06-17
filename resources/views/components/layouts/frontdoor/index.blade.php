@@ -3,7 +3,7 @@
 
 <head>
   <x-layouts.shared.head :title="$title ?? ''" />
-  
+
   {{ $heads ?? '' }}
 </head>
 

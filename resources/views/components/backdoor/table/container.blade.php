@@ -2,12 +2,12 @@
     * TABLE CONTAINER
 --}}
 
-@props(["headers" => null])
+@props(['headers' => null])
 
 @php
   // Konversi $headers dari String (comma-separated) menjadi sebuah Array
   if (is_string($headers)) {
-      $headers = explode(",", $headers);
+      $headers = explode(',', $headers);
   }
 @endphp
 

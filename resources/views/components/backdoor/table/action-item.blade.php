@@ -8,14 +8,14 @@
 --}}
 
 @props([
-    "color" => "text-stone-700",
-    "text" => "",
+    'color' => 'text-stone-700',
+    'text' => '',
 ])
 
 <button
   {{ $attributes->merge([
-      "type" => "button",
-      "class" => "block w-full text-left px-4 py-2 text-sm {$color} hover:bg-stone-200 transition font-medium cursor-pointer",
+      'type' => 'button',
+      'class' => "block w-full text-left px-4 py-2 text-sm {$color} hover:bg-stone-200 transition font-medium cursor-pointer",
   ]) }}>
   {{ $text }}
 </button>

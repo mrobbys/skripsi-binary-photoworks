@@ -5,8 +5,8 @@
 
 @php
   $user = Auth::user();
-  $name = $user->name ?? "Guest";
-  $role = $user ? $user->getRoleNames()->first() ?? "-" : "-";
+  $name = $user->name ?? 'Guest';
+  $role = $user ? $user->getRoleNames()->first() ?? '-' : '-';
 @endphp
 
 <div class="mt-auto px-6 pt-4 border-t border-stone-600"
@@ -42,7 +42,7 @@
 
     {{-- logout button start --}}
     @auth
-      <form x-ref="logoutForm" method="POST" action="{{ route("logout") }}" class="shrink-0"
+      <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" class="shrink-0"
         x-on:submit.prevent="confirmLogout()">
         @csrf
         <button

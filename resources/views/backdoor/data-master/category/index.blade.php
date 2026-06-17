@@ -1,7 +1,7 @@
 @php
   $breadcrumbs = [
-      ["label" => "Dashboard", "url" => route("backdoor.dashboard")],
-      ["label" => "Kategori Foto", "url" => ""],
+      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard')],
+      ['label' => 'Kategori Foto', 'url' => ''],
   ];
 @endphp
 

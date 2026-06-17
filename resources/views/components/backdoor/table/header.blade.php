@@ -9,7 +9,7 @@
         elemen tambahan pada bagian pojok kanan (button tambah)
 --}}
 
-@props(["placeholder" => ""])
+@props(['placeholder' => ''])
 
 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
   {{-- search bar start --}}

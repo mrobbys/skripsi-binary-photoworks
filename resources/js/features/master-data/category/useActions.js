@@ -43,7 +43,7 @@ export default function useActions({ state, table }) {
       "Hapus Kategori?",
       `Kategori "${name}" akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.`,
       "warning",
-      "Ya, Hapus"
+      "Ya, Hapus",
     );
 
     // jika user menekan cancel, keluar

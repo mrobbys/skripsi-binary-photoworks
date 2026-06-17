@@ -54,7 +54,9 @@ export default function useForm({ state, table }) {
       return;
     }
 
-    const url = state.isEdit ? route("backdoor.data-master.category.update", state.categoryId) : route("backdoor.data-master.category.store");
+    const url = state.isEdit
+      ? route("backdoor.data-master.category.update", state.categoryId)
+      : route("backdoor.data-master.category.store");
     const method = state.isEdit ? "put" : "post";
 
     try {
