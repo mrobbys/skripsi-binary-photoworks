@@ -16,7 +16,8 @@
             "files": "*.blade.php",
             "options": {
                 "parser": "blade",
-                "wrapAttributes": "force-expand-multiline",
+                "wrapAttributes": "preserve",
+                "singleQuote": false,
                 "wrapLineLength": 120,
                 "endWithNewline": true,
                 "sortTailwindClasses": true,

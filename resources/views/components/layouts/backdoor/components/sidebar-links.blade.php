@@ -24,7 +24,7 @@
       :active="request()->is('backdoor/data-master/*')"
     >
       <x-layouts.backdoor.components.sidebar-collapse-link
-        :href="route('backdoor.data-master.category')"
+        :href="route('backdoor.data-master.category.index')"
         title='Kategori Foto'
       />
     </x-layouts.backdoor.components.sidebar-collapse-item>

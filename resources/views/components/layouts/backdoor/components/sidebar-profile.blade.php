@@ -9,7 +9,7 @@
   $role = $user ? ($user->getRoleNames()->first() ?? '-') : '-';
 @endphp
 
-<div class="mt-auto px-2 py-4 border-t border-stone-600">
+<div class="mt-auto px-2 pt-4 border-t border-stone-600">
   <div class="flex items-center justify-between gap-3">
     
     {{-- avatar & info group start --}}
@@ -39,7 +39,7 @@
         @csrf
         <button
           type="submit"
-          class="flex size-8 items-center justify-center text-stone-400 hover:text-stone-100 focus-visible:outline-2 focus-visible:outline-stone-300 transition-colors"
+          class="flex size-8 items-center justify-center text-stone-400 hover:text-stone-100 focus-visible:outline-2 focus-visible:outline-stone-300 transition-colors cursor-pointer"
           aria-label="Logout"
           title="Logout"
         >

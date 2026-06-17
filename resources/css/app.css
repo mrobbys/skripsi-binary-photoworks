@@ -1,11 +1,11 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', var(--font-sans);
-  --font-heading: 'Libre Baskerville', serif;
+  --font-sans: "Inter", var(--font-sans);
+  --font-heading: "Libre Baskerville", serif;
 }
 
-@plugin '@tailwindcss/forms';
+@plugin "@tailwindcss/forms";
 
 body {
   @apply bg-stone-50;
@@ -23,6 +23,18 @@ h6 {
   font-family: var(--font-heading);
 }
 
-.swal2-font{
+.swal2-font {
   font-family: var(--font-sans) !important;
+}
+
+/* Tippy Custom Theme for Dropdowns */
+.tippy-box[data-theme~="custom"] {
+  background-color: transparent;
+  color: inherit;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.tippy-box[data-theme~="custom"] > .tippy-content {
+  padding: 0;
 }

@@ -18,7 +18,7 @@
       <form
         method="POST"
         action="{{ route('login.store') }}"
-        @submit="submitForm($event)"
+        x-on:submit="submitForm($event)"
         class="space-y-4"
       >
         @csrf
@@ -42,7 +42,7 @@
         {{-- Container password menggunakan relative agar icon toggle bisa melayang di kanan --}}
         <div class="w-full relative">
           <input
-            :type="state.showPassword ? 'text' : 'password'"
+            x-bind:type="state.showPassword ? 'text' : 'password'"
             name="password"
             id="password"
             autocomplete="off"
@@ -55,7 +55,7 @@
           {{-- Tombol Toggle Show/Hide Password --}}
           <button
             type="button"
-            @click="togglePassword()"
+            x-on:click="togglePassword()"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-700 focus:outline-none"
             aria-label="Tampilkan/Sembunyikan Password"
           >
@@ -122,8 +122,8 @@
         {{-- Button submit dengan visual loading state --}}
         <button
           type="submit"
-          :disabled="state.isLoading"
-          :class="state.isLoading ? 'opacity-70 cursor-not-allowed' : ''"
+          x-bind:disabled="state.isLoading"
+          x-bind:class="state.isLoading ? 'opacity-70 cursor-not-allowed' : ''"
           class="bg-blue-500 text-stone-50 w-full py-3 px-4 flex items-center justify-center gap-2 transition-all duration-200"
         >
           {{-- Spinner Loading (hanya tampil jika state.isLoading true) --}}
