@@ -13,6 +13,8 @@ import "tippy.js/dist/tippy.css";
 import dayjs from "dayjs";
 import currency from "currency.js";
 import autoAnimate from "@formkit/auto-animate";
+import Choices from "choices.js";
+import "choices.js/public/assets/styles/choices.css";
 
 window.currency = currency;
 window.dayjs = dayjs;
@@ -23,6 +25,7 @@ window.Modal = Modal;
 window.Toast = Toast;
 window.confirmModal = confirmModal;
 window.autoAnimate = autoAnimate;
+window.Choices = Choices;
 
 Alpine.plugin(collapse);
 Alpine.plugin(focus);
