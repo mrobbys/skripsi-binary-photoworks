@@ -31,7 +31,7 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
   // AbortController untuk membatalkan request sebelumnya (cegah race condition)
   let abortController = null;
 
-  const fetch = async () => {
+  const fetch = async ({ showLoading = true } = {}) => {
     // Batalkan request yang sedang berjalan
     if (abortController) {
       abortController.abort();
@@ -39,7 +39,7 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     // eslint-disable-next-line no-undef
     abortController = new AbortController();
 
-    state.isLoading = true;
+    if (showLoading) state.isLoading = true;
     state.error = null;
 
     try {
@@ -72,7 +72,7 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
       state.error = error.response?.data?.message ?? "Gagal memuat data.";
       onError?.(error);
     } finally {
-      state.isLoading = false;
+      if (showLoading) state.isLoading = false;
     }
   };
 
@@ -110,7 +110,7 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     }
   };
 
-  const reload = () => fetch();
+  const reload = ({ showLoading = false } = {}) => fetch({ showLoading });
 
   const getPages = () => {
     const { current_page: current, last_page: last } = state.pagination;
