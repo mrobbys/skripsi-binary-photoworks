@@ -1,6 +1,7 @@
 export default function useState(Alpine) {
   return Alpine.reactive({
     totalPackages: 0,
+    totalActivePackages: 0,
     totalActiveVariants: 0,
     isLoading: false,
 

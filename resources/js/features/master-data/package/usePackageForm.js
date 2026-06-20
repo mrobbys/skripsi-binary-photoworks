@@ -16,7 +16,7 @@ export default function usePackageForm({ state, table }) {
     state.form.category_id = "";
     state.form.name = "";
     state.form.is_active = true;
-    state.form.features = [""];
+    state.form.features = ["", ""];
     state.errors = {};
   };
 
@@ -26,7 +26,7 @@ export default function usePackageForm({ state, table }) {
   };
   const closeDrawer = () => {
     state.isDrawerOpen = false;
-    resetPackageForm();
+    setTimeout(() => resetPackageForm(), 500);
   };
 
   const editPackage = (pkg) => {
@@ -36,8 +36,8 @@ export default function usePackageForm({ state, table }) {
     state.form.category_id = pkg.category_id;
     state.form.name = pkg.name;
     state.form.is_active = pkg.is_active;
-    state.form.features = pkg.features?.map((f) => f.description) ?? [""];
-    if (state.form.features.length === 0) state.form.features = [""];
+    state.form.features = pkg.features?.map((f) => f.description) ?? ["", ""];
+    if (state.form.features.length === 0) state.form.features = ["", ""];
     state.isDrawerOpen = true;
   };
 
