@@ -19,9 +19,12 @@ class PackageController extends Controller
         protected PackageService $packageService,
     ) {}
 
+    // TODO: pindahkan beberapa query ke repository
+    
     public function index(Request $request): View|JsonResponse
     {
         $totalPackages = Package::count();
+        $totalActivePackages = Package::where('is_active', true)->count();
         $totalActiveVariants = PackageVariant::where('is_active', true)->count();
 
         if ($request->wantsJson()) {
@@ -62,14 +65,18 @@ class PackageController extends Controller
                 'last_page' => $packages->lastPage(),
                 'total' => $packages->total(),
                 'total_packages' => $totalPackages,
+                'total_active_packages' => $totalActivePackages,
                 'total_active_variants' => $totalActiveVariants,
             ]);
         }
 
-        $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
-
+        $categories = Category::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'category_code', 'name']);
+            
         return view('backdoor.data-master.package.index', [
             'totalPackages' => $totalPackages,
+            'totalActivePackages' => $totalActivePackages,
             'totalActiveVariants' => $totalActiveVariants,
             'categories' => $categories,
         ]);
@@ -119,12 +126,14 @@ class PackageController extends Controller
     public function toggleActive(string $slug): JsonResponse
     {
         $package = $this->packageService->toggleActiveStatus($slug);
+        $totalActivePackages = Package::where('is_active', true)->count();
         $totalActiveVariants = PackageVariant::where('is_active', true)->count();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Status paket berhasil diperbarui.',
             'data' => $package,
+            'total_active_packages' => $totalActivePackages,
             'total_active_variants' => $totalActiveVariants,
         ]);
     }
