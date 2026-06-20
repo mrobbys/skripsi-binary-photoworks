@@ -136,7 +136,7 @@
       {{-- table end --}}
 
       {{-- drawer form ( create / update ) start --}}
-      <x-backdoor.data-master.package.drawer-form :categories="$categories" />
+      <x-backdoor.data-master.package.package-drawer-form :categories="$categories" />
       {{-- drawer form ( create / update ) end --}}
 
     </div>
