@@ -16,6 +16,8 @@ import autoAnimate from "@formkit/auto-animate";
 import Choices from "choices.js";
 import "choices.js/public/assets/styles/choices.css";
 
+import useChoices from "./lib/useChoices";
+
 window.currency = currency;
 window.dayjs = dayjs;
 window.tippy = tippy;
@@ -32,6 +34,8 @@ Alpine.plugin(focus);
 Alpine.plugin(intersect);
 Alpine.plugin(mask);
 Alpine.plugin(persist);
+
+Alpine.data("choices", useChoices);
 
 window.Alpine = Alpine;
 
