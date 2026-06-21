@@ -9,7 +9,6 @@
   title="Kelola Paket & Varian"
   :breadcrumbs="$breadcrumbs"
   js-module="master-data/package/Package">
-  >
 
   <x-slot:content>
     <div
@@ -50,10 +49,16 @@
       <div class="bg-stone-50 border border-stone-200 p-6 relative overflow-visible">
 
         {{-- table header start --}}
-        <x-backdoor.table.header placeholder="Cari nama paket atau kategori...">
-          <x-backdoor.table.add-button
-            x-on:click="openDrawer()"
-            text="Tambah Paket" />
+        <x-backdoor.table.header>
+          <x-slot:left>
+            <x-backdoor.table.search placeholder="Cari nama paket atau kategori..." />
+          </x-slot:left>
+
+          <x-slot:right>
+            <x-backdoor.table.add-button
+              x-on:click="openDrawer()"
+              text="Tambah Paket" />
+          </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
@@ -112,6 +117,10 @@
 
               {{-- Aksi start --}}
               <x-backdoor.table.actions>
+                <x-backdoor.table.action-item
+                  color="text-blue-600"
+                  x-bind:href="`{{ route('backdoor.data-master.package.show', ':slug') }}`.replace(':slug', item.slug)"
+                  text="Detail" />
                 <x-backdoor.table.action-item
                   color="text-yellow-600"
                   x-on:click="closeDropdown(); editPackage(item)"
