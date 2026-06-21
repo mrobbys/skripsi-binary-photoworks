@@ -84,11 +84,15 @@ class PackageController extends Controller
 
     public function show(string $slug): View
     {
-        $package = Package::with(['category', 'features', 'variants.features'])
+        $package = Package::with(['category', 'features'])
             ->where('slug', $slug)
             ->firstOrFail();
 
-        return view('backdoor.data-master.package.show', compact('package'));
+        $categories = Category::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'category_code', 'name']);
+
+        return view('backdoor.data-master.package.show', compact('package', 'categories'));
     }
 
     public function store(StorePackageRequest $request): JsonResponse
