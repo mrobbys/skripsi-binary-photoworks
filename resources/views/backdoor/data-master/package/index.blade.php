@@ -123,7 +123,7 @@
                   text="Detail" />
                 <x-backdoor.table.action-item
                   color="text-yellow-600"
-                  x-on:click="closeDropdown(); editPackage(item)"
+                  x-on:click="closeDropdown(); openEditDrawer(item)"
                   text="Edit" />
                 <x-backdoor.table.action-item
                   color="text-red-600"

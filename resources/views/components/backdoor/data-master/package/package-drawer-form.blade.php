@@ -53,8 +53,7 @@
             </div>
 
             {{-- Body --}}
-            <div class="relative flex-1 p-6 overflow-y-auto">
-              <div class="space-y-6">
+            <div class="relative flex-1 pt-6 pb-20 px-6 overflow-y-auto space-y-6">
                 {{-- kode kategori --}}
                 <div>
                   <label class="block text-sm font-semibold text-stone-900 mb-2">Kode Kategori</label>
@@ -66,7 +65,6 @@
                     })"
                     x-modelable="value"
                     x-model="state.form.category_id">
-                    <option value=""></option>
                     @foreach ($categories as $category)
                       <option value="{{ $category->id }}">
                         {{ $category->category_code }} - {{ $category->name }}
@@ -86,7 +84,7 @@
                     type="text"
                     placeholder="Nama paket"
                     x-model="state.form.name"
-                    class="w-full border border-stone-300 bg-white p-3 uppercase text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 text-sm"
+                    class="w-full border border-stone-300 bg-white p-3 text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 text-sm"
                     required>
                   <small
                     class="text-red-600 text-xs mt-1 block"
@@ -117,8 +115,9 @@
                         <input
                           type="text"
                           x-model="state.form.features[index]"
-                          class="block w-full border-neutral-300 shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:text-sm p-3"
-                          placeholder="Contoh: Cetak foto ukuran 4R...">
+                          class="feature-input block w-full border-neutral-300 shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:text-sm p-3"
+                          placeholder="Contoh: Cetak foto ukuran 4R..."
+                          >
 
                         <!-- Tombol Hapus -->
                         <button
@@ -139,7 +138,6 @@
                     <i class="ri-add-line mr-1"></i> Tambah Baris
                   </button>
                 </div>
-              </div>
             </div>
 
             {{-- footer --}}

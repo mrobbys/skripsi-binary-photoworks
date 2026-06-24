@@ -1,9 +1,7 @@
 import route from "../../../lib/route";
 import useDatatable from "../../../lib/useDatatable";
 import usePackageForm from "./usePackageForm";
-import useVariantForm from "./useVariantForm";
 import usePackageActions from "./usePackageActions";
-import useVariantActions from "./useVariantActions";
 import useState from "./useState";
 import { Toast } from "../../../lib/sweetalert";
 import formatRupiah from "../../../utils/formatRupiah";
@@ -43,16 +41,13 @@ export default function Package(Alpine) {
     fetch();
   };
 
-  const { openDrawer, closeDrawer, editPackage, addFeature, removeFeature, submitPackage } = usePackageForm({
-    state,
-    table,
-  });
-
-  const { openVariantDrawer, closeVariantDrawer, editVariant, addVariantFeature, removeVariantFeature, submitVariant } =
-    useVariantForm({ state, table });
+  const { openDrawer, closeDrawer, openEditDrawer, addFeature, removeFeature, submitPackage } =
+    usePackageForm({
+      state,
+      table,
+    });
 
   const { togglePackageStatus, destroyPackage } = usePackageActions({ state, table });
-  const { toggleVariantStatus, destroyVariant } = useVariantActions({ state, table });
 
   return {
     state,
@@ -60,20 +55,12 @@ export default function Package(Alpine) {
     init,
     openDrawer,
     closeDrawer,
-    editPackage,
+    openEditDrawer,
     addFeature,
     removeFeature,
     submitPackage,
-    openVariantDrawer,
-    closeVariantDrawer,
-    editVariant,
-    addVariantFeature,
-    removeVariantFeature,
-    submitVariant,
     togglePackageStatus,
-    toggleVariantStatus,
     destroyPackage,
-    destroyVariant,
     formatRupiah,
   };
 }
