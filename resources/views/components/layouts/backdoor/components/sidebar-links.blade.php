@@ -40,7 +40,8 @@
 
     {{-- kelola paket & varian start --}}
     <x-layouts.backdoor.components.sidebar-collapse-link
-    :href="route('backdoor.data-master.package.index')"
+      :href="route('backdoor.data-master.package.index')"
+      :active="request()->routeIs('backdoor.data-master.package.*')"
       title='Kelola Paket & Varian' />
     {{-- kelola paket & varian end --}}
 
