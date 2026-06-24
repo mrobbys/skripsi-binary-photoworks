@@ -43,7 +43,8 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     state.error = null;
 
     try {
-      const response = await axios.get(fetchUrl, {
+      const url = typeof fetchUrl === "function" ? fetchUrl() : fetchUrl;
+      const response = await axios.get(url, {
         signal: abortController.signal,
         params: {
           page: state.pagination.current_page,
