@@ -20,7 +20,7 @@ class PackageController extends Controller
     ) {}
 
     // TODO: pindahkan beberapa query ke repository
-    
+
     public function index(Request $request): View|JsonResponse
     {
         $totalPackages = Package::count();
@@ -31,7 +31,7 @@ class PackageController extends Controller
             $search = $request->query('search');
             $limit = $request->query('limit', 10);
 
-            $query = Package::with(['category', 'variants'])
+            $query = Package::with(['category', 'features', 'variants'])
                 ->withCount('variants')
                 ->orderBy('created_at', 'desc');
 
@@ -73,7 +73,7 @@ class PackageController extends Controller
         $categories = Category::where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'category_code', 'name']);
-            
+
         return view('backdoor.data-master.package.index', [
             'totalPackages' => $totalPackages,
             'totalActivePackages' => $totalActivePackages,
@@ -82,13 +82,23 @@ class PackageController extends Controller
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(string $slug): View|JsonResponse
     {
-        $package = Package::with(['category', 'features', 'variants.features'])
+        $package = Package::with(['category', 'features'])
             ->where('slug', $slug)
             ->firstOrFail();
 
-        return view('backdoor.data-master.package.show', compact('package'));
+        $categories = Category::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'category_code', 'name']);
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'data' => $package,
+            ]);
+        }
+
+        return view('backdoor.data-master.package.show', compact('package', 'categories'));
     }
 
     public function store(StorePackageRequest $request): JsonResponse

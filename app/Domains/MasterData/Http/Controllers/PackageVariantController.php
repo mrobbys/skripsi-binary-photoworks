@@ -14,6 +14,16 @@ class PackageVariantController extends Controller
     protected PackageVariantService $variantService,
   ) {}
 
+  public function index(string $packageSlug): JsonResponse
+  {
+    $variants = PackageVariant::with('features')
+      ->whereHas('package', fn($q) => $q->where('slug', $packageSlug))
+      ->orderBy('created_at', 'asc')
+      ->paginate(10);
+
+    return response()->json($variants);
+  }
+
   public function store(PackageVariantRequest $request, string $packageSlug): JsonResponse
   {
     $variant = $this->variantService->createVariant($packageSlug, $request->toDto());

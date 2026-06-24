@@ -30,10 +30,16 @@
       <div class="bg-stone-50 border border-stone-200 p-6 relative overflow-visible">
 
         {{-- table header start --}}
-        <x-backdoor.table.header placeholder="Cari Kategori...">
-          <x-backdoor.table.add-button
-            x-on:click="openModal()"
-            text="Tambah Kategori" />
+        <x-backdoor.table.header>
+          <x-slot:left>
+            <x-backdoor.table.search placeholder="Cari Kategori..." />
+          </x-slot:left>
+
+          <x-slot:right>
+            <x-backdoor.table.add-button
+              x-on:click="openModal()"
+              text="Tambah Kategori" />
+          </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 

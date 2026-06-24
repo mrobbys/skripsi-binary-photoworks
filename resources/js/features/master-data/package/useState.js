@@ -1,30 +1,34 @@
 export default function useState(Alpine) {
   return Alpine.reactive({
-    totalPackages: 0,
-    totalActivePackages: 0,
-    totalActiveVariants: 0,
+    // General & Shared States
     isLoading: false,
 
-    // Drawer Package
+    // Package Page & Detail States (Stats & Info)
+    totalPackages: 0,
+    totalActivePackages: 0,
+    // Menyimpan detail info paket (digunakan di ShowPackage.js)
+    packageInfo: null,
+
+    // Package Drawer & Form States
     isDrawerOpen: false,
     isEdit: false,
     packageId: null,
-
-    // Drawer Variant
-    isVariantDrawerOpen: false,
-    isVariantEdit: false,
-    variantId: null,
-    currentPackageSlug: null,
-
-    // Form Paket
     form: {
       category_id: "",
       name: "",
       is_active: true,
       features: [""],
     },
+    errors: {},
 
-    // Form Varian
+    // Variant Page States (Stats)
+    totalActiveVariants: 0,
+
+    // Variant Drawer & Form States
+    isVariantDrawerOpen: false,
+    isVariantEdit: false,
+    variantId: null,
+    currentPackageSlug: null,
     variantForm: {
       name: "",
       price: "",
@@ -33,8 +37,6 @@ export default function useState(Alpine) {
       is_active: true,
       features: [""],
     },
-
-    errors: {},
     variantErrors: {},
   });
 }

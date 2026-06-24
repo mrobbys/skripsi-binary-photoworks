@@ -31,6 +31,7 @@ export default function usePackageActions({ state, table }) {
       "Ya, Hapus",
     );
     if (!result.isConfirmed) return;
+    state.isLoading = true;
     try {
       const response = await window.axios.delete(route("backdoor.data-master.package.destroy", pkg.slug));
       table.reload();
@@ -41,6 +42,8 @@ export default function usePackageActions({ state, table }) {
         title: "Gagal menghapus paket",
         text: error.response?.data?.message ?? "Terjadi kesalahan server.",
       });
+    } finally {
+      state.isLoading = false;
     }
   };
 

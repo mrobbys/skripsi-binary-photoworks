@@ -31,7 +31,7 @@
 
 <head>
   {{-- meta tag dan favicon --}}
-  <x-layouts.shared.head title="{{ $title }}" />
+  <x-layouts.shared.head :title="$title" />
 
   {{-- isi head tambahan --}}
   {{ $heads ?? "" }}

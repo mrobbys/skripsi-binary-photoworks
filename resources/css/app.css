@@ -42,3 +42,11 @@ h6 {
 .tippy-box[data-theme~="custom"] > .tippy-content {
   padding: 0;
 }
+
+/* Choices Class */
+.choices {
+  margin-bottom: 0 !important;
+}
+.choices__inner{
+  background-color: #ffffff !important;
+}

@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])
         Route::patch('/{package:slug}/toggle', [PackageController::class, 'toggleActive'])->name('toggle');
 
         // Variant Routes
+        Route::get('/{package:slug}/variants', [PackageVariantController::class, 'index'])->name('variants.index');
         Route::post('/{package:slug}/variants', [PackageVariantController::class, 'store'])->name('variants.store');
         Route::put('/{package:slug}/variants/{variant}', [PackageVariantController::class, 'update'])->name('variants.update');
         Route::delete('/{package:slug}/variants/{variant}', [PackageVariantController::class, 'destroy'])->name('variants.destroy');

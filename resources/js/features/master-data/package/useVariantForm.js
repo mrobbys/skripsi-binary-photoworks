@@ -26,31 +26,31 @@ export default function useVariantForm({ state, table }) {
     state.variantForm.duration = "";
     state.variantForm.is_whatsapp_only = false;
     state.variantForm.is_active = true;
-    state.variantForm.features = [""];
+    state.variantForm.features = ["", ""];
     state.variantErrors = {};
   };
 
   const openVariantDrawer = (packageSlug) => {
     resetVariantForm();
-    state.currentPackageSlug = packageSlug;
+    state.currentPackageSlug = packageSlug ?? window.__packageSlug;
     state.isVariantDrawerOpen = true;
   };
   const closeVariantDrawer = () => {
     state.isVariantDrawerOpen = false;
-    resetVariantForm();
+    setTimeout(() => resetVariantForm(), 500);
   };
 
   const editVariant = (variant, packageSlug) => {
     resetVariantForm();
     state.isVariantEdit = true;
-    state.variantId = variant.id;
-    state.currentPackageSlug = packageSlug;
-    state.variantForm.name = variant.name;
-    state.variantForm.price = variant.price;
-    state.variantForm.duration = variant.duration;
-    state.variantForm.is_whatsapp_only = variant.is_whatsapp_only;
-    state.variantForm.is_active = variant.is_active;
-    state.variantForm.features = variant.features?.map((f) => f.description) ?? [""];
+    state.variantId = variant?.id;
+    state.currentPackageSlug = packageSlug ?? window.__packageSlug;
+    state.variantForm.name = variant?.name;
+    state.variantForm.price = variant?.price;
+    state.variantForm.duration = variant?.duration;
+    state.variantForm.is_whatsapp_only = variant?.is_whatsapp_only;
+    state.variantForm.is_active = variant?.is_active;
+    state.variantForm.features = variant?.features?.map((f) => (typeof f === "string" ? f : f.description)) ?? [""];
     if (state.variantForm.features.length === 0) state.variantForm.features.push("");
     state.isVariantDrawerOpen = true;
   };
@@ -73,7 +73,7 @@ export default function useVariantForm({ state, table }) {
       state.isLoading = false;
       return;
     }
-    const payload = { ...state.variantForm, features: filteredFeatures };
+    const payload = validation.data;
     const url = state.isVariantEdit
       ? route("backdoor.data-master.package.variants.update", {
           package: state.currentPackageSlug,

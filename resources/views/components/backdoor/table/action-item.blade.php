@@ -10,12 +10,23 @@
 @props([
     'color' => 'text-stone-700',
     'text' => '',
+    'href' => null,
 ])
 
-<button
-  {{ $attributes->merge([
-      'type' => 'button',
-      'class' => "block w-full text-left px-4 py-2 text-sm {$color} hover:bg-stone-200 transition font-medium cursor-pointer",
-  ]) }}>
-  {{ $text }}
-</button>
+@if ($href || $attributes->has('x-bind:href') || $attributes->has(':href'))
+  <a
+    @if ($href) href="{{ $href }}" @endif
+    {{ $attributes->merge([
+        'class' => "block w-full text-left px-4 py-2 text-sm {$color} hover:bg-stone-200 transition font-medium cursor-pointer",
+    ]) }}>
+    {{ $text }}
+  </a>
+@else
+  <button
+    {{ $attributes->merge([
+        'type' => 'button',
+        'class' => "block w-full text-left px-4 py-2 text-sm {$color} hover:bg-stone-200 transition font-medium cursor-pointer",
+    ]) }}>
+    {{ $text }}
+  </button>
+@endif

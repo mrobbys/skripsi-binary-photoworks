@@ -1,41 +1,20 @@
 {{-- 
   * COMPONENT TABLE HEADER
-  * Header untuk table
-
-  * Props : 
-      * placeholder : string
-        untuk memberi placeholder pada input pencarian
+  * Header untuk table dengan 2 slot (left dan right)
+  
   * Slot :
-        elemen tambahan pada bagian pojok kanan (button tambah)
+      * left : elemen tambahan pada bagian pojok kiri (misal judul atau search bar)
+      * right : elemen tambahan pada bagian pojok kanan (button tambah)
 --}}
 
-@props(['placeholder' => ''])
-
 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-  {{-- search bar start --}}
-  <div class="w-full sm:w-64 relative">
-    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
-      <i class="ri-search-line"></i>
-    </span>
-    <input type="text"
-      x-bind:value="table.search"
-      x-on:input="table.setSearch($event.target.value)"
-      placeholder="{{ $placeholder }}"
-      class="w-full border border-stone-300 bg-stone-50 pl-9 pr-9 py-2 text-sm text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 transition">
-    <button
-      x-show="table.search"
-      x-cloak
-      x-on:click="table.setSearch('')"
-      type="button"
-      class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600 transition">
-      <i class="ri-close-line text-lg"></i>
-    </button>
+  {{-- Bagian Kiri --}}
+  <div class="w-full sm:w-auto flex-1">
+    {{ $left ?? '' }}
   </div>
-  {{-- search bar end --}}
 
-  {{-- tombol aksi start --}}
+  {{-- Bagian Kanan --}}
   <div class="w-full sm:w-auto flex justify-end">
-    {{ $slot }}
+    {{ $right ?? '' }}
   </div>
-  {{-- tombol aksi end --}}
 </div>
