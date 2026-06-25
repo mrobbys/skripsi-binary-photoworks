@@ -16,11 +16,11 @@
 @props(['label' => null, 'value' => null, 'suffix' => null])
 
 <div
-  {{ $attributes->except('x-text')->merge(['class' => 'w-full max-w-xs bg-stone-100 rounded-none border border-stone-200 p-6 space-y-6']) }}>
-  <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+  {{ $attributes->except('x-text')->merge(['class' => 'w-full bg-stone-100 rounded-none border border-stone-200 p-6 space-y-6']) }}>
+  <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider whitespace-nowrap">
     {{ $label }}
   </div>
-  <div class="text-2xl font-heading font-bold text-stone-900">
+  <div class="text-2xl font-heading font-bold text-stone-900 whitespace-nowrap">
     @if ($attributes->has('x-text'))
       <span x-text="{{ $attributes->get('x-text') }}"></span>
     @else
