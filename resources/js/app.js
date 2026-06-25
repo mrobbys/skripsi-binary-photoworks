@@ -15,9 +15,23 @@ import currency from "currency.js";
 import autoAnimate from "@formkit/auto-animate";
 import Choices from "choices.js";
 import "choices.js/public/assets/styles/choices.css";
+import * as FilePond from 'filepond';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import 'filepond/dist/filepond.min.css';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+
+FilePond.registerPlugin(
+  FilePondPluginImagePreview,
+  FilePondPluginFileValidateType,
+  FilePondPluginFileValidateSize,
+);
+
 
 import useChoices from "./lib/useChoices";
 
+window.FilePond = FilePond;
 window.currency = currency;
 window.dayjs = dayjs;
 window.tippy = tippy;
