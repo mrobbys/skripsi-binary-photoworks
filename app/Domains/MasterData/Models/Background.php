@@ -27,6 +27,7 @@ class Background extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('background-image')
+            ->useDisk(env('MEDIA_DISK', 's3'))
             ->singleFile();   // hanya 1 gambar per background
     }
 

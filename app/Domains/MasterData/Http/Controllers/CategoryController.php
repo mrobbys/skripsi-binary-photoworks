@@ -28,7 +28,7 @@ class CategoryController extends Controller
     // request json / ajax
     if ($request->wantsJson()) {
       $search = $request->query('search');
-      $limit = $request->query('limit', 10);
+      $limit = max(1, min((int) $request->query('limit', 10), 100));
 
       // ambil data kategori urutkan dari terbaru
       $query = Category::query()->orderBy('created_at', 'desc');

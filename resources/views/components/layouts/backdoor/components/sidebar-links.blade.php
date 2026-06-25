@@ -33,7 +33,6 @@
     {{-- 
       TODO: tambahkan props href yang belum ditambahkan 
         * kelola paket,
-        * background,
         * layanan tambahan,
         * jadwal operasional
       --}}
@@ -47,6 +46,8 @@
 
     {{-- background start --}}
     <x-layouts.backdoor.components.sidebar-collapse-link
+      :href="route('backdoor.data-master.background.index')"
+      :active="request()->routeIs('backdoor.data-master.background.*')"
       title='Background' />
     {{-- background end --}}
 

@@ -7,6 +7,7 @@ use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Services\PackageVariantService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PackageVariantController extends Controller
 {
@@ -14,12 +15,14 @@ class PackageVariantController extends Controller
     protected PackageVariantService $variantService,
   ) {}
 
-  public function index(string $packageSlug): JsonResponse
+  public function index(Request $request, string $packageSlug): JsonResponse
   {
+    $limit = max(1, min((int) $request->query('limit', 10), 100));
+
     $variants = PackageVariant::with('features')
       ->whereHas('package', fn($q) => $q->where('slug', $packageSlug))
       ->orderBy('created_at', 'asc')
-      ->paginate(10);
+      ->paginate($limit);
 
     return response()->json($variants);
   }
