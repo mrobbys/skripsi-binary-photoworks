@@ -11,7 +11,7 @@ export default function ShowPackage(Alpine) {
   const state = useState(Alpine);
 
   const {
-    state: tableState,
+    state: table,
     fetch,
     nextPage,
     prevPage,
@@ -22,14 +22,7 @@ export default function ShowPackage(Alpine) {
     onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data varian." }),
   });
 
-  tableState.fetch = fetch;
-  tableState.nextPage = nextPage;
-  tableState.prevPage = prevPage;
-  tableState.goToPage = goToPage;
-  tableState.reload = reload;
-  tableState.getPages = getPages;
-
-  const table = tableState;
+  Object.assign(table, { fetch, nextPage, prevPage, goToPage, reload, getPages });
 
   const init = function () {
     fetch();

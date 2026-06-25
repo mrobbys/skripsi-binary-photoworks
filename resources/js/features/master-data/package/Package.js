@@ -10,7 +10,7 @@ export default function Package(Alpine) {
   const state = useState(Alpine);
 
   const {
-    state: tableState,
+    state: table,
     fetch,
     setSearch,
     nextPage,
@@ -27,25 +27,16 @@ export default function Package(Alpine) {
     onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data tabel." }),
   });
 
-  tableState.fetch = fetch;
-  tableState.setSearch = setSearch;
-  tableState.nextPage = nextPage;
-  tableState.prevPage = prevPage;
-  tableState.goToPage = goToPage;
-  tableState.reload = reload;
-  tableState.getPages = getPages;
-
-  const table = tableState;
+  Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });
 
   const init = function () {
     fetch();
   };
 
-  const { openDrawer, closeDrawer, openEditDrawer, addFeature, removeFeature, submitPackage } =
-    usePackageForm({
-      state,
-      table,
-    });
+  const { openDrawer, closeDrawer, openEditDrawer, addFeature, removeFeature, submitPackage } = usePackageForm({
+    state,
+    table,
+  });
 
   const { togglePackageStatus, destroyPackage } = usePackageActions({ state, table });
 

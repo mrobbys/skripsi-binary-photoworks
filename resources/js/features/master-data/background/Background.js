@@ -9,7 +9,7 @@ export default function Background(Alpine) {
   const state = useState(Alpine);
 
   const {
-    state: tableState,
+    state: table,
     fetch,
     setSearch,
     nextPage,
@@ -29,15 +29,7 @@ export default function Background(Alpine) {
     onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data background." }),
   });
 
-  tableState.fetch = fetch;
-  tableState.setSearch = setSearch;
-  tableState.nextPage = nextPage;
-  tableState.prevPage = prevPage;
-  tableState.goToPage = goToPage;
-  tableState.reload = reload;
-  tableState.getPages = getPages;
-
-  const table = tableState;
+  Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });
 
   const init = () => fetch();
 
