@@ -18,13 +18,13 @@ export default function useForm({ state, table }) {
     state.errors = {};
   };
 
-  const openModal = () => {
+  const openDrawer = () => {
     resetForm();
-    state.isModalOpen = true;
+    state.isDrawerOpen = true;
   };
 
-  const closeModal = () => {
-    state.isModalOpen = false;
+  const closeDrawer = () => {
+    state.isDrawerOpen = false;
     resetForm();
   };
 
@@ -35,10 +35,10 @@ export default function useForm({ state, table }) {
     state.form.category_code = category.category_code;
     state.form.name = category.name;
     state.form.is_active = category.is_active;
-    state.isModalOpen = true;
+    state.isDrawerOpen = true;
   };
 
-  const submitForm = async () => {
+  const submitCategory = async () => {
     state.isLoading = true;
     state.errors = {};
 
@@ -61,7 +61,7 @@ export default function useForm({ state, table }) {
 
     try {
       const response = await window.axios[method](url, state.form);
-      closeModal();
+      closeDrawer();
 
       table.reload();
 
@@ -88,9 +88,9 @@ export default function useForm({ state, table }) {
   };
 
   return {
-    openModal,
-    closeModal,
+    openDrawer,
+    closeDrawer,
     editCategory,
-    submitForm,
+    submitCategory,
   };
 }

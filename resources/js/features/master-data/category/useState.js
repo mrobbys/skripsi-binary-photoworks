@@ -1,7 +1,7 @@
 export default function useState(Alpine) {
   return Alpine.reactive({
     activeCount: 0,
-    isModalOpen: false,
+    isDrawerOpen: false,
     isEdit: false,
     isLoading: false,
     categoryId: null,

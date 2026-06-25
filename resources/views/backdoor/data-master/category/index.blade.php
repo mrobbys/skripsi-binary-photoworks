@@ -37,7 +37,7 @@
 
           <x-slot:right>
             <x-backdoor.table.add-button
-              x-on:click="openModal()"
+              x-on:click="openDrawer()"
               text="Tambah Kategori" />
           </x-slot:right>
         </x-backdoor.table.header>
@@ -103,9 +103,9 @@
       </div>
       {{-- table card end --}}
 
-      {{-- modal form (create / update) start --}}
-      <x-backdoor.data-master.category.modal-form />
-      {{-- modal form (create / update) end --}}
+      {{-- drawer form (create / update) start --}}
+      <x-backdoor.data-master.category.category-drawer-form />
+      {{-- drawer form (create / update) end --}}
     </div>
   </x-slot:content>
 </x-layouts.backdoor.index>
