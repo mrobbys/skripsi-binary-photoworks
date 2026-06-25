@@ -29,7 +29,7 @@ class PackageController extends Controller
 
         if ($request->wantsJson()) {
             $search = $request->query('search');
-            $limit = $request->query('limit', 10);
+            $limit = max(1, min((int) $request->query('limit', 10), 100));
 
             $query = Package::with(['category', 'features', 'variants'])
                 ->withCount('variants')
