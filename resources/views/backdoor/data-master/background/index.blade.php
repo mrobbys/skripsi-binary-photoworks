@@ -71,7 +71,7 @@
                 <template x-if="item.image_url">
                   <button
                     type="button"
-                    x-on:click="openImagePreview(item.image_url, item.name)"
+                    x-on:click="openImagePreview(item.original_url, item.name)"
                     class="block w-16 h-16 overflow-hidden border border-stone-200 hover:border-stone-400 transition cursor-zoom-in group"
                     title="Klik untuk preview">
                     <img
@@ -98,7 +98,7 @@
               {{-- Deskripsi start --}}
               <x-backdoor.table.cell>
                 <span
-                  x-init="if (item.description) window.tippy($el, { content: item.description, placement: 'top' })"
+                  x-on:mouseenter="if (!$el._tippy && item.description) window.tippy($el, { content: item.description, showOnCreate: true, placement: 'top' })"
                   class="text-sm text-stone-600 line-clamp-2 max-w-xs cursor-help"
                   x-text="item.description || '—'"></span>
               </x-backdoor.table.cell>

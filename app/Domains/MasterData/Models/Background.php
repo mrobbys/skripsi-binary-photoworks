@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 #[Fillable('name', 'description', 'is_active')]
 class Background extends Model implements HasMedia
@@ -29,6 +31,13 @@ class Background extends Model implements HasMedia
         $this->addMediaCollection('background-image')
             ->useDisk(env('MEDIA_DISK', 's3'))
             ->singleFile();   // hanya 1 gambar per background
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Crop, 100, 100)
+            ->nonQueued();
     }
 
     /**

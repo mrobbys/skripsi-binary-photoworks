@@ -35,7 +35,8 @@ class BackgroundController extends Controller
         'name' => $bg->name,
         'description' => $bg->description,
         'is_active' => $bg->is_active,
-        'image_url' => $bg->getFirstMediaUrl('background-image'),
+        'image_url' => $bg->getFirstMediaUrl('background-image', 'thumb') ?: $bg->getFirstMediaUrl('background-image'),
+        'original_url' => $bg->getFirstMediaUrl('background-image'),
         'created_at' => $bg->created_at,
       ]);
 
@@ -70,7 +71,8 @@ class BackgroundController extends Controller
         'name' => $background->name,
         'description' => $background->description,
         'is_active' => $background->is_active,
-        'image_url' => $background->getFirstMediaUrl('background-image'),
+        'image_url' => $background->getFirstMediaUrl('background-image', 'thumb') ?: $background->getFirstMediaUrl('background-image'),
+        'original_url' => $background->getFirstMediaUrl('background-image'),
       ],
     ], 201);
   }
@@ -91,7 +93,8 @@ class BackgroundController extends Controller
         'name' => $updated->name,
         'description' => $updated->description,
         'is_active' => $updated->is_active,
-        'image_url' => $updated->getFirstMediaUrl('background-image'),
+        'image_url' => $updated->getFirstMediaUrl('background-image', 'thumb') ?: $updated->getFirstMediaUrl('background-image'),
+        'original_url' => $updated->getFirstMediaUrl('background-image'),
       ],
     ]);
   }
