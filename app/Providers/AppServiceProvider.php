@@ -20,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceScheme('https');
+        // Paksa HTTPS hanya jika APP_URL diatur ke https (misal saat pakai Ngrok) atau di Production
+        if (str_contains(config('app.url'), 'https://') || app()->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
