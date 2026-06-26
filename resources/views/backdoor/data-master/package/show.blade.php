@@ -141,7 +141,7 @@
                         class="flex items-start gap-2 text-xs md:text-sm text-stone-600"
                         x-transition
                         x-cloak>
-                        <span class="size-1.5 bg-stone-400 rounded-full mt-1.5 shrink-0"></span>
+                        <span class="size-1.5 bg-stone-400 mt-1.5 shrink-0"></span>
                         <span x-text="feature.description || feature"></span>
                       </li>
                     </template>
