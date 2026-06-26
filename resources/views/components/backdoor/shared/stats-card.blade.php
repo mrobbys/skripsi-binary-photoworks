@@ -16,7 +16,7 @@
 @props(['label' => null, 'value' => null, 'suffix' => null])
 
 <div
-  {{ $attributes->except('x-text')->merge(['class' => 'w-full bg-stone-100 rounded-none border border-stone-200 p-6 space-y-6']) }}>
+  {{ $attributes->except('x-text')->merge(['class' => 'w-full bg-stone-100 border border-stone-200 p-6 space-y-6']) }}>
   <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider whitespace-nowrap">
     {{ $label }}
   </div>

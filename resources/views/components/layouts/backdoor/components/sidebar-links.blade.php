@@ -33,7 +33,6 @@
     {{-- 
       TODO: tambahkan props href yang belum ditambahkan 
         * kelola paket,
-        * layanan tambahan,
         * jadwal operasional
       --}}
 
@@ -53,6 +52,8 @@
 
     {{-- layanan tambahan start --}}
     <x-layouts.backdoor.components.sidebar-collapse-link
+      :href="route('backdoor.data-master.addon.index')"
+      :active="request()->routeIs('backdoor.data-master.addon.*')"
       title='Layanan Tambahan' />
     {{-- layanan tambahan end --}}
 

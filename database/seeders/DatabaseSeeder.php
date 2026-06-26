@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             PackageSeeder::class,
             ScheduleSeeder::class,
             BackgroundSeeder::class,
+            AddonSeeder::class
         ]);
 
         User::factory(5)

@@ -91,7 +91,12 @@
                   type="text"
                   inputmode="numeric"
                   x-bind:value="state.variantForm.price ? new Intl.NumberFormat('id-ID').format(state.variantForm.price) : ''"
-                  x-on:input="state.variantForm.price = $event.target.value.replace(/\D/g, '');$event.target.value = state.variantForm.price ? new Intl.NumberFormat('id-ID').format(state.variantForm.price) : '';"
+                  x-on:input="
+                    let val = parseInt($event.target.value.replace(/\D/g, '')) || 0;
+                    if (val > 100000000) val = 100000000;
+                    state.variantForm.price = val || '';
+                    $event.target.value = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                  "
                   placeholder="Contoh: 500.000"
                   class="w-full border border-stone-300 bg-white p-3 text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 text-sm" />
                 <small
