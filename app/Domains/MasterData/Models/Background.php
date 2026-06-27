@@ -2,6 +2,7 @@
 
 namespace App\Domains\MasterData\Models;
 
+use App\Domains\Booking\Models\Booking;
 use App\Domains\MasterData\Models\PackageVariant;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable('name', 'description', 'is_active')]
 class Background extends Model implements HasMedia
@@ -46,5 +48,10 @@ class Background extends Model implements HasMedia
     public function packageVariants(): BelongsToMany
     {
         return $this->belongsToMany(PackageVariant::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
     }
 }
