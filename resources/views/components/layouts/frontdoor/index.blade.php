@@ -39,10 +39,7 @@
     <x-layouts.frontdoor.components.desktop-menu />
     {{-- login button for desktop start --}}
     <div class="hidden sm:block">
-      <x-shared.button as="a" href="{{ route('login') }}" variant="outline"
-        class="font-semibold tracking-wide px-6">
-        Masuk
-      </x-shared.button>
+      <x-layouts.frontdoor.components.auth-button class="font-semibold tracking-wide px-6" />
     </div>
     {{-- login button for desktop end --}}
 
