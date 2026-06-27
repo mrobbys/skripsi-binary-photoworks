@@ -7,8 +7,9 @@ use App\Domains\Booking\Http\Controllers\Frontdoor\BookingController;
 use App\Domains\Review\Http\Controllers\Frontdoor\ReviewController;
 use App\Domains\Frontdoor\Http\Controllers\FaqController;
 use App\Domains\Frontdoor\Http\Controllers\ContactUsController;
+use App\Domains\User\Http\Controllers\Frontdoor\DashboardController;
 
-Route::get('/', [HomeController::class, 'index'])->middleware('auth')->name('frontdoor.home');
+Route::get('/', [HomeController::class, 'index'])->name('frontdoor.home');
 
 Route::get('/about', [AboutController::class, 'index'])->name('frontdoor.about');
 
@@ -21,3 +22,8 @@ Route::get('/faq', [FaqController::class, 'index'])->name('frontdoor.faq');
 Route::get('/contact-us', [ContactUsController::class, 'index'])->name('frontdoor.contact-us');
 
 require __DIR__ . '/booking.php';
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('frontdoor.dashboard.index');
+    Route::get('/dashboard/profil', [DashboardController::class, 'profil'])->name('frontdoor.dashboard.profil');
+});
