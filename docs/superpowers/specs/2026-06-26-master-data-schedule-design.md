@@ -49,7 +49,7 @@ Halaman **Jadwal Operasional Studio** adalah modul admin untuk mengelola jam ope
 | Form Drawer/Modal | Tidak ada | Ada | Ada |
 | Pagination | Tidak ada | Ada | Ada |
 | Search | Tidak ada | Ada | Ada |
-| useDatatable | Tidak pakai | Pakai | Pakai |
+| useDatatable | Pakai | Pakai | Pakai |
 | Tambah data | Tidak bisa | Bisa | Bisa |
 | Hapus data | Tidak bisa | Bisa | Bisa |
 | Time Picker | Flatpickr | N/A | N/A |
@@ -353,12 +353,17 @@ class ScheduleController extends Controller
                 'id'         => $s->id,
                 'day'        => $s->day->value,
                 'day_label'  => $s->day->label(),
-                'start_time' => $s->start_time,
-                'end_time'   => $s->end_time,
+                'start_time' => $s->start_time?->format('H:i'),
+                'end_time'   => $s->end_time?->format('H:i'),
                 'is_active'  => $s->is_active,
             ]);
 
-            return response()->json(['data' => $items]);
+            return response()->json([
+                'data'         => $items,
+                'current_page' => 1,
+                'last_page'    => 1,
+                'total'        => $items->count(),
+            ]);
         }
 
         return view('backdoor.data-master.schedule.index');
@@ -373,8 +378,8 @@ class ScheduleController extends Controller
             'message' => 'Jadwal berhasil diperbarui.',
             'data'    => [
                 'id'         => $updated->id,
-                'start_time' => $updated->start_time,
-                'end_time'   => $updated->end_time,
+                'start_time' => $updated->start_time?->format('H:i'),
+                'end_time'   => $updated->end_time?->format('H:i'),
                 'is_active'  => $updated->is_active,
             ],
         ]);
@@ -414,8 +419,6 @@ Karena tidak ada Drawer/Modal Form, tidak ada `useScheduleForm.js`. Hanya 3 file
 ```js
 export default function useState(Alpine) {
   return Alpine.reactive({
-    schedules: [],
-    isLoading: false,
     // Set untuk tracking baris mana yang sedang disaving
     savingIds: new Set(),
   });
@@ -435,15 +438,19 @@ import { z } from 'zod';
 
 const scheduleTimeSchema = z
   .object({
-    start_time: z.string().regex(/^\d{2}:\d{2}$/, 'Format jam tidak valid.'),
-    end_time: z.string().regex(/^\d{2}:\d{2}$/, 'Format jam tidak valid.'),
+    start_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Format jam tidak valid.'),
+    end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Format jam tidak valid.'),
   })
-  .refine((data) => data.end_time > data.start_time, {
+  .refine((data) => {
+    const start = data.start_time.slice(0, 5);
+    const end = data.end_time.slice(0, 5);
+    return end > start;
+  }, {
     message: 'Jam tutup harus lebih besar dari jam buka.',
     path: ['end_time'],
   });
 
-export default function useScheduleActions({ state }) {
+export default function useScheduleActions({ state, table }) {
   /**
    * Auto-save saat Flatpickr onClose dipanggil.
    */
@@ -459,7 +466,7 @@ export default function useScheduleActions({ state }) {
     state.savingIds = new Set([...state.savingIds, scheduleId]);
 
     try {
-      const item = state.schedules.find((s) => s.id === scheduleId);
+      const item = table.data.find((s) => s.id === scheduleId);
 
       await window.axios.patch(route('backdoor.data-master.schedule.update', scheduleId), {
         start_time: startTime,
@@ -470,13 +477,13 @@ export default function useScheduleActions({ state }) {
       Toast.fire({ icon: 'success', title: 'Jadwal berhasil disimpan.' });
     } catch (error) {
       if (error.response?.status === 422) {
-        const firstError = Object.values(error.response.data.errors)[0]?.[0];
-        Toast.fire({ icon: 'error', title: firstError ?? 'Validasi gagal.' });
+         const firstError = Object.values(error.response.data.errors)[0]?.[0];
+         Toast.fire({ icon: 'error', title: firstError ?? 'Validasi gagal.' });
       } else {
-        Toast.fire({
-          icon: 'error',
-          title: error.response?.data?.message ?? 'Terjadi kesalahan server.',
-        });
+         Toast.fire({
+           icon: 'error',
+           title: error.response?.data?.message ?? 'Terjadi kesalahan server.',
+         });
       }
     } finally {
       const next = new Set(state.savingIds);
@@ -489,7 +496,7 @@ export default function useScheduleActions({ state }) {
    * Toggle status aktif dengan optimistic update.
    */
   const toggleScheduleStatus = async (scheduleId, currentStatus) => {
-    const item = state.schedules.find((s) => s.id === scheduleId);
+    const item = table.data.find((s) => s.id === scheduleId);
     if (item) item.is_active = !currentStatus;
 
     state.savingIds = new Set([...state.savingIds, scheduleId]);
@@ -523,7 +530,7 @@ export default function useScheduleActions({ state }) {
 Konvensi: nama file PascalCase → nama komponen Alpine. Di Blade: `x-data="Schedule"`. Loader: `js-module="master-data/schedule/Schedule"`.
 
 ```js
-import axios from 'axios';
+import useDatatable from '../../../lib/useDatatable';
 import route from '../../../lib/route';
 import { Toast } from '../../../lib/sweetalert';
 import useState from './useState';
@@ -532,24 +539,23 @@ import useScheduleActions from './useScheduleActions';
 export default function Schedule(Alpine) {
   const state = useState(Alpine);
 
-  const fetchSchedules = async () => {
-    state.isLoading = true;
-    try {
-      const response = await axios.get(route('backdoor.data-master.schedule.index'));
-      state.schedules = response.data.data;
-    } catch {
-      Toast.fire({ icon: 'error', title: 'Gagal memuat jadwal.' });
-    } finally {
-      state.isLoading = false;
-    }
-  };
+  const {
+    state: table,
+    fetch,
+    reload,
+  } = useDatatable(Alpine, route('backdoor.data-master.schedule.index'), {
+    onError: () => Toast.fire({ icon: 'error', title: 'Gagal memuat jadwal.' }),
+  });
 
-  const init = () => fetchSchedules();
+  Object.assign(table, { fetch, reload });
 
-  const { saveScheduleTime, toggleScheduleStatus } = useScheduleActions({ state });
+  const init = () => fetch();
+
+  const { saveScheduleTime, toggleScheduleStatus } = useScheduleActions({ state, table });
 
   return {
     state,
+    table,
     init,
     saveScheduleTime,
     toggleScheduleStatus,
@@ -588,105 +594,88 @@ export default function Schedule(Alpine) {
       {{-- Table Card --}}
       <div class="bg-stone-50 border border-stone-200 p-6">
 
-        {{-- Loading Skeleton --}}
-        <template x-if="state.isLoading">
-          <div class="space-y-3">
-            <template x-for="i in 7" :key="i">
-              <div class="h-14 bg-stone-100 animate-pulse w-full"></div>
-            </template>
-          </div>
-        </template>
+        {{-- Table Container --}}
+        <x-backdoor.table.container headers="No,Hari,Jam Buka,Jam Tutup,Status">
+          <template
+            x-for="(item, index) in table.data"
+            x-bind:key="item.id">
+            <tr
+              class="hover:bg-stone-100 border-b border-stone-200 transition"
+              x-bind:class="state.savingIds.has(item.id) ? 'opacity-60' : ''"
+              x-show="!table.isLoading"
+              x-cloak>
 
-        {{-- Table --}}
-        <div x-show="!state.isLoading" x-cloak>
-          <table class="w-full text-sm border-collapse">
-            <thead>
-              <tr class="border-b-2 border-stone-200 bg-stone-100">
-                <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3 w-12">No</th>
-                <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Hari</th>
-                <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Jam Buka</th>
-                <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Jam Tutup</th>
-                <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template x-for="(item, index) in state.schedules" :key="item.id">
-                <tr
-                  class="border-b border-stone-200 transition"
-                  x-bind:class="state.savingIds.has(item.id) ? 'opacity-60' : 'hover:bg-stone-100'">
+              {{-- No --}}
+              <x-backdoor.table.cell
+                class="text-stone-600 text-xs w-12"
+                x-text="String(index + 1).padStart(2, '0')" />
 
-                  {{-- No --}}
-                  <td class="px-4 py-4 text-stone-500 text-xs"
-                      x-text="String(index + 1).padStart(2, '0')"></td>
+              {{-- Hari --}}
+              <x-backdoor.table.cell class="font-semibold text-stone-900" x-text="item.day_label" />
 
-                  {{-- Hari --}}
-                  <td class="px-4 py-4">
-                    <span class="font-semibold text-stone-900" x-text="item.day_label"></span>
-                  </td>
+              {{-- Jam Buka (Flatpickr) --}}
+              <x-backdoor.table.cell>
+                <input
+                  type="text"
+                  x-bind:id="'start-time-' + item.id"
+                  x-bind:value="item.start_time"
+                  x-bind:disabled="state.savingIds.has(item.id)"
+                  x-init="
+                    window.flatpickr($el, {
+                      enableTime: true,
+                      noCalendar: true,
+                      dateFormat: 'H:i',
+                      time_24hr: true,
+                      defaultDate: item.start_time,
+                      static: true,
+                      onClose(selectedDates, dateStr) {
+                        if (dateStr && dateStr !== item.start_time) {
+                          item.start_time = dateStr;
+                          saveScheduleTime(item.id, item.start_time, item.end_time);
+                        }
+                      }
+                    });
+                  "
+                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-stone-900 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:opacity-50 disabled:cursor-not-allowed" />
+              </x-backdoor.table.cell>
 
-                  {{-- Jam Buka (Flatpickr) --}}
-                  <td class="px-4 py-4">
-                    <input
-                      type="text"
-                      x-bind:id="'start-time-' + item.id"
-                      x-bind:value="item.start_time"
-                      x-bind:disabled="state.savingIds.has(item.id)"
-                      x-init="
-                        window.flatpickr($el, {
-                          enableTime: true,
-                          noCalendar: true,
-                          dateFormat: 'H:i',
-                          time_24hr: true,
-                          defaultDate: item.start_time,
-                          onClose(selectedDates, dateStr) {
-                            if (dateStr && dateStr !== item.start_time) {
-                              item.start_time = dateStr;
-                              saveScheduleTime(item.id, item.start_time, item.end_time);
-                            }
-                          }
-                        });
-                      "
-                      class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-stone-900 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:opacity-50 disabled:cursor-not-allowed" />
-                  </td>
+              {{-- Jam Tutup (Flatpickr) --}}
+              <x-backdoor.table.cell>
+                <input
+                  type="text"
+                  x-bind:id="'end-time-' + item.id"
+                  x-bind:value="item.end_time"
+                  x-bind:disabled="state.savingIds.has(item.id)"
+                  x-init="
+                    window.flatpickr($el, {
+                      enableTime: true,
+                      noCalendar: true,
+                      dateFormat: 'H:i',
+                      time_24hr: true,
+                      defaultDate: item.end_time,
+                      static: true,
+                      onClose(selectedDates, dateStr) {
+                        if (dateStr && dateStr !== item.end_time) {
+                          item.end_time = dateStr;
+                          saveScheduleTime(item.id, item.start_time, item.end_time);
+                        }
+                      }
+                    });
+                  "
+                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-stone-900 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:opacity-50 disabled:cursor-not-allowed" />
+              </x-backdoor.table.cell>
 
-                  {{-- Jam Tutup (Flatpickr) --}}
-                  <td class="px-4 py-4">
-                    <input
-                      type="text"
-                      x-bind:id="'end-time-' + item.id"
-                      x-bind:value="item.end_time"
-                      x-bind:disabled="state.savingIds.has(item.id)"
-                      x-init="
-                        window.flatpickr($el, {
-                          enableTime: true,
-                          noCalendar: true,
-                          dateFormat: 'H:i',
-                          time_24hr: true,
-                          defaultDate: item.end_time,
-                          onClose(selectedDates, dateStr) {
-                            if (dateStr && dateStr !== item.end_time) {
-                              item.end_time = dateStr;
-                              saveScheduleTime(item.id, item.start_time, item.end_time);
-                            }
-                          }
-                        });
-                      "
-                      class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-stone-900 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:opacity-50 disabled:cursor-not-allowed" />
-                  </td>
+              {{-- Status Toggle --}}
+              <x-backdoor.table.cell>
+                <x-backdoor.shared.toggle
+                  x-bind:checked="item.is_active"
+                  x-bind:disabled="state.savingIds.has(item.id)"
+                  x-on:change="toggleScheduleStatus(item.id, item.is_active)" />
+              </x-backdoor.table.cell>
 
-                  {{-- Status Toggle --}}
-                  <td class="px-4 py-4">
-                    <x-backdoor.shared.toggle
-                      x-bind:checked="item.is_active"
-                      x-bind:disabled="state.savingIds.has(item.id)"
-                      x-on:change="toggleScheduleStatus(item.id, item.is_active)" />
-                  </td>
-
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </template>
+        </x-backdoor.table.container>
 
       </div>
 
@@ -751,9 +740,9 @@ File `database/seeders/ScheduleSeeder.php` sudah ada dan tidak perlu dimodifikas
 
 ## 14. Catatan Implementasi Penting
 
-### A. Kenapa Tidak Pakai `useDatatable`?
+### A. Penggunaan `useDatatable`
 
-`useDatatable` dirancang untuk tabel dengan pagination, search, dan fetch dinamis. Schedule hanya memiliki 7 baris statis — menggunakan `useDatatable` justru menambah kompleksitas yang tidak diperlukan. Fetch manual sederhana di `Schedule.js` lebih tepat.
+Meskipun data schedule bersifat statis 7 baris tanpa pagination atau search, kita tetap menggunakan `useDatatable` demi **konsistensi pola coding** di seluruh modul Data Master. Ini memudahkan pemeliharaan kode dan memungkinkan penggunaan komponen table blade secara seragam.
 
 ### B. Flatpickr — Import Global vs Per-Komponen
 
