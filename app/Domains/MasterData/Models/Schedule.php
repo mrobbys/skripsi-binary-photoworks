@@ -13,7 +13,9 @@ class Schedule extends Model
     protected function casts(): array
     {
         return [
-            'day' => DayOfWeek::class, // nanti consume di DTO
+            'day' => DayOfWeek::class,
+            'start_time' => 'datetime:H:i',
+            'end_time' => 'datetime:H:i',
             'is_active' => 'boolean',
         ];
     }

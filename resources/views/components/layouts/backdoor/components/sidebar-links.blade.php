@@ -30,12 +30,6 @@
       title='Kategori Foto' />
     {{-- kategori end --}}
 
-    {{-- 
-      TODO: tambahkan props href yang belum ditambahkan 
-        * kelola paket,
-        * jadwal operasional
-      --}}
-
     {{-- kelola paket & varian start --}}
     <x-layouts.backdoor.components.sidebar-collapse-link
       :href="route('backdoor.data-master.package.index')"
@@ -59,6 +53,8 @@
 
     {{-- jadwal operasional start --}}
     <x-layouts.backdoor.components.sidebar-collapse-link
+      :href="route('backdoor.data-master.schedule.index')"
+      :active="request()->routeIs('backdoor.data-master.schedule.*')"
       title='Jadwal Operasional' />
     {{-- jadwal operasional end --}}
 

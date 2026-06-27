@@ -15,6 +15,8 @@ import currency from "currency.js";
 import autoAnimate from "@formkit/auto-animate";
 import Choices from "choices.js";
 import "choices.js/public/assets/styles/choices.css";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 import * as FilePond from 'filepond';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
@@ -42,6 +44,7 @@ window.Toast = Toast;
 window.confirmModal = confirmModal;
 window.autoAnimate = autoAnimate;
 window.Choices = Choices;
+window.flatpickr = flatpickr;
 
 Alpine.plugin(collapse);
 Alpine.plugin(focus);
