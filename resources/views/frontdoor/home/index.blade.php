@@ -1,4 +1,4 @@
-<x-layouts.frontdoor>
+<x-layouts.frontdoor.index title="Home">
   <x-slot:content>
     @auth
       <form method="POST" action="{{ route('logout') }}">
@@ -8,4 +8,4 @@
     @endauth
   </x-slot:content>
 
-</x-layouts.frontdoor>
+</x-layouts.frontdoor.index>
