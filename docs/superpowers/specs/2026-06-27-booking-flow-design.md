@@ -785,267 +785,305 @@ class WebhookController extends Controller
 
 ## 13. Frontend — JS Modules
 
+> **Pola:** React-Style Hooks. Semua file composable (`useState`, `useCalendar`, dst.) memisahkan logika dengan menerima `state`/`table` sebagai parameter dan me-return fungsi-fungsinya. File entry point (`Booking.js`) merakit semuanya lalu return flat object ke Alpine via `export default function`.
+
 ### `resources/js/features/booking/useState.js`
 
 ```js
-export function createInitialState(variants, addons, activeDays) {
-    return {
-        currentStep: 1,
-        isLoading: false,
+export default function useState(Alpine) {
+  return Alpine.reactive({
+    // Wizard
+    currentStep: 1,
 
-        // Step 1
-        allVariants: variants,
-        selectedVariantId: null,
-        selectedVariant: null,
-        selectedBackgroundId: null,
+    // Step 1
+    allVariants: [],
+    selectedVariantId: null,
+    selectedVariant: null,
+    selectedBackgroundId: null,
 
-        // Step 2
-        activeDays,
-        selectedDate: null,
-        availableSlots: [],
-        selectedSlot: null,
-        isFetchingSlots: false,
+    // Step 2
+    activeDays: [],
+    selectedDate: null,
+    availableSlots: [],
+    selectedSlot: null,
+    isFetchingSlots: false,
 
-        // Step 3
-        allAddons: addons,
-        selectedAddons: {}, // { addon_id: quantity }
+    // Step 3
+    allAddons: [],
+    selectedAddons: {}, // { addon_id: quantity }
 
-        // Step 4
-        paymentScheme: 'lunas',
-        isProcessing: false,
-        bookingCode: null,
-
-        get totalPrice() {
-            if (!this.selectedVariant) return 0;
-            const addonTotal = Object.entries(this.selectedAddons).reduce((sum, [id, qty]) => {
-                const addon = this.allAddons.find(a => a.id === parseInt(id));
-                return sum + (addon ? addon.price * qty : 0);
-            }, 0);
-            return this.selectedVariant.price + addonTotal;
-        },
-
-        get grossAmount() {
-            return this.paymentScheme === 'dp'
-                ? Math.round(this.totalPrice * 0.60)
-                : this.totalPrice;
-        },
-
-        get remainingAmount() {
-            return this.totalPrice - this.grossAmount;
-        },
-
-        formatRupiah(amount) {
-            return window.currency(amount, { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }).format();
-        },
-    };
+    // Step 4
+    paymentScheme: 'lunas',
+    isProcessing: false,
+    bookingCode: null,
+  });
 }
 ```
 
 ### `resources/js/features/booking/useCalendar.js`
 
 ```js
+import route from '../../../lib/route';
+
 // Konversi ISO weekday (1=Sen...7=Min) ke Flatpickr (0=Min...6=Sab)
-function isoToFlatpickr(days) {
-    return days.map(d => d === 7 ? 0 : d);
-}
+const isoToFlatpickr = (days) => days.map(d => d === 7 ? 0 : d);
 
 let _timer = null;
+let _fp = null;
 
-export function calendarMixin(activeDays) {
-    return {
-        _fp: null,
-
-        initCalendar() {
-            const allowed = isoToFlatpickr(activeDays);
-            this._fp = window.flatpickr(this.$refs.calendarInput, {
-                inline: true,
-                minDate: 'today',
-                dateFormat: 'Y-m-d',
-                disable: [(d) => !allowed.includes(d.getDay())],
-                onChange: (_, dateStr) => {
-                    this.selectedDate = dateStr;
-                    this.selectedSlot = null;
-                    this.debouncedFetch(dateStr);
-                },
-                locale: {
-                    firstDayOfWeek: 1,
-                    weekdays: {
-                        shorthand: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
-                        longhand:  ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-                    },
-                    months: {
-                        shorthand: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-                        longhand:  ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
-                    },
-                },
-            });
+export default function useCalendar({ state }) {
+  const initCalendar = (calendarRef) => {
+    const allowed = isoToFlatpickr(state.activeDays);
+    _fp = window.flatpickr(calendarRef, {
+      inline: true,
+      minDate: 'today',
+      dateFormat: 'Y-m-d',
+      disable: [(d) => !allowed.includes(d.getDay())],
+      onChange: (_, dateStr) => {
+        state.selectedDate = dateStr;
+        state.selectedSlot = null;
+        debouncedFetch(dateStr);
+      },
+      locale: {
+        firstDayOfWeek: 1,
+        weekdays: {
+          shorthand: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+          longhand: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
         },
-
-        destroyCalendar() { this._fp?.destroy(); this._fp = null; },
-
-        debouncedFetch(date) {
-            clearTimeout(_timer);
-            _timer = setTimeout(() => this.fetchSlots(date), 300);
+        months: {
+          shorthand: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+          longhand: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
         },
+      },
+    });
+  };
 
-        async fetchSlots(date) {
-            this.isFetchingSlots = true;
-            this.availableSlots  = [];
-            try {
-                const res = await window.axios.get(window.routes.bookingSlots, { params: { date } });
-                this.availableSlots = res.data.slots;
-            } catch {
-                window.Toast.fire({ icon: 'error', title: 'Gagal memuat jadwal tersedia.' });
-            } finally {
-                this.isFetchingSlots = false;
-            }
-        },
-    };
+  const destroyCalendar = () => { _fp?.destroy(); _fp = null; };
+
+  const debouncedFetch = (date) => {
+    clearTimeout(_timer);
+    _timer = setTimeout(() => fetchSlots(date), 300);
+  };
+
+  const fetchSlots = async (date) => {
+    state.isFetchingSlots = true;
+    state.availableSlots = [];
+    try {
+      const res = await window.axios.get(window.routes.bookingSlots, { params: { date } });
+      state.availableSlots = res.data.slots;
+    } catch {
+      window.Toast.fire({ icon: 'error', title: 'Gagal memuat jadwal tersedia.' });
+    } finally {
+      state.isFetchingSlots = false;
+    }
+  };
+
+  return { initCalendar, destroyCalendar };
 }
 ```
 
 ### `resources/js/features/booking/useAddons.js`
 
 ```js
-export function addonsMixin() {
-    return {
-        toggleAddon(id, hasQty) {
-            const key = String(id);
-            if (this.selectedAddons[key] !== undefined) {
-                const next = { ...this.selectedAddons };
-                delete next[key];
-                this.selectedAddons = next;
-            } else {
-                this.selectedAddons = { ...this.selectedAddons, [key]: 1 };
-            }
-        },
+export default function useAddons({ state }) {
+  const toggleAddon = (id, hasQty) => {
+    const key = String(id);
+    if (state.selectedAddons[key] !== undefined) {
+      const next = { ...state.selectedAddons };
+      delete next[key];
+      state.selectedAddons = next;
+    } else {
+      state.selectedAddons = { ...state.selectedAddons, [key]: 1 };
+    }
+  };
 
-        isAddonSelected: (id) => this.selectedAddons[String(id)] !== undefined,
+  const isAddonSelected = (id) => state.selectedAddons[String(id)] !== undefined;
 
-        increment(id) {
-            const k = String(id);
-            if (this.selectedAddons[k]) {
-                this.selectedAddons = { ...this.selectedAddons, [k]: this.selectedAddons[k] + 1 };
-            }
-        },
+  const increment = (id) => {
+    const k = String(id);
+    if (state.selectedAddons[k]) {
+      state.selectedAddons = { ...state.selectedAddons, [k]: state.selectedAddons[k] + 1 };
+    }
+  };
 
-        decrement(id) {
-            const k = String(id);
-            if (this.selectedAddons[k] > 1) {
-                this.selectedAddons = { ...this.selectedAddons, [k]: this.selectedAddons[k] - 1 };
-            } else {
-                this.toggleAddon(id, false);
-            }
-        },
+  const decrement = (id) => {
+    const k = String(id);
+    if (state.selectedAddons[k] > 1) {
+      state.selectedAddons = { ...state.selectedAddons, [k]: state.selectedAddons[k] - 1 };
+    } else {
+      toggleAddon(id, false);
+    }
+  };
 
-        getQty: (id) => this.selectedAddons[String(id)] ?? 0,
+  const getQty = (id) => state.selectedAddons[String(id)] ?? 0;
 
-        buildAddonsPayload() {
-            return Object.entries(this.selectedAddons).map(([id, qty]) => ({
-                addon_id: parseInt(id),
-                quantity: qty,
-            }));
-        },
-    };
+  const buildAddonsPayload = () =>
+    Object.entries(state.selectedAddons).map(([id, qty]) => ({
+      addon_id: parseInt(id),
+      quantity: qty,
+    }));
+
+  return { toggleAddon, isAddonSelected, increment, decrement, getQty, buildAddonsPayload };
 }
 ```
 
 ### `resources/js/features/booking/useCheckout.js`
 
 ```js
-export function checkoutMixin() {
-    return {
-        async triggerCheckout() {
-            this.isProcessing = true;
-            try {
-                const res = await window.axios.post(window.routes.bookingCheckout, {
-                    package_variant_id: this.selectedVariantId,
-                    background_id:      this.selectedBackgroundId,
-                    booking_date:       this.selectedDate,
-                    start_time:         this.selectedSlot?.start_time,
-                    payment_scheme:     this.paymentScheme,
-                    addons:             this.buildAddonsPayload(),
-                });
+export default function useCheckout({ state, buildAddonsPayload }) {
+  const triggerCheckout = async () => {
+    state.isProcessing = true;
+    try {
+      const res = await window.axios.post(window.routes.bookingCheckout, {
+        package_variant_id: state.selectedVariantId,
+        background_id:      state.selectedBackgroundId,
+        booking_date:       state.selectedDate,
+        start_time:         state.selectedSlot?.start_time,
+        payment_scheme:     state.paymentScheme,
+        addons:             buildAddonsPayload(),
+      });
 
-                if (!res.data.success) throw new Error(res.data.message || 'Checkout gagal.');
+      if (!res.data.success) throw new Error(res.data.message || 'Checkout gagal.');
 
-                this.bookingCode = res.data.booking_code;
-                const code = this.bookingCode;
+      state.bookingCode = res.data.booking_code;
+      const code = state.bookingCode;
 
-                window.snap.pay(res.data.snap_token, {
-                    onSuccess: () => {
-                        window.location.href = window.routes.bookingSuccess.replace(':code', code);
-                    },
-                    onPending: () => {
-                        window.Toast.fire({ icon: 'info', title: 'Menunggu pembayaran diselesaikan.' });
-                        this.isProcessing = false;
-                    },
-                    onError: () => {
-                        window.Toast.fire({ icon: 'error', title: 'Pembayaran gagal. Silakan coba lagi.' });
-                        this.isProcessing = false;
-                    },
-                    onClose: () => {
-                        window.Toast.fire({ icon: 'warning', title: 'Pembayaran dibatalkan. Slot masih tersimpan.' });
-                        this.isProcessing = false;
-                    },
-                });
-            } catch (err) {
-                const msg = err?.response?.data?.message || err.message || 'Terjadi kesalahan.';
-                window.Toast.fire({ icon: 'error', title: msg });
-                this.isProcessing = false;
-            }
+      window.snap.pay(res.data.snap_token, {
+        onSuccess: () => {
+          window.location.href = window.routes.bookingSuccess.replace(':code', code);
         },
-    };
+        onPending: () => {
+          window.Toast.fire({ icon: 'info', title: 'Menunggu pembayaran diselesaikan.' });
+          state.isProcessing = false;
+        },
+        onError: () => {
+          window.Toast.fire({ icon: 'error', title: 'Pembayaran gagal. Silakan coba lagi.' });
+          state.isProcessing = false;
+        },
+        onClose: () => {
+          window.Toast.fire({ icon: 'warning', title: 'Pembayaran dibatalkan. Slot masih tersimpan.' });
+          state.isProcessing = false;
+        },
+      });
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || 'Terjadi kesalahan.';
+      window.Toast.fire({ icon: 'error', title: msg });
+      state.isProcessing = false;
+    }
+  };
+
+  return { triggerCheckout };
 }
 ```
 
-### `resources/js/features/booking/booking.js`
+### `resources/js/features/booking/Booking.js`
+
+> **Nama file `Booking.js` (PascalCase)** → auto-register Alpine.data sebagai `'Booking'` oleh `app.js`.
+> Di Blade: `x-data="Booking"`, lalu `x-init` untuk populate state dari PHP.
 
 ```js
-import { createInitialState } from './useState.js';
-import { calendarMixin }      from './useCalendar.js';
-import { addonsMixin }        from './useAddons.js';
-import { checkoutMixin }      from './useCheckout.js';
+import useState    from './useState.js';
+import useCalendar from './useCalendar.js';
+import useAddons   from './useAddons.js';
+import useCheckout from './useCheckout.js';
 
-export function init(Alpine) {
-    Alpine.data('bookingWizardHandler', (variants, addons, activeDays) => ({
-        ...createInitialState(variants, addons, activeDays),
-        ...calendarMixin(activeDays),
-        ...addonsMixin(),
-        ...checkoutMixin(),
+export default function Booking(Alpine) {
+  const state = useState(Alpine);
 
-        nextStep() {
-            if (!this.canProceed()) return;
-            this.currentStep++;
-            if (this.currentStep === 2) {
-                this.$nextTick(() => this.initCalendar());
-            }
-        },
+  const { initCalendar, destroyCalendar } = useCalendar({ state });
 
-        prevStep() {
-            if (this.currentStep === 2) this.destroyCalendar();
-            this.currentStep = Math.max(1, this.currentStep - 1);
-        },
+  const {
+    toggleAddon,
+    isAddonSelected,
+    increment,
+    decrement,
+    getQty,
+    buildAddonsPayload,
+  } = useAddons({ state });
 
-        canProceed() {
-            if (this.currentStep === 1) return !!this.selectedVariantId;
-            if (this.currentStep === 2) return !!this.selectedDate && !!this.selectedSlot;
-            if (this.currentStep === 3) return true;
-            return false;
-        },
+  const { triggerCheckout } = useCheckout({ state, buildAddonsPayload });
 
-        selectVariant(variant) {
-            this.selectedVariantId   = variant.id;
-            this.selectedVariant     = variant;
-            this.selectedBackgroundId = null;
-        },
+  // ─── Computed Getters ───────────────────────────────────────────
+  const totalPrice = () => {
+    if (!state.selectedVariant) return 0;
+    const addonTotal = Object.entries(state.selectedAddons).reduce((sum, [id, qty]) => {
+      const addon = state.allAddons.find(a => a.id === parseInt(id));
+      return sum + (addon ? addon.price * qty : 0);
+    }, 0);
+    return state.selectedVariant.price + addonTotal;
+  };
 
-        selectSlot(slot) {
-            if (!slot.is_occupied) this.selectedSlot = slot;
-        },
-    }));
+  const grossAmount = () =>
+    state.paymentScheme === 'dp' ? Math.round(totalPrice() * 0.60) : totalPrice();
+
+  const remainingAmount = () => totalPrice() - grossAmount();
+
+  // ─── Wizard Navigation ──────────────────────────────────────────
+  const init = () => {}; // placeholder, state di-inject via x-init di Blade
+
+  const nextStep = (calendarRef) => {
+    if (!canProceed()) return;
+    state.currentStep++;
+    if (state.currentStep === 2) {
+      // $nextTick dipanggil dari Blade: @nextTick initCalendar($refs.calendarInput)
+    }
+  };
+
+  const prevStep = () => {
+    if (state.currentStep === 2) destroyCalendar();
+    state.currentStep = Math.max(1, state.currentStep - 1);
+  };
+
+  const canProceed = () => {
+    if (state.currentStep === 1) return !!state.selectedVariantId;
+    if (state.currentStep === 2) return !!state.selectedDate && !!state.selectedSlot;
+    if (state.currentStep === 3) return true;
+    return false;
+  };
+
+  const selectVariant = (variant) => {
+    state.selectedVariantId = variant.id;
+    state.selectedVariant = variant;
+    state.selectedBackgroundId = null;
+  };
+
+  const selectSlot = (slot) => {
+    if (!slot.is_occupied) state.selectedSlot = slot;
+  };
+
+  const formatRupiah = (amount) =>
+    window.currency(amount, { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }).format();
+
+  return {
+    state,
+    init,
+
+    // Computed (dipanggil sebagai fungsi di Blade)
+    totalPrice,
+    grossAmount,
+    remainingAmount,
+    formatRupiah,
+
+    // Wizard
+    nextStep,
+    prevStep,
+    canProceed,
+    selectVariant,
+    selectSlot,
+    initCalendar,
+    destroyCalendar,
+
+    // Addons
+    toggleAddon,
+    isAddonSelected,
+    increment,
+    decrement,
+    getQty,
+
+    // Checkout
+    triggerCheckout,
+  };
 }
-```
 
 ---
 
@@ -1054,13 +1092,14 @@ export function init(Alpine) {
 ### `resources/views/frontdoor/services/index.blade.php`
 
 ```blade
-<x-layouts.frontdoor title="Layanan Kami — Binary Photoworks">
-    <section class="py-16 border-b border-[#E7E5E4]">
+<x-layouts.frontdoor.index title="Layanan Kami — Binary Photoworks">
+  <x-slot:content>
+    <section class="py-16 border-b border-stone-200">
         <div class="max-w-6xl mx-auto px-6">
-            <h1 class="font-['Libre_Baskerville'] text-4xl font-bold text-[#1C1917] tracking-tight">
+            <h1 class="text-4xl font-bold text-stone-900 tracking-tight">
                 Layanan Studio
             </h1>
-            <p class="mt-3 text-[#57534E] text-lg">
+            <p class="mt-3 text-stone-600 text-lg">
                 Pilih paket yang sesuai dengan kebutuhan sesi foto Anda.
             </p>
         </div>
@@ -1068,9 +1107,9 @@ export function init(Alpine) {
 
     @foreach ($categories as $category)
         @if ($category->packages->isNotEmpty())
-            <section class="py-12 border-b border-[#E7E5E4]">
+            <section class="py-12 border-b border-stone-200">
                 <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="font-['Libre_Baskerville'] text-2xl font-bold text-[#1C1917] mb-8">
+                    <h2 class="text-2xl font-bold text-stone-900 mb-8">
                         {{ $category->name }}
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1082,73 +1121,70 @@ export function init(Alpine) {
             </section>
         @endif
     @endforeach
-</x-layouts.frontdoor>
+  </x-slot:content>
+</x-layouts.frontdoor.index>
 ```
 
 ### `resources/views/frontdoor/booking/flow.blade.php`
 
 ```blade
-<x-layouts.frontdoor title="Booking Sesi Foto — {{ $package->name }}">
+<x-layouts.frontdoor.index
+    title="Booking Sesi Foto — {{ $package->name }}"
+    js-module="booking/Booking">
+
+  <x-slot:content>
     <div
-        x-data="bookingWizardHandler(
-            {{ Js::from($variants) }},
-            {{ Js::from($addons) }},
-            {{ Js::from($activeDays) }}
-        )"
+        x-data="Booking"
+        x-init="
+            state.allVariants    = {{ Js::from($variants) }};
+            state.allAddons      = {{ Js::from($addons) }};
+            state.activeDays     = {{ Js::from($activeDays) }};
+        "
         x-cloak
-        class="min-h-screen bg-[#FAFAF9]"
+        class="min-h-screen bg-stone-50"
     >
         {{-- Sticky Step Indicator --}}
-        <div class="border-b border-[#E7E5E4] bg-white sticky top-[64px] z-40">
+        <div class="border-b border-stone-200 bg-white sticky top-[64px] z-40">
             <div class="max-w-5xl mx-auto px-6 py-4">
                 <x-frontdoor.booking.step-indicator />
             </div>
         </div>
 
         <div class="max-w-5xl mx-auto px-6 py-10">
-            <template x-if="currentStep === 1">
+            <template x-if="state.currentStep === 1">
                 @include('frontdoor.booking.steps.step-1-variant', ['package' => $package])
             </template>
-            <template x-if="currentStep === 2">
+            <template x-if="state.currentStep === 2">
                 @include('frontdoor.booking.steps.step-2-schedule')
             </template>
-            <template x-if="currentStep === 3">
+            <template x-if="state.currentStep === 3">
                 @include('frontdoor.booking.steps.step-3-addons')
             </template>
-            <template x-if="currentStep === 4">
+            <template x-if="state.currentStep === 4">
                 @include('frontdoor.booking.steps.step-4-summary')
             </template>
         </div>
     </div>
+  </x-slot:content>
 
-    @include('frontdoor.booking.script')
-</x-layouts.frontdoor>
+  <x-slot:scripts>
+    <script>
+        window.routes = {
+            bookingSlots:    '{{ route('frontdoor.booking.api.slots') }}',
+            bookingCheckout: '{{ route('frontdoor.booking.checkout') }}',
+            bookingSuccess:  '{{ url('booking/success') }}/:code',
+        };
+    </script>
+    {{-- Midtrans Snap SDK (hanya dimuat di halaman booking) --}}
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('services.midtrans.client_key') }}">
+    </script>
+  </x-slot:scripts>
+
+</x-layouts.frontdoor.index>
 ```
 
-### `resources/views/frontdoor/booking/script.blade.php`
-
-```blade
-@push('scripts')
-<script>
-    window.routes = {
-        bookingSlots:    '{{ route('frontdoor.booking.api.slots') }}',
-        bookingCheckout: '{{ route('frontdoor.booking.checkout') }}',
-        bookingSuccess:  '{{ url('booking/success') }}/:code',
-    };
-</script>
-@endpush
-```
-
-> **Layout frontdoor** — tambahkan conditional load Midtrans SDK di `<head>`:
-> ```blade
-> @if(request()->routeIs('frontdoor.booking.*'))
->     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
->         data-client-key="{{ config('services.midtrans.client_key') }}">
->     </script>
-> @endif
-> ```
->
-> Dan tambahkan `@stack('scripts')` sebelum `</body>`.
+> **Catatan:** File `script.blade.php` tidak diperlukan. Semua script di-inject langsung via `<x-slot:scripts>` di dalam `flow.blade.php` agar tidak mengotori layout global dengan `@push`/`@stack`.
 
 ### `resources/views/frontdoor/booking/steps/step-1-variant.blade.php`
 
@@ -1156,26 +1192,26 @@ export function init(Alpine) {
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
     {{-- Kiri: Gambar + Ketentuan --}}
     <div>
-        <div class="aspect-[4/3] overflow-hidden bg-[#F5F5F4]">
+        <div class="aspect-[4/3] overflow-hidden bg-stone-100">
             <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800"
                 alt="{{ $package->name }}" class="w-full h-full object-cover">
         </div>
-        <div class="mt-6 border border-[#E7E5E4] p-5">
-            <h3 class="font-semibold text-[#1C1917] text-sm uppercase tracking-widest mb-4">
+        <div class="mt-6 border border-stone-200 p-5">
+            <h3 class="font-semibold text-stone-900 text-sm uppercase tracking-widest mb-4">
                 Ketentuan Paket
             </h3>
-            <template x-if="selectedVariant && selectedVariant.features.length">
+            <template x-if="state.selectedVariant && state.selectedVariant.features.length">
                 <ul class="space-y-2">
-                    <template x-for="f in selectedVariant.features" :key="f.id">
-                        <li class="flex items-start gap-2 text-sm text-[#57534E]">
-                            <i class="ri-check-line text-[#78716C] mt-0.5 shrink-0"></i>
+                    <template x-for="f in state.selectedVariant.features" :key="f.id">
+                        <li class="flex items-start gap-2 text-sm text-stone-600">
+                            <i class="ri-check-line text-stone-500 mt-0.5 shrink-0"></i>
                             <span x-text="f.description"></span>
                         </li>
                     </template>
                 </ul>
             </template>
-            <template x-if="!selectedVariant">
-                <p class="text-sm text-[#A8A29E]">Pilih varian untuk melihat ketentuan.</p>
+            <template x-if="!state.selectedVariant">
+                <p class="text-sm text-stone-400">Pilih varian untuk melihat ketentuan.</p>
             </template>
         </div>
     </div>
@@ -1183,7 +1219,7 @@ export function init(Alpine) {
     {{-- Kanan: Varian + Background --}}
     <div class="space-y-8">
         <div>
-            <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917] mb-4">Pilih Varian</h3>
+            <h3 class="text-xl font-bold text-stone-900 mb-4">Pilih Varian</h3>
             <div class="space-y-3">
                 @foreach ($variants as $variant)
                     <x-frontdoor.booking.variant-radio :variant="$variant" />
@@ -1191,20 +1227,20 @@ export function init(Alpine) {
             </div>
         </div>
 
-        <template x-if="selectedVariant && selectedVariant.backgrounds && selectedVariant.backgrounds.length > 0">
+        <template x-if="state.selectedVariant && state.selectedVariant.backgrounds && state.selectedVariant.backgrounds.length > 0">
             <div>
-                <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917] mb-4">Pilih Background</h3>
+                <h3 class="text-xl font-bold text-stone-900 mb-4">Pilih Background</h3>
                 <div class="grid grid-cols-4 gap-3">
-                    <template x-for="bg in selectedVariant.backgrounds" :key="bg.id">
+                    <template x-for="bg in state.selectedVariant.backgrounds" :key="bg.id">
                         <x-frontdoor.booking.background-thumb />
                     </template>
                 </div>
             </div>
         </template>
 
-        <div class="pt-4 border-t border-[#E7E5E4]">
+        <div class="pt-4 border-t border-stone-200">
             <x-shared.button variant="primary" class="w-full"
-                x-bind:disabled="!selectedVariantId" x-on:click="nextStep()">
+                x-bind:disabled="!state.selectedVariantId" x-on:click="nextStep()">
                 Lanjutkan ke Jadwal Sesi
                 <i class="ri-arrow-right-line ml-2"></i>
             </x-shared.button>
@@ -1219,35 +1255,36 @@ export function init(Alpine) {
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
     {{-- Kiri: Kalender Inline --}}
     <div>
-        <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917] mb-4">Pilih Tanggal</h3>
-        <input type="text" x-ref="calendarInput" class="hidden">
+        <h3 class="text-xl font-bold text-stone-900 mb-4">Pilih Tanggal</h3>
+        <input type="text" x-ref="calendarInput" class="hidden"
+            x-init="$nextTick(() => initCalendar($el))">
         {{-- Flatpickr inline renders here --}}
     </div>
 
     {{-- Kanan: Slot Waktu --}}
     <div>
-        <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917] mb-4">Pilih Jam Sesi</h3>
+        <h3 class="text-xl font-bold text-stone-900 mb-4">Pilih Jam Sesi</h3>
 
-        <template x-if="!selectedDate">
-            <p class="text-sm text-[#A8A29E]">Pilih tanggal terlebih dahulu.</p>
+        <template x-if="!state.selectedDate">
+            <p class="text-sm text-stone-400">Pilih tanggal terlebih dahulu.</p>
         </template>
 
-        <template x-if="isFetchingSlots">
-            <div class="flex items-center gap-2 text-[#78716C] text-sm">
+        <template x-if="state.isFetchingSlots">
+            <div class="flex items-center gap-2 text-stone-500 text-sm">
                 <i class="ri-loader-4-line animate-spin"></i>
                 <span>Memuat slot tersedia...</span>
             </div>
         </template>
 
-        <template x-if="selectedDate && !isFetchingSlots">
+        <template x-if="state.selectedDate && !state.isFetchingSlots">
             <div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <template x-for="slot in availableSlots" :key="slot.start_time">
+                    <template x-for="slot in state.availableSlots" :key="slot.start_time">
                         <x-frontdoor.booking.time-slot-button />
                     </template>
                 </div>
-                <template x-if="availableSlots.length === 0">
-                    <p class="mt-4 text-sm text-[#A8A29E]">Tidak ada slot tersedia pada tanggal ini.</p>
+                <template x-if="state.availableSlots.length === 0">
+                    <p class="mt-4 text-sm text-stone-400">Tidak ada slot tersedia pada tanggal ini.</p>
                 </template>
             </div>
         </template>
@@ -1257,7 +1294,7 @@ export function init(Alpine) {
                 <i class="ri-arrow-left-line mr-1"></i> Kembali
             </x-shared.button>
             <x-shared.button variant="primary" class="flex-1"
-                x-bind:disabled="!selectedSlot" x-on:click="nextStep()">
+                x-bind:disabled="!state.selectedSlot" x-on:click="nextStep()">
                 Lanjutkan ke Layanan Tambahan
                 <i class="ri-arrow-right-line ml-2"></i>
             </x-shared.button>
@@ -1270,11 +1307,11 @@ export function init(Alpine) {
 
 ```blade
 <div>
-    <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917] mb-2">Layanan Tambahan</h3>
-    <p class="text-sm text-[#57534E] mb-8">Opsional — bisa dikosongkan.</p>
+    <h3 class="text-xl font-bold text-stone-900 mb-2">Layanan Tambahan</h3>
+    <p class="text-sm text-stone-600 mb-8">Opsional — bisa dikosongkan.</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <template x-for="addon in allAddons" :key="addon.id">
+        <template x-for="addon in state.allAddons" :key="addon.id">
             <x-frontdoor.booking.addon-card />
         </template>
     </div>
@@ -1296,70 +1333,70 @@ export function init(Alpine) {
 ```blade
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
     {{-- Invoice Table --}}
-    <div class="lg:col-span-2 border border-[#E7E5E4]">
-        <div class="border-b border-[#E7E5E4] p-5">
-            <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917]">Ringkasan Pesanan</h3>
+    <div class="lg:col-span-2 border border-stone-200">
+        <div class="border-b border-stone-200 p-5">
+            <h3 class="text-xl font-bold text-stone-900">Ringkasan Pesanan</h3>
         </div>
         <div class="p-5 space-y-3 text-sm">
             <div class="flex justify-between">
-                <span class="text-[#57534E]">Paket</span>
-                <span class="font-medium" x-text="selectedVariant?.name"></span>
+                <span class="text-stone-600">Paket</span>
+                <span class="font-medium" x-text="state.selectedVariant?.name"></span>
             </div>
-            <template x-if="selectedBackgroundId">
+            <template x-if="state.selectedBackgroundId">
                 <div class="flex justify-between">
-                    <span class="text-[#57534E]">Background</span>
+                    <span class="text-stone-600">Background</span>
                     <span class="font-medium"
-                        x-text="selectedVariant?.backgrounds?.find(b => b.id === selectedBackgroundId)?.name ?? '-'"></span>
+                        x-text="state.selectedVariant?.backgrounds?.find(b => b.id === state.selectedBackgroundId)?.name ?? '-'"></span>
                 </div>
             </template>
             <div class="flex justify-between">
-                <span class="text-[#57534E]">Tanggal Sesi</span>
-                <span class="font-medium" x-text="selectedDate"></span>
+                <span class="text-stone-600">Tanggal Sesi</span>
+                <span class="font-medium" x-text="state.selectedDate"></span>
             </div>
             <div class="flex justify-between">
-                <span class="text-[#57534E]">Waktu Sesi</span>
+                <span class="text-stone-600">Waktu Sesi</span>
                 <span class="font-medium"
-                    x-text="selectedSlot ? selectedSlot.start_time + ' – ' + selectedSlot.end_time + ' WITA' : '-'"></span>
+                    x-text="state.selectedSlot ? state.selectedSlot.start_time + ' – ' + state.selectedSlot.end_time + ' WITA' : '-'"></span>
             </div>
-            <div class="border-t border-[#E7E5E4] pt-3 space-y-2">
+            <div class="border-t border-stone-200 pt-3 space-y-2">
                 <div class="flex justify-between">
-                    <span class="text-[#57534E]">Harga Varian</span>
-                    <span x-text="formatRupiah(selectedVariant?.price ?? 0)"></span>
+                    <span class="text-stone-600">Harga Varian</span>
+                    <span x-text="formatRupiah(state.selectedVariant?.price ?? 0)"></span>
                 </div>
-                <template x-for="[addonId, qty] in Object.entries(selectedAddons)" :key="addonId">
+                <template x-for="[addonId, qty] in Object.entries(state.selectedAddons)" :key="addonId">
                     <div class="flex justify-between">
-                        <span class="text-[#57534E]"
-                            x-text="(allAddons.find(a => a.id === parseInt(addonId))?.name ?? '') + ' ×' + qty"></span>
-                        <span x-text="formatRupiah((allAddons.find(a => a.id === parseInt(addonId))?.price ?? 0) * qty)"></span>
+                        <span class="text-stone-600"
+                            x-text="(state.allAddons.find(a => a.id === parseInt(addonId))?.name ?? '') + ' ×' + qty"></span>
+                        <span x-text="formatRupiah((state.allAddons.find(a => a.id === parseInt(addonId))?.price ?? 0) * qty)"></span>
                     </div>
                 </template>
             </div>
-            <div class="border-t border-[#E7E5E4] pt-3 flex justify-between font-bold text-base">
-                <span class="text-[#1C1917]">Total</span>
-                <span class="text-[#1C1917]" x-text="formatRupiah(totalPrice)"></span>
+            <div class="border-t border-stone-200 pt-3 flex justify-between font-bold text-base">
+                <span class="text-stone-900">Total</span>
+                <span class="text-stone-900" x-text="formatRupiah(totalPrice())"></span>
             </div>
         </div>
     </div>
 
     {{-- Payment Scheme + CTA --}}
     <div class="space-y-6">
-        <div class="border border-[#E7E5E4] p-5">
-            <h3 class="font-semibold text-[#1C1917] text-sm uppercase tracking-widest mb-5">Skema Pembayaran</h3>
+        <div class="border border-stone-200 p-5">
+            <h3 class="font-semibold text-stone-900 text-sm uppercase tracking-widest mb-5">Skema Pembayaran</h3>
             <div class="space-y-4">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="radio" x-model="paymentScheme" value="lunas" class="mt-0.5 accent-[#78716C]">
+                    <input type="radio" x-model="state.paymentScheme" value="lunas" class="mt-0.5 accent-stone-500">
                     <div>
-                        <span class="font-semibold text-[#1C1917] block">Lunas Penuh</span>
-                        <span class="text-xs text-[#57534E]" x-text="formatRupiah(totalPrice)"></span>
+                        <span class="font-semibold text-stone-900 block">Lunas Penuh</span>
+                        <span class="text-xs text-stone-600" x-text="formatRupiah(totalPrice())"></span>
                     </div>
                 </label>
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="radio" x-model="paymentScheme" value="dp" class="mt-0.5 accent-[#78716C]">
+                    <input type="radio" x-model="state.paymentScheme" value="dp" class="mt-0.5 accent-stone-500">
                     <div>
-                        <span class="font-semibold text-[#1C1917] block">DP 60%</span>
-                        <span class="text-xs text-[#57534E]">
-                            Bayar <span x-text="formatRupiah(grossAmount)"></span> sekarang,
-                            sisa <span x-text="formatRupiah(remainingAmount)"></span> di kasir.
+                        <span class="font-semibold text-stone-900 block">DP 60%</span>
+                        <span class="text-xs text-stone-600">
+                            Bayar <span x-text="formatRupiah(grossAmount())"></span> sekarang,
+                            sisa <span x-text="formatRupiah(remainingAmount())"></span> di kasir.
                         </span>
                     </div>
                 </label>
@@ -1371,11 +1408,11 @@ export function init(Alpine) {
                 <i class="ri-arrow-left-line mr-1"></i> Kembali
             </x-shared.button>
             <x-shared.button variant="primary" class="w-full"
-                x-on:click="triggerCheckout()" x-bind:disabled="isProcessing">
-                <template x-if="!isProcessing">
+                x-on:click="triggerCheckout()" x-bind:disabled="state.isProcessing">
+                <template x-if="!state.isProcessing">
                     <span>Bayar Sekarang <i class="ri-secure-payment-line ml-1"></i></span>
                 </template>
-                <template x-if="isProcessing">
+                <template x-if="state.isProcessing">
                     <span><i class="ri-loader-4-line animate-spin mr-1"></i> Mengunci Slot Jadwal...</span>
                 </template>
             </x-shared.button>
@@ -1387,48 +1424,49 @@ export function init(Alpine) {
 ### `resources/views/frontdoor/booking/success.blade.php`
 
 ```blade
-<x-layouts.frontdoor title="Reservasi Berhasil — Binary Photoworks">
+<x-layouts.frontdoor.index title="Reservasi Berhasil — Binary Photoworks">
+  <x-slot:content>
     <div class="max-w-2xl mx-auto px-6 py-20">
         <div class="text-center mb-10">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-[#F0FDF4] border border-[#65A30D]/30 mb-6">
-                <i class="ri-checkbox-circle-fill text-3xl text-[#65A30D]"></i>
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-50 border border-green-300 mb-6">
+                <i class="ri-checkbox-circle-fill text-3xl text-green-600"></i>
             </div>
-            <h1 class="font-['Libre_Baskerville'] text-3xl font-bold text-[#1C1917]">Reservasi Berhasil!</h1>
-            <p class="mt-2 text-[#57534E]">Slot jadwal Anda telah terkunci aman di sistem kami.</p>
+            <h1 class="text-3xl font-bold text-stone-900">Reservasi Berhasil!</h1>
+            <p class="mt-2 text-stone-600">Slot jadwal Anda telah terkunci aman di sistem kami.</p>
         </div>
 
-        <div class="border border-[#E7E5E4]">
-            <div class="p-5 border-b border-[#E7E5E4] flex items-center justify-between">
-                <span class="text-sm text-[#57534E]">Kode Booking</span>
-                <span class="font-mono font-bold text-[#1C1917] text-lg">{{ $booking->booking_code }}</span>
+        <div class="border border-stone-200">
+            <div class="p-5 border-b border-stone-200 flex items-center justify-between">
+                <span class="text-sm text-stone-600">Kode Booking</span>
+                <span class="font-mono font-bold text-stone-900 text-lg">{{ $booking->booking_code }}</span>
             </div>
             <div class="p-5 space-y-3 text-sm">
                 <div class="flex justify-between">
-                    <span class="text-[#57534E]">Paket</span>
+                    <span class="text-stone-600">Paket</span>
                     <span class="font-medium">{{ $booking->packageVariant->name }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-[#57534E]">Tanggal Sesi</span>
+                    <span class="text-stone-600">Tanggal Sesi</span>
                     <span class="font-medium">{{ $booking->booking_date->translatedFormat('d F Y') }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-[#57534E]">Waktu Sesi</span>
+                    <span class="text-stone-600">Waktu Sesi</span>
                     <span class="font-medium">
                         {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} –
                         {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }} WITA
                     </span>
                 </div>
-                <div class="flex justify-between border-t border-[#E7E5E4] pt-3 font-bold text-base">
-                    <span class="text-[#57534E]">Total Dibayar</span>
-                    <span class="text-[#1C1917]">
+                <div class="flex justify-between border-t border-stone-200 pt-3 font-bold text-base">
+                    <span class="text-stone-600">Total Dibayar</span>
+                    <span class="text-stone-900">
                         Rp {{ number_format($booking->payments->first()?->amount ?? 0, 0, ',', '.') }}
                     </span>
                 </div>
             </div>
 
             @if ($booking->payment_scheme === 'dp')
-                <div class="bg-[#FFFBEB] border-t border-[#CA8A04]/30 p-4">
-                    <p class="text-xs text-[#92400E]">
+                <div class="bg-amber-50 border-t border-amber-200 p-4">
+                    <p class="text-xs text-amber-800">
                         <i class="ri-information-line mr-1"></i>
                         Sisa tagihan 40% (Rp {{ number_format($booking->total_price - ($booking->payments->first()?->amount ?? 0), 0, ',', '.') }})
                         dilunasi di kasir studio pada hari sesi foto.
@@ -1446,7 +1484,8 @@ export function init(Alpine) {
             </x-shared.button>
         </div>
     </div>
-</x-layouts.frontdoor>
+  </x-slot:content>
+</x-layouts.frontdoor.index>
 ```
 
 ---
@@ -1459,18 +1498,18 @@ export function init(Alpine) {
 @props(['package'])
 @php $minPrice = $package->variants->min('price'); @endphp
 
-<div class="border border-[#E7E5E4] bg-white flex flex-col">
-    <div class="aspect-[16/9] overflow-hidden bg-[#F5F5F4]">
+<div class="border border-stone-200 bg-white flex flex-col">
+    <div class="aspect-[16/9] overflow-hidden bg-stone-100">
         <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600"
             alt="{{ $package->name }}" class="w-full h-full object-cover">
     </div>
     <div class="p-5 flex flex-col flex-1">
-        <span class="text-[11px] font-semibold text-[#78716C] uppercase tracking-widest mb-2">
+        <span class="text-[11px] font-semibold text-stone-500 uppercase tracking-widest mb-2">
             {{ $package->category->name ?? '' }}
         </span>
-        <h3 class="font-['Libre_Baskerville'] text-xl font-bold text-[#1C1917]">{{ $package->name }}</h3>
-        <p class="mt-1 text-sm text-[#57534E]">
-            Mulai dari <span class="font-semibold text-[#1C1917]">Rp {{ number_format($minPrice, 0, ',', '.') }}</span>
+        <h3 class="text-xl font-bold text-stone-900">{{ $package->name }}</h3>
+        <p class="mt-1 text-sm text-stone-600">
+            Mulai dari <span class="font-semibold text-stone-900">Rp {{ number_format($minPrice, 0, ',', '.') }}</span>
         </p>
         <div class="mt-auto pt-5">
             <x-shared.button as="a" href="{{ route('frontdoor.booking.flow', $package->slug) }}"
@@ -1488,20 +1527,20 @@ export function init(Alpine) {
 @props(['variant'])
 
 <label class="block border cursor-pointer transition-colors"
-    x-bind:class="selectedVariantId === {{ $variant->id }}
-        ? 'border-[#78716C] bg-[#F5F5F4]'
-        : 'border-[#E7E5E4] bg-white hover:border-[#D6D3D1]'"
+    x-bind:class="state.selectedVariantId === {{ $variant->id }}
+        ? 'border-stone-500 bg-stone-100'
+        : 'border-stone-200 bg-white hover:border-stone-300'"
     x-on:click="selectVariant({{ Js::from($variant->load('features', 'backgrounds')) }})">
     <div class="p-4 flex items-center gap-4">
-        <div class="shrink-0 w-4 h-4 border border-[#A8A29E] rounded-full flex items-center justify-center"
-            x-bind:class="selectedVariantId === {{ $variant->id }} ? 'border-[#78716C]' : ''">
-            <div class="w-2 h-2 rounded-full bg-[#78716C]" x-show="selectedVariantId === {{ $variant->id }}" x-transition></div>
+        <div class="shrink-0 w-4 h-4 border border-stone-400 flex items-center justify-center"
+            x-bind:class="state.selectedVariantId === {{ $variant->id }} ? 'border-stone-500' : ''">
+            <div class="w-2 h-2 bg-stone-500" x-show="state.selectedVariantId === {{ $variant->id }}" x-transition></div>
         </div>
         <div class="flex-1 min-w-0">
-            <span class="block font-semibold text-[#1C1917]">{{ $variant->name }}</span>
-            <span class="text-xs text-[#57534E]">{{ $variant->duration }} menit</span>
+            <span class="block font-semibold text-stone-900">{{ $variant->name }}</span>
+            <span class="text-xs text-stone-600">{{ $variant->duration }} menit</span>
         </div>
-        <span class="font-bold text-[#1C1917] shrink-0">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+        <span class="font-bold text-stone-900 shrink-0">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
     </div>
 </label>
 ```
@@ -1509,26 +1548,26 @@ export function init(Alpine) {
 ### `resources/views/components/frontdoor/booking/background-thumb.blade.php`
 
 ```blade
-{{-- Digunakan di dalam x-for="bg in selectedVariant.backgrounds" --}}
-<div class="flex flex-col items-center gap-2 cursor-pointer" x-on:click="selectedBackgroundId = bg.id">
+{{-- Digunakan di dalam x-for="bg in state.selectedVariant.backgrounds" --}}
+<div class="flex flex-col items-center gap-2 cursor-pointer" x-on:click="state.selectedBackgroundId = bg.id">
     <div class="w-16 h-16 border-2 overflow-hidden transition-colors"
-        x-bind:class="selectedBackgroundId === bg.id ? 'border-[#78716C]' : 'border-[#E7E5E4]'">
+        x-bind:class="state.selectedBackgroundId === bg.id ? 'border-stone-500' : 'border-stone-200'">
         <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200"
             x-bind:alt="bg.name" class="w-full h-full object-cover">
     </div>
-    <span class="text-[11px] text-[#57534E] text-center line-clamp-1" x-text="bg.name"></span>
+    <span class="text-[11px] text-stone-600 text-center line-clamp-1" x-text="bg.name"></span>
 </div>
 ```
 
 ### `resources/views/components/frontdoor/booking/time-slot-button.blade.php`
 
 ```blade
-{{-- Digunakan di dalam x-for="slot in availableSlots" --}}
+{{-- Digunakan di dalam x-for="slot in state.availableSlots" --}}
 <button type="button" class="border py-3 text-sm font-medium transition-colors text-center"
     x-bind:class="{
-        'border-[#78716C] bg-[#F5F5F4] text-[#1C1917]': selectedSlot?.start_time === slot.start_time && !slot.is_occupied,
-        'border-[#E7E5E4] bg-[#F5F5F4] text-[#A8A29E] cursor-not-allowed line-through': slot.is_occupied,
-        'border-[#E7E5E4] bg-white text-[#57534E] hover:border-[#D6D3D1]': !slot.is_occupied && selectedSlot?.start_time !== slot.start_time,
+        'border-stone-500 bg-stone-100 text-stone-900': state.selectedSlot?.start_time === slot.start_time && !slot.is_occupied,
+        'border-stone-200 bg-stone-100 text-stone-400 cursor-not-allowed line-through': slot.is_occupied,
+        'border-stone-200 bg-white text-stone-600 hover:border-stone-300': !slot.is_occupied && state.selectedSlot?.start_time !== slot.start_time,
     }"
     x-bind:disabled="slot.is_occupied"
     x-on:click="selectSlot(slot)"
@@ -1539,22 +1578,22 @@ export function init(Alpine) {
 ### `resources/views/components/frontdoor/booking/addon-card.blade.php`
 
 ```blade
-{{-- Digunakan di dalam x-for="addon in allAddons" --}}
+{{-- Digunakan di dalam x-for="addon in state.allAddons" --}}
 <div class="border p-4 transition-colors"
-    x-bind:class="isAddonSelected(addon.id) ? 'border-[#78716C] bg-[#F5F5F4]' : 'border-[#E7E5E4] bg-white'">
+    x-bind:class="isAddonSelected(addon.id) ? 'border-stone-500 bg-stone-100' : 'border-stone-200 bg-white'">
     <div class="flex items-start justify-between gap-3">
         <div class="flex-1 min-w-0">
-            <span class="font-semibold text-[#1C1917] block" x-text="addon.name"></span>
-            <span class="text-xs text-[#57534E]"
+            <span class="font-semibold text-stone-900 block" x-text="addon.name"></span>
+            <span class="text-xs text-stone-600"
                 x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(addon.price)"></span>
         </div>
 
         <template x-if="addon.has_quantity && isAddonSelected(addon.id)">
-            <div class="flex items-center border border-[#E7E5E4] shrink-0">
-                <button type="button" class="px-2 py-1 text-[#78716C] hover:bg-[#F5F5F4] text-lg leading-none"
+            <div class="flex items-center border border-stone-200 shrink-0">
+                <button type="button" class="px-2 py-1 text-stone-500 hover:bg-stone-100 text-lg leading-none"
                     x-on:click="decrement(addon.id)">−</button>
                 <span class="px-3 text-sm font-medium" x-text="getQty(addon.id)"></span>
-                <button type="button" class="px-2 py-1 text-[#78716C] hover:bg-[#F5F5F4] text-lg leading-none"
+                <button type="button" class="px-2 py-1 text-stone-500 hover:bg-stone-100 text-lg leading-none"
                     x-on:click="increment(addon.id)">+</button>
             </div>
         </template>
@@ -1562,7 +1601,7 @@ export function init(Alpine) {
         <template x-if="!addon.has_quantity || !isAddonSelected(addon.id)">
             <button type="button"
                 class="shrink-0 w-6 h-6 border flex items-center justify-center transition-colors"
-                x-bind:class="isAddonSelected(addon.id) ? 'border-[#78716C] bg-[#78716C]' : 'border-[#D6D3D1] bg-white'"
+                x-bind:class="isAddonSelected(addon.id) ? 'border-stone-500 bg-stone-500' : 'border-stone-300 bg-white'"
                 x-on:click="toggleAddon(addon.id, addon.has_quantity)">
                 <i class="ri-check-line text-white text-sm" x-show="isAddonSelected(addon.id)"></i>
             </button>
@@ -1570,7 +1609,7 @@ export function init(Alpine) {
     </div>
 
     <template x-if="!isAddonSelected(addon.id)">
-        <button type="button" class="w-full text-left mt-3 text-xs text-[#78716C] font-medium"
+        <button type="button" class="w-full text-left mt-3 text-xs text-stone-500 font-medium"
             x-on:click="toggleAddon(addon.id, addon.has_quantity)">
             + Tambahkan
         </button>
@@ -1588,23 +1627,23 @@ export function init(Alpine) {
     @foreach ($steps as $num => $label)
         <div class="flex items-center">
             <div class="flex items-center gap-2"
-                x-bind:class="{{ $num }} <= currentStep ? 'text-[#1C1917]' : 'text-[#A8A29E]'">
+                x-bind:class="{{ $num }} <= state.currentStep ? 'text-stone-900' : 'text-stone-400'">
                 <div class="w-7 h-7 border flex items-center justify-center text-sm font-bold shrink-0"
                     x-bind:class="
-                        {{ $num }} === currentStep
-                            ? 'border-[#1C1917] bg-[#1C1917] text-white'
-                            : ({{ $num }} < currentStep
-                                ? 'border-[#78716C] bg-[#F5F5F4] text-[#78716C]'
-                                : 'border-[#E7E5E4] bg-white text-[#A8A29E]')
+                        {{ $num }} === state.currentStep
+                            ? 'border-stone-900 bg-stone-900 text-white'
+                            : ({{ $num }} < state.currentStep
+                                ? 'border-stone-500 bg-stone-100 text-stone-500'
+                                : 'border-stone-200 bg-white text-stone-400')
                     ">
-                    <template x-if="{{ $num }} < currentStep"><i class="ri-check-line text-xs"></i></template>
-                    <template x-if="{{ $num }} >= currentStep"><span>{{ $num }}</span></template>
+                    <template x-if="{{ $num }} < state.currentStep"><i class="ri-check-line text-xs"></i></template>
+                    <template x-if="{{ $num }} >= state.currentStep"><span>{{ $num }}</span></template>
                 </div>
                 <span class="text-sm font-medium hidden sm:block">{{ $label }}</span>
             </div>
             @if ($num < count($steps))
                 <div class="w-8 sm:w-12 h-px mx-2"
-                    x-bind:class="{{ $num }} < currentStep ? 'bg-[#78716C]' : 'bg-[#E7E5E4]'"></div>
+                    x-bind:class="{{ $num }} < state.currentStep ? 'bg-stone-500' : 'bg-stone-200'"></div>
             @endif
         </div>
     @endforeach
@@ -1615,14 +1654,8 @@ export function init(Alpine) {
 
 ## 16. Registrasi & Catatan Implementasi
 
-### `resources/js/app.js` — Tambahkan import booking
-
-```js
-import { init as initBooking } from './features/booking/booking.js';
-
-// Setelah semua Alpine.plugin:
-initBooking(Alpine);
-```
+> **Tidak perlu modifikasi `app.js`.**  
+> File `resources/js/features/booking/Booking.js` menggunakan pola `export default function Booking(Alpine)` sehingga `app.js` akan auto-register via `Alpine.data('Booking', ...)` berdasarkan nama file. Cukup tambahkan `js-module="booking/Booking"` pada tag layout di Blade.
 
 ### Tabel Keputusan Implementasi
 
