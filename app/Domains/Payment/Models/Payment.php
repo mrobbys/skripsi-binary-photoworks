@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Domains\Booking\Models\Booking;
 
+use App\Domains\Payment\Enums\PaymentStatus;
+
 #[Guarded(['id'])]
 class Payment extends Model
 {
@@ -14,6 +16,7 @@ class Payment extends Model
     {
         return [
             'pay_date' => 'datetime',
+            'status' => PaymentStatus::class,
         ];
     }
     

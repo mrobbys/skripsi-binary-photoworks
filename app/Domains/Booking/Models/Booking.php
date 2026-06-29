@@ -13,6 +13,8 @@ use App\Domains\MasterData\Models\Background;
 use App\Domains\MasterData\Models\Addon;
 use App\Domains\Payment\Models\Payment;
 
+use App\Domains\Booking\Enums\BookingStatus;
+
 #[Guarded(['id'])]
 class Booking extends Model
 {
@@ -22,6 +24,7 @@ class Booking extends Model
             'booking_date' => 'date',
             'start_time' => 'datetime:H:i',
             'end_time' => 'datetime:H:i',
+            'status' => BookingStatus::class,
         ];
     }
 
