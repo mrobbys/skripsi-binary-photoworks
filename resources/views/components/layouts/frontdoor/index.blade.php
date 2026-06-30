@@ -47,7 +47,7 @@
     <x-layouts.frontdoor.components.mobile-menu />
   </x-layouts.frontdoor.components.navbar>
 
-  <main class="h-dvh w-full mx-auto max-w-7xl flex items-center justify-center p-4">
+  <main class="min-h-dvh w-full mx-auto max-w-7xl p-4">
     {{ $content ?? '' }}
   </main>
 

@@ -16,8 +16,8 @@
 
   {{-- services start --}}
   <x-layouts.frontdoor.components.nav-link
-    :href="route('frontdoor.services')"
-    :active="request()->routeIs('frontdoor.services')"
+    :href="route('frontdoor.services.index')"
+    :active="request()->routeIs('frontdoor.services.*') || request()->is('services*')"
     title="Services" />
   {{-- services end --}}
 
