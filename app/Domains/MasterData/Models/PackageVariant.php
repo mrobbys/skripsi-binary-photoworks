@@ -41,14 +41,6 @@ class PackageVariant extends Model
         return $this->morphMany(Feature::class, 'featureable');
     }
 
-    /**
-     * Relasi many-to-many: Satu varian dimiliki oleh banyak background
-     */
-    public function backgrounds(): BelongsToMany
-    {
-        return $this->belongsToMany(Background::class);
-    }
-
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);

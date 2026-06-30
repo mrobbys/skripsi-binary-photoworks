@@ -42,14 +42,6 @@ class Background extends Model implements HasMedia
             ->nonQueued();
     }
 
-    /**
-     * Relasi many-to-many: Satu background bisa dimiliki oleh banyak varian
-     */
-    public function packageVariants(): BelongsToMany
-    {
-        return $this->belongsToMany(PackageVariant::class);
-    }
-
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
