@@ -8,8 +8,13 @@ use Illuminate\Support\Str;
 class BookingCodeGenerator
 {
     /**
+     * Generate booking code
      * Format: BPW-{CAT_CODE}{VAR_ID_02d}-{YYMMDD}-{RAND3}
      * Contoh: BPW-WSD01-260530-7AX
+     * 
+     * @param string $categoryCode
+     * @param int $variantId
+     * @param string $bookingDate
      */
     public function generate(string $categoryCode, int $variantId, string $bookingDate): string
     {
