@@ -2,6 +2,8 @@
 
 namespace App\Domains\User\Models;
 
+use App\Domains\Booking\Models\Booking;
+use App\Domains\Review\Models\Review;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
@@ -14,12 +16,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[UseFactory(UserFactory::class)]
 #[Fillable(['name', 'email', 'password', 'phone', 'google_id', 'google_token'])]
 #[Hidden(['password', 'remember_token', 'google_token'])]
 class User extends Authenticatable implements CanResetPasswordContract
-{   
+{
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, CanResetPassword, HasUuids;
 
@@ -31,7 +34,7 @@ class User extends Authenticatable implements CanResetPasswordContract
     {
         return ['uuid'];
     }
-    
+
     /**
      * Get the attributes that should be cast.
      *
@@ -62,5 +65,15 @@ class User extends Authenticatable implements CanResetPasswordContract
                     default => "User: {$this->name} telah di-{$eventName}",
                 };
             });
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 }

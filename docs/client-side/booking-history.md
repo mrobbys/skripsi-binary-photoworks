@@ -22,6 +22,11 @@ Halaman riwayat transaksi ini membagi ruang kerja menjadi tata letak dua kolom u
         - _Kolom Waktu (Sektor Kiri)_: Menampilkan Hari, Tanggal, dan Rentang Jam Pemotretan lengkap dengan keterangan zona waktu regional `WITA` (Contoh: `Senin, 25 Mei 2026 | 10:00 - 10:30 WITA`).
         - _Kolom Rincian (Sektor Kanan)_: Menampilkan nama sub-varian paket yang dipesan (Contoh: `Studio Wisuda Paket 1`), durasi pengerjaan, status pembayaran, dan penamaan warna latar belakang latar studio yang dipilih (Contoh: `Sesi 1 Jam`, `DP Terbayar`, `Background Putih`).
 
+### C. Komponen Informasi Kebijakan (Footer / Bawah Daftar)
+
+- **Teks Booking Policy**: Di bagian paling bawah daftar jadwal, sistem menampilkan teks bantuan/kebijakan (Contoh: "Ingin mengubah pesanan, batal, atau ada kendala teknis?").
+- **Tautan Aksi Bantuan**: Teks tersebut diikuti oleh tautan teks **"Hubungi Kami"** yang jika di-klik akan langsung mengarahkan Klien ke obrolan WhatsApp Admin Studio. Ini berfungsi sebagai jalur eskalasi (*escape hatch*) untuk kondisi-kondisi di luar batasan sistem (seperti ingin batal mendadak atau ingin menambah paket/orang).
+
 ---
 
 ## 2. Aturan Bisnis & Logika Pemetaan Status (State Filtering Rules)
@@ -42,10 +47,23 @@ Sistem memisahkan baris data berdasarkan nilai kolom `status` pada tabel databas
     \text{Status} \in \{\text{'Selesai'}, \text{'Batal'}\}
     $$
 
-### B. Pemicu Modal Janji Temu (Modal Pop-Up Detail)
+### B. Hierarki Aksi & Detail Janji Temu
 
-- Mengklik salah satu baris kartu jadwal akan mengubah status variabel reaktif Alpine.js `showDetailModal` dari `false` menjadi `true`.
-- Sistem front-end akan mengirim perintah asinkronus Axios ke endpoint `/api/client/appointments/{booking_code}` untuk menarik rincian data DTO secara mendalam, meliputi tautan Google Drive (`gdrive_link`) dan rincian kuantitas item add-ons.
+- **Aksi Level Kartu (List View)**: Seluruh area kartu merupakan area klik (*clickable card*) untuk membuka rincian atau detail paket. Untuk menjaga antarmuka tetap bersih, **hanya ada 2 tombol aksi** di level ini, yaitu tombol **"Detail"**, serta **"Bayar Sekarang"** yang eksklusif muncul jika status pemesanan adalah `Menunggu` atau belum melakukan pembayaran.
+- **Rincian / Detail**: Mengklik kartu akan mengubah status `showDetailModal` menjadi `true`. Sistem akan menarik rincian DTO secara mendalam dari contoh: `/api/client/appointments/{booking_code}`.
+- **Aksi Level Detail (Berdasarkan Status)**:
+  - `Menunggu`: Menampilkan tombol **Batalkan Reservasi**, **Bayar Sekarang**, dan **Ubah Jadwal**.
+  - `DP Terbayar`: Menampilkan tombol **Unduh Kuitansi**, **Ubah Jadwal**, dan **Hubungi Admin**.
+  - `Lunas`: Menampilkan tombol **Unduh Kuitansi** dan **Hubungi Admin**.
+  - `Selesai`: Menampilkan tombol **Unduh Hasil Foto** (menuju tautan GDrive).
+  - `Batal`: Tidak menampilkan aksi apa pun.
+
+### C. Aturan Reschedule (Ubah Jadwal)
+
+Sistem memberlakukan batasan waktu untuk keamanan operasional studio:
+- **Batas Maksimal (H-1)**: Fitur "Ubah Jadwal" hanya dapat dilakukan maksimal 24 jam sebelum tanggal dan waktu pemotretan awal. 
+  - *Contoh Kasus*: Jika jadwal awal adalah tanggal 5 Mei pukul 10:00 WITA, maka Klien hanya bisa melakukan *reschedule* sebelum tanggal 4 Mei pukul 10:00 WITA. Jika Klien mencoba mengubah pada tanggal 4 Mei siang atau tanggal 5 Mei, tombol "Ubah Jadwal" tidak akan muncul.
+- **Ketersediaan Slot**: Jadwal baru yang dipilih harus melewati filter `isSlotOccupied()` sehingga dipastikan tidak bentrok dengan antrean Klien lain.
 
 ---
 

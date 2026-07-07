@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", var(--font-sans);
+  --font-sans: "Inter", sans-serif;
   --font-heading: "Libre Baskerville", serif;
 }
 
@@ -49,4 +49,10 @@ h6 {
 }
 .choices__inner{
   background-color: #ffffff !important;
+}
+
+/* Flatpickr Border Radius Override (NO ROUNDED CORNERS) */
+.flatpickr-calendar,
+.flatpickr-calendar * {
+  border-radius: 0 !important;
 }
