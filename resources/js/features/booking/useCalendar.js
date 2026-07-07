@@ -92,6 +92,9 @@ export default function useCalendar({ state }) {
         },
       },
     });
+
+    // Auto-fetch data untuk default date saat pertama kali load
+    debouncedFetch(defaultDateStr);
   };
 
   const destroyCalendar = () => {
