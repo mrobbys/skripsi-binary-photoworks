@@ -10,7 +10,7 @@ class BookingData extends Data
     public function __construct(
         public readonly int $user_id,
         public readonly int $package_variant_id,
-        public readonly ?int $background_id,
+        public readonly int $background_id,
         public readonly string $booking_code,
         public readonly string $booking_date,
         public readonly string $start_time,

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Booking\Http\Controllers\Frontdoor;
 
+use App\Domains\Booking\DTOs\BookingViewData;
 use App\Domains\Booking\Http\Requests\CheckoutRequest;
 use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
@@ -47,10 +48,12 @@ class BookingController extends Controller
 
             $items = collect($packages->items())->map(function ($package) {
                 $minPrice = $package->variants->min('price');
+                $isWhatsappOnly = $package->variants->isNotEmpty() && $package->variants->every(fn($v) => $v->is_whatsapp_only);
 
                 return array_merge($package->toArray(), [
                     'min_price_formatted' => number_format($minPrice ?? 0, 0, ',', '.'),
                     'category_name' => $package->category?->name ?? '',
+                    'is_whatsapp_only' => $isWhatsappOnly,
                 ]);
             });
 
@@ -92,9 +95,13 @@ class BookingController extends Controller
 
     public function getAvailableSlots(Request $request): JsonResponse
     {
-        $request->validate(['date' => ['required', 'date']]);
+        $request->validate([
+            'date' => ['required', 'date'],
+            'duration' => ['required', 'integer', 'min:1'],
+        ]);
 
         $date = $request->date;
+        $duration = (int) $request->duration;
         $dayOfWeek = Carbon::parse($date)->dayOfWeekIso;
 
         $schedules = Schedule::where('is_active', true)
@@ -103,18 +110,37 @@ class BookingController extends Controller
             ->get(['start_time', 'end_time']);
 
         $occupiedSlots = $this->repository->getOccupiedSlotsByDate($date);
+        $slots = [];
 
-        $slots = $schedules->map(function ($schedule) use ($occupiedSlots) {
-            $isOccupied = $occupiedSlots->some(
-                fn($b) => $schedule->start_time < $b->end_time && $schedule->end_time > $b->start_time
-            );
+        foreach ($schedules as $schedule) {
+            $currentSlotStart = Carbon::parse($schedule->start_time);
+            $scheduleEnd = Carbon::parse($schedule->end_time);
 
-            return [
-                'start_time' => Carbon::parse($schedule->start_time)->format('H:i'),
-                'end_time' => Carbon::parse($schedule->end_time)->format('H:i'),
-                'is_occupied' => $isOccupied,
-            ];
-        });
+            while ($currentSlotStart->copy()->addMinutes($duration)->lessThanOrEqualTo($scheduleEnd)) {
+                $currentSlotEnd = $currentSlotStart->copy()->addMinutes($duration);
+
+                $slotStartTime = $currentSlotStart->format('H:i');
+                $slotEndTime = $currentSlotEnd->format('H:i');
+
+                $isPast = Carbon::parse("{$date} {$slotStartTime}")->isPast();
+
+                $isOccupied = $isPast || $occupiedSlots->some(function ($booking) use ($slotStartTime, $slotEndTime) {
+                    $bookingStart = Carbon::parse($booking->start_time)->format('H:i');
+                    $bookingEnd = Carbon::parse($booking->end_time)->format('H:i');
+
+                    return $slotStartTime < $bookingEnd && $slotEndTime > $bookingStart;
+                });
+
+                if (! $isOccupied) {
+                    $slots[] = [
+                        'start_time' => $slotStartTime,
+                        'end_time' => $slotEndTime,
+                    ];
+                }
+
+                $currentSlotStart->addMinutes($duration);
+            }
+        }
 
         return response()->json(['slots' => $slots]);
     }
@@ -139,7 +165,8 @@ class BookingController extends Controller
     {
         $booking = $this->repository->findByCode($bookingCode);
         abort_if(! $booking || $booking->user_id !== Auth::id(), 404);
+        $bookingData = BookingViewData::from($booking);
 
-        return view('frontdoor.booking.booking-success', compact('booking'));
+        return view('frontdoor.booking.booking-success', ['booking' => $bookingData]);
     }
 }
