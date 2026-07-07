@@ -10,7 +10,11 @@ use Illuminate\Support\Collection;
 class BookingRepository
 {
     /**
+     * Query untuk cek apakah slot sudah terisi
      * Algoritma overlap: start_a < end_b AND end_a > start_b
+     * @param string $date
+     * @param string $startTime
+     * @param string $endTime
      */
     public function isSlotOccupied(string $date, string $startTime, string $endTime): bool
     {
@@ -24,6 +28,10 @@ class BookingRepository
             })->exists();
     }
 
+    /**
+     * Ambil data slot yang sudah terisi berdasarkan tanggal
+     * @param string $date
+     */
     public function getOccupiedSlotsByDate(string $date): Collection
     {
         return Booking::select('start_time', 'end_time')
@@ -32,6 +40,10 @@ class BookingRepository
             ->get();
     }
 
+    /**
+     * Create data booking
+     * @param BookingData $data
+     */
     public function create(BookingData $data): Booking
     {
         return Booking::create([
@@ -49,6 +61,10 @@ class BookingRepository
         ]);
     }
 
+    /**
+     * Cari data booking berdasarkan code
+     * @param string $code
+     */
     public function findByCode(string $code): ?Booking
     {
         return Booking::with(['user', 'packageVariant.package', 'background', 'addons', 'payments'])

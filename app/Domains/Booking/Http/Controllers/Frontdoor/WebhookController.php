@@ -3,11 +3,11 @@
 namespace App\Domains\Booking\Http\Controllers\Frontdoor;
 
 use App\Domains\Booking\Enums\BookingStatus;
+use App\Domains\Payment\Enums\PaymentPurpose;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendWhatsappNotificationJob;
-use Carbon\Carbon;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,6 +19,10 @@ class WebhookController extends Controller
         #[Config('midtrans.server_key')] private string $serverKey,
     ) {}
 
+    /**
+     * Handle Midtrans Webhook
+     * @param Request $request
+     */
     public function handle(Request $request): Response
     {
         $payload = $request->all();
@@ -42,34 +46,47 @@ class WebhookController extends Controller
         $fraudStatus = $payload['fraud_status'] ?? null;
         $paymentType = $payload['payment_type'] ?? null;
 
+        // update status jika payment berhasil
         if (($status === 'capture' && $fraudStatus === 'accept') || $status === 'settlement') {
+            // update payment
             $payment->update([
                 'status' => PaymentStatus::SETTLEMENT,
                 'pay_date' => now(),
                 'payment_type' => $paymentType
             ]);
-            $booking->update(['status' => $payment->payment_purpose === 'dp' ? BookingStatus::DP_PAID : BookingStatus::SUCCESS]);
+            // update booking
+            $booking->update(['status' => $payment->payment_purpose === PaymentPurpose::DP ? BookingStatus::DP_PAID : BookingStatus::SUCCESS]);
+            // kirim notifikasi whatsapp fonnte
             SendWhatsappNotificationJob::dispatch(
                 $booking->user->phone,
                 $this->buildMessage($booking, $payment)
             );
         } elseif ($status === 'pending') {
+            // update payment, jika status pending
             $payment->update([
                 'status' => PaymentStatus::PENDING,
                 'payment_type' => $paymentType
             ]);
+            // update booking
             $booking->update(['status' => BookingStatus::PENDING]);
         } elseif (in_array($status, ['deny', 'cancel', 'expire'])) {
+            // update payment jika status deny, cancel, expire
             $payment->update([
                 'status' => PaymentStatus::CANCELLED,
                 'payment_type' => $paymentType
             ]);
+            // update booking
             $booking->update(['status' => BookingStatus::CANCELLED]);
         }
 
         return response('OK', 200);
     }
 
+    /**
+     * Function membuat pesan untuk notifikasi whatsapp fonnte
+     * @param object $booking
+     * @param object $payment
+     */
     private function buildMessage(object $booking, object $payment): string
     {
         $code = $booking->booking_code;
@@ -80,7 +97,7 @@ class WebhookController extends Controller
         $receiptUrl = route('payments.receipt', ['payment' => $payment->order_id]);
         $dashboardUrl = route('frontdoor.dashboard.index');
 
-        if ($payment->payment_purpose === 'dp') {
+        if ($payment->payment_purpose === PaymentPurpose::DP) {
             return <<<TEXT
 Halo {$booking->user->name}, pembayaran Uang Muka (DP 60%) Anda sebesar {$amount} untuk Kode Booking {$code} telah kami terima.
 

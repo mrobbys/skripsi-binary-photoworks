@@ -2,10 +2,10 @@
 
 namespace App\Domains\Booking\Http\Requests;
 
-use App\Domains\Booking\DTOs\CheckoutData;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-
+use App\Domains\Booking\Enums\PaymentScheme;
+use Illuminate\Validation\Rule;
 class CheckoutRequest extends FormRequest
 {
     public function authorize(): bool
@@ -20,24 +20,11 @@ class CheckoutRequest extends FormRequest
             'background_id' => ['nullable', 'integer', 'exists:backgrounds,id'],
             'booking_date' => ['required', 'date', 'after_or_equal:today'],
             'start_time' => ['required', 'date_format:H:i'],
-            'payment_scheme' => ['required', 'in:lunas,dp'],
+            'payment_scheme' => ['required', Rule::enum(PaymentScheme::class)],
             'keterangan' => ['nullable', 'string'],
             'addons' => ['nullable', 'array'],
             'addons.*.addon_id' => ['required', 'integer', 'exists:addons,id'],
             'addons.*.quantity' => ['required', 'integer', 'min:1'],
         ];
-    }
-
-    public function toDto(): CheckoutData
-    {
-        return new CheckoutData(
-            package_variant_id: (int) $this->validated('package_variant_id'),
-            background_id: $this->validated('background_id') ? (int) $this->validated('background_id') : null,
-            booking_date: $this->validated('booking_date'),
-            start_time: $this->validated('start_time'),
-            payment_scheme: $this->validated('payment_scheme'),
-            keterangan: $this->validated('keterangan'),
-            addons: $this->validated('addons') ?? [],
-        );
     }
 }

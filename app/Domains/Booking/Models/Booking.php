@@ -14,6 +14,7 @@ use App\Domains\MasterData\Models\Addon;
 use App\Domains\Payment\Models\Payment;
 
 use App\Domains\Booking\Enums\BookingStatus;
+use App\Domains\Booking\Enums\PaymentScheme;
 
 #[Guarded(['id'])]
 class Booking extends Model
@@ -24,6 +25,7 @@ class Booking extends Model
             'booking_date' => 'date',
             'start_time' => 'datetime:H:i',
             'end_time' => 'datetime:H:i',
+            'payment_scheme' => PaymentScheme::class,
             'status' => BookingStatus::class,
         ];
     }

@@ -92,7 +92,7 @@
           <span>Jumlah yang Dibayar</span>
           <span>{{ $formattedData->amount_paid }}</span>
         </div>
-        @if ($formattedData->payment_scheme === 'dp' && $formattedData->payment_purpose === 'dp')
+        @if ($formattedData->payment_scheme === \App\Domains\Booking\Enums\PaymentScheme::DP && $formattedData->payment_purpose === \App\Domains\Payment\Enums\PaymentPurpose::DP)
           <div class="flex justify-between py-2 text-xs text-stone-500">
             <span>Sisa Pelunasan (Di Bayar di Kasir)</span>
             <span>{{ $formattedData->remaining }}</span>

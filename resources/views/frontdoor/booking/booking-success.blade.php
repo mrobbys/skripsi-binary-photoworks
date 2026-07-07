@@ -90,7 +90,7 @@
               </span>
             </div>
             <div>
-              @if ($booking->payment_scheme === 'dp')
+              @if ($booking->payment_scheme === \App\Domains\Booking\Enums\PaymentScheme::DP)
                 <span
                   class="inline-block bg-stone-200 border border-stone-300 text-xs font-bold tracking-wider uppercase px-4 py-2 text-stone-500 select-none">
                   DP 60% Terbayar ({{$booking->formatted_dp_amount}})
@@ -104,7 +104,7 @@
             </div>
           </div>
 
-          @if ($booking->payment_scheme === 'dp')
+          @if ($booking->payment_scheme === \App\Domains\Booking\Enums\PaymentScheme::DP)
             <div class="bg-stone-200 border border-stone-300 p-2 text-center">
               <p class="text-sm italic text-stone-500 leading-relaxed">
                 "Sisa pembayaran sebesar
