@@ -53,7 +53,7 @@ class PaymentReceiptController extends Controller
             'total_price' => Formatter::rupiah($payment->booking->total_price),
             'amount_paid' => Formatter::rupiah($payment->amount),
             'payment_type' => strtoupper($payment->payment_type ?? '-'),
-            'pay_date' => Formatter::dateId($payment->pay_date ?? $payment->created_at),
+            'pay_date' => Formatter::dateId($payment->pay_date ?? $payment->created_at, 'l, d F Y'),
             // total price - amount
             'remaining' => Formatter::rupiah(
                 $payment->booking->total_price - $payment->amount

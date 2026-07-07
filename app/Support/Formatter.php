@@ -18,9 +18,9 @@ class Formatter
       return 'Rp 0';
     }
 
-    $formatted = Number::currency($amount, in: 'IDR', locale: 'id');
+    $formatted = 'Rp ' . Number::format($amount, locale: 'id');
 
-    return $amount < 0 ? "-{$formatted}" : "{$formatted}";
+    return $amount < 0 ? "-{$formatted}" : $formatted;
   }
 
   /**
@@ -50,6 +50,6 @@ class Formatter
     $startTime = Carbon::parse($start)->format('H:i');
     $endTime = Carbon::parse($end)->format('H:i');
 
-    return "{$startTime} - {$endTime}";
+    return "{$startTime} - {$endTime} WITA";
   }
 }

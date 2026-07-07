@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Support\Formatter;
 
 class WebhookController extends Controller
 {
@@ -25,11 +26,11 @@ class WebhookController extends Controller
         // Verifikasi SHA512 signature
         $calculatedSig = hash(
             'sha512',
-            $payload['order_id'].$payload['status_code'].$payload['gross_amount'].$this->serverKey
+            $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . $this->serverKey
         );
 
         if ($calculatedSig !== $payload['signature_key']) {
-            activity()->log('Webhook signature mismatch: '.($payload['order_id'] ?? 'unknown'));
+            activity()->log('Webhook signature mismatch: ' . ($payload['order_id'] ?? 'unknown'));
 
             return response('Forbidden', 403);
         }
@@ -43,7 +44,7 @@ class WebhookController extends Controller
 
         if (($status === 'capture' && $fraudStatus === 'accept') || $status === 'settlement') {
             $payment->update([
-                'status' => PaymentStatus::SETTLEMENT, 
+                'status' => PaymentStatus::SETTLEMENT,
                 'pay_date' => now(),
                 'payment_type' => $paymentType
             ]);
@@ -72,15 +73,16 @@ class WebhookController extends Controller
     private function buildMessage(object $booking, object $payment): string
     {
         $code = $booking->booking_code;
-        $date = Carbon::parse($booking->booking_date)->format('d/m/Y');
-        $amount = number_format($payment->amount, 0, ',', '.');
-        
+        $date = Formatter::dateId($booking->booking_date, 'l, d F Y');
+        $time = Formatter::timeRange($booking->start_time, $booking->end_time);
+        $amount = Formatter::rupiah($payment->amount);
+
         $receiptUrl = route('payments.receipt', ['payment' => $payment->order_id]);
         $dashboardUrl = route('frontdoor.dashboard.index');
 
         if ($payment->payment_purpose === 'dp') {
             return <<<TEXT
-Halo {$booking->user->name}, pembayaran Uang Muka (DP 60%) Anda sebesar Rp {$amount} untuk Kode Booking {$code} telah kami terima.
+Halo {$booking->user->name}, pembayaran Uang Muka (DP 60%) Anda sebesar {$amount} untuk Kode Booking {$code} telah kami terima.
 
 Unduh Bukti Pembayaran DP Anda melalui tautan berikut:
 {$receiptUrl}
@@ -93,12 +95,13 @@ TEXT;
         }
 
         return <<<TEXT
-Halo {$booking->user->name}, terima kasih! Pembayaran LUNAS PENUH Anda telah berhasil kami terima.
+Halo {$booking->user->name}, terima kasih! Pembayaran Anda telah berhasil kami terima.
 
 Kode Booking : {$code}
-Status : LUNAS (100% Terbayar Resmi)
-Total Bayar : Rp {$amount}
+Status : LUNAS (100% Terbayar)
+Total Bayar : {$amount}
 Tanggal Sesi : {$date}
+Waktu Sesi : {$time}
 
 Unduh Bukti Pembayaran Anda melalui tautan berikut:
 {$receiptUrl}
