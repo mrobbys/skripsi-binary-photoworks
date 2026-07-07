@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16" x-init="if (!state.selectedVariantId && state.allVariants.length > 0) selectVariant(state.allVariants[0])">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12" x-init="if (!state.selectedVariantId && state.allVariants.length > 0) selectVariant(state.allVariants[0])">
   {{-- section kiri start --}}
   <div>
     <div class="aspect-4/5 overflow-hidden bg-stone-100">
@@ -67,24 +67,22 @@
     <div class="pt-2">
       {{-- tombol lanjut reservasi ke jadwal start --}}
       <template x-if="!state.selectedVariant?.is_whatsapp_only">
-        <x-shared.button variant="primary" class="w-full py-4"
+        <x-shared.button variant="primary" size="lg" value="Lanjutkan ke Jadwal Sesi"
           x-bind:disabled="!state.selectedVariantId || !state.selectedBackgroundId" x-on:click="nextStep()">
-          Lanjutkan ke Jadwal Sesi
         </x-shared.button>
       </template>
       {{-- tombol lanjut reservasi ke jadwal end --}}
 
       {{-- button paket variant wa only start --}}
       <template x-if="state.selectedVariant?.is_whatsapp_only">
-        <x-shared.button as="a" target="_blank" variant="primary" size="lg"
+        <x-shared.button as="a" target="_blank" variant="primary" size="lg" value="Reservasi via WhatsApp"
           x-bind:disabled="!state.selectedVariantId"
           x-bind:href="state.selectedVariant ?
-              `https://wa.me/6281234567890?text=${encodeURIComponent('Halo Admin, saya ingin reservasi paket {{ $package->name }} - ' + state.selectedVariant.name)}` :
+              `https://wa.me/6281234567890?text=${encodeURIComponent('Halo Admin, saya ingin reservasi paket ' + state.packageName + ' - ' + state.selectedVariant.name)}` :
               '#'">
           <x-slot:iconLeft>
             <i class="ri-whatsapp-line text-lg"></i>
           </x-slot:iconLeft>
-          Reservasi via WhatsApp
         </x-shared.button>
       </template>
       {{-- button paket variant wa only end --}}

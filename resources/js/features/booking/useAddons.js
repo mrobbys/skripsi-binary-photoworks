@@ -14,17 +14,23 @@ export default function useAddons({ state }) {
 
   const increment = (id) => {
     const k = String(id);
-    if (state.selectedAddons[k]) {
-      state.selectedAddons = { ...state.selectedAddons, [k]: state.selectedAddons[k] + 1 };
+    const current = state.selectedAddons[k];
+    if (current !== undefined) {
+      state.selectedAddons = { ...state.selectedAddons, [k]: current + 1 };
+    } else {
+      state.selectedAddons = { ...state.selectedAddons, [k]: 1 };
     }
   };
 
   const decrement = (id) => {
     const k = String(id);
-    if (state.selectedAddons[k] > 1) {
-      state.selectedAddons = { ...state.selectedAddons, [k]: state.selectedAddons[k] - 1 };
+    const current = state.selectedAddons[k];
+    if (current === undefined) return;
+
+    if (current > 1) {
+      state.selectedAddons = { ...state.selectedAddons, [k]: current - 1 };
     } else {
-      toggleAddon(id, false);
+      toggleAddon(id);
     }
   };
 

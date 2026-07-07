@@ -13,10 +13,11 @@
       <div>
         <div class="flex flex-wrap items-center gap-2.5">
           <span class="font-semibold text-stone-900 text-lg">
-            {{ $variant->name }} Rp {{ number_format($variant->price, 0, ',', '.') }}
+            {{ $variant->name }} · Rp {{ number_format($variant->price, 0, ',', '.') }}
           </span>
+          <x-shared.badge value="{{ $variant->duration }} Menit" variant="secondary" />
           @if ($variant->is_whatsapp_only)
-            <x-shared.whatsapp-badge />
+            <x-shared.badge value="WA Only" variant="neutral" icon="ri-whatsapp-line" />
           @endif
         </div>
 

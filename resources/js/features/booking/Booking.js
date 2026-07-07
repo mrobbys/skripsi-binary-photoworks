@@ -23,7 +23,11 @@ export default function Booking(Alpine) {
     return state.selectedVariant.price + addonTotal;
   };
 
-  const grossAmount = () => (state.paymentScheme === "dp" ? Math.round(totalPrice() * 0.6) : totalPrice());
+  const dpAmount = () => Math.round(totalPrice() * 0.6);
+
+  const dpRemaining = () => totalPrice() - dpAmount();
+
+  const grossAmount = () => (state.paymentScheme === "dp" ? dpAmount() : totalPrice());
 
   const remainingAmount = () => totalPrice() - grossAmount();
 
@@ -50,12 +54,13 @@ export default function Booking(Alpine) {
   const selectVariant = (variant) => {
     state.selectedVariantId = variant.id;
     state.selectedVariant = variant;
+    state.selectedDate = null;
+    state.selectedSlot = null;
   };
 
   const selectSlot = (slot) => {
-    if (!slot.is_occupied) state.selectedSlot = slot;
+    state.selectedSlot = slot;
   };
-
 
   return {
     state,
@@ -65,6 +70,8 @@ export default function Booking(Alpine) {
     totalPrice,
     grossAmount,
     remainingAmount,
+    dpAmount,
+    dpRemaining,
     formatRupiah,
 
     // Wizard

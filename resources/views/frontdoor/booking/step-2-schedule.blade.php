@@ -1,49 +1,69 @@
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-  {{-- Kiri: Kalender Inline --}}
-  <div>
-    <h3 class="text-xl font-bold text-stone-900 mb-4">Pilih Tanggal</h3>
-    <input type="text" x-ref="calendarInput" class="hidden"
-      x-init="$nextTick(() => initCalendar($el))">
-    {{-- Flatpickr inline renders here --}}
+<div class="max-w-5xl mx-auto px-6">
+  {{-- Header --}}
+  <div class="text-center mb-12">
+    <h2 class="text-3xl font-bold font-heading text-stone-900 mb-2">Pilih Tanggal & Waktu</h2>
+    <p class="text-stone-500 text-sm md:text-base font-medium">Pilih jadwal sesi yang Anda inginkan</p>
   </div>
 
-  {{-- Kanan: Slot Waktu --}}
-  <div>
-    <h3 class="text-xl font-bold text-stone-900 mb-4">Pilih Jam Sesi</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+    {{-- section kiri start --}}
+    <div class="flex justify-center">
+      <input type="text" x-ref="calendarInput" class="hidden"
+        x-init="$nextTick(() => initCalendar($el))">
+    </div>
+    {{-- section kiri end --}}
 
-    <template x-if="!state.selectedDate">
-      <p class="text-sm text-stone-400">Pilih tanggal terlebih dahulu.</p>
-    </template>
+    {{-- section kanan start (Pilih Jam) --}}
+    <div class="w-full mx-auto md:mx-0">
+      <h3 class="text-xl font-bold text-stone-900 mb-6 min-h-[28px]">
+        <template x-if="state.selectedDate">
+          <span x-text="state.formattedDate"></span>
+        </template>
+        <template x-if="!state.selectedDate">
+          <span class="text-stone-400 font-normal text-base">Silakan pilih tanggal...</span>
+        </template>
+      </h3>
 
-    <template x-if="state.isFetchingSlots">
-      <div class="flex items-center gap-2 text-stone-500 text-sm">
-        <i class="ri-loader-4-line animate-spin"></i>
-        <span>Memuat slot tersedia...</span>
-      </div>
-    </template>
+      <div class="min-h-[220px]">
+        <template x-if="!state.selectedDate">
+          <p class="text-sm text-stone-400">Pilih tanggal terlebih dahulu pada kalender.</p>
+        </template>
 
-    <template x-if="state.selectedDate && !state.isFetchingSlots">
-      <div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <template x-for="slot in state.availableSlots" :key="slot.start_time">
-            <x-frontdoor.booking.time-slot-button />
-          </template>
-        </div>
-        <template x-if="state.availableSlots.length === 0">
-          <p class="mt-4 text-sm text-stone-400">Tidak ada slot tersedia pada tanggal ini.</p>
+        <template x-if="state.isFetchingSlots">
+          <div class="flex items-center gap-2 text-stone-500 text-sm py-4">
+            <i class="ri-loader-4-line animate-spin"></i>
+            <span>Memuat slot tersedia...</span>
+          </div>
+        </template>
+
+        <template x-if="state.selectedDate && !state.isFetchingSlots">
+          <div>
+            <div class="grid grid-cols-2 gap-3">
+              <template x-for="slot in state.availableSlots" :key="slot.start_time">
+                <x-frontdoor.booking.time-slot-button />
+              </template>
+            </div>
+            <template x-if="state.availableSlots.length === 0">
+              <p class="text-sm text-stone-400 py-4">Tidak ada slot tersedia pada tanggal ini.</p>
+            </template>
+          </div>
         </template>
       </div>
-    </template>
-
-    <div class="mt-8 flex gap-3">
-      <x-shared.button variant="ghost" x-on:click="prevStep()">
-        <i class="ri-arrow-left-line mr-1"></i> Kembali
-      </x-shared.button>
-      <x-shared.button variant="primary" class="flex-1"
-        x-bind:disabled="!state.selectedSlot" x-on:click="nextStep()">
-        Lanjutkan ke Layanan Tambahan
-        <i class="ri-arrow-right-line ml-2"></i>
-      </x-shared.button>
     </div>
+    {{-- section kanan end --}}
+  </div>
+
+  <div class="my-8 flex flex-col sm:flex-row gap-12">
+    <x-shared.button variant="outline" size="lg" value="Kembali" x-on:click="prevStep()">
+      <x-slot:iconLeft>
+        <i class="ri-arrow-left-line"></i>
+      </x-slot:iconLeft>
+    </x-shared.button>
+    <x-shared.button variant="primary" size="lg" value="Lanjutkan ke Layanan Tambahan"
+      x-bind:disabled="!state.selectedSlot" x-on:click="nextStep()">
+      <x-slot:iconRight>
+        <i class="ri-arrow-right-line"></i>
+      </x-slot:iconRight>
+    </x-shared.button>
   </div>
 </div>

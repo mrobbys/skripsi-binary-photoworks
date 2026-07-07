@@ -1,37 +1,33 @@
-{{-- Digunakan di dalam x-for="addon in state.allAddons" --}}
-<div class="border p-4 transition-colors"
-  x-bind:class="isAddonSelected(addon.id) ? 'border-stone-500 bg-stone-100' : 'border-stone-200 bg-white'">
-  <div class="flex items-start justify-between gap-3">
-    <div class="flex-1 min-w-0">
-      <span class="font-semibold text-stone-900 block" x-text="addon.name"></span>
-      <span class="text-xs text-stone-600"
-        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(addon.price)"></span>
+<div class="border p-6 transition-colors flex items-center justify-between gap-4 cursor-pointer select-none"
+  x-on:click="toggleAddon(addon.id, addon.has_quantity)"
+  x-bind:class="isAddonSelected(addon.id) ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white hover:border-stone-300'">
+  
+  <div class="flex items-center gap-4 flex-1 min-w-0">
+    {{-- checkbox start --}}
+    <div class="shrink-0 w-6 h-6 border flex items-center justify-center transition-colors"
+      x-bind:class="isAddonSelected(addon.id) ? 'border-stone-950 bg-stone-900' : 'border-stone-300 bg-white'">
+      <i class="ri-check-line text-white text-sm" x-show="isAddonSelected(addon.id)"></i>
     </div>
+    {{-- checkbox end --}}
 
-    <template x-if="addon.has_quantity && isAddonSelected(addon.id)">
-      <div class="flex items-center border border-stone-200 shrink-0">
-        <button type="button" class="px-2 py-1 text-stone-500 hover:bg-stone-100 text-lg leading-none"
-          x-on:click="decrement(addon.id)">−</button>
-        <span class="px-3 text-sm font-medium" x-text="getQty(addon.id)"></span>
-        <button type="button" class="px-2 py-1 text-stone-500 hover:bg-stone-100 text-lg leading-none"
-          x-on:click="increment(addon.id)">+</button>
-      </div>
-    </template>
-
-    <template x-if="!addon.has_quantity || !isAddonSelected(addon.id)">
-      <button type="button"
-        class="shrink-0 w-6 h-6 border flex items-center justify-center transition-colors"
-        x-bind:class="isAddonSelected(addon.id) ? 'border-stone-500 bg-stone-500' : 'border-stone-300 bg-white'"
-        x-on:click="toggleAddon(addon.id, addon.has_quantity)">
-        <i class="ri-check-line text-white text-sm" x-show="isAddonSelected(addon.id)"></i>
-      </button>
-    </template>
+    <div class="min-w-0">
+      <span class="font-bold text-stone-900 block text-base" x-text="addon.name"></span>
+      <span class="text-sm font-semibold text-stone-700 mt-0.5 block" x-text="formatRupiah(addon.price)"></span>
+      <template x-if="addon.description">
+        <span class="text-xs text-stone-500 mt-1 block" x-text="addon.description"></span>
+      </template>
+    </div>
   </div>
 
-  <template x-if="!isAddonSelected(addon.id)">
-    <button type="button" class="w-full text-left mt-3 text-xs text-stone-500 font-medium"
-      x-on:click="toggleAddon(addon.id, addon.has_quantity)">
-      + Tambahkan
-    </button>
+  {{-- checkbox counter (if has_quantity = true) start --}}
+  <template x-if="addon.has_quantity">
+    <div class="flex items-center border border-stone-300 shrink-0 bg-white" x-on:click.stop>
+      <button type="button" class="w-8 h-8 flex items-center justify-center text-stone-600 bg-stone-100 hover:bg-stone-200 text-lg transition-colors border-r border-stone-300"
+        x-on:click="decrement(addon.id)">−</button>
+      <span class="w-10 text-center text-sm font-semibold text-stone-900" x-text="getQty(addon.id)"></span>
+      <button type="button" class="w-8 h-8 flex items-center justify-center text-stone-600 bg-stone-100 hover:bg-stone-200 text-lg transition-colors border-l border-stone-300"
+        x-on:click="increment(addon.id)">+</button>
+    </div>
   </template>
+  {{-- checkbox counter (if has_quantity = true) end --}}
 </div>
