@@ -44,6 +44,7 @@ class BookingRepository
             'end_time' => $data->end_time,
             'total_price' => $data->total_price,
             'payment_scheme' => $data->payment_scheme,
+            'keterangan' => $data->keterangan,
             'status' => $data->status,
         ]);
     }

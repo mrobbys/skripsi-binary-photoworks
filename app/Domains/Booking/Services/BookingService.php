@@ -68,6 +68,7 @@ class BookingService
                 end_time: $endTime,
                 total_price: $totalPrice,
                 payment_scheme: $data->payment_scheme,
+                keterangan: $data->keterangan,
                 status: BookingStatus::PENDING,
             ));
 

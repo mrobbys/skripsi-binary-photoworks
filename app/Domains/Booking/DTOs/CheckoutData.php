@@ -14,5 +14,6 @@ class CheckoutData extends Data
         public readonly string $payment_scheme, // 'lunas' | 'dp'
         /** @var array<int, array{addon_id: int, quantity: int}> */
         public readonly array $addons,
+        public readonly ?string $keterangan,
     ) {}
 }

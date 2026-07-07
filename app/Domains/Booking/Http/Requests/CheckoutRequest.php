@@ -21,6 +21,7 @@ class CheckoutRequest extends FormRequest
             'booking_date' => ['required', 'date', 'after_or_equal:today'],
             'start_time' => ['required', 'date_format:H:i'],
             'payment_scheme' => ['required', 'in:lunas,dp'],
+            'keterangan' => ['nullable', 'string'],
             'addons' => ['nullable', 'array'],
             'addons.*.addon_id' => ['required', 'integer', 'exists:addons,id'],
             'addons.*.quantity' => ['required', 'integer', 'min:1'],
@@ -35,6 +36,7 @@ class CheckoutRequest extends FormRequest
             booking_date: $this->validated('booking_date'),
             start_time: $this->validated('start_time'),
             payment_scheme: $this->validated('payment_scheme'),
+            keterangan: $this->validated('keterangan'),
             addons: $this->validated('addons') ?? [],
         );
     }
