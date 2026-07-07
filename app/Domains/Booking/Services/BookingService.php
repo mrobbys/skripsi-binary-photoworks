@@ -13,6 +13,7 @@ use App\Domains\Payment\Models\Payment;
 use App\Domains\User\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BookingService
 {
@@ -84,11 +85,15 @@ class BookingService
             $booking->addons()->sync($syncData);
 
             $grossAmount = $data->payment_scheme === 'dp'
-              ? (int) round($totalPrice * 0.60)
-              : $totalPrice;
+                ? (int) round($totalPrice * 0.60)
+                : $totalPrice;
+
+            $suffix = $data->payment_scheme === 'dp' ? 'DP' : 'FULL';
+            $randomString = Str::upper(Str::random(4));
+            $orderId = "{$bookingCode}-{$suffix}-{$randomString}";
 
             $snapToken = $this->midtrans->getSnapToken(
-                orderId: $bookingCode,
+                orderId: $orderId,
                 grossAmount: $grossAmount,
                 user: $user,
                 booking: $booking,
@@ -96,8 +101,8 @@ class BookingService
 
             Payment::create([
                 'booking_id' => $booking->id,
-                'order_id' => $bookingCode,
-                'payment_type' => 'online',
+                'order_id' => $orderId,
+                'payment_type' => null,
                 'payment_purpose' => $data->payment_scheme === 'dp' ? 'dp' : 'lunas',
                 'snap_token' => $snapToken,
                 'amount' => $grossAmount,

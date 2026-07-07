@@ -7,6 +7,7 @@ use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendWhatsappNotificationJob;
+use Carbon\Carbon;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -38,19 +39,30 @@ class WebhookController extends Controller
 
         $status = $payload['transaction_status'];
         $fraudStatus = $payload['fraud_status'] ?? null;
+        $paymentType = $payload['payment_type'] ?? null;
 
         if (($status === 'capture' && $fraudStatus === 'accept') || $status === 'settlement') {
-            $payment->update(['status' => PaymentStatus::SETTLEMENT, 'pay_date' => now()]);
+            $payment->update([
+                'status' => PaymentStatus::SETTLEMENT, 
+                'pay_date' => now(),
+                'payment_type' => $paymentType
+            ]);
             $booking->update(['status' => $payment->payment_purpose === 'dp' ? BookingStatus::DP_PAID : BookingStatus::SUCCESS]);
             SendWhatsappNotificationJob::dispatch(
                 $booking->user->phone,
                 $this->buildMessage($booking, $payment)
             );
         } elseif ($status === 'pending') {
-            $payment->update(['status' => PaymentStatus::PENDING]);
+            $payment->update([
+                'status' => PaymentStatus::PENDING,
+                'payment_type' => $paymentType
+            ]);
             $booking->update(['status' => BookingStatus::PENDING]);
         } elseif (in_array($status, ['deny', 'cancel', 'expire'])) {
-            $payment->update(['status' => PaymentStatus::CANCELLED]);
+            $payment->update([
+                'status' => PaymentStatus::CANCELLED,
+                'payment_type' => $paymentType
+            ]);
             $booking->update(['status' => BookingStatus::CANCELLED]);
         }
 
@@ -59,17 +71,40 @@ class WebhookController extends Controller
 
     private function buildMessage(object $booking, object $payment): string
     {
-        $appUrl = config('app.url');
         $code = $booking->booking_code;
+        $date = Carbon::parse($booking->booking_date)->format('d/m/Y');
+        $amount = number_format($payment->amount, 0, ',', '.');
+        
+        $receiptUrl = route('payments.receipt', ['payment' => $payment->order_id]);
+        $dashboardUrl = route('frontdoor.dashboard.index');
 
         if ($payment->payment_purpose === 'dp') {
-            $amount = number_format($payment->amount, 0, ',', '.');
+            return <<<TEXT
+Halo {$booking->user->name}, pembayaran Uang Muka (DP 60%) Anda sebesar Rp {$amount} untuk Kode Booking {$code} telah kami terima.
 
-            return "Halo {$booking->user->name}, DP 60% sebesar Rp {$amount} untuk Kode Booking {$code} telah sah diterima.\n\nSisa 40% dilunasi di kasir studio. Lihat detail: {$appUrl}/dashboard";
+Unduh Bukti Pembayaran DP Anda melalui tautan berikut:
+{$receiptUrl}
+
+Lihat detail jadwal reservasi Anda pada tautan Dasbor Klien berikut:
+{$dashboardUrl}
+
+Sisa tagihan 40% dapat dilunasi di meja kasir saat hari pelaksanaan sesi foto. Terima kasih!
+TEXT;
         }
 
-        $amount = number_format($payment->amount, 0, ',', '.');
+        return <<<TEXT
+Halo {$booking->user->name}, terima kasih! Pembayaran LUNAS PENUH Anda telah berhasil kami terima.
 
-        return "Halo {$booking->user->name}, pembayaran LUNAS PENUH Rp {$amount} untuk Kode Booking {$code} berhasil.\n\nJadwal terkunci aman. Sampai jumpa di studio!";
+Kode Booking : {$code}
+Status : LUNAS (100% Terbayar Resmi)
+Total Bayar : Rp {$amount}
+Tanggal Sesi : {$date}
+
+Unduh Bukti Pembayaran Anda melalui tautan berikut:
+{$receiptUrl}
+
+Pantau status jadwal dan detail reservasi Anda langsung di halaman Dashboard:
+{$dashboardUrl}
+TEXT;
     }
 }

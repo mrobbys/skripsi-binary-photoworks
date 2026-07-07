@@ -11,7 +11,7 @@ class MidtransService
 {
     public function __construct(
         #[Config('midtrans.server_key')] private string $serverKey,
-        #[Config('midtrans.snap_url')] private string $snapUrl,
+        #[Config('midtrans.base_url')] private string $baseUrl,
     ) {}
 
     public function getSnapToken(string $orderId, int $grossAmount, User $user, Booking $booking): string
@@ -32,7 +32,7 @@ class MidtransService
         ];
 
         $response = Http::withBasicAuth($this->serverKey, '')
-            ->post("{$this->snapUrl}/transactions", $payload)
+            ->post($this->baseUrl, $payload)
             ->throw()
             ->json();
 
