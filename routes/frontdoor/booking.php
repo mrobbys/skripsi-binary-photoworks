@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/services', [BookingController::class, 'services'])
     ->name('frontdoor.services.index');
 
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth'])
     ->prefix('services/booking')
     ->name('frontdoor.booking.')
     ->group(function () {

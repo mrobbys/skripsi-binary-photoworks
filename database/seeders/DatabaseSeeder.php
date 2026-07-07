@@ -7,6 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Domains\User\Enums\RoleType;
 use Illuminate\Support\Facades\Storage;
+
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -19,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // list folder di supabase storage yang ingin dibersihkan ketika menjalankan migrate:fresh --seed
         $foldersToClean = ['backgrounds'];
         $disk = env('MEDIA_DISK', 's3');
-        
+
         foreach ($foldersToClean as $folder) {
             Storage::disk($disk)->deleteDirectory($folder);
         }
@@ -49,6 +50,7 @@ class DatabaseSeeder extends Seeder
         $personalAccount = User::factory()->create([
             'name' => 'robby',
             'email' => 'robby@gmail.com',
+            'phone' => '6281936020227'
         ]);
         $personalAccount->assignRole(RoleType::USER->value);
     }

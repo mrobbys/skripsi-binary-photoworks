@@ -127,7 +127,7 @@
                 <div class="flex flex-col gap-1" x-data="{ open: false }">
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-stone-900 text-sm md:text-base" x-text="item.name"></span>
-                    <x-shared.whatsapp-badge alpine="item.is_whatsapp_only" />
+                    <x-shared.badge value="WA Only" variant="neutral" icon="ri-whatsapp-line" alpine="item.is_whatsapp_only" />
                   </div>
 
                   <ul class="flex flex-col gap-1 mt-1">

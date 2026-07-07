@@ -46,6 +46,7 @@
         "filepond-plugin-image-preview": "^4.6.12",
         "flatpickr": "^4.6.13",
         "fullcalendar": "^6.1.20",
+        "puppeteer": "^25.3.0",
         "remixicon": "^4.9.1",
         "sweetalert2": "^11.26.25",
         "tippy.js": "^6.3.7",

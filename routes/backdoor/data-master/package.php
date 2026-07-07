@@ -4,7 +4,7 @@ use App\Domains\MasterData\Http\Controllers\PackageController;
 use App\Domains\MasterData\Http\Controllers\PackageVariantController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth'])
     ->prefix('backdoor/data-master/package')
     ->name('backdoor.data-master.package.')
     ->group(function () {

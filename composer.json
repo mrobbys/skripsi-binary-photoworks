@@ -15,10 +15,11 @@
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.34",
         "midtrans/midtrans-php": "^2.6",
+        "spatie/browsershot": "^5.4",
         "spatie/laravel-activitylog": "^4.12",
         "spatie/laravel-data": "^4.23",
         "spatie/laravel-medialibrary": "^11.23",
-        "spatie/laravel-pdf": "^2.11",
+        "spatie/laravel-pdf": "^2.12",
         "spatie/laravel-permission": "^8.0",
         "spatie/laravel-sluggable": "^4.0",
         "tightenco/ziggy": "^2.6"

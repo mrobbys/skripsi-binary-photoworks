@@ -15,10 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('booking_id')->constrained()->cascadeOnDelete();
             $table->string('order_id')->unique();
-            $table->string('payment_type');
+            $table->string('payment_type')->nullable();
             $table->string('payment_purpose'); // e.g., 'dp', 'pelunasan', 'full'
             $table->string('snap_token')->nullable();
-            $table->string('payment_method')->nullable();
             $table->integer('amount');
             $table->string('status'); // e.g., 'pending', 'settlement', 'expired'
             $table->dateTime('pay_date')->nullable();
