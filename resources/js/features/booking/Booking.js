@@ -9,7 +9,7 @@ export default function Booking(Alpine) {
 
   const { initCalendar, destroyCalendar } = useCalendar({ state });
 
-  const { toggleAddon, isAddonSelected, increment, decrement, getQty, buildAddonsPayload } = useAddons({ state });
+  const { toggleAddon, isAddonSelected, increment, decrement, getQty, setQty, buildAddonsPayload } = useAddons({ state });
 
   const { triggerCheckout } = useCheckout({ state, buildAddonsPayload });
 
@@ -89,6 +89,7 @@ export default function Booking(Alpine) {
     increment,
     decrement,
     getQty,
+    setQty,
 
     // Checkout
     triggerCheckout,

@@ -36,11 +36,20 @@ export default function useAddons({ state }) {
 
   const getQty = (id) => state.selectedAddons[String(id)] ?? 0;
 
+  const setQty = (id, val) => {
+    const k = String(id);
+    let num = parseInt(val);
+
+    if (isNaN(num) || num < 1) num = 1;
+
+    state.selectedAddons = { ...state.selectedAddons, [k]: num };
+  };
+
   const buildAddonsPayload = () =>
     Object.entries(state.selectedAddons).map(([id, qty]) => ({
       addon_id: parseInt(id),
       quantity: qty,
     }));
 
-  return { toggleAddon, isAddonSelected, increment, decrement, getQty, buildAddonsPayload };
+  return { toggleAddon, isAddonSelected, increment, decrement, getQty, setQty, buildAddonsPayload };
 }
