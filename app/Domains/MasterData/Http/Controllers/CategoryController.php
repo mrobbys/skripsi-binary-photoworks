@@ -3,7 +3,6 @@
 namespace App\Domains\MasterData\Http\Controllers;
 
 use App\Domains\MasterData\DTOs\CategoryData;
-use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Http\Requests\StoreCategoryRequest;
 use App\Domains\MasterData\Http\Requests\UpdateCategoryRequest;
 use App\Domains\MasterData\Services\CategoryService;
@@ -34,20 +33,7 @@ class CategoryController extends Controller
       $search = $request->query('search');
       $limit = max(1, min((int) $request->query('limit', 10), 100));
 
-      // ambil data kategori urutkan dari terbaru
-      $query = Category::query()->orderBy('created_at', 'desc');
-
-      // jika ada query pencarian
-      // pencarian berdasarkan name dan category_code
-      if ($search) {
-        $query->where(function ($q) use ($search) {
-          $searchTerm = '%' . strtolower($search) . '%';
-          $q->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
-            ->orWhereRaw('LOWER(category_code) LIKE ?', [$searchTerm]);
-        });
-      }
-
-      $categories = $query->paginate($limit);
+      $categories = $this->categoryRepository->searchQuery($search)->paginate($limit);
 
       return response()->json([
         'data' => $categories->items(),

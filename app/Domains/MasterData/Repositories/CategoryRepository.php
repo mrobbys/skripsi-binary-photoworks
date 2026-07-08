@@ -9,6 +9,28 @@ use Illuminate\Support\Collection;
 class CategoryRepository
 {
   /**
+   * Query pencarian kategori.
+   * @param ?string $search
+   */
+  public function searchQuery(?string $search): Builder
+  {
+    // ambil data kategori urutkan dari terbaru
+      $query = Category::query()->orderBy('created_at', 'desc');
+
+      // jika ada query pencarian
+      // pencarian berdasarkan name dan category_code
+      if ($search) {
+        $query->where(function ($q) use ($search) {
+          $searchTerm = '%' . strtolower($search) . '%';
+          $q->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+            ->orWhereRaw('LOWER(category_code) LIKE ?', [$searchTerm]);
+        });
+      }
+
+      return $query;
+  }
+  
+  /**
    * Blueprint query kategori yang aktif.
    */
   public function queryActive(): Builder
