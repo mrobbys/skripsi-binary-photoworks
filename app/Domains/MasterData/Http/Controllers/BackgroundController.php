@@ -2,6 +2,7 @@
 
 namespace App\Domains\MasterData\Http\Controllers;
 
+use App\Domains\MasterData\DTOs\BackgroundData;
 use App\Domains\MasterData\Http\Requests\StoreBackgroundRequest;
 use App\Domains\MasterData\Http\Requests\UpdateBackgroundRequest;
 use App\Domains\MasterData\Models\Background;
@@ -19,16 +20,20 @@ class BackgroundController extends Controller
     protected BackgroundRepository $backgroundRepository,
   ) {}
 
+  /**
+   * Tampilkan semua data background
+   * @param Request $request
+   */
   public function index(Request $request): View|JsonResponse
   {
-    $totalActiveBackgrounds = Background::where('is_active', true)->count();
-    $totalBackgrounds = Background::count();
+    $totalActiveBackgrounds = $this->backgroundRepository->countActive();
+    $totalBackgrounds = $this->backgroundRepository->countBackground();
 
     if ($request->wantsJson()) {
       $search = $request->query('search');
       $limit = max(1, min((int) $request->query('limit', 10), 100));
 
-      $backgrounds = $this->backgroundRepository->getPaginated($search, $limit);
+      $backgrounds = $this->backgroundRepository->searchQuery($search)->paginate($limit);
 
       $items = $backgrounds->through(fn(Background $bg) => [
         'id' => $bg->id,
@@ -56,10 +61,14 @@ class BackgroundController extends Controller
     ]);
   }
 
+  /**
+   * Menambahkan data background
+   * @param StoreBackgroundRequest $request
+   */
   public function store(StoreBackgroundRequest $request): JsonResponse
   {
     $background = $this->backgroundService->createBackground(
-      $request->toDto(),
+      BackgroundData::from($request),
       $request->file('image'),
     );
 
@@ -77,11 +86,15 @@ class BackgroundController extends Controller
     ], 201);
   }
 
+  /**
+   * Memperbarui data background
+   * @param UpdateBackgroundRequest $request
+   */
   public function update(UpdateBackgroundRequest $request, Background $background): JsonResponse
   {
     $updated = $this->backgroundService->updateBackground(
       $background->id,
-      $request->toDto(),
+      BackgroundData::from($request),
       $request->file('image'),
     );
 
@@ -99,6 +112,10 @@ class BackgroundController extends Controller
     ]);
   }
 
+  /**
+   * Menghapus data background
+   * @param Background $background
+   */
   public function destroy(Background $background): JsonResponse
   {
     $this->backgroundService->deleteBackground($background->id);
@@ -109,10 +126,14 @@ class BackgroundController extends Controller
     ]);
   }
 
+  /**
+   * Mengubah status background
+   * @param Background $background
+   */
   public function toggleActive(Background $background): JsonResponse
   {
     $updated = $this->backgroundService->toggleActiveStatus($background->id);
-    $totalActiveBackgrounds = Background::where('is_active', true)->count();
+    $totalActiveBackgrounds = $this->backgroundRepository->countActive();
 
     return response()->json([
       'status' => 'success',

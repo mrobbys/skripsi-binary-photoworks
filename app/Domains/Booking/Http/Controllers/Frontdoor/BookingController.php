@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Domains\MasterData\Models\Background;
+use App\Domains\MasterData\Repositories\BackgroundRepository;
 use App\Domains\MasterData\Repositories\PackageRepository;
 use App\Support\Formatter;
 
@@ -30,7 +30,8 @@ class BookingController extends Controller
         private readonly BookingService $bookingService,
         private readonly BookingRepository $repository,
         private readonly CategoryRepository $categoryRepository,
-        private readonly PackageRepository $packageRepository
+        private readonly PackageRepository $packageRepository,
+        private readonly BackgroundRepository $backgroundRepository
     ) {}
 
     /**
@@ -100,7 +101,7 @@ class BookingController extends Controller
         $addons = Addon::where('is_active', true)->orderBy('name')->get();
         $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
         // ambil background yang aktif, beserta URL gambar thumbnail
-        $backgrounds = Background::where('is_active', true)
+        $backgrounds = $this->backgroundRepository->queryActive()
             ->get()
             ->map(fn($bg) => [
                 'id' => $bg->id,

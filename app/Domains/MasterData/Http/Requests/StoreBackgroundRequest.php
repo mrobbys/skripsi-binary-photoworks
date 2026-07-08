@@ -2,7 +2,6 @@
 
 namespace App\Domains\MasterData\Http\Requests;
 
-use App\Domains\MasterData\DTOs\BackgroundData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBackgroundRequest extends FormRequest
@@ -20,15 +19,6 @@ class StoreBackgroundRequest extends FormRequest
       'is_active' => ['required', 'boolean'],
       'image' => ['required', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
     ];
-  }
-
-  public function toDto(): BackgroundData
-  {
-    return new BackgroundData(
-      name: trim($this->validated('name')),
-      description: $this->validated('description') ? trim($this->validated('description')) : null,
-      is_active: (bool) $this->validated('is_active'),
-    );
   }
 
   public function messages(): array
