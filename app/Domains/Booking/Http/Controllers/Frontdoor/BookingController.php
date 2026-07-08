@@ -9,6 +9,7 @@ use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
 use App\Domains\MasterData\Models\Addon;
 use App\Domains\MasterData\Models\Category;
+use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Models\Schedule;
@@ -28,6 +29,7 @@ class BookingController extends Controller
     public function __construct(
         private readonly BookingService $bookingService,
         private readonly BookingRepository $repository,
+        private readonly CategoryRepository $categoryRepository
     ) {}
 
     /**
@@ -73,7 +75,7 @@ class BookingController extends Controller
             ]);
         }
 
-        $categories = Category::where('is_active', true)->get();
+        $categories = $this->categoryRepository->getActive();
 
         return view('frontdoor.services.index', compact('categories'));
     }

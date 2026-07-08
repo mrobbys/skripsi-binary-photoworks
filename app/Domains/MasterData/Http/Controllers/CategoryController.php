@@ -2,10 +2,12 @@
 
 namespace App\Domains\MasterData\Http\Controllers;
 
+use App\Domains\MasterData\DTOs\CategoryData;
 use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Http\Requests\StoreCategoryRequest;
 use App\Domains\MasterData\Http\Requests\UpdateCategoryRequest;
 use App\Domains\MasterData\Services\CategoryService;
+use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,16 +16,18 @@ use Illuminate\View\View;
 class CategoryController extends Controller
 {
   public function __construct(
-    protected CategoryService $categoryService
+    protected CategoryService $categoryService,
+    protected CategoryRepository $categoryRepository
   ) {}
 
   /**
    * Menampilkan daftar kategori.
+   * @param Request $request
    */
   public function index(Request $request): View|JsonResponse
   {
     // hitung jumlah kategori yang aktif
-    $activeCount = Category::where('is_active', true)->count();
+    $activeCount = $this->categoryRepository->countActive();
 
     // request json / ajax
     if ($request->wantsJson()) {
@@ -61,10 +65,11 @@ class CategoryController extends Controller
 
   /**
    * Simpan kategori baru.
+   * @param StoreCategoryRequest $request
    */
   public function store(StoreCategoryRequest $request): JsonResponse
   {
-    $category = $this->categoryService->createCategory($request->toDto());
+    $category = $this->categoryService->createCategory(CategoryData::from($request));
 
     return response()->json([
       'status' => 'success',
@@ -75,10 +80,12 @@ class CategoryController extends Controller
 
   /**
    * Update kategori berdasarkan slug.
+   * @param UpdateCategoryRequest $request
+   * @param string $slug
    */
   public function update(UpdateCategoryRequest $request, string $slug): JsonResponse
   {
-    $category = $this->categoryService->updateCategory($slug, $request->toDto());
+    $category = $this->categoryService->updateCategory($slug, CategoryData::from($request));
 
     return response()->json([
       'status' => 'success',
@@ -89,6 +96,7 @@ class CategoryController extends Controller
 
   /**
    * Hapus kategori.
+   * @param string $slug
    */
   public function destroy(string $slug): JsonResponse
   {
@@ -102,11 +110,12 @@ class CategoryController extends Controller
 
   /**
    * Ubah status aktif kategori dengan toggle.
+   * @param string $slug
    */
   public function toggleActive(string $slug): JsonResponse
   {
     $category = $this->categoryService->toggleCategoryActiveStatus($slug);
-    $activeCount = Category::where('is_active', true)->count();
+    $activeCount = $this->categoryRepository->countActive();
 
     return response()->json([
       'status' => 'success',

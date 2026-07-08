@@ -15,24 +15,27 @@ class CategoryService
 
   /**
    * Logika bisnis simpan kategori baru (otomatis mengubah kode menjadi HURUF BESAR).
+   * @param CategoryData $data
    */
   public function createCategory(CategoryData $data): Category
   {
-    return $this->categoryRepository->create($this->mapData($data));
+    return $this->categoryRepository->create($data->toArray());
   }
 
   /**
    * Logika bisnis perbarui kategori.
+   * @param CategoryData $data
    */
   public function updateCategory(string $slug, CategoryData $data): Category
   {
     // cari kategori berdasarkan slug
     $category = $this->findCategoryOrFail($slug);
-    return $this->categoryRepository->update($category, $this->mapData($data));
+    return $this->categoryRepository->update($category, $data->toArray());
   }
 
   /**
    * Logika bisnis hapus kategori.
+   * @param string $slug
    */
   public function deleteCategory(string $slug): bool
   {
@@ -43,6 +46,7 @@ class CategoryService
 
   /**
    * Logika toggle status aktif / is_active.
+   * @param string $slug
    */
   public function toggleCategoryActiveStatus(string $slug): Category
   {
@@ -57,6 +61,7 @@ class CategoryService
   // HELPER METHODS
   /**
    * Mencari kategori berdasarkan Slug.
+   * @param string $slug
    */
   private function findCategoryOrFail(string $slug): Category
   {
@@ -67,17 +72,5 @@ class CategoryService
     }
 
     return $category;
-  }
-
-  /**
-   * Mapping data kategori, untuk create & update.
-   */
-  private function mapData(CategoryData $data): array
-  {
-    return [
-      'category_code' => strtoupper($data->category_code),
-      'name' => $data->name,
-      'is_active' => $data->is_active
-    ];
   }
 }

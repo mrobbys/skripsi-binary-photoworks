@@ -5,6 +5,7 @@ namespace App\Domains\MasterData\Http\Controllers;
 use App\Domains\MasterData\Http\Requests\StorePackageRequest;
 use App\Domains\MasterData\Http\Requests\UpdatePackageRequest;
 use App\Domains\MasterData\Models\Category;
+use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Services\PackageService;
@@ -17,6 +18,7 @@ class PackageController extends Controller
 {
     public function __construct(
         protected PackageService $packageService,
+        protected CategoryRepository $categoryRepository
     ) {}
 
     // TODO: pindahkan beberapa query ke repository
@@ -70,7 +72,7 @@ class PackageController extends Controller
             ]);
         }
 
-        $categories = Category::where('is_active', true)
+        $categories = $this->categoryRepository->queryActive()
             ->orderBy('name')
             ->get(['id', 'category_code', 'name']);
 
@@ -88,7 +90,7 @@ class PackageController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        $categories = Category::where('is_active', true)
+        $categories = $this->categoryRepository->queryActive()
             ->orderBy('name')
             ->get(['id', 'category_code', 'name']);
 

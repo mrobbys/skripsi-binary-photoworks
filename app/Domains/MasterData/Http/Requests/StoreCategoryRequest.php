@@ -2,7 +2,6 @@
 
 namespace App\Domains\MasterData\Http\Requests;
 
-use App\Domains\MasterData\DTOs\CategoryData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCategoryRequest extends FormRequest
@@ -37,18 +36,6 @@ class StoreCategoryRequest extends FormRequest
         'boolean',
       ],
     ];
-  }
-
-  /**
-   * Return data yang telah divalidasi ke DTO CategoryData
-   */
-  public function toDto(): CategoryData
-  {
-    return new CategoryData(
-      category_code: trim($this->validated('category_code')),
-      name: trim($this->validated('name')),
-      is_active: (bool) $this->validated('is_active')
-    );
   }
 
   public function messages(): array
