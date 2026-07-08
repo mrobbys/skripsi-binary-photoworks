@@ -2,7 +2,6 @@
 
 namespace App\Domains\MasterData\Http\Requests;
 
-use App\Domains\MasterData\DTOs\PackageVariantData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PackageVariantRequest extends FormRequest
@@ -23,18 +22,6 @@ class PackageVariantRequest extends FormRequest
       'features' => ['nullable', 'array'],
       'features.*' => ['string', 'max:255'],
     ];
-  }
-
-  public function toDto(): PackageVariantData
-  {
-    return new PackageVariantData(
-      name: trim($this->validated('name')),
-      price: (int) $this->validated('price'),
-      duration: (int) $this->validated('duration'),
-      is_whatsapp_only: (bool) $this->validated('is_whatsapp_only'),
-      is_active: (bool) $this->validated('is_active'),
-      features: $this->validated('features') ?? [],
-    );
   }
 
   public function messages(): array

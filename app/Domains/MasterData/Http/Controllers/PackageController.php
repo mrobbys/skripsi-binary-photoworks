@@ -2,12 +2,13 @@
 
 namespace App\Domains\MasterData\Http\Controllers;
 
+use App\Domains\MasterData\DTOs\PackageData;
 use App\Domains\MasterData\Http\Requests\StorePackageRequest;
 use App\Domains\MasterData\Http\Requests\UpdatePackageRequest;
-use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
-use App\Domains\MasterData\Models\PackageVariant;
+use App\Domains\MasterData\Repositories\PackageRepository;
+use App\Domains\MasterData\Repositories\PackageVariantRepository;
 use App\Domains\MasterData\Services\PackageService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -18,16 +19,20 @@ class PackageController extends Controller
 {
     public function __construct(
         protected PackageService $packageService,
-        protected CategoryRepository $categoryRepository
+        protected CategoryRepository $categoryRepository,
+        protected PackageRepository $packageRepository,
+        protected PackageVariantRepository $variantRepository
     ) {}
 
-    // TODO: pindahkan beberapa query ke repository
-
+    /**
+     * Menampilkan daftar paket di halaman index
+     * @param Request $request
+     */
     public function index(Request $request): View|JsonResponse
     {
-        $totalPackages = Package::count();
-        $totalActivePackages = Package::where('is_active', true)->count();
-        $totalActiveVariants = PackageVariant::where('is_active', true)->count();
+        $totalPackages = $this->packageRepository->countPackages();
+        $totalActivePackages = $this->packageRepository->countActive();
+        $totalActiveVariants = $this->variantRepository->countActive();
 
         if ($request->wantsJson()) {
             $search = $request->query('search');
@@ -84,6 +89,10 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan detail paket
+     * @param string $slug
+     */
     public function show(string $slug): View|JsonResponse
     {
         $package = Package::with(['category', 'features'])
@@ -103,9 +112,13 @@ class PackageController extends Controller
         return view('backdoor.data-master.package.show', compact('package', 'categories'));
     }
 
+    /**
+     * Tambah data paket
+     * @param StorePackageRequest $request
+     */
     public function store(StorePackageRequest $request): JsonResponse
     {
-        $package = $this->packageService->createPackage($request->toDto());
+        $package = $this->packageService->createPackage(PackageData::from($request));
 
         return response()->json([
             'status' => 'success',
@@ -114,9 +127,14 @@ class PackageController extends Controller
         ], 201);
     }
 
+    /**
+     * Update data paket
+     * @param UpdatePackageRequest $request
+     * @param string $slug
+     */
     public function update(UpdatePackageRequest $request, string $slug): JsonResponse
     {
-        $package = $this->packageService->updatePackage($slug, $request->toDto());
+        $package = $this->packageService->updatePackage($slug, PackageData::from($request));
 
         return response()->json([
             'status' => 'success',
@@ -125,6 +143,10 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Hapus data paket
+     * @param string $slug
+     */
     public function destroy(string $slug): JsonResponse
     {
         $this->packageService->deletePackage($slug);
@@ -135,11 +157,15 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Toggle status aktif paket
+     * @param string $slug
+     */
     public function toggleActive(string $slug): JsonResponse
     {
         $package = $this->packageService->toggleActiveStatus($slug);
-        $totalActivePackages = Package::where('is_active', true)->count();
-        $totalActiveVariants = PackageVariant::where('is_active', true)->count();
+        $totalActivePackages = $this->packageRepository->countActive();
+        $totalActiveVariants = $this->variantRepository->countActive();
 
         return response()->json([
             'status' => 'success',

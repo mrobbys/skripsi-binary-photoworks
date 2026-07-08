@@ -8,7 +8,6 @@ use App\Domains\Booking\Http\Requests\CheckoutRequest;
 use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
 use App\Domains\MasterData\Models\Addon;
-use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
@@ -21,6 +20,7 @@ use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Domains\MasterData\Models\Background;
+use App\Domains\MasterData\Repositories\PackageRepository;
 use App\Support\Formatter;
 
 #[Middleware('auth', only: ['flow', 'checkout', 'success'])]
@@ -29,7 +29,8 @@ class BookingController extends Controller
     public function __construct(
         private readonly BookingService $bookingService,
         private readonly BookingRepository $repository,
-        private readonly CategoryRepository $categoryRepository
+        private readonly CategoryRepository $categoryRepository,
+        private readonly PackageRepository $packageRepository
     ) {}
 
     /**
@@ -40,7 +41,7 @@ class BookingController extends Controller
     {
         if ($request->wantsJson()) {
             // ambil data paket yang aktif, beserta kategori dan variant yang aktif
-            $query = Package::where('is_active', true)
+            $query = $this->packageRepository->queryActive()
                 ->with(['category', 'variants' => function ($q) {
                     $q->where('is_active', true)->orderBy('price');
                 }]);
