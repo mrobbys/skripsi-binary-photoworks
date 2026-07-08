@@ -38,21 +38,7 @@ class PackageController extends Controller
             $search = $request->query('search');
             $limit = max(1, min((int) $request->query('limit', 10), 100));
 
-            $query = Package::with(['category', 'features', 'variants'])
-                ->withCount('variants')
-                ->orderBy('created_at', 'desc');
-
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $term = '%' . strtolower($search) . '%';
-                    $q->whereRaw('LOWER(name) LIKE ?', [$term])
-                        ->orWhereHas('category', function ($cq) use ($term) {
-                            $cq->whereRaw('LOWER(name) LIKE ?', [$term]);
-                        });
-                });
-            }
-
-            $packages = $query->paginate($limit);
+            $packages = $this->packageRepository->searchQuery($search)->paginate($limit);
 
             $items = collect($packages->items())->map(function (Package $package) {
                 $activeVariants = $package->variants->where('is_active', true);

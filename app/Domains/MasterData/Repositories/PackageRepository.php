@@ -9,6 +9,29 @@ use Illuminate\Support\Collection;
 class PackageRepository
 {
   /**
+   * Query pencarian paket
+   * @param ?string $search
+   */
+  public function searchQuery(?string $search): Builder
+  {
+    $query = Package::with(['category', 'features', 'variants'])
+      ->withCount('variants')
+      ->orderBy('created_at', 'desc');
+
+    if ($search) {
+      $query->where(function ($q) use ($search) {
+        $term = '%' . strtolower($search) . '%';
+        $q->whereRaw('LOWER(name) LIKE ?', [$term])
+          ->orWhereHas('category', function ($cq) use ($term) {
+            $cq->whereRaw('LOWER(name) LIKE ?', [$term]);
+          });
+      });
+    }
+
+    return $query;
+  }
+
+  /**
    * Query total paket count()
    */
   public function countPackages(): int
