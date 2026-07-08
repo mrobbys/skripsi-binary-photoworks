@@ -7,7 +7,7 @@ use App\Domains\Booking\DTOs\CheckoutData;
 use App\Domains\Booking\Http\Requests\CheckoutRequest;
 use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
-use App\Domains\MasterData\Models\Addon;
+use App\Domains\MasterData\Repositories\AddonRepository;
 use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
@@ -31,7 +31,8 @@ class BookingController extends Controller
         private readonly BookingRepository $repository,
         private readonly CategoryRepository $categoryRepository,
         private readonly PackageRepository $packageRepository,
-        private readonly BackgroundRepository $backgroundRepository
+        private readonly BackgroundRepository $backgroundRepository,
+        private readonly AddonRepository $addonRepository
     ) {}
 
     /**
@@ -98,7 +99,7 @@ class BookingController extends Controller
             ->orderBy('price')
             ->get();
 
-        $addons = Addon::where('is_active', true)->orderBy('name')->get();
+        $addons = $this->addonRepository->queryActive()->orderBy('name')->get();
         $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
         // ambil background yang aktif, beserta URL gambar thumbnail
         $backgrounds = $this->backgroundRepository->queryActive()
