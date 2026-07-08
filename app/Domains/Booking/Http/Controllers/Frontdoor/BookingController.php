@@ -3,6 +3,7 @@
 namespace App\Domains\Booking\Http\Controllers\Frontdoor;
 
 use App\Domains\Booking\DTOs\BookingViewData;
+use App\Domains\Booking\DTOs\CheckoutData;
 use App\Domains\Booking\Http\Requests\CheckoutRequest;
 use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
@@ -19,6 +20,7 @@ use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Domains\MasterData\Models\Background;
+use App\Support\Formatter;
 
 #[Middleware('auth', only: ['flow', 'checkout', 'success'])]
 class BookingController extends Controller
@@ -28,14 +30,20 @@ class BookingController extends Controller
         private readonly BookingRepository $repository,
     ) {}
 
+    /**
+     * Tampil semua data paket
+     * @param Request $request
+     */
     public function services(Request $request): View|JsonResponse
     {
         if ($request->wantsJson()) {
+            // ambil data paket yang aktif, beserta kategori dan variant yang aktif
             $query = Package::where('is_active', true)
                 ->with(['category', 'variants' => function ($q) {
                     $q->where('is_active', true)->orderBy('price');
                 }]);
 
+            // filter berdasarkan kategori
             $categoryName = $request->query('category', 'Semua');
             if ($categoryName !== 'Semua') {
                 $query->whereHas('category', function ($q) use ($categoryName) {
@@ -51,7 +59,7 @@ class BookingController extends Controller
                 $isWhatsappOnly = $package->variants->isNotEmpty() && $package->variants->every(fn($v) => $v->is_whatsapp_only);
 
                 return array_merge($package->toArray(), [
-                    'min_price_formatted' => number_format($minPrice ?? 0, 0, ',', '.'),
+                    'min_price_formatted' => Formatter::rupiah($minPrice),
                     'category_name' => $package->category?->name ?? '',
                     'is_whatsapp_only' => $isWhatsappOnly,
                 ]);
@@ -70,10 +78,16 @@ class BookingController extends Controller
         return view('frontdoor.services.index', compact('categories'));
     }
 
+    /**
+     * Halaman flow booking paket
+     * @param Package $package
+     */
     public function flow(Package $package): View
     {
+        // abort jika paket tidak aktif
         abort_if(! $package->is_active, 404);
 
+        // ambil variant
         $variants = PackageVariant::with(['features'])
             ->where('package_id', $package->id)
             ->where('is_active', true)
@@ -82,6 +96,7 @@ class BookingController extends Controller
 
         $addons = Addon::where('is_active', true)->orderBy('name')->get();
         $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
+        // ambil background yang aktif, beserta URL gambar thumbnail
         $backgrounds = Background::where('is_active', true)
             ->get()
             ->map(fn($bg) => [
@@ -93,6 +108,10 @@ class BookingController extends Controller
         return view('frontdoor.booking.flow', compact('package', 'variants', 'addons', 'activeDays', 'backgrounds'));
     }
 
+    /**
+     * Ambil slot waktu yang tersedia dari Schedule
+     * @param Request $request
+     */
     public function getAvailableSlots(Request $request): JsonResponse
     {
         $request->validate([
@@ -104,11 +123,13 @@ class BookingController extends Controller
         $duration = (int) $request->duration;
         $dayOfWeek = Carbon::parse($date)->dayOfWeekIso;
 
+        // ambil slot waktu
         $schedules = Schedule::where('is_active', true)
             ->where('day', $dayOfWeek)
             ->orderBy('start_time')
             ->get(['start_time', 'end_time']);
 
+        // cek apakah slot waktu sudah terisi
         $occupiedSlots = $this->repository->getOccupiedSlotsByDate($date);
         $slots = [];
 
@@ -145,10 +166,14 @@ class BookingController extends Controller
         return response()->json(['slots' => $slots]);
     }
 
+    /**
+     * Proses checkout
+     * @param CheckoutRequest $request
+     */
     public function checkout(CheckoutRequest $request): JsonResponse
     {
         try {
-            $data = $request->toDto();
+            $data = CheckoutData::from($request);
             $result = $this->bookingService->processCheckout(Auth::user(), $data);
 
             return response()->json([
@@ -161,6 +186,10 @@ class BookingController extends Controller
         }
     }
 
+    /**
+     * Halaman booking berhasil
+     * @param string $bookingCode
+     */
     public function success(string $bookingCode): View
     {
         $booking = $this->repository->findByCode($bookingCode);

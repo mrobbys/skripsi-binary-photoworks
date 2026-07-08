@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Domains\Payment\Enums\PaymentPurpose;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 use App\Support\Formatter;
@@ -31,10 +31,9 @@ class PaymentReceiptController extends Controller
         $statusLabel = strtoupper($payment->status->label());
         if ($payment->status === PaymentStatus::SETTLEMENT) {
             $statusLabel = match ($payment->payment_purpose) {
-                'dp' => 'DP TERBAYAR (60%)',
-                'pelunasan' => 'LUNAS (PELUNASAN)',
-                'full' => 'LUNAS',
-                default => 'TERBAYAR',
+                PaymentPurpose::DP => 'DP TERBAYAR (60%)',
+                PaymentPurpose::PELUNASAN => 'LUNAS (PELUNASAN)',
+                PaymentPurpose::LUNAS => 'LUNAS',
             };
         }
 

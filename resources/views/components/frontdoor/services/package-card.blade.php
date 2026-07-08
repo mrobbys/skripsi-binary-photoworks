@@ -15,10 +15,10 @@
     <h3 class="text-2xl font-serif font-bold text-stone-900 mb-1" x-text="package.name"></h3>
     <p class="text-sm text-stone-500 mb-4">
       Mulai dari <span class="font-semibold text-stone-900"
-        x-text="'Rp' + package.min_price_formatted"></span>
+        x-text="package.min_price_formatted"></span>
     </p>
     <div class="mt-auto">
-      <x-shared.button as="a" ::href="`{{ route('frontdoor.booking.flow', ':slug') }}`.replace(':slug', package.slug)"
+      <x-shared.button as="a" x-bind:href="`{{ route('frontdoor.booking.flow', ':slug') }}`.replace(':slug', package.slug)"
         variant="secondary"
         class="w-full text-center py-2.5 font-semibold bg-stone-600 hover:bg-stone-700 text-stone-50 border-0">
         Pilih Layanan

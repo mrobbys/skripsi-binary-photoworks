@@ -12,8 +12,14 @@ class FonnteWhatsappService
         #[Config('fonnte.token')] private string $token,
     ) {}
 
+    /**
+     * Mengirim pesan ke nomor telepon.
+     * @param string $phone
+     * @param string $message
+     */
     public function send(string $phone, string $message): bool
     {
+        // Normalisasi nomor
         $normalized = $this->normalizePhone($phone);
 
         $response = Http::withHeaders(['Authorization' => $this->token])
@@ -22,6 +28,7 @@ class FonnteWhatsappService
                 'message' => $message,
             ]);
 
+        // Log jika gagal
         if (! $response->ok()) {
             Log::channel('whatsapp')->error('Fonnte send failed', [
                 'phone' => $normalized,
@@ -34,10 +41,13 @@ class FonnteWhatsappService
         return true;
     }
 
+    /**
+     * Normalisasi nomor telepon, menjadi nomor dengan awalan 62.
+     */
     private function normalizePhone(string $phone): string
     {
         $phone = preg_replace('/[^0-9]/', '', $phone);
 
-        return str_starts_with($phone, '0') ? '62'.substr($phone, 1) : $phone;
+        return str_starts_with($phone, '0') ? '62' . substr($phone, 1) : $phone;
     }
 }

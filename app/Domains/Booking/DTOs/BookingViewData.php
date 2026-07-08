@@ -2,6 +2,7 @@
 
 namespace App\Domains\Booking\DTOs;
 
+use App\Domains\Booking\Enums\PaymentScheme;
 use App\Domains\Booking\Models\Booking;
 use Spatie\LaravelData\Data;
 use App\Support\Formatter;
@@ -18,7 +19,7 @@ class BookingViewData extends Data
     public readonly string $customer_name,
     public readonly string $customer_phone,
     public readonly string $formatted_total_price,
-    public readonly string $payment_scheme,
+    public readonly PaymentScheme $payment_scheme,
     public readonly string $formatted_dp_amount,
     public readonly string $formatted_remaining_amount,
     public readonly string $order_id,
