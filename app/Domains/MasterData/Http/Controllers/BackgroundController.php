@@ -11,6 +11,7 @@ use App\Domains\MasterData\Services\BackgroundService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
 class BackgroundController extends Controller
@@ -24,6 +25,7 @@ class BackgroundController extends Controller
    * Tampilkan semua data background
    * @param Request $request
    */
+  #[Middleware('permission:background-master-view')]
   public function index(Request $request): View|JsonResponse
   {
     $totalActiveBackgrounds = $this->backgroundRepository->countActive();
@@ -65,6 +67,7 @@ class BackgroundController extends Controller
    * Menambahkan data background
    * @param StoreBackgroundRequest $request
    */
+  #[Middleware('permission:background-master-create')]
   public function store(StoreBackgroundRequest $request): JsonResponse
   {
     $background = $this->backgroundService->createBackground(
@@ -90,6 +93,7 @@ class BackgroundController extends Controller
    * Memperbarui data background
    * @param UpdateBackgroundRequest $request
    */
+  #[Middleware('permission:background-master-update')]
   public function update(UpdateBackgroundRequest $request, Background $background): JsonResponse
   {
     $updated = $this->backgroundService->updateBackground(
@@ -116,6 +120,7 @@ class BackgroundController extends Controller
    * Menghapus data background
    * @param Background $background
    */
+  #[Middleware('permission:background-master-delete')]
   public function destroy(Background $background): JsonResponse
   {
     $this->backgroundService->deleteBackground($background->id);
@@ -130,6 +135,7 @@ class BackgroundController extends Controller
    * Mengubah status background
    * @param Background $background
    */
+  #[Middleware('permission:background-master-update')]
   public function toggleActive(Background $background): JsonResponse
   {
     $updated = $this->backgroundService->toggleActiveStatus($background->id);

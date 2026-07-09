@@ -11,6 +11,7 @@ use App\Domains\MasterData\Services\AddonService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
 class AddonController extends Controller
@@ -24,6 +25,7 @@ class AddonController extends Controller
    * Tampil semua data add-on
    * @param Request $request
    */
+  #[Middleware('permission:addon-master-view')]
   public function index(Request $request): View|JsonResponse
   {
     $totalAddons       = $this->addonRepository->countAddon();
@@ -55,6 +57,7 @@ class AddonController extends Controller
    * Menambahkan data add-on
    * @param StoreAddonRequest $request
    */
+  #[Middleware('permission:addon-master-create')]
   public function store(StoreAddonRequest $request): JsonResponse
   {
     $addon = $this->addonService->createAddon(AddonData::from($request));
@@ -71,6 +74,7 @@ class AddonController extends Controller
    * @param UpdateAddonRequest $request
    * @param Addon $addon
    */
+  #[Middleware('permission:addon-master-update')]
   public function update(UpdateAddonRequest $request, Addon $addon): JsonResponse
   {
     $updated = $this->addonService->updateAddon($addon->id, AddonData::from($request));
@@ -86,6 +90,7 @@ class AddonController extends Controller
    * Menghapus data add-on
    * @param Addon $addon
    */
+  #[Middleware('permission:addon-master-delete')]
   public function destroy(Addon $addon): JsonResponse
   {
     $this->addonService->deleteAddon($addon->id);
@@ -100,6 +105,7 @@ class AddonController extends Controller
    * Mengubah status add-on
    * @param Addon $addon
    */
+  #[Middleware('permission:addon-master-update')]
   public function toggleActive(Addon $addon): JsonResponse
   {
     $updated           = $this->addonService->toggleActiveStatus($addon->id);

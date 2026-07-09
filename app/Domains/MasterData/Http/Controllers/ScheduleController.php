@@ -9,6 +9,7 @@ use App\Domains\MasterData\Repositories\ScheduleRepository;
 use App\Domains\MasterData\Services\ScheduleService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
 class ScheduleController extends Controller
@@ -21,6 +22,7 @@ class ScheduleController extends Controller
   /**
    * Tampilkan data jadwal
    */
+  #[Middleware('permission:schedule-master-view')]
   public function index(): View|JsonResponse
   {
     if (request()->wantsJson()) {
@@ -43,6 +45,7 @@ class ScheduleController extends Controller
    * @param UpdateScheduleRequest $request
    * @param Schedule $schedule
    */
+  #[Middleware('permission:schedule-master-update')]
   public function update(UpdateScheduleRequest $request, Schedule $schedule): JsonResponse
   {
     $updated = $this->scheduleService->updateSchedule($schedule->id, ScheduleData::fromRequest($request));
@@ -63,6 +66,7 @@ class ScheduleController extends Controller
    * Perbarui status aktif jadwal
    * @param Schedule $schedule
    */
+  #[Middleware('permission:schedule-master-update')]
   public function toggleActive(Schedule $schedule): JsonResponse
   {
     $updated = $this->scheduleService->toggleActiveStatus($schedule->id);

@@ -9,6 +9,7 @@ use App\Domains\MasterData\Services\PackageVariantService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 
 class PackageVariantController extends Controller
 {
@@ -21,6 +22,7 @@ class PackageVariantController extends Controller
    * @param Request $request
    * @param string $packageSlug
    */
+  #[Middleware('permission:package-variant-master-view')]
   public function index(Request $request, string $packageSlug): JsonResponse
   {
     $limit = max(1, min((int) $request->query('limit', 10), 100));
@@ -38,6 +40,7 @@ class PackageVariantController extends Controller
    * @param PackageVariantRequest $request
    * @param string $packageSlug
    */
+  #[Middleware('permission:package-variant-master-create')]
   public function store(PackageVariantRequest $request, string $packageSlug): JsonResponse
   {
     $variant = $this->variantService->createVariant($packageSlug, PackageVariantData::from($request));
@@ -54,6 +57,7 @@ class PackageVariantController extends Controller
    * @param PackageVariantRequest $request
    * @param PackageVariant $variant
    */
+  #[Middleware('permission:package-variant-master-update')]
   public function update(PackageVariantRequest $request, string $packageSlug, PackageVariant $variant): JsonResponse
   {
     $variant = $this->variantService->updateVariant($variant, PackageVariantData::from($request));
@@ -70,6 +74,7 @@ class PackageVariantController extends Controller
    * @param string $packageSlug = sengaja tidak digunakan didalam function, untuk menjaga parameter dari route
    * @param PackageVariant $variant
    */
+  #[Middleware('permission:package-variant-master-delete')]
   public function destroy(string $packageSlug, PackageVariant $variant): JsonResponse
   {
     $this->variantService->deleteVariant($variant);
@@ -85,6 +90,7 @@ class PackageVariantController extends Controller
    * @param string $packageSlug = sengaja tidak digunakan didalam function, untuk menjaga parameter dari route
    * @param PackageVariant $variant
    */
+  #[Middleware('permission:package-variant-master-update')]
   public function toggleActive(string $packageSlug, PackageVariant $variant): JsonResponse
   {
     $updated = $this->variantService->toggleVariantActiveStatus($variant);
