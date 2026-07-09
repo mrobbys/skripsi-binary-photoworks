@@ -1,16 +1,18 @@
-import route from "../../../lib/route";
-import { Modal, Toast, confirmModal } from "../../../lib/sweetalert";
+import route from "@/lib/route";
+import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
 
-export default function useVariantActions({ state, table }) {
-  const toggleVariantStatus = async (packageSlug, variantId, event) => {
+export default function usePackageActions({ state, table }) {
+  const togglePackageStatus = async (slug, event) => {
     const checkbox = event.target;
     const originalChecked = !checkbox.checked;
     state.isLoading = true;
     try {
-      const response = await window.axios.patch(
-        route("backdoor.data-master.package.variants.toggle", { package: packageSlug, variant: variantId }),
-      );
-      const idx = table.data.findIndex((v) => v.id === variantId);
+      const response = await window.axios.patch(route("backdoor.data-master.package.toggle", slug));
+      if (response.data.total_active_variants !== undefined) {
+        state.totalActivePackages = response.data.total_active_packages;
+        state.totalActiveVariants = response.data.total_active_variants;
+      }
+      const idx = table.data.findIndex((p) => p.slug === slug);
       if (idx !== -1) table.data[idx].is_active = !originalChecked;
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
@@ -21,25 +23,23 @@ export default function useVariantActions({ state, table }) {
     }
   };
 
-  const destroyVariant = async (packageSlug, variantId, variantName) => {
+  const destroyPackage = async (pkg) => {
     const result = await confirmModal(
-      "Hapus Varian?",
-      `Varian "${variantName}" akan dihapus secara permanen.`,
+      "Hapus Paket?",
+      `Paket "${pkg.name}" beserta seluruh variannya akan dihapus secara permanen.`,
       "warning",
       "Ya, Hapus",
     );
     if (!result.isConfirmed) return;
     state.isLoading = true;
     try {
-      const response = await window.axios.delete(
-        route("backdoor.data-master.package.variants.destroy", { package: packageSlug, variant: variantId }),
-      );
+      const response = await window.axios.delete(route("backdoor.data-master.package.destroy", pkg.slug));
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
       Modal.fire({
         icon: "error",
-        title: "Gagal menghapus varian",
+        title: "Gagal menghapus paket",
         text: error.response?.data?.message ?? "Terjadi kesalahan server.",
       });
     } finally {
@@ -47,5 +47,5 @@ export default function useVariantActions({ state, table }) {
     }
   };
 
-  return { toggleVariantStatus, destroyVariant };
+  return { togglePackageStatus, destroyPackage };
 }

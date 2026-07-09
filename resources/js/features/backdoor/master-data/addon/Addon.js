@@ -1,10 +1,10 @@
-import useDatatable from "../../../lib/useDatatable";
+import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import useAddonForm from "./useAddonForm";
 import useAddonActions from "./useAddonActions";
-import route from "../../../lib/route";
-import { Toast } from "../../../lib/sweetalert";
-import formatRupiah from "../../../utils/formatRupiah";
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
+import formatRupiah from "@/utils/formatRupiah";
 
 export default function Addon(Alpine) {
   const state = useState(Alpine);

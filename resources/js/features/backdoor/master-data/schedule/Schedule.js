@@ -1,6 +1,6 @@
-import useDatatable from "../../../lib/useDatatable";
-import route from "../../../lib/route";
-import { Toast } from "../../../lib/sweetalert";
+import useDatatable from "@/lib/useDatatable";
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
 import useState from "./useState";
 import useActions from "./useActions";
 

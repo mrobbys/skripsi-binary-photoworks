@@ -9,7 +9,7 @@
 <x-layouts.backdoor.index
   title="Jadwal Operasional Studio"
   :breadcrumbs="$breadcrumbs"
-  js-module="master-data/schedule/Schedule">
+  jsModule="backdoor/master-data/schedule/Schedule">
 
   <x-slot:content>
     <div

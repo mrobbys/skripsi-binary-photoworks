@@ -1,9 +1,9 @@
-import route from "../../../lib/route";
-import useDatatable from "../../../lib/useDatatable";
+import route from "@/lib/route";
+import useDatatable from "@/lib/useDatatable";
 import useVariantForm from "./useVariantForm";
 import useVariantActions from "./useVariantActions";
-import { Toast } from "../../../lib/sweetalert";
-import formatRupiah from "../../../utils/formatRupiah";
+import { Toast } from "@/lib/sweetalert";
+import formatRupiah from "@/utils/formatRupiah";
 import useState from "./useState";
 import usePackageForm from "./usePackageForm";
 

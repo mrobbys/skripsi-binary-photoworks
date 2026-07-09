@@ -1,5 +1,5 @@
-import route from "../../../lib/route";
-import { Modal, Toast, confirmModal } from "../../../lib/sweetalert";
+import route from "@/lib/route";
+import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
 
 export default function useActions({ state, table }) {
   // Fungsi untuk mengubah status kategori dengan toggle

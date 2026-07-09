@@ -1,5 +1,5 @@
-import route from "../../../lib/route";
-import { Modal, Toast, confirmModal } from "../../../lib/sweetalert";
+import route from "@/lib/route";
+import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
 
 export default function useAddonActions({ state, table }) {
   const toggleAddonStatus = async (id, currentStatus) => {

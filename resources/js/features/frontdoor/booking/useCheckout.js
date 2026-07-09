@@ -1,5 +1,5 @@
-import route from "../../lib/route";
-import { Toast } from "../../lib/sweetalert";
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
 
 export default function useCheckout({ state, buildAddonsPayload }) {
   const triggerCheckout = async () => {

@@ -8,7 +8,7 @@
 <x-layouts.backdoor.index
   title="Kelola Paket & Varian"
   :breadcrumbs="$breadcrumbs"
-  js-module="master-data/package/Package">
+  jsModule="backdoor/master-data/package/Package">
 
   <x-slot:content>
     <div

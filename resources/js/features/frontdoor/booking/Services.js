@@ -1,6 +1,6 @@
 import Choices from "choices.js";
-import route from "../../lib/route";
-import { Toast } from "../../lib/sweetalert";
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
 
 export default function Services(Alpine) {
   // --- Reactive State ---

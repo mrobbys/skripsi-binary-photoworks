@@ -1,9 +1,9 @@
-import useDatatable from "../../../lib/useDatatable";
+import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import useBackgroundForm from "./useBackgroundForm";
 import useBackgroundActions from "./useBackgroundActions";
-import route from "../../../lib/route";
-import { Toast } from "../../../lib/sweetalert";
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
 
 export default function Background(Alpine) {
   const state = useState(Alpine);

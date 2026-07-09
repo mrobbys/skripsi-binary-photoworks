@@ -1,6 +1,6 @@
 <x-layouts.frontdoor.index
   title="Booking Sesi Foto — {{ $package->name }}"
-  js-module="booking/Booking">
+  jsModule="frontdoor/booking/Booking">
 
   <x-slot:heads>
     {{-- midtrans --}}

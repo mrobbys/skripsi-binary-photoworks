@@ -1,10 +1,10 @@
-import route from "../../../lib/route";
-import useDatatable from "../../../lib/useDatatable";
+import route from "@/lib/route";
+import useDatatable from "@/lib/useDatatable";
 import usePackageForm from "./usePackageForm";
 import usePackageActions from "./usePackageActions";
 import useState from "./useState";
-import { Toast } from "../../../lib/sweetalert";
-import formatRupiah from "../../../utils/formatRupiah";
+import { Toast } from "@/lib/sweetalert";
+import formatRupiah from "@/utils/formatRupiah";
 
 export default function Package(Alpine) {
   const state = useState(Alpine);

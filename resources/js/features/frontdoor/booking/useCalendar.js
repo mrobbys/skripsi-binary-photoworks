@@ -1,6 +1,6 @@
-import route from "../../lib/route";
+import route from "@/lib/route";
 import dayjs from "dayjs";
-import { Toast } from "../../lib/sweetalert";
+import { Toast } from "@/lib/sweetalert";
 
 let _timer = null;
 let _fp = null;

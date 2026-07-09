@@ -9,7 +9,7 @@
 <x-layouts.backdoor.index
   title="Kelola Layanan Tambahan"
   :breadcrumbs="$breadcrumbs"
-  js-module="master-data/addon/Addon">
+  jsModule="backdoor/master-data/addon/Addon">
 
   <x-slot:content>
     <div

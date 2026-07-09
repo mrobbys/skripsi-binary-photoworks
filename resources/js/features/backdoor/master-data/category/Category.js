@@ -1,9 +1,9 @@
-import route from "../../../lib/route";
-import useDatatable from "../../../lib/useDatatable";
+import route from "@/lib/route";
+import useDatatable from "@/lib/useDatatable";
 import useForm from "./useForm";
 import useActions from "./useActions";
 import useState from "./useState";
-import { Toast } from "../../../lib/sweetalert";
+import { Toast } from "@/lib/sweetalert";
 
 export default function Category(Alpine) {
   const state = useState(Alpine);

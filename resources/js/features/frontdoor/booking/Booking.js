@@ -2,7 +2,7 @@ import useState from "./useState.js";
 import useCalendar from "./useCalendar.js";
 import useAddons from "./useAddons.js";
 import useCheckout from "./useCheckout.js";
-import formatRupiah from "../../utils/formatRupiah.js";
+import formatRupiah from "@/utils/formatRupiah";
 
 export default function Booking(Alpine) {
   const state = useState(Alpine);

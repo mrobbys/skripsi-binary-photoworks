@@ -9,7 +9,7 @@
 <x-layouts.backdoor.index
   title="Detail Paket"
   :breadcrumbs="$breadcrumbs"
-  js-module="master-data/package/ShowPackage">
+  jsModule="backdoor/master-data/package/ShowPackage">
 
   <x-slot:heads>
     <script>
