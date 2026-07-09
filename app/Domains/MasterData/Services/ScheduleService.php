@@ -13,17 +13,24 @@ class ScheduleService
     protected ScheduleRepository $scheduleRepository,
   ) {}
 
+  /**
+   * Perbarui data jadwal
+   * @param int $id
+   * @param ScheduleData $data
+   */
   public function updateSchedule(int $id, ScheduleData $data): Schedule
   {
     $schedule = $this->findOrFail($id);
-
-    return $this->scheduleRepository->update($schedule, [
-      'start_time' => $data->start_time,
-      'end_time'   => $data->end_time,
-      'is_active'  => $data->is_active,
-    ]);
+    return $this->scheduleRepository->update(
+      $schedule,
+      $data->except('id', 'day', 'day_label')->toArray()
+    );
   }
 
+  /**
+   * Perbarui status aktif jadwal
+   * @param int $id
+   */
   public function toggleActiveStatus(int $id): Schedule
   {
     $schedule = $this->findOrFail($id);
@@ -33,6 +40,10 @@ class ScheduleService
     ]);
   }
 
+  /**
+   * Mencari jadwal berdasarkan id
+   * @param int $id
+   */
   private function findOrFail(int $id): Schedule
   {
     $schedule = $this->scheduleRepository->findById($id);

@@ -2,6 +2,7 @@
 
 namespace App\Domains\MasterData\Http\Controllers;
 
+use App\Domains\MasterData\DTOs\ScheduleData;
 use App\Domains\MasterData\Http\Requests\UpdateScheduleRequest;
 use App\Domains\MasterData\Models\Schedule;
 use App\Domains\MasterData\Repositories\ScheduleRepository;
@@ -17,19 +18,14 @@ class ScheduleController extends Controller
     protected ScheduleRepository $scheduleRepository,
   ) {}
 
+  /**
+   * Tampilkan data jadwal
+   */
   public function index(): View|JsonResponse
   {
     if (request()->wantsJson()) {
       $schedules = $this->scheduleRepository->getAll();
-
-      $items = $schedules->map(fn(Schedule $s) => [
-        'id'         => $s->id,
-        'day'        => $s->day->value,
-        'day_label'  => $s->day->label(),
-        'start_time' => $s->start_time?->format('H:i'),
-        'end_time'   => $s->end_time?->format('H:i'),
-        'is_active'  => $s->is_active,
-      ]);
+      $items = ScheduleData::collect($schedules);
 
       return response()->json([
         'data'         => $items,
@@ -42,9 +38,14 @@ class ScheduleController extends Controller
     return view('backdoor.data-master.schedule.index');
   }
 
+  /**
+   * Perbarui data jadwal
+   * @param UpdateScheduleRequest $request
+   * @param Schedule $schedule
+   */
   public function update(UpdateScheduleRequest $request, Schedule $schedule): JsonResponse
   {
-    $updated = $this->scheduleService->updateSchedule($schedule->id, $request->toDto());
+    $updated = $this->scheduleService->updateSchedule($schedule->id, ScheduleData::fromRequest($request));
 
     return response()->json([
       'status'  => 'success',
@@ -58,6 +59,10 @@ class ScheduleController extends Controller
     ]);
   }
 
+  /**
+   * Perbarui status aktif jadwal
+   * @param Schedule $schedule
+   */
   public function toggleActive(Schedule $schedule): JsonResponse
   {
     $updated = $this->scheduleService->toggleActiveStatus($schedule->id);
