@@ -2,7 +2,6 @@
 
 namespace App\Domains\MasterData\Http\Requests;
 
-use App\Domains\MasterData\DTOs\ScheduleData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateScheduleRequest extends FormRequest
@@ -19,15 +18,6 @@ class UpdateScheduleRequest extends FormRequest
       'end_time'   => ['required', 'date_format:H:i', 'after:start_time'],
       'is_active'  => ['required', 'boolean'],
     ];
-  }
-
-  public function toDto(): ScheduleData
-  {
-    return new ScheduleData(
-      start_time: $this->validated('start_time'),
-      end_time: $this->validated('end_time'),
-      is_active: (bool) $this->validated('is_active'),
-    );
   }
 
   public function messages(): array

@@ -2,6 +2,7 @@
 
 namespace App\Domains\MasterData\Http\Controllers;
 
+use App\Domains\MasterData\DTOs\AddonData;
 use App\Domains\MasterData\Http\Requests\StoreAddonRequest;
 use App\Domains\MasterData\Http\Requests\UpdateAddonRequest;
 use App\Domains\MasterData\Models\Addon;
@@ -19,29 +20,23 @@ class AddonController extends Controller
     protected AddonRepository $addonRepository,
   ) {}
 
+  /**
+   * Tampil semua data add-on
+   * @param Request $request
+   */
   public function index(Request $request): View|JsonResponse
   {
-    $totalAddons       = Addon::count();
-    $totalActiveAddons = Addon::where('is_active', true)->count();
+    $totalAddons       = $this->addonRepository->countAddon();
+    $totalActiveAddons = $this->addonRepository->countActive();
 
     if ($request->wantsJson()) {
       $search = $request->query('search');
       $limit  = max(1, min((int) $request->query('limit', 10), 100));
 
-      $addons = $this->addonRepository->getPaginated($search, $limit);
-
-      $items = $addons->through(fn(Addon $addon) => [
-        'id'           => $addon->id,
-        'name'         => $addon->name,
-        'price'        => $addon->price,
-        'description'  => $addon->description,
-        'has_quantity' => $addon->has_quantity,
-        'is_active'    => $addon->is_active,
-        'created_at'   => $addon->created_at,
-      ]);
+      $addons = $this->addonRepository->searchQuery($search)->paginate($limit);
 
       return response()->json([
-        'data'                => $items->items(),
+        'data'                => $addons->items(),
         'current_page'        => $addons->currentPage(),
         'last_page'           => $addons->lastPage(),
         'total'               => $addons->total(),
@@ -56,9 +51,13 @@ class AddonController extends Controller
     ]);
   }
 
+  /**
+   * Menambahkan data add-on
+   * @param StoreAddonRequest $request
+   */
   public function store(StoreAddonRequest $request): JsonResponse
   {
-    $addon = $this->addonService->createAddon($request->toDto());
+    $addon = $this->addonService->createAddon(AddonData::from($request));
 
     return response()->json([
       'status'  => 'success',
@@ -67,9 +66,14 @@ class AddonController extends Controller
     ], 201);
   }
 
+  /**
+   * Memperbarui data add-on
+   * @param UpdateAddonRequest $request
+   * @param Addon $addon
+   */
   public function update(UpdateAddonRequest $request, Addon $addon): JsonResponse
   {
-    $updated = $this->addonService->updateAddon($addon->id, $request->toDto());
+    $updated = $this->addonService->updateAddon($addon->id, AddonData::from($request));
 
     return response()->json([
       'status'  => 'success',
@@ -78,6 +82,10 @@ class AddonController extends Controller
     ]);
   }
 
+  /**
+   * Menghapus data add-on
+   * @param Addon $addon
+   */
   public function destroy(Addon $addon): JsonResponse
   {
     $this->addonService->deleteAddon($addon->id);
@@ -88,10 +96,14 @@ class AddonController extends Controller
     ]);
   }
 
+  /**
+   * Mengubah status add-on
+   * @param Addon $addon
+   */
   public function toggleActive(Addon $addon): JsonResponse
   {
     $updated           = $this->addonService->toggleActiveStatus($addon->id);
-    $totalActiveAddons = Addon::where('is_active', true)->count();
+    $totalActiveAddons = $this->addonRepository->countActive();
 
     return response()->json([
       'status'              => 'success',

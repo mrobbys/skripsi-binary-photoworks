@@ -2,11 +2,13 @@
 
 namespace App\Domains\MasterData\Http\Controllers;
 
+use App\Domains\MasterData\DTOs\PackageData;
 use App\Domains\MasterData\Http\Requests\StorePackageRequest;
 use App\Domains\MasterData\Http\Requests\UpdatePackageRequest;
-use App\Domains\MasterData\Models\Category;
+use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
-use App\Domains\MasterData\Models\PackageVariant;
+use App\Domains\MasterData\Repositories\PackageRepository;
+use App\Domains\MasterData\Repositories\PackageVariantRepository;
 use App\Domains\MasterData\Services\PackageService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -17,35 +19,26 @@ class PackageController extends Controller
 {
     public function __construct(
         protected PackageService $packageService,
+        protected CategoryRepository $categoryRepository,
+        protected PackageRepository $packageRepository,
+        protected PackageVariantRepository $variantRepository
     ) {}
 
-    // TODO: pindahkan beberapa query ke repository
-
+    /**
+     * Menampilkan daftar paket di halaman index
+     * @param Request $request
+     */
     public function index(Request $request): View|JsonResponse
     {
-        $totalPackages = Package::count();
-        $totalActivePackages = Package::where('is_active', true)->count();
-        $totalActiveVariants = PackageVariant::where('is_active', true)->count();
+        $totalPackages = $this->packageRepository->countPackages();
+        $totalActivePackages = $this->packageRepository->countActive();
+        $totalActiveVariants = $this->variantRepository->countActive();
 
         if ($request->wantsJson()) {
             $search = $request->query('search');
             $limit = max(1, min((int) $request->query('limit', 10), 100));
 
-            $query = Package::with(['category', 'features', 'variants'])
-                ->withCount('variants')
-                ->orderBy('created_at', 'desc');
-
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $term = '%' . strtolower($search) . '%';
-                    $q->whereRaw('LOWER(name) LIKE ?', [$term])
-                        ->orWhereHas('category', function ($cq) use ($term) {
-                            $cq->whereRaw('LOWER(name) LIKE ?', [$term]);
-                        });
-                });
-            }
-
-            $packages = $query->paginate($limit);
+            $packages = $this->packageRepository->searchQuery($search)->paginate($limit);
 
             $items = collect($packages->items())->map(function (Package $package) {
                 $activeVariants = $package->variants->where('is_active', true);
@@ -70,7 +63,7 @@ class PackageController extends Controller
             ]);
         }
 
-        $categories = Category::where('is_active', true)
+        $categories = $this->categoryRepository->queryActive()
             ->orderBy('name')
             ->get(['id', 'category_code', 'name']);
 
@@ -82,13 +75,17 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan detail paket
+     * @param string $slug
+     */
     public function show(string $slug): View|JsonResponse
     {
         $package = Package::with(['category', 'features'])
             ->where('slug', $slug)
             ->firstOrFail();
 
-        $categories = Category::where('is_active', true)
+        $categories = $this->categoryRepository->queryActive()
             ->orderBy('name')
             ->get(['id', 'category_code', 'name']);
 
@@ -101,9 +98,13 @@ class PackageController extends Controller
         return view('backdoor.data-master.package.show', compact('package', 'categories'));
     }
 
+    /**
+     * Tambah data paket
+     * @param StorePackageRequest $request
+     */
     public function store(StorePackageRequest $request): JsonResponse
     {
-        $package = $this->packageService->createPackage($request->toDto());
+        $package = $this->packageService->createPackage(PackageData::from($request));
 
         return response()->json([
             'status' => 'success',
@@ -112,9 +113,14 @@ class PackageController extends Controller
         ], 201);
     }
 
+    /**
+     * Update data paket
+     * @param UpdatePackageRequest $request
+     * @param string $slug
+     */
     public function update(UpdatePackageRequest $request, string $slug): JsonResponse
     {
-        $package = $this->packageService->updatePackage($slug, $request->toDto());
+        $package = $this->packageService->updatePackage($slug, PackageData::from($request));
 
         return response()->json([
             'status' => 'success',
@@ -123,6 +129,10 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Hapus data paket
+     * @param string $slug
+     */
     public function destroy(string $slug): JsonResponse
     {
         $this->packageService->deletePackage($slug);
@@ -133,11 +143,15 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Toggle status aktif paket
+     * @param string $slug
+     */
     public function toggleActive(string $slug): JsonResponse
     {
         $package = $this->packageService->toggleActiveStatus($slug);
-        $totalActivePackages = Package::where('is_active', true)->count();
-        $totalActiveVariants = PackageVariant::where('is_active', true)->count();
+        $totalActivePackages = $this->packageRepository->countActive();
+        $totalActiveVariants = $this->variantRepository->countActive();
 
         return response()->json([
             'status' => 'success',

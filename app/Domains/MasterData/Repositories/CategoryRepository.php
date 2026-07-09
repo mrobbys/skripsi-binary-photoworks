@@ -3,11 +3,60 @@
 namespace App\Domains\MasterData\Repositories;
 
 use App\Domains\MasterData\Models\Category;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class CategoryRepository
 {
   /**
+   * Query pencarian kategori.
+   * @param ?string $search
+   */
+  public function searchQuery(?string $search): Builder
+  {
+    // ambil data kategori urutkan dari terbaru
+      $query = Category::query()->orderBy('created_at', 'desc');
+
+      // jika ada query pencarian
+      // pencarian berdasarkan name dan category_code
+      if ($search) {
+        $query->where(function ($q) use ($search) {
+          $searchTerm = '%' . strtolower($search) . '%';
+          $q->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+            ->orWhereRaw('LOWER(category_code) LIKE ?', [$searchTerm]);
+        });
+      }
+
+      return $query;
+  }
+  
+  /**
+   * Blueprint query kategori yang aktif.
+   */
+  public function queryActive(): Builder
+  {
+    return Category::where('is_active', true);
+  }
+
+  /**
+   * Mengambil semua kategori yang aktif.
+   */
+  public function getActive(): Collection
+  {
+    return $this->queryActive()->get();
+  }
+
+  /**
+   * Menghitung total kategori yang aktif.
+   */
+  public function countActive(): int
+  {
+    return $this->queryActive()->count();
+  }
+
+  /**
    * Mencari kategori berdasarkan Slug.
+   * @param string $slug
    */
   public function findBySlug(string $slug): ?Category
   {
@@ -16,6 +65,7 @@ class CategoryRepository
 
   /**
    * Membuat kategori baru.
+   * @param array $data
    */
   public function create(array $data): Category
   {
@@ -24,6 +74,8 @@ class CategoryRepository
 
   /**
    * Memperbarui data kategori.
+   * @param Category $category
+   * @param array $data
    */
   public function update(Category $category, array $data): Category
   {
@@ -33,6 +85,7 @@ class CategoryRepository
 
   /**
    * Menghapus kategori.
+   * @param Category $category
    */
   public function delete(Category $category): ?bool
   {

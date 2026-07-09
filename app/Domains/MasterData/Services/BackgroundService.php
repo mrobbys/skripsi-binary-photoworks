@@ -14,13 +14,14 @@ class BackgroundService
     protected BackgroundRepository $backgroundRepository,
   ) {}
 
+  /**
+   * Tambah background
+   * @param BackgroundData $data
+   * @param UploadedFile|null $image
+   */
   public function createBackground(BackgroundData $data, ?UploadedFile $image = null): Background
   {
-    $background = $this->backgroundRepository->create([
-      'name' => $data->name,
-      'description' => $data->description,
-      'is_active' => $data->is_active,
-    ]);
+    $background = $this->backgroundRepository->create($data->toArray());
 
     if ($image) {
       $background
@@ -31,15 +32,17 @@ class BackgroundService
     return $background->load('media');
   }
 
+  /**
+   * Update background
+   * @param int $id
+   * @param BackgroundData $data
+   * @param UploadedFile|null $image
+   */
   public function updateBackground(int $id, BackgroundData $data, ?UploadedFile $image = null): Background
   {
     $background = $this->findOrFail($id);
 
-    $this->backgroundRepository->update($background, [
-      'name' => $data->name,
-      'description' => $data->description,
-      'is_active' => $data->is_active,
-    ]);
+    $this->backgroundRepository->update($background, $data->toArray());
 
     if ($image) {
       $background
@@ -50,22 +53,32 @@ class BackgroundService
     return $background->load('media');
   }
 
+  /**
+   * Hapus background
+   * @param int $id
+   */
   public function deleteBackground(int $id): bool
   {
     $background = $this->findOrFail($id);
-
     return $this->backgroundRepository->delete($background);
   }
 
+  /**
+   * Toggle active status
+   * @param int $id
+   */
   public function toggleActiveStatus(int $id): Background
   {
     $background = $this->findOrFail($id);
-
     return $this->backgroundRepository->update($background, [
       'is_active' => ! $background->is_active,
     ]);
   }
 
+  /**
+   * Cari background
+   * @param int $id
+   */
   private function findOrFail(int $id): Background
   {
     $background = $this->backgroundRepository->findById($id);

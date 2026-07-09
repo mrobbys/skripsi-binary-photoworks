@@ -2,7 +2,6 @@
 
 namespace App\Domains\MasterData\Http\Requests;
 
-use App\Domains\MasterData\DTOs\PackageData;
 use App\Domains\MasterData\Models\Package;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -31,16 +30,6 @@ class UpdatePackageRequest extends FormRequest
       'features' => ['nullable', 'array'],
       'features.*' => ['string', 'max:255'],
     ];
-  }
-
-  public function toDto(): PackageData
-  {
-    return new PackageData(
-      category_id: (int) $this->validated('category_id'),
-      name: trim($this->validated('name')),
-      is_active: (bool) $this->validated('is_active'),
-      features: $this->validated('features') ?? [],
-    );
   }
 
   public function messages(): array

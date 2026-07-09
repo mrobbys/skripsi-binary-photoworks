@@ -2,6 +2,7 @@
 
 namespace App\Domains\MasterData\DTOs;
 
+use Illuminate\Foundation\Http\FormRequest;
 use Spatie\LaravelData\Data;
 
 class PackageData extends Data
@@ -12,4 +13,14 @@ class PackageData extends Data
     public readonly bool $is_active = true,
     public readonly array $features = [],
   ) {}
+
+  public static function fromRequest(FormRequest $request): self
+  {
+    return new self(
+      category_id: (int) $request->validated('category_id'),
+      name: trim($request->validated('name')),
+      is_active: (bool) $request->validated('is_active'),
+      features: $request->validated('features') ?? [],
+    );
+  }
 }

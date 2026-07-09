@@ -16,43 +16,46 @@ class PackageVariantService
     protected PackageVariantRepository $variantRepository,
   ) {}
 
+  /**
+   * Tambah data variant baru
+   * @param string $packageSlug
+   * @param PackageVariantData $data
+   */
   public function createVariant(string $packageSlug, PackageVariantData $data): PackageVariant
   {
     $package = $this->findPackageOrFail($packageSlug);
-
-    $variant = $this->variantRepository->create($package, [
-      'name' => $data->name,
-      'price' => $data->price,
-      'duration' => $data->duration,
-      'is_whatsapp_only' => $data->is_whatsapp_only,
-      'is_active' => $data->is_active,
-    ]);
-
+    $variant = $this->variantRepository->create($package, $data->except('features')->toArray());
     $this->syncFeatures($variant, $data->features);
 
     return $variant->load('features');
   }
 
+  /**
+   * Update data variant
+   * @param PackageVariant $variant
+   * @param PackageVariantData $data
+   */
   public function updateVariant(PackageVariant $variant, PackageVariantData $data): PackageVariant
   {
-    $this->variantRepository->update($variant, [
-      'name' => $data->name,
-      'price' => $data->price,
-      'duration' => $data->duration,
-      'is_whatsapp_only' => $data->is_whatsapp_only,
-      'is_active' => $data->is_active,
-    ]);
-
+    $this->variantRepository->update($variant, $data->except('features')->toArray());
     $this->syncFeatures($variant, $data->features);
 
     return $variant->load('features');
   }
 
+  /**
+   * Hapus data variant
+   * @param PackageVariant $variant
+   */
   public function deleteVariant(PackageVariant $variant): bool
   {
     return $this->variantRepository->delete($variant);
   }
 
+  /**
+   * Toggle variant active status
+   * @param PackageVariant $variant
+   */
   public function toggleVariantActiveStatus(PackageVariant $variant): PackageVariant
   {
     return $this->variantRepository->update($variant, [
@@ -60,6 +63,10 @@ class PackageVariantService
     ]);
   }
 
+  /**
+   * Cari data paket berdasarkan slug
+   * @param string $slug
+   */
   private function findPackageOrFail(string $slug): Package
   {
     $package = $this->packageRepository->findBySlug($slug);

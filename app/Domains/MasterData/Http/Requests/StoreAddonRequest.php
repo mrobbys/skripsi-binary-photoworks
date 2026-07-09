@@ -2,7 +2,6 @@
 
 namespace App\Domains\MasterData\Http\Requests;
 
-use App\Domains\MasterData\DTOs\AddonData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAddonRequest extends FormRequest
@@ -21,17 +20,6 @@ class StoreAddonRequest extends FormRequest
       'has_quantity' => ['required', 'boolean'],
       'is_active'    => ['required', 'boolean'],
     ];
-  }
-
-  public function toDto(): AddonData
-  {
-    return new AddonData(
-      name: trim($this->validated('name')),
-      price: (int) $this->validated('price'),
-      description: trim($this->validated('description')),
-      has_quantity: (bool) $this->validated('has_quantity'),
-      is_active: (bool) $this->validated('is_active'),
-    );
   }
 
   public function messages(): array

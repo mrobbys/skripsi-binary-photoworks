@@ -13,40 +13,46 @@ class PackageService
     protected PackageRepository $packageRepository,
   ) {}
 
+  /**
+   * Tambah data paket
+   * @param PackageData $data
+   */
   public function createPackage(PackageData $data): Package
   {
-    $package = $this->packageRepository->create([
-      'category_id' => $data->category_id,
-      'name' => $data->name,
-      'is_active' => $data->is_active,
-    ]);
-
+    $package = $this->packageRepository->create($data->except('features')->toArray());
     $this->syncFeatures($package, $data->features);
 
     return $package->load('features', 'category');
   }
 
+  /**
+   * Update data paket
+   * @param string $slug
+   * @param PackageData $data
+   */
   public function updatePackage(string $slug, PackageData $data): Package
   {
     $package = $this->findOrFail($slug);
-
-    $this->packageRepository->update($package, [
-      'category_id' => $data->category_id,
-      'name' => $data->name,
-      'is_active' => $data->is_active,
-    ]);
-
+    $this->packageRepository->update($package, $data->except('features')->toArray());
     $this->syncFeatures($package, $data->features);
 
     return $package->load('features', 'category');
   }
 
+  /**
+   * Hapus data paket
+   * @param string $slug
+   */
   public function deletePackage(string $slug): bool
   {
     $package = $this->findOrFail($slug);
     return $this->packageRepository->delete($package);
   }
 
+  /**
+   * Toggle status aktif paket
+   * @param string $slug
+   */
   public function toggleActiveStatus(string $slug): Package
   {
     $package = $this->findOrFail($slug);
@@ -55,6 +61,10 @@ class PackageService
     ]);
   }
 
+  /**
+   * Cari paket berdasarkan slug
+   * @param string $slug
+   */
   private function findOrFail(string $slug): Package
   {
     $package = $this->packageRepository->findBySlug($slug);

@@ -7,8 +7,8 @@ use App\Domains\Booking\DTOs\CheckoutData;
 use App\Domains\Booking\Http\Requests\CheckoutRequest;
 use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
-use App\Domains\MasterData\Models\Addon;
-use App\Domains\MasterData\Models\Category;
+use App\Domains\MasterData\Repositories\AddonRepository;
+use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Models\Schedule;
@@ -19,7 +19,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Domains\MasterData\Models\Background;
+use App\Domains\MasterData\Repositories\BackgroundRepository;
+use App\Domains\MasterData\Repositories\PackageRepository;
 use App\Support\Formatter;
 
 #[Middleware('auth', only: ['flow', 'checkout', 'success'])]
@@ -28,6 +29,10 @@ class BookingController extends Controller
     public function __construct(
         private readonly BookingService $bookingService,
         private readonly BookingRepository $repository,
+        private readonly CategoryRepository $categoryRepository,
+        private readonly PackageRepository $packageRepository,
+        private readonly BackgroundRepository $backgroundRepository,
+        private readonly AddonRepository $addonRepository
     ) {}
 
     /**
@@ -38,7 +43,7 @@ class BookingController extends Controller
     {
         if ($request->wantsJson()) {
             // ambil data paket yang aktif, beserta kategori dan variant yang aktif
-            $query = Package::where('is_active', true)
+            $query = $this->packageRepository->queryActive()
                 ->with(['category', 'variants' => function ($q) {
                     $q->where('is_active', true)->orderBy('price');
                 }]);
@@ -73,7 +78,7 @@ class BookingController extends Controller
             ]);
         }
 
-        $categories = Category::where('is_active', true)->get();
+        $categories = $this->categoryRepository->getActive();
 
         return view('frontdoor.services.index', compact('categories'));
     }
@@ -94,10 +99,10 @@ class BookingController extends Controller
             ->orderBy('price')
             ->get();
 
-        $addons = Addon::where('is_active', true)->orderBy('name')->get();
+        $addons = $this->addonRepository->queryActive()->orderBy('name')->get();
         $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
         // ambil background yang aktif, beserta URL gambar thumbnail
-        $backgrounds = Background::where('is_active', true)
+        $backgrounds = $this->backgroundRepository->queryActive()
             ->get()
             ->map(fn($bg) => [
                 'id' => $bg->id,
