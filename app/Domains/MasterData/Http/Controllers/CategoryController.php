@@ -10,6 +10,7 @@ use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
@@ -23,6 +24,7 @@ class CategoryController extends Controller
    * Menampilkan daftar kategori.
    * @param Request $request
    */
+  #[Middleware('permission:category-master-view')]
   public function index(Request $request): View|JsonResponse
   {
     // hitung jumlah kategori yang aktif
@@ -53,6 +55,7 @@ class CategoryController extends Controller
    * Simpan kategori baru.
    * @param StoreCategoryRequest $request
    */
+  #[Middleware('permission:category-master-create')]
   public function store(StoreCategoryRequest $request): JsonResponse
   {
     $category = $this->categoryService->createCategory(CategoryData::from($request));
@@ -69,6 +72,7 @@ class CategoryController extends Controller
    * @param UpdateCategoryRequest $request
    * @param string $slug
    */
+  #[Middleware('permission:category-master-update')]
   public function update(UpdateCategoryRequest $request, string $slug): JsonResponse
   {
     $category = $this->categoryService->updateCategory($slug, CategoryData::from($request));
@@ -84,6 +88,7 @@ class CategoryController extends Controller
    * Hapus kategori.
    * @param string $slug
    */
+  #[Middleware('permission:category-master-delete')]
   public function destroy(string $slug): JsonResponse
   {
     $this->categoryService->deleteCategory($slug);
@@ -98,6 +103,7 @@ class CategoryController extends Controller
    * Ubah status aktif kategori dengan toggle.
    * @param string $slug
    */
+  #[Middleware('permission:category-master-update')]
   public function toggleActive(string $slug): JsonResponse
   {
     $category = $this->categoryService->toggleCategoryActiveStatus($slug);

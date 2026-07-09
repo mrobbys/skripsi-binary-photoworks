@@ -13,6 +13,7 @@ use App\Domains\MasterData\Services\PackageService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
 class PackageController extends Controller
@@ -28,6 +29,7 @@ class PackageController extends Controller
      * Menampilkan daftar paket di halaman index
      * @param Request $request
      */
+    #[Middleware('permission:package-variant-master-view')]
     public function index(Request $request): View|JsonResponse
     {
         $totalPackages = $this->packageRepository->countPackages();
@@ -79,6 +81,7 @@ class PackageController extends Controller
      * Menampilkan detail paket
      * @param string $slug
      */
+    #[Middleware('permission:package-variant-master-view')]
     public function show(string $slug): View|JsonResponse
     {
         $package = Package::with(['category', 'features'])
@@ -102,6 +105,7 @@ class PackageController extends Controller
      * Tambah data paket
      * @param StorePackageRequest $request
      */
+    #[Middleware('permission:package-variant-master-create')]
     public function store(StorePackageRequest $request): JsonResponse
     {
         $package = $this->packageService->createPackage(PackageData::from($request));
@@ -118,6 +122,7 @@ class PackageController extends Controller
      * @param UpdatePackageRequest $request
      * @param string $slug
      */
+    #[Middleware('permission:package-variant-master-update')]
     public function update(UpdatePackageRequest $request, string $slug): JsonResponse
     {
         $package = $this->packageService->updatePackage($slug, PackageData::from($request));
@@ -133,6 +138,7 @@ class PackageController extends Controller
      * Hapus data paket
      * @param string $slug
      */
+    #[Middleware('permission:package-variant-master-delete')]
     public function destroy(string $slug): JsonResponse
     {
         $this->packageService->deletePackage($slug);
@@ -147,6 +153,7 @@ class PackageController extends Controller
      * Toggle status aktif paket
      * @param string $slug
      */
+    #[Middleware('permission:package-variant-master-update')]
     public function toggleActive(string $slug): JsonResponse
     {
         $package = $this->packageService->toggleActiveStatus($slug);
