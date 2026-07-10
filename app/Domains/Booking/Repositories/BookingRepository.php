@@ -71,4 +71,59 @@ class BookingRepository
             ->where('booking_code', $code)
             ->first();
     }
+
+    /**
+     * Ambil semua data booking dari user tertentu (untuk dashboard user)
+     * @param int $userId
+     */
+    public function getByUser(int $userId): Collection
+    {
+        return Booking::with(['packageVariant.package', 'background'])
+            ->where('user_id', $userId)
+            ->orderBy('booking_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->get();
+    }
+
+    /**
+     * Cari booking berdasarkan booking_code milik user tertentu
+     * @param string $bookingCode
+     * @param int    $userId
+     */
+    public function findByCodeAndUser(string $bookingCode, int $userId): ?Booking
+    {
+        return Booking::with(['packageVariant.package', 'background', 'payments'])
+            ->where('booking_code', $bookingCode)
+            ->where('user_id', $userId)
+            ->first();
+    }
+
+    /**
+     * Ambil data booking secara paginasi berdasarkan tab status
+     * @param int $userId
+     * @param string $tab
+     * @param int $limit
+     */
+    public function getPaginatedByUser(int $userId, string $tab, int $limit = 5)
+    {
+        $query = Booking::with(['packageVariant.package', 'background'])
+            ->where('user_id', $userId);
+
+        if ($tab === 'upcoming') {
+            $query->whereIn('status', [
+                BookingStatus::PENDING,
+                BookingStatus::DP_PAID,
+                BookingStatus::SUCCESS
+            ]);
+        } else {
+            $query->whereIn('status', [
+                BookingStatus::DONE,
+                BookingStatus::CANCELLED
+            ]);
+        }
+
+        return $query->orderBy('booking_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->paginate($limit);
+    }
 }

@@ -12,6 +12,7 @@ use Illuminate\Container\Attributes\Config;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Support\Formatter;
+use Carbon\Carbon;
 
 class WebhookController extends Controller
 {
@@ -42,9 +43,19 @@ class WebhookController extends Controller
         $payment = Payment::where('order_id', $payload['order_id'])->firstOrFail();
         $booking = $payment->booking()->with('user')->firstOrFail();
 
+        // jika payment sudah lunas, kembalikan response
+        if ($payment->status === PaymentStatus::SETTLEMENT) {
+            return response('OK', 200);
+        }
+
         $status = $payload['transaction_status'];
         $fraudStatus = $payload['fraud_status'] ?? null;
         $paymentType = $payload['payment_type'] ?? null;
+
+        // jangan proses, jika booking tersebut sudah di cancel
+        if ($booking->status === BookingStatus::CANCELLED) {
+            return response('OK', 200);
+        }
 
         // update status jika payment berhasil
         if (($status === 'capture' && $fraudStatus === 'accept') || $status === 'settlement') {
@@ -65,20 +76,27 @@ class WebhookController extends Controller
             // update payment, jika status pending
             $payment->update([
                 'status' => PaymentStatus::PENDING,
-                'payment_type' => $paymentType
+                'payment_type' => $paymentType,
+                'snap_token_expiry' => isset($payload['expiry_time']) ? Carbon::parse($payload['expiry_time']) : $payment->snap_token_expiry
             ]);
-            // update booking
-            $booking->update(['status' => BookingStatus::PENDING]);
+            // hanya update ke pending jika status saat ini bukan success / dp_paid
+            if ($booking->status === BookingStatus::PENDING) {
+                // update booking
+                $booking->update(['status' => BookingStatus::PENDING]);
+            }
         } elseif (in_array($status, ['deny', 'cancel', 'expire'])) {
             // update payment jika status deny, cancel, expire
             $payment->update([
                 'status' => PaymentStatus::CANCELLED,
                 'payment_type' => $paymentType
             ]);
-            // update booking
-            $booking->update(['status' => BookingStatus::CANCELLED]);
-        }
 
+            // jika status saat ini pending, update status ke cancel
+            if ($booking->status === BookingStatus::PENDING) {
+                // update booking
+                $booking->update(['status' => BookingStatus::CANCELLED]);
+            }
+        }
         return response('OK', 200);
     }
 

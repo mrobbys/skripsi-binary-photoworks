@@ -14,6 +14,7 @@ use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
 use App\Domains\User\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -37,10 +38,11 @@ class BookingService
         $base = $variant->price;
 
         // ambil semua addon, kemudian hitung total
-        $addonTotal = collect($addons)->sum(function (array $item) {
-            $addon = Addon::findOrFail($item['addon_id']);
-
-            return $addon->price * ($item['quantity'] ?? 1);
+        $addonIds = collect($addons)->pluck('addon_id')->all();
+        $addonModels = Addon::whereIn('id', $addonIds)->get()->keyBy('id');
+        $addonTotal = collect($addons)->sum(function (array $item) use ($addonModels) {
+            $addon = $addonModels->get($item['addon_id']);
+            return $addon ? ($addon->price * ($item['quantity'] ?? 1)) : 0;
         });
 
         // tambahkan harga variant dan addon
@@ -54,83 +56,98 @@ class BookingService
      */
     public function processCheckout(User $user, CheckoutData $data): array
     {
-        return DB::transaction(function () use ($user, $data) {
-            $variant = PackageVariant::with('package.category')->findOrFail($data->package_variant_id);
-            $totalPrice = $this->calculateTotal($data->package_variant_id, $data->addons);
+        // kunci proses berdasarkan tanggal booking untuk mencegah race condition (double booking pada slot waktu yang sama)
+        $lock = Cache::lock("booking_checkout_{$data->booking_date}", 10);
 
-            $endTime = Carbon::parse($data->start_time)
-                ->addMinutes($variant->duration)
-                ->format('H:i');
+        if (!$lock->get()) {
+            throw new \RuntimeException('Sistem sedang memproses pesanan di tanggal ini, silahkan coba lagi dalam beberapa detik');
+        }
 
-            // cek apakah slot waktu sudah terisi
-            if ($this->repository->isSlotOccupied($data->booking_date, $data->start_time, $endTime)) {
-                throw new \RuntimeException('Slot waktu sudah terisi. Silakan pilih jam lain.');
-            }
+        try {
+            return DB::transaction(function () use ($user, $data) {
+                $variant = PackageVariant::with('package.category')->findOrFail($data->package_variant_id);
+                $totalPrice = $this->calculateTotal($data->package_variant_id, $data->addons);
 
-            // generate booking code
-            $bookingCode = $this->codeGenerator->generate(
-                $variant->package->category->category_code,
-                $variant->id,
-                $data->booking_date,
-            );
+                $endTime = Carbon::parse($data->start_time)
+                    ->addMinutes($variant->duration)
+                    ->format('H:i');
 
-            // buat data booking
-            $booking = $this->repository->create(new BookingData(
-                user_id: $user->id,
-                package_variant_id: $data->package_variant_id,
-                background_id: $data->background_id,
-                booking_code: $bookingCode,
-                booking_date: $data->booking_date,
-                start_time: $data->start_time,
-                end_time: $endTime,
-                total_price: $totalPrice,
-                payment_scheme: $data->payment_scheme,
-                keterangan: $data->keterangan,
-                status: BookingStatus::PENDING,
-            ));
+                // cek apakah slot waktu sudah terisi
+                if ($this->repository->isSlotOccupied($data->booking_date, $data->start_time, $endTime)) {
+                    throw new \RuntimeException('Slot waktu sudah terisi. Silakan pilih jam lain.');
+                }
 
-            // Attach addons ke pivot dengan price_at_purchase dan quantity
-            $syncData = collect($data->addons)->mapWithKeys(function (array $item) {
-                $addon = Addon::findOrFail($item['addon_id']);
+                // generate booking code
+                $bookingCode = $this->codeGenerator->generate(
+                    $variant->package->category->category_code,
+                    $variant->id,
+                    $data->booking_date,
+                );
 
-                return [
-                    $item['addon_id'] => [
-                        'price_at_purchase' => $addon->price,
-                        'quantity' => $item['quantity'] ?? 1,
-                    ],
-                ];
-            })->all();
-            $booking->addons()->sync($syncData);
+                // buat data booking
+                $booking = $this->repository->create(new BookingData(
+                    user_id: $user->id,
+                    package_variant_id: $data->package_variant_id,
+                    background_id: $data->background_id,
+                    booking_code: $bookingCode,
+                    booking_date: $data->booking_date,
+                    start_time: $data->start_time,
+                    end_time: $endTime,
+                    total_price: $totalPrice,
+                    payment_scheme: $data->payment_scheme,
+                    keterangan: $data->keterangan,
+                    status: BookingStatus::PENDING,
+                ));
 
-            // hitung total yang harus dibayar
-            // jika dp, cukup bayar 60% nya saja
-            $grossAmount = $data->payment_scheme === PaymentScheme::DP
-                ? (int) round($totalPrice * 0.60)
-                : $totalPrice;
+                // Ambil semua model addon sekaligus
+                $addonIds = collect($data->addons)->pluck('addon_id')->all();
+                $addonsModels = Addon::whereIn('id', $addonIds)->get()->keyBy('id');
 
-            $suffix = $data->payment_scheme === PaymentScheme::DP ? 'DP' : 'FULL';
-            $randomString = Str::upper(Str::random(4));
-            // generate order id untuk midtrans
-            $orderId = "{$bookingCode}-{$suffix}-{$randomString}";
+                // Attach addons ke pivot dengan price_at_purchase dan quantity
+                $syncData = collect($data->addons)->mapWithKeys(function (array $item) use ($addonsModels) {
+                    $addon = $addonsModels->get($item['addon_id']);
+                    return [
+                        $item['addon_id'] => [
+                            'price_at_purchase' => $addon ? $addon->price : 0,
+                            'quantity' => $item['quantity'] ?? 1,
+                        ],
+                    ];
+                })->all();
+                $booking->addons()->sync($syncData);
 
-            $snapToken = $this->midtrans->getSnapToken(
-                orderId: $orderId,
-                grossAmount: $grossAmount,
-                user: $user,
-                booking: $booking,
-            );
+                // hitung total yang harus dibayar
+                // jika dp, cukup bayar 60% nya saja
+                $grossAmount = $data->payment_scheme === PaymentScheme::DP
+                    ? (int) round($totalPrice * 0.60)
+                    : $totalPrice;
 
-            Payment::create([
-                'booking_id' => $booking->id,
-                'order_id' => $orderId,
-                'payment_type' => null,
-                'payment_purpose' => $data->payment_scheme === PaymentScheme::DP ? PaymentPurpose::DP : PaymentPurpose::LUNAS,
-                'snap_token' => $snapToken,
-                'amount' => $grossAmount,
-                'status' => PaymentStatus::PENDING,
-            ]);
+                $suffix = $data->payment_scheme === PaymentScheme::DP ? 'DP' : 'FULL';
+                $randomString = Str::upper(Str::random(3));
+                // generate order id untuk midtrans
+                $orderId = "{$bookingCode}-{$suffix}-{$randomString}";
 
-            return ['booking_code' => $bookingCode, 'snap_token' => $snapToken];
-        });
+                $snapToken = $this->midtrans->getSnapToken(
+                    orderId: $orderId,
+                    grossAmount: $grossAmount,
+                    user: $user,
+                    booking: $booking,
+                );
+
+                Payment::create([
+                    'booking_id' => $booking->id,
+                    'order_id' => $orderId,
+                    'payment_type' => null,
+                    'payment_purpose' => $data->payment_scheme === PaymentScheme::DP ? PaymentPurpose::DP : PaymentPurpose::LUNAS,
+                    'snap_token' => $snapToken,
+                    'snap_token_expiry' => Carbon::now()->addHour(),
+                    'amount' => $grossAmount,
+                    'status' => PaymentStatus::PENDING,
+                ]);
+
+                return ['booking_code' => $bookingCode, 'snap_token' => $snapToken];
+            });
+        } finally {
+            $lock->release();
+        }
     }
 }
