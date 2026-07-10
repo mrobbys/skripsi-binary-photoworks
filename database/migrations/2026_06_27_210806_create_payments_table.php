@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('payment_type')->nullable();
             $table->string('payment_purpose'); // e.g., 'dp', 'pelunasan', 'full'
             $table->string('snap_token')->nullable();
+            $table->timestamp('snap_token_expiry')->nullable();
             $table->integer('amount');
             $table->string('status'); // e.g., 'pending', 'settlement', 'expired'
             $table->dateTime('pay_date')->nullable();

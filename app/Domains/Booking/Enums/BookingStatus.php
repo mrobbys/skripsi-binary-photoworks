@@ -8,6 +8,7 @@ enum BookingStatus: string
     case DP_PAID = 'DP Terbayar';
     case SUCCESS = 'Lunas';
     case CANCELLED = 'Batal';
+    case DONE = 'Selesai';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum BookingStatus: string
             self::DP_PAID => 'DP Terbayar (60%)',
             self::SUCCESS => 'Lunas (100%)',
             self::CANCELLED => 'Dibatalkan',
+            self::DONE => 'Selesai',
         };
     }
 }
