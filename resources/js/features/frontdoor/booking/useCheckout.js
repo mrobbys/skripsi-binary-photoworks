@@ -27,36 +27,24 @@ export default function useCheckout({ state, buildAddonsPayload }) {
         onPending: () => {
           Toast.fire({ icon: "info", title: "Menunggu pembayaran diselesaikan." });
           state.isProcessing = false;
-
-          // TODO: Arahkan Klien ke halaman Dasbor / Riwayat Pesanan
-          // Karena ini metode asinkron (BCA VA, Indomaret, dll), klien butuh melihat 
-          // panduan transfer/kode bayar di Dasbor.
-          // Contoh: window.location.href = route("frontdoor.dashboard.index");
+          window.location.href = route("frontdoor.dashboard.index");
         },
         onError: () => {
           Toast.fire({ icon: "error", title: "Pembayaran gagal. Silakan coba lagi." });
           state.isProcessing = false;
-
-          // TODO: Arahkan Klien ke halaman Dasbor / Riwayat Pesanan
-          // Beri tahu klien bahwa pembayaran gagal (misal kartu ditolak), 
-          // sehingga klien bisa klik tombol "Bayar Sekarang" lagi di Dasbor.
-          // Contoh: window.location.href = route("frontdoor.dashboard.index");
+          window.location.href = route("frontdoor.dashboard.index");
         },
         onClose: () => {
           Toast.fire({ icon: "warning", title: "Pembayaran dibatalkan. Slot masih tersimpan." });
           state.isProcessing = false;
-
-          // TODO: Arahkan Klien ke halaman Dasbor / Riwayat Pesanan
-          // Karena klien menutup pop-up, status booking masih "Pending". 
-          // Jangan hapus data, biarkan Klien melanjutkan pembayaran dari Dasbor (selama belum expired).
-          // Contoh: window.location.href = route("frontdoor.dashboard.index");
+          window.location.href = route("frontdoor.dashboard.index");
         },
       });
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Terjadi kesalahan.";
-      Toast.fire({ icon: "error", title: msg });
+      const msg = err?.response?.data?.message || err.message;
+      Toast.fire({ icon: "error", title: "Terjadi kesalahan." });
       state.isProcessing = false;
-      console.log(err);
+      console.log(msg);
     }
   };
 

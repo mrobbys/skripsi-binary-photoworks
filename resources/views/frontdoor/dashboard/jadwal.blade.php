@@ -1,68 +1,69 @@
-<x-layouts.frontdoor title="Jadwal Saya - Dashboard">
+<x-layouts.frontdoor.index
+  title="Jadwal Saya - Dashboard"
+  jsModule="frontdoor/dashboard/Dashboard">
+
+  <x-slot:heads>
+    {{-- midtrans --}}
+    <script type="text/javascript" src="{{ config('midtrans.snap_js_url') }}"
+      data-client-key="{{ config('midtrans.client_key') }}"></script>
+  </x-slot:heads>
+
   <x-slot:content>
-    <div class="w-full h-full min-h-[calc(100vh-80px)] bg-stone-50 py-12 px-4 sm:px-6">
-      <div class="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
-        
+    <div class="w-full min-h-dvh py-12"
+      x-data="Dashboard">
+
+      <div class="mx-auto flex flex-col md:flex-row gap-8">
+
+        {{-- sidebar nav start --}}
         <x-frontdoor.dashboard.sidebar />
+        {{-- sidebar nav end --}}
 
-        <main class="flex-1">
-          <div class="bg-white border border-stone-200 p-6 sm:p-8">
-            <h1 class="text-xl font-bold text-stone-900 mb-6">Jadwal Sesi Foto Anda</h1>
-            
-            <div class="flex gap-4 mb-8" x-data="{ statusTab: 'akan-datang' }">
-              <button x-on:click="statusTab = 'akan-datang'"
-                x-bind:class="statusTab === 'akan-datang' ? 'bg-stone-200 text-stone-900' : 'border border-stone-200 text-stone-700 hover:bg-stone-50'"
-                class="px-6 py-2 font-medium transition-colors">
-                Akan Datang
-              </button>
-              <button x-on:click="statusTab = 'selesai'"
-                x-bind:class="statusTab === 'selesai' ? 'bg-stone-200 text-stone-900' : 'border border-stone-200 text-stone-700 hover:bg-stone-50'"
-                class="px-6 py-2 font-medium transition-colors">
-                Selesai
-              </button>
-            </div>
+        {{-- main content start --}}
+        <main class="w-full">
+          <section class="border border-stone-300 p-6 sm:p-8 space-y-6">
+            <h1 class="text-xl font-bold text-stone-900">Jadwal Sesi Foto Anda</h1>
 
-            <div class="space-y-4">
-              {{-- Card Item 1 --}}
-              <div class="border border-stone-200 p-6 flex flex-col sm:flex-row gap-4 sm:gap-12 hover:border-stone-300 transition-colors bg-stone-50">
-                <div class="sm:w-1/3">
-                  <p class="font-medium text-stone-900 mb-2">Senin, 25 Mei 2026</p>
-                  <p class="text-stone-600">10:00 - 10:30 WITA</p>
-                </div>
-                <div class="flex-1 sm:border-l sm:border-stone-200 sm:pl-8">
-                  <p class="font-medium text-stone-900 mb-2">Studio Wisuda Paket 1</p>
-                  <p class="text-stone-600 text-sm flex flex-wrap gap-x-4 gap-y-2 items-center">
-                    <span>Sesi 1 Jam</span>
-                    <span class="w-1.5 h-1.5 bg-stone-400"></span>
-                    <span>DP Terbayar</span>
-                    <span class="w-1.5 h-1.5 bg-stone-400"></span>
-                    <span>Background Putih</span>
-                  </p>
-                </div>
-              </div>
-              
-              {{-- Card Item 2 --}}
-              <div class="border border-stone-200 p-6 flex flex-col sm:flex-row gap-4 sm:gap-12 hover:border-stone-300 transition-colors bg-stone-50">
-                <div class="sm:w-1/3">
-                  <p class="font-medium text-stone-900 mb-2">Senin, 25 Mei 2026</p>
-                  <p class="text-stone-600">10:00 - 10:30 WITA</p>
-                </div>
-                <div class="flex-1 sm:border-l sm:border-stone-200 sm:pl-8">
-                  <p class="font-medium text-stone-900 mb-2">Studio Wisuda Paket 1</p>
-                  <p class="text-stone-600 text-sm flex flex-wrap gap-x-4 gap-y-2 items-center">
-                    <span>Sesi 1 Jam</span>
-                    <span class="w-1.5 h-1.5 bg-stone-400"></span>
-                    <span>DP Terbayar</span>
-                    <span class="w-1.5 h-1.5 bg-stone-400"></span>
-                    <span>Background Putih</span>
-                  </p>
-                </div>
-              </div>
+            {{-- tab filter start --}}
+            <x-frontdoor.dashboard.jadwal.tabs />
+            {{-- tab filter end --}}
+
+            {{-- loading skeleton start --}}
+            <div x-show="state.isLoading" class="space-y-4">
+              <template x-for="i in 3">
+                <x-skeleton.history-booking-card />
+              </template>
             </div>
-          </div>
+            {{-- loading skeleton start --}}
+
+            {{-- empty element start --}}
+            <x-frontdoor.dashboard.jadwal.empty-element />
+            {{-- empty element end --}}
+
+            {{-- card container start --}}
+            <div x-show="!state.isLoading" class="space-y-4">
+              <template x-for="appointment in state.appointments" :key="appointment.booking_code">
+
+                {{-- card item start --}}
+                <x-frontdoor.dashboard.jadwal.booking-card />
+                {{-- card item end --}}
+
+              </template>
+            </div>
+            {{-- card container end --}}
+
+            <div x-show="!state.isLoading && state.total > 5" class="pt-6 border-t border-stone-200">
+              <x-frontdoor.shared.pagination />
+            </div>
+          </section>
+
+          {{-- footer start --}}
+          <x-frontdoor.dashboard.jadwal.help-footer />
+          {{-- footer end --}}
+
         </main>
-
+        {{-- main content end --}}
       </div>
     </div>
   </x-slot:content>
-</x-layouts.frontdoor>
+
+</x-layouts.frontdoor.index>

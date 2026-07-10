@@ -29,7 +29,7 @@
               </div>
 
               <div class="pt-4">
-                <x-shared.button type="submit" variant="primary" class="w-full bg-stone-700 hover:bg-stone-800 text-stone-50 py-3 rounded-none">
+                <x-shared.button type="submit" class="w-full bg-stone-700 hover:bg-stone-800 text-stone-50 py-3">
                   Simpan Perubahan
                 </x-shared.button>
               </div>
