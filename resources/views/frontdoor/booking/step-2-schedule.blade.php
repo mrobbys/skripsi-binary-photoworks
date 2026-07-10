@@ -54,12 +54,14 @@
   </div>
 
   <div class="my-8 flex flex-col sm:flex-row gap-12">
-    <x-shared.button variant="outline" size="lg" value="Kembali" x-on:click="prevStep()">
+    <x-shared.button size="lg" value="Kembali" x-on:click="prevStep()"
+      class="w-full border border-stone-300 bg-transparent text-stone-800 hover:bg-stone-50">
       <x-slot:iconLeft>
         <i class="ri-arrow-left-line"></i>
       </x-slot:iconLeft>
     </x-shared.button>
-    <x-shared.button variant="primary" size="lg" value="Lanjutkan ke Layanan Tambahan"
+    <x-shared.button size="lg" value="Lanjutkan ke Layanan Tambahan"
+      class="w-full bg-stone-800 text-white hover:bg-stone-700"
       x-bind:disabled="!state.selectedSlot" x-on:click="nextStep()">
       <x-slot:iconRight>
         <i class="ri-arrow-right-line"></i>

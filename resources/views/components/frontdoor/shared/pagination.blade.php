@@ -1,4 +1,4 @@
-<div class="flex justify-between items-center mt-6" x-show="state.total > 0" x-cloak>
+<div class="flex justify-between items-center" x-show="state.total > 0" x-cloak>
   {{-- pagination meta start --}}
   <div class="text-sm text-stone-600">
     Menampilkan halaman <span class="font-semibold text-stone-900" x-text="state.currentPage"></span>

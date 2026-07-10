@@ -19,8 +19,7 @@
     </p>
     <div class="mt-auto">
       <x-shared.button as="a" x-bind:href="`{{ route('frontdoor.booking.flow', ':slug') }}`.replace(':slug', package.slug)"
-        variant="secondary"
-        class="w-full text-center py-2.5 font-semibold bg-stone-600 hover:bg-stone-700 text-stone-50 border-0">
+        class="w-full text-center py-2.5 font-semibold bg-stone-600 hover:bg-stone-700 text-stone-50">
         Pilih Layanan
       </x-shared.button>
     </div>

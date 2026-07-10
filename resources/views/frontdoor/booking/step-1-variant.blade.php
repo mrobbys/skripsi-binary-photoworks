@@ -67,7 +67,8 @@
     <div class="pt-2">
       {{-- tombol lanjut reservasi ke jadwal start --}}
       <template x-if="!state.selectedVariant?.is_whatsapp_only">
-        <x-shared.button variant="primary" size="lg" value="Lanjutkan ke Jadwal Sesi"
+        <x-shared.button size="lg" value="Lanjutkan ke Jadwal Sesi"
+          class="w-full bg-stone-800 text-white hover:bg-stone-700"
           x-bind:disabled="!state.selectedVariantId || !state.selectedBackgroundId" x-on:click="nextStep()">
         </x-shared.button>
       </template>
@@ -75,7 +76,8 @@
 
       {{-- button paket variant wa only start --}}
       <template x-if="state.selectedVariant?.is_whatsapp_only">
-        <x-shared.button as="a" target="_blank" variant="primary" size="lg" value="Reservasi via WhatsApp"
+        <x-shared.button as="a" target="_blank" size="lg" value="Reservasi via WhatsApp"
+          class="w-full bg-stone-800 text-white hover:bg-stone-700"
           x-bind:disabled="!state.selectedVariantId"
           x-bind:href="state.selectedVariant ?
               `https://wa.me/6281234567890?text=${encodeURIComponent('Halo Admin, saya ingin reservasi paket ' + state.packageName + ' - ' + state.selectedVariant.name)}` :
