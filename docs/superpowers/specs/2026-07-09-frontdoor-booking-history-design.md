@@ -484,8 +484,9 @@ Route::middleware('auth')->group(function () {
 ### Struktur folder baru
 
 ```
-resources/js/features/dashboard/
+resources/js/features/frontdoor/dashboard/
 ├── Dashboard.js          ← Entry point, Alpine.data registration
+├── useState.js           ← Centralized Alpine.reactive() state
 ├── useAppointments.js    ← Fetch + filter data tab
 ├── useDetail.js          ← Kontrol tampilan panel detail (master-detail)
 └── usePayment.js         ← Logika repay via Midtrans Snap
@@ -493,32 +494,62 @@ resources/js/features/dashboard/
 
 ---
 
-### `Dashboard.js` — Entry Point Alpine.data
+### `useState.js` — Centralized State
 
-**File:** `resources/js/features/dashboard/Dashboard.js` ← BARU
+**File:** `resources/js/features/frontdoor/dashboard/useState.js` ← BARU
 
 ```js
-import useAppointments from './useAppointments';
-import useDetail from './useDetail';
-import usePayment from './usePayment';
+export default function useState(Alpine) {
+  return Alpine.reactive({
+    appointments: [],
+    activeTab: 'upcoming',
+    isLoading: false,
+    selectedAppointment: null,
+    isProcessingPayment: false,
+  });
+}
+```
 
-export default function appointmentHistoryHandler() {
-  const appointments = useAppointments();
-  const detail = useDetail();
-  const payment = usePayment({ detail });
+---
+
+### `Dashboard.js` — Entry Point Alpine.data
+
+**File:** `resources/js/features/frontdoor/dashboard/Dashboard.js` ← BARU
+
+> **Konvensi:** Nama function = nama file = nama komponen Alpine (`x-data="Dashboard"`).
+> Dynamic loader di `app.js` akan otomatis mendaftarkannya — tidak perlu registrasi manual.
+
+```js
+import useState from './useState.js';
+import useAppointments from './useAppointments.js';
+import useDetail from './useDetail.js';
+import usePayment from './usePayment.js';
+
+export default function Dashboard(Alpine) {
+  const state = useState(Alpine);
+
+  const { fetchAppointments, filteredAppointments, switchTab } = useAppointments({ state });
+  const { showDetail, clearDetail, hasDetail } = useDetail({ state });
+  const { triggerRepay } = usePayment({ state, fetchAppointments });
+
+  // Lifecycle: dipanggil otomatis Alpine saat komponen dimuat
+  const init = () => {
+    fetchAppointments();
+  };
 
   return {
-    // State dari useAppointments
-    ...appointments,
-    // State dari useDetail
-    ...detail,
-    // State dari usePayment
-    ...payment,
-
-    // Lifecycle Alpine.js: fetch data saat komponen dimuat
-    async init() {
-      await this.fetchAppointments();
-    },
+    state,
+    init,
+    // Appointments
+    fetchAppointments,
+    filteredAppointments,
+    switchTab,
+    // Detail
+    showDetail,
+    clearDetail,
+    hasDetail,
+    // Payment
+    triggerRepay,
   };
 }
 ```
@@ -527,43 +558,42 @@ export default function appointmentHistoryHandler() {
 
 ### `useAppointments.js` — Fetch & Filter Data Tab
 
-**File:** `resources/js/features/dashboard/useAppointments.js` ← BARU
+**File:** `resources/js/features/frontdoor/dashboard/useAppointments.js` ← BARU
 
 ```js
-import route from '../../lib/route';
+import route from '@/lib/route';
 
-export default function useAppointments() {
+export default function useAppointments({ state }) {
+  // Method: ambil data booking dari backend
+  const fetchAppointments = async () => {
+    state.isLoading = true;
+    try {
+      const res = await axios.get(route('frontdoor.dashboard.appointments'));
+      state.appointments = res.data.data;
+    } catch (err) {
+      console.error('Gagal memuat riwayat booking:', err);
+    } finally {
+      state.isLoading = false;
+    }
+  };
+
+  // Computed: filter list berdasarkan tab aktif
+  const filteredAppointments = () => {
+    return state.appointments.filter((a) =>
+      state.activeTab === 'upcoming' ? a.is_upcoming : !a.is_upcoming
+    );
+  };
+
+  // Method: ganti tab aktif & reset panel detail
+  const switchTab = (tab) => {
+    state.activeTab = tab;
+    state.selectedAppointment = null;
+  };
+
   return {
-    // State
-    appointments: [],       // semua data booking dari API
-    activeTab: 'upcoming',  // 'upcoming' | 'past'
-    isLoading: false,
-
-    // Getter: filter berdasarkan tab aktif
-    get filteredAppointments() {
-      return this.appointments.filter((a) =>
-        this.activeTab === 'upcoming' ? a.is_upcoming : !a.is_upcoming
-      );
-    },
-
-    // Method: ambil data dari backend
-    async fetchAppointments() {
-      this.isLoading = true;
-      try {
-        const res = await window.axios.get(route('frontdoor.dashboard.appointments'));
-        this.appointments = res.data.data;
-      } catch (err) {
-        console.error('Gagal memuat riwayat booking:', err);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-
-    // Method: ganti tab aktif & reset detail yang sedang ditampilkan
-    switchTab(tab) {
-      this.activeTab = tab;
-      this.clearDetail(); // reset panel detail (dari useDetail)
-    },
+    fetchAppointments,
+    filteredAppointments,
+    switchTab,
   };
 }
 ```
@@ -572,28 +602,32 @@ export default function useAppointments() {
 
 ### `useDetail.js` — Kontrol Panel Detail (Master-Detail Pattern)
 
-**File:** `resources/js/features/dashboard/useDetail.js` ← BARU
+**File:** `resources/js/features/frontdoor/dashboard/useDetail.js` ← BARU
 
 ```js
-export default function useDetail() {
+export default function useDetail({ state }) {
+  // Method: tampilkan detail booking yang diklik
+  // URL diperbarui diam-diam tanpa refresh halaman (HTML5 History API)
+  const showDetail = (appointment) => {
+    state.selectedAppointment = appointment;
+
+    const newUrl = window.location.pathname + '?booking=' + appointment.booking_code;
+    window.history.replaceState({}, '', newUrl);
+  };
+
+  // Method: tutup / reset panel detail & kembalikan URL ke kondisi bersih
+  const clearDetail = () => {
+    state.selectedAppointment = null;
+    window.history.replaceState({}, '', window.location.pathname);
+  };
+
+  // Computed: apakah ada detail yang sedang ditampilkan?
+  const hasDetail = () => state.selectedAppointment !== null;
+
   return {
-    // State
-    selectedAppointment: null, // objek booking yang sedang ditampilkan di panel kanan
-
-    // Getter: apakah ada detail yang sedang ditampilkan?
-    get hasDetail() {
-      return this.selectedAppointment !== null;
-    },
-
-    // Method: tampilkan detail booking yang diklik
-    showDetail(appointment) {
-      this.selectedAppointment = appointment;
-    },
-
-    // Method: tutup / reset panel detail
-    clearDetail() {
-      this.selectedAppointment = null;
-    },
+    showDetail,
+    clearDetail,
+    hasDetail,
   };
 }
 ```
@@ -602,61 +636,58 @@ export default function useDetail() {
 
 ### `usePayment.js` — Repay via Midtrans Snap
 
-**File:** `resources/js/features/dashboard/usePayment.js` ← BARU
+**File:** `resources/js/features/frontdoor/dashboard/usePayment.js` ← BARU
 
 ```js
-import route from '../../lib/route';
-import { Toast } from '../../lib/sweetalert';
+import route from '@/lib/route';
+import { Toast } from '@/lib/sweetalert';
 
-export default function usePayment({ detail }) {
-  return {
-    // State
-    isProcessingPayment: false,
+export default function usePayment({ state, fetchAppointments }) {
+  // Method: Trigger "Bayar Sekarang" dari dashboard
+  const triggerRepay = async (bookingCode) => {
+    state.isProcessingPayment = true;
 
-    // Method: Trigger "Bayar Sekarang" dari dashboard
-    async triggerRepay(bookingCode) {
-      this.isProcessingPayment = true;
+    try {
+      const res = await axios.post(route('frontdoor.dashboard.repay'), {
+        booking_code: bookingCode,
+      });
 
-      try {
-        const res = await window.axios.post(route('frontdoor.dashboard.repay'), {
-          booking_code: bookingCode,
-        });
-
-        if (!res.data.success) {
-          throw new Error(res.data.message || 'Gagal mendapatkan token pembayaran.');
-        }
-
-        const snapToken = res.data.snap_token;
-
-        window.snap.pay(snapToken, {
-          onSuccess: () => {
-            // Setelah berhasil bayar, refresh data list dan kembali ke panel kosong
-            Toast.fire({ icon: 'success', title: 'Pembayaran berhasil!' });
-            detail.clearDetail();
-            this.fetchAppointments(); // refresh list dari useAppointments
-          },
-          onPending: () => {
-            // Pembayaran async (VA, Indomaret, dll) — refresh dan biarkan user lihat status
-            Toast.fire({ icon: 'info', title: 'Menunggu pembayaran diselesaikan.' });
-            this.isProcessingPayment = false;
-            detail.clearDetail();
-            this.fetchAppointments();
-          },
-          onError: () => {
-            Toast.fire({ icon: 'error', title: 'Pembayaran gagal. Silakan coba lagi.' });
-            this.isProcessingPayment = false;
-          },
-          onClose: () => {
-            Toast.fire({ icon: 'warning', title: 'Pembayaran dibatalkan. Tagihan masih tersimpan.' });
-            this.isProcessingPayment = false;
-          },
-        });
-      } catch (err) {
-        const msg = err?.response?.data?.message || err.message || 'Terjadi kesalahan.';
-        Toast.fire({ icon: 'error', title: msg });
-        this.isProcessingPayment = false;
+      if (!res.data.success) {
+        throw new Error(res.data.message || 'Gagal mendapatkan token pembayaran.');
       }
-    },
+
+      const snapToken = res.data.snap_token;
+
+      window.snap.pay(snapToken, {
+        onSuccess: () => {
+          Toast.fire({ icon: 'success', title: 'Pembayaran berhasil!' });
+          state.selectedAppointment = null;
+          fetchAppointments();
+        },
+        onPending: () => {
+          Toast.fire({ icon: 'info', title: 'Menunggu pembayaran diselesaikan.' });
+          state.isProcessingPayment = false;
+          state.selectedAppointment = null;
+          fetchAppointments();
+        },
+        onError: () => {
+          Toast.fire({ icon: 'error', title: 'Pembayaran gagal. Silakan coba lagi.' });
+          state.isProcessingPayment = false;
+        },
+        onClose: () => {
+          Toast.fire({ icon: 'warning', title: 'Pembayaran dibatalkan. Tagihan masih tersimpan.' });
+          state.isProcessingPayment = false;
+        },
+      });
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || 'Terjadi kesalahan.';
+      Toast.fire({ icon: 'error', title: msg });
+      state.isProcessingPayment = false;
+    }
+  };
+
+  return {
+    triggerRepay,
   };
 }
 ```
@@ -669,15 +700,17 @@ export default function usePayment({ detail }) {
 
 **File:** `resources/views/frontdoor/dashboard/jadwal.blade.php` ← MODIFIKASI PENUH
 
-Pola: `x-data="appointmentHistoryHandler"` di wrapper utama.
+Pola: `jsModule="frontdoor/dashboard/Dashboard"` di layout, `x-data="Dashboard"` di wrapper utama.
 Panel kiri = list kartu. Panel kanan = detail booking yang diklik.
 Jika tidak ada yang diklik, panel kanan tidak ditampilkan.
 
 ```blade
-<x-layouts.frontdoor title="Jadwal Saya - Dashboard">
+<x-layouts.frontdoor
+  title="Jadwal Saya - Dashboard"
+  jsModule="frontdoor/dashboard/Dashboard">
   <x-slot:content>
     <div class="w-full min-h-[calc(100vh-80px)] bg-stone-50 py-12 px-4 sm:px-6"
-         x-data="appointmentHistoryHandler">
+         x-data="Dashboard">
 
       <div class="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
 
@@ -876,37 +909,16 @@ Jika tidak ada yang diklik, panel kanan tidak ditampilkan.
     </div>
   </x-slot:content>
 
-  @include('frontdoor.dashboard.script')
 </x-layouts.frontdoor>
 ```
 
----
-
-### `script.blade.php` — Co-located Alpine.js
-
-**File:** `resources/views/frontdoor/dashboard/script.blade.php` ← BARU
-
-```blade
-@push('scripts')
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('appointmentHistoryHandler', appointmentHistoryHandler);
-  });
-</script>
-@endpush
-```
+> **Catatan:** File `script.blade.php` dan pendaftaran manual di `app.js` **tidak diperlukan**.
+> Dynamic loader di `app.js` secara otomatis mendaftarkan `Dashboard` ke `Alpine.data()` berdasarkan `jsModule="frontdoor/dashboard/Dashboard"` yang ada di layout. Cukup buat file JS-nya dan pastikan nama file PascalCase sesuai yang ingin Anda gunakan di `x-data`.
 
 ---
 
-### Registrasi di `app.js` / Entry Point JS
-
-Di file utama JS (misal `resources/js/app.js`), import dan expose ke `window`:
-
-```js
-import appointmentHistoryHandler from './features/dashboard/Dashboard.js';
-
-window.appointmentHistoryHandler = appointmentHistoryHandler;
-```
+> **Tidak ada file `script.blade.php` atau modifikasi `app.js` yang diperlukan.**
+> Pendaftaran komponen Alpine dilakukan secara otomatis oleh dynamic loader bawaan proyek ini.
 
 ---
 
@@ -958,7 +970,6 @@ Pastikan script Midtrans Snap di-load di layout `frontdoor.blade.php`:
 7. Update `WebhookController` (simpan `snap_token_expiry` dari webhook payload)
 8. Update `DashboardController` (inject `DashboardService`, tambah `appointments()` dan `repay()`)
 9. Update `routes/frontdoor/frontdoor.php`
-10. Buat JS modules (`Dashboard.js`, `useAppointments.js`, `useDetail.js`, `usePayment.js`)
-11. Update `jadwal.blade.php` + buat `script.blade.php`
-12. Register `appointmentHistoryHandler` di `app.js`
-13. Selesaikan TODO di `useCheckout.js` (redirect ke dasbor)
+10. Buat JS modules (`useState.js`, `Dashboard.js`, `useAppointments.js`, `useDetail.js`, `usePayment.js`) di `resources/js/features/frontdoor/dashboard/`
+11. Update `jadwal.blade.php` (tambah `jsModule="frontdoor/dashboard/Dashboard"` dan `x-data="Dashboard"`)
+12. Selesaikan TODO di `useCheckout.js` (redirect ke dasbor)
