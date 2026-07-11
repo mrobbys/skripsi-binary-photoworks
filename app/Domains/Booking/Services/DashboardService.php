@@ -6,10 +6,8 @@ use App\Domains\Booking\DTOs\BookingHistoryData;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\Booking\Repositories\BookingRepository;
-use App\Domains\Payment\Enums\PaymentPurpose;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\User\Models\User;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 use RuntimeException;
 
@@ -75,11 +73,13 @@ class DashboardService
     // Ambil order id bawaan
     $orderId = $payment->order_id;
 
-    // jika snap_token ada tapi expired -> request token baru ke Midtrans, dan buat order_id baru
+    // Jika snap_token ada tapi expired -> Tolak dan ubah status jadi CANCELLED
     if ($payment->snap_token && $payment->snap_token_expiry?->isPast()) {
-      $suffix = $payment->payment_purpose === PaymentPurpose::DP ? 'DP' :'FULL';
-      $randomString = Str::upper(Str::random(3));
-      $orderId = "{$booking->booking_code}-{$suffix}-{$randomString}";
+      // Ubah status jadi Batal
+      $payment->update(['status' => PaymentStatus::CANCELLED]);
+      $booking->update(['status' => BookingStatus::CANCELLED]);
+      
+      throw new RuntimeException('Batas waktu pembayaran (1 Jam) telah habis. Reservasi otomatis dibatalkan.');
     }
 
     // Token expired atau belum ada -> buat token baru ke Midtrans
