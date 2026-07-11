@@ -4,6 +4,7 @@ namespace App\Domains\Booking\DTOs;
 
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
+use App\Domains\Payment\Enums\PaymentStatus;
 use App\Support\Formatter;
 use Spatie\LaravelData\Data;
 
@@ -26,6 +27,7 @@ class BookingHistoryData extends Data
     public readonly string $formatted_total_price,
     public readonly string $payment_scheme,
     public readonly ?string $gdrive_link,
+    public readonly ?string $receipt_url,
   ) {}
 
   public static function fromModel(Booking $booking): self
@@ -40,6 +42,9 @@ class BookingHistoryData extends Data
 
     // Tombol "Bayar Sekarang" hanya muncul jika status masih "Menunggu"
     $canPay = $booking->status === BookingStatus::PENDING;
+
+    $payment = $booking->payments->where('status', PaymentStatus::SETTLEMENT)->first();
+    $receiptUrl = $payment ? route('payments.receipt', ['payment' => $payment->order_id]) : null;
 
     return new self(
       id: $booking->id,
@@ -56,6 +61,7 @@ class BookingHistoryData extends Data
       formatted_total_price: Formatter::rupiah($booking->total_price),
       payment_scheme: $booking->payment_scheme->value,
       gdrive_link: $booking->gdrive_link,
+      receipt_url: $receiptUrl,
     );
   }
 }

@@ -152,7 +152,7 @@
         <span>Bayar Sekarang <i class="ri-secure-payment-line ml-1"></i></span>
       </template>
       <template x-if="state.isProcessing">
-        <span><i class="ri-loader-4-line animate-spin mr-1"></i> Mengunci Slot Jadwal...</span>
+        <span>Mengunci Slot Jadwal...</span>
       </template>
     </x-shared.button>
   </div>

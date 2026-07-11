@@ -18,7 +18,7 @@ class BookingData extends Data
         public readonly string $end_time,
         public readonly int $total_price,
         public readonly PaymentScheme $payment_scheme,
-        public readonly ?string $keterangan,
         public readonly BookingStatus $status,
+        public readonly ?string $keterangan = null,
     ) {}
 }

@@ -1,5 +1,5 @@
 <div
-  class="border transition-all overflow-hidden bg-white"
+  class="border transition-all overflow-hidden"
   x-bind:class="state.selectedAppointment?.booking_code === appointment.booking_code ?
       'border-stone-900 ring-1 ring-stone-900 shadow-sm' :
       'border-stone-300 hover:border-stone-700'">
@@ -42,10 +42,10 @@
       <x-shared.button
         x-show="appointment.can_pay"
         x-on:click.stop="triggerRepay(appointment.booking_code)"
-        x-bind:disabled="state.isProcessingPayment"
-        class="w-auto shrink-0 text-sm font-semibold border border-stone-300 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-800">
-        <span x-show="!state.isProcessingPayment">Bayar Sekarang</span>
-        <span x-show="state.isProcessingPayment">Memproses...</span>
+        x-bind:disabled="state.isProcessingPayment === appointment.booking_code"
+        class="w-auto shrink-0 text-sm font-semibold border border-stone-300 text-stone-600 hover:bg-stone-100 hover:text-stone-800">
+        <span x-show="state.isProcessingPayment !== appointment.booking_code">Bayar Sekarang</span>
+        <span x-show="state.isProcessingPayment === appointment.booking_code">Memproses...</span>
       </x-shared.button>
       {{-- Tombol Bayar end --}}
 
@@ -118,12 +118,32 @@
             <x-shared.button
               x-show="appointment.can_pay"
               x-on:click="triggerRepay(appointment.booking_code)"
-              x-bind:disabled="state.isProcessingPayment"
+              x-bind:disabled="state.isProcessingPayment === appointment.booking_code"
               class="w-full py-2.5 text-sm font-semibold bg-stone-700 text-stone-50 hover:bg-stone-800">
-              <span x-show="!state.isProcessingPayment">Lanjutkan Pembayaran</span>
-              <span x-show="state.isProcessingPayment">Memproses...</span>
+              <span x-show="state.isProcessingPayment !== appointment.booking_code">Lanjutkan Pembayaran</span>
+              <span x-show="state.isProcessingPayment === appointment.booking_code">Memproses...</span>
             </x-shared.button>
             {{-- btn bayar end --}}
+
+            {{-- btn reschedule start --}}
+            {{-- <x-shared.button
+              x-show="appointment.can_reschedule"
+              x-on:click="openRescheduleDrawer(appointment)"
+              class="w-full py-2.5 text-sm font-semibold border border-stone-300 text-stone-700 hover:bg-stone-100">
+              Ubah Jadwal
+            </x-shared.button> --}}
+            {{-- btn reschedule end --}}
+
+            {{-- btn batal start --}}
+            {{-- <x-shared.button
+              x-show="appointment.can_cancel"
+              x-on:click="triggerCancel(appointment.booking_code)"
+              x-bind:disabled="state.isCancelling === appointment.booking_code"
+              class="w-full py-2.5 text-sm font-semibold border border-red-300 text-red-600 hover:bg-red-50">
+              <span x-show="state.isCancelling !== appointment.booking_code">Batalkan Reservasi</span>
+              <span x-show="state.isCancelling === appointment.booking_code">Membatalkan...</span>
+            </x-shared.button> --}}
+            {{-- btn batal end --}}
 
             {{-- link hasil foto start --}}
             <x-shared.button
@@ -131,10 +151,21 @@
               x-show="appointment.gdrive_link && appointment.status === 'Selesai'"
               x-bind:href="appointment.gdrive_link"
               target="_blank" rel="noopener noreferrer"
-              class="w-full py-2.5 text-sm font-semibold border border-stone-900 text-stone-900 bg-white hover:bg-stone-50">
+              class="w-full py-2.5 text-sm font-semibold border border-stone-900 text-stone-900 hover:bg-stone-100">
               Link Hasil Foto
             </x-shared.button>
             {{-- link hasil foto end --}}
+
+            {{-- link cetak kuitansi start --}}
+            <x-shared.button
+              as="a"
+              x-show="appointment.receipt_url"
+              x-bind:href="appointment.receipt_url"
+              target="_blank" rel="noopener noreferrer"
+              class="w-full py-2.5 text-sm font-medium border border-stone-300 text-stone-700 hover:bg-stone-100">
+              Unduh Kuitansi Pembayaran
+            </x-shared.button>
+            {{-- link cetak kuitansi end --}}
           </div>
 
         </div>
