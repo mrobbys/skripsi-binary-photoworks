@@ -5,46 +5,39 @@ export default function useCheckout({ state, buildAddonsPayload }) {
   const triggerCheckout = async () => {
     state.isProcessing = true;
     try {
-      const res = await window.axios.post(route("frontdoor.booking.checkout"), {
+      const addons = buildAddonsPayload();
+      const payload = {
         package_variant_id: state.selectedVariantId,
         background_id: state.selectedBackgroundId,
         booking_date: state.selectedDate,
         start_time: state.selectedSlot?.start_time,
         payment_scheme: state.paymentScheme,
         keterangan: state.keterangan,
-        addons: buildAddonsPayload(),
-      });
+        ...(addons.length && { addons }),
+      };
 
-      if (!res.data.success) throw new Error(res.data.message || "Checkout gagal.");
+      const { data } = await window.axios.post(route("frontdoor.booking.checkout"), payload);
 
-      state.bookingCode = res.data.booking_code;
-      const code = state.bookingCode;
+      state.bookingCode = data.booking_code;
 
-      window.snap.pay(res.data.snap_token, {
-        onSuccess: () => {
-          window.location.href = route("frontdoor.booking.success", { bookingCode: code });
-        },
-        onPending: () => {
-          Toast.fire({ icon: "info", title: "Menunggu pembayaran diselesaikan." });
-          state.isProcessing = false;
-          window.location.href = route("frontdoor.dashboard.index");
-        },
-        onError: () => {
-          Toast.fire({ icon: "error", title: "Pembayaran gagal. Silakan coba lagi." });
-          state.isProcessing = false;
-          window.location.href = route("frontdoor.dashboard.index");
-        },
-        onClose: () => {
-          Toast.fire({ icon: "warning", title: "Pembayaran dibatalkan. Slot masih tersimpan." });
-          state.isProcessing = false;
-          window.location.href = route("frontdoor.dashboard.index");
-        },
+      const finishCheckout = (icon, title) => {
+        Toast.fire({ icon, title });
+        state.isProcessing = false;
+        window.location.href = route("frontdoor.dashboard.index");
+      };
+
+      window.snap.pay(data.snap_token, {
+        onSuccess: () =>
+          (window.location.href = route("frontdoor.booking.success", { bookingCode: data.booking_code })),
+        onPending: () => finishCheckout("info", "Menunggu pembayaran diselesaikan."),
+        onError: () => finishCheckout("error", "Pembayaran gagal. Silakan coba lagi."),
+        onClose: () => finishCheckout("warning", "Pembayaran dibatalkan. Slot masih tersimpan."),
       });
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message;
-      Toast.fire({ icon: "error", title: "Terjadi kesalahan." });
+      const msg = err?.response?.data?.message || err.message || "Terjadi kesalahan.";
+      Toast.fire({ icon: "error", title: msg });
       state.isProcessing = false;
-      console.log(msg);
+      console.error(msg);
     }
   };
 

@@ -9,6 +9,6 @@ export default function useState(Alpine) {
     // data booking yang sedang ditampilkan / dipilih
     selectedAppointment: null,
     // proses pembayaran midtrans
-    isProcessingPayment: false,
+    isProcessingPayment: null,
   })
 }
