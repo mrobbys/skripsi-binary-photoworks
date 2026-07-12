@@ -27,3 +27,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/media-library/
+.php-cs-fixer.cache
+.php-cs-fixer.dist.php
