@@ -2,7 +2,8 @@
 
 namespace App\Domains\MasterData\DTOs;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Domains\MasterData\Http\Requests\StoreCategoryRequest;
+use App\Domains\MasterData\Http\Requests\UpdateCategoryRequest;
 use Spatie\LaravelData\Data;
 
 class CategoryData extends Data
@@ -13,7 +14,7 @@ class CategoryData extends Data
     public readonly bool $is_active = true
   ) {}
 
-  public static function fromRequest(FormRequest $request): self
+  public static function fromRequest(StoreCategoryRequest|UpdateCategoryRequest $request): self
   {
     return new self(
       category_code: strtoupper(trim($request->validated('category_code'))),
