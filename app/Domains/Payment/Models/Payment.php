@@ -18,6 +18,7 @@ class Payment extends Model
             'payment_purpose' => PaymentPurpose::class,
             'pay_date' => 'datetime',
             'status' => PaymentStatus::class,
+            'snap_token_expiry' => 'datetime',
         ];
     }
     

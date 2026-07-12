@@ -127,14 +127,16 @@
 
         {{-- action buttons start --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <x-shared.button as="a" href="{{ route('frontdoor.dashboard.index') }}" variant="custom"
-            class="flex items-center justify-center border border-stone-300 bg-transparent text-stone-500 px-6 py-3 text-sm font-semibold tracking-wide hover:bg-stone-200 active:bg-stone-200 transition-colors duration-150">
+          <x-shared.button as="a" href="{{ route('frontdoor.dashboard.index') }}"
+            size="custom"
+            class="w-full border border-stone-300 bg-transparent text-stone-500 px-6 py-3 text-sm font-semibold! hover:bg-stone-200 transition-colors duration-150">
             Lihat Riwayat Pesanan
           </x-shared.button>
           <x-shared.button as="a"
             href="{{ route('payments.receipt', $booking->order_id) }}"
-            target="_blank" variant="custom"
-            class="flex items-center justify-center border border-stone-500 bg-stone-500 text-stone-50 px-6 py-3 text-sm font-semibold tracking-wide hover:bg-stone-600 active:bg-stone-700 transition-colors duration-150">
+            target="_blank"
+            size="custom"
+            class="w-full border border-stone-500 bg-stone-500 text-stone-50 px-6 py-3 text-sm font-semibold! hover:bg-stone-600 transition-colors duration-150">
             Unduh Bukti Reservasi (PDF)
           </x-shared.button>
         </div>

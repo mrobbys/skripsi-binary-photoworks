@@ -10,13 +10,13 @@ class CheckoutData extends Data
 {
     public function __construct(
         public readonly int $package_variant_id,
-        public readonly ?int $background_id,
+        public readonly int $background_id,
         public readonly string $booking_date,   // Y-m-d
         public readonly string $start_time,     // H:i
         public readonly PaymentScheme $payment_scheme, // 'lunas' | 'dp'
+        public readonly ?string $keterangan = null,
         /** @var array<int, array{addon_id: int, quantity: int}> */
-        public readonly array $addons,
-        public readonly ?string $keterangan,
+        public readonly array $addons = [],
     ) {}
 
     public static function fromRequest(CheckoutRequest $request): self

@@ -1,4 +1,4 @@
-<x-layouts.frontdoor.index title="Layanan Kami" jsModule="booking/Services">
+<x-layouts.frontdoor.index title="Layanan Kami" jsModule="frontdoor/booking/Services">
   <x-slot:content>
     <div class="py-12"
       x-data="Services"

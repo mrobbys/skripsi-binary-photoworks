@@ -5,7 +5,6 @@ use App\Domains\Frontdoor\Http\Controllers\ContactUsController;
 use App\Domains\Frontdoor\Http\Controllers\FaqController;
 use App\Domains\Frontdoor\Http\Controllers\HomeController;
 use App\Domains\Review\Http\Controllers\Frontdoor\ReviewController;
-use App\Domains\User\Http\Controllers\Frontdoor\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('frontdoor.home');
@@ -20,7 +19,4 @@ Route::get('/faq', [FaqController::class, 'index'])->name('frontdoor.faq');
 
 Route::get('/contact-us', [ContactUsController::class, 'index'])->name('frontdoor.contact-us');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('frontdoor.dashboard.index');
-    Route::get('/dashboard/profil', [DashboardController::class, 'profil'])->name('frontdoor.dashboard.profil');
-});
+require __DIR__.'/dashboard.php';

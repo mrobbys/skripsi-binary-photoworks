@@ -20,15 +20,14 @@
           <span x-text="state.formattedDate"></span>
         </template>
         <template x-if="!state.selectedDate">
-          <span class="text-stone-400 font-normal text-base">Silakan pilih tanggal...</span>
+          <span class="text-stone-500 font-normal text-sm flex items-center gap-2">
+            <i class="ri-calendar-event-line text-stone-400"></i>
+            Pilih tanggal terlebih dahulu.
+          </span>
         </template>
       </h3>
 
       <div class="min-h-[220px]">
-        <template x-if="!state.selectedDate">
-          <p class="text-sm text-stone-400">Pilih tanggal terlebih dahulu pada kalender.</p>
-        </template>
-
         <template x-if="state.isFetchingSlots">
           <div class="flex items-center gap-2 text-stone-500 text-sm py-4">
             <i class="ri-loader-4-line animate-spin"></i>
@@ -54,12 +53,14 @@
   </div>
 
   <div class="my-8 flex flex-col sm:flex-row gap-12">
-    <x-shared.button variant="outline" size="lg" value="Kembali" x-on:click="prevStep()">
+    <x-shared.button size="lg" value="Kembali" x-on:click="prevStep()"
+      class="w-full border border-stone-300 bg-transparent text-stone-800 hover:bg-stone-50">
       <x-slot:iconLeft>
         <i class="ri-arrow-left-line"></i>
       </x-slot:iconLeft>
     </x-shared.button>
-    <x-shared.button variant="primary" size="lg" value="Lanjutkan ke Layanan Tambahan"
+    <x-shared.button size="lg" value="Lanjutkan ke Layanan Tambahan"
+      class="w-full bg-stone-800 text-white hover:bg-stone-700"
       x-bind:disabled="!state.selectedSlot" x-on:click="nextStep()">
       <x-slot:iconRight>
         <i class="ri-arrow-right-line"></i>

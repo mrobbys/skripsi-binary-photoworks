@@ -9,7 +9,7 @@
 <x-layouts.backdoor.index
   title="Kelola Background"
   :breadcrumbs="$breadcrumbs"
-  js-module="master-data/background/Background">
+  jsModule="backdoor/master-data/background/Background">
 
   <x-slot:content>
     <div

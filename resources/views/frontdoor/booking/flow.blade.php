@@ -1,6 +1,6 @@
 <x-layouts.frontdoor.index
   title="Booking Sesi Foto — {{ $package->name }}"
-  js-module="booking/Booking">
+  jsModule="frontdoor/booking/Booking">
 
   <x-slot:heads>
     {{-- midtrans --}}
@@ -19,8 +19,8 @@
       x-cloak>
       {{-- kembali ke katalog start --}}
       <div class="w-fit h-fit whitespace-nowrap">
-        <x-shared.button as="a" href="{{ route('frontdoor.services.index') }}" variant="ghost"
-          class="mb-8 group text-stone-500">
+        <x-shared.button as="a" href="{{ route('frontdoor.services.index') }}"
+          class="mb-8 group text-stone-500 hover:bg-stone-100 hover:text-stone-800">
           <x-slot:iconLeft>
             <i class="ri-arrow-left-line group-hover:-translate-x-1 transition-transform"></i>
           </x-slot:iconLeft>

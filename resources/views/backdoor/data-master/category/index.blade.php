@@ -8,7 +8,7 @@
 <x-layouts.backdoor.index
   title="Kategori Foto"
   :breadcrumbs="$breadcrumbs"
-  js-module="master-data/category/Category">
+  jsModule="backdoor/master-data/category/Category">
 
   <x-slot:content>
     <div

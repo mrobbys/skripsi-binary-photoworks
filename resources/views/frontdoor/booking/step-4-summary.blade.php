@@ -137,20 +137,22 @@
   {{-- actions start --}}
   <div class="mt-12 flex flex-col sm:flex-row gap-12">
     {{-- button kembali --}}
-    <x-shared.button variant="outline" size="lg" value="Kembali" x-on:click="prevStep()">
+    <x-shared.button size="lg" value="Kembali" x-on:click="prevStep()"
+      class="w-full border border-stone-300 bg-transparent text-stone-800 hover:bg-stone-50">
       <x-slot:iconLeft>
         <i class="ri-arrow-left-line"></i>
       </x-slot:iconLeft>
     </x-shared.button>
 
     {{-- button checkout --}}
-    <x-shared.button variant="primary" size="lg"
+    <x-shared.button size="lg"
+      class="w-full bg-stone-800 text-white hover:bg-stone-700"
       x-on:click="triggerCheckout()" x-bind:disabled="state.isProcessing">
       <template x-if="!state.isProcessing">
         <span>Bayar Sekarang <i class="ri-secure-payment-line ml-1"></i></span>
       </template>
       <template x-if="state.isProcessing">
-        <span><i class="ri-loader-4-line animate-spin mr-1"></i> Mengunci Slot Jadwal...</span>
+        <span>Mengunci Slot Jadwal...</span>
       </template>
     </x-shared.button>
   </div>

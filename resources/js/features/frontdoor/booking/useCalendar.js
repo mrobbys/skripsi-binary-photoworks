@@ -1,0 +1,68 @@
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
+import { initBaseFlatpickr, formatIdDate } from "@/lib/calendarHelper";
+
+let _fp = null;
+
+export default function useCalendar({ state }) {
+  const initCalendar = (calendarRef) => {
+    state.selectedDate = null;
+    state.formattedDate = "";
+    state.availableSlots = [];
+
+    _fp = initBaseFlatpickr(calendarRef, {
+      minDate: "today",
+      disable: [
+        (date) => {
+          const dbDay = date.getDay() === 0 ? 7 : date.getDay();
+          return !state.activeDays.includes(dbDay);
+        },
+      ],
+      onChange: (_, dateStr) => {
+        if (!dateStr) return;
+
+        state.selectedDate = dateStr;
+        state.formattedDate = formatIdDate(dateStr);
+        state.selectedSlot = null;
+
+        fetchSlots(dateStr);
+      },
+    });
+  };
+
+  const destroyCalendar = () => {
+    if (_fp) {
+      _fp.destroy();
+      _fp = null;
+    }
+  };
+
+  const fetchSlots = async (dateStr) => {
+    state.isFetchingSlots = true;
+
+    // disabled flatpickr saat fetching data
+    if (_fp?.calendarContainer) {
+      _fp.calendarContainer.classList.add("pointer-events-none", "opacity-50", "select-none");
+    }
+
+    try {
+      const res = await window.axios.get(route("frontdoor.booking.api.slots"), {
+        params: {
+          date: dateStr,
+          duration: state.selectedVariant?.duration || 30,
+        },
+      });
+      state.availableSlots = res.data?.slots ?? [];
+    } catch {
+      Toast.fire({ icon: "error", title: "Gagal memuat jadwal tersedia." });
+      state.availableSlots = [];
+    } finally {
+      state.isFetchingSlots = false;
+      if (_fp?.calendarContainer) {
+        _fp.calendarContainer.classList.remove("pointer-events-none", "opacity-50", "select-none");
+      }
+    }
+  };
+
+  return { initCalendar, destroyCalendar };
+}
