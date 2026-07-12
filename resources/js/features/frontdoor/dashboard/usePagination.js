@@ -8,14 +8,14 @@ export default function usePagination({ state, fetchCallback }) {
   const nextPage = async () => {
     if (state.currentPage < state.lastPage && !state.isLoading) {
       state.currentPage++;
-      await fetchCallback();
+      await fetchCallback(true);
     }
   };
 
   const prevPage = async () => {
     if (state.currentPage > 1 && !state.isLoading) {
       state.currentPage--;
-      await fetchCallback();
+      await fetchCallback(true);
     }
   };
 
@@ -24,7 +24,7 @@ export default function usePagination({ state, fetchCallback }) {
     const targetPage = parseInt(page, 10);
     if (targetPage >= 1 && targetPage <= state.lastPage && !state.isLoading) {
       state.currentPage = targetPage;
-      await fetchCallback();
+      await fetchCallback(true);
     }
   };
 

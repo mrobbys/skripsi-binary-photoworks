@@ -2,9 +2,9 @@ import route from "@/lib/route";
 import { Toast, confirmModal } from "@/lib/sweetalert";
 import { initBaseFlatpickr, formatIdDate } from "@/lib/calendarHelper";
 
-let _fp = null;
-
 export default function useReschedule({ state, fetchAppointments, clearDetail }) {
+  let _fp = null;
+  
   // buka drawer form reschedule dan simpan appointment target
   const openRescheduleDrawer = (appointment) => {
     state.rescheduleTarget = appointment;

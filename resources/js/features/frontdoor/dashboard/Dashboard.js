@@ -1,4 +1,4 @@
-import useState from "./useState.js";
+import useDashboardState from "./useDashboardState.js";
 import useAppointments from "./useAppointments.js";
 import useDetail from "./useDetail.js";
 import usePayment from "./usePayment.js";
@@ -7,9 +7,9 @@ import useCancel from "./useCancel.js";
 import useReschedule from "./useReschedule.js";
 
 export default function Dashboard(Alpine) {
-  const state = useState(Alpine);
+  const state = useDashboardState(Alpine);
 
-  const { fetchAppointments, filteredAppointments, switchTab } = useAppointments({ state });
+  const { fetchAppointments, switchTab } = useAppointments({ state });
   const { showDetail, clearDetail, hasDetail } = useDetail({ state });
   const { triggerRepay } = usePayment({ state, fetchAppointments });
   const { nextPage, prevPage, goToPage, getPages } = usePagination({ state, fetchCallback: fetchAppointments });
@@ -39,7 +39,6 @@ export default function Dashboard(Alpine) {
 
     // appointments
     fetchAppointments,
-    filteredAppointments,
     switchTab,
 
     // detail

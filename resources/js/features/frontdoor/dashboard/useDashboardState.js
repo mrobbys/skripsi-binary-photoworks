@@ -1,4 +1,4 @@
-export default function useState(Alpine) {
+export default function useDashboardState(Alpine) {
   return Alpine.reactive({
     // semua data booking dari api
     appointments: [],
