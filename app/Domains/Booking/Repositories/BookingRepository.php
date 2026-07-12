@@ -48,19 +48,7 @@ class BookingRepository
      */
     public function create(BookingData $data): Booking
     {
-        return Booking::create([
-            'user_id' => $data->user_id,
-            'package_variant_id' => $data->package_variant_id,
-            'background_id' => $data->background_id,
-            'booking_code' => $data->booking_code,
-            'booking_date' => $data->booking_date,
-            'start_time' => $data->start_time,
-            'end_time' => $data->end_time,
-            'total_price' => $data->total_price,
-            'payment_scheme' => $data->payment_scheme,
-            'keterangan' => $data->keterangan,
-            'status' => $data->status,
-        ]);
+        return Booking::create($data->toArray());
     }
 
     /**
@@ -127,6 +115,26 @@ class BookingRepository
         return $query->orderBy('created_at', 'desc')
             ->orderBy('start_time', 'desc')
             ->paginate($limit);
+    }
+
+    /**
+     * Cek apakah slot sudah terisi, kecuali booking milik booking_id tertentu.
+     * Digunakan saat reschedule agar slot lama milik user sendiri tidak dianggap bentrok.
+     * @param string $date
+     * @param string $startTime
+     * @param string $endTime
+     * @param int $excludeBookingId ID booking yang sedang di-reschedule
+     */
+    public function isSlotOccupiedExcluding(string $date, string $startTime, string $endTime, int $excludeBookingId): bool
+    {
+        $query = Booking::where('booking_date', $date)
+            ->where('id', '!=', $excludeBookingId)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where('start_time', '<', $endTime)
+                    ->where('end_time', '>', $startTime);
+            });
+
+        return $this->applyActiveSlotFilter($query)->exists();
     }
 
     /**

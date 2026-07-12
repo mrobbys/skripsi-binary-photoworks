@@ -11,7 +11,6 @@ use App\Domains\MasterData\Repositories\AddonRepository;
 use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
-use App\Domains\MasterData\Models\Schedule;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +21,7 @@ use Illuminate\View\View;
 use App\Domains\MasterData\Repositories\BackgroundRepository;
 use App\Domains\MasterData\Repositories\PackageRepository;
 use App\Support\Formatter;
+use App\Domains\MasterData\Repositories\ScheduleRepository;
 
 #[Middleware('auth', only: ['flow', 'checkout', 'success'])]
 class BookingController extends Controller
@@ -32,7 +32,8 @@ class BookingController extends Controller
         private readonly CategoryRepository $categoryRepository,
         private readonly PackageRepository $packageRepository,
         private readonly BackgroundRepository $backgroundRepository,
-        private readonly AddonRepository $addonRepository
+        private readonly AddonRepository $addonRepository,
+        private readonly ScheduleRepository $scheduleRepository
     ) {}
 
     /**
@@ -100,7 +101,7 @@ class BookingController extends Controller
             ->get();
 
         $addons = $this->addonRepository->queryActive()->orderBy('name')->get();
-        $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
+        $activeDays = $this->scheduleRepository->getDays();
         // ambil background yang aktif, beserta URL gambar thumbnail
         $backgrounds = $this->backgroundRepository->queryActive()
             ->get()
@@ -129,7 +130,7 @@ class BookingController extends Controller
         $dayOfWeek = Carbon::parse($date)->dayOfWeekIso;
 
         // ambil slot waktu
-        $schedules = Schedule::where('is_active', true)
+        $schedules = $this->scheduleRepository->queryActive()
             ->where('day', $dayOfWeek)
             ->orderBy('start_time')
             ->get(['start_time', 'end_time']);

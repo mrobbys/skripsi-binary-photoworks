@@ -44,7 +44,7 @@ class DashboardService
    * @param string $bookingCode
    * @param User   $user
    */
-  public function getOrCreateSnapToken(string $bookingCode, User $user): string
+  public function getValidSnapToken(string $bookingCode, User $user): string
   {
     $booking = $this->repository->findByCodeAndUser($bookingCode, $user->id);
 
@@ -52,52 +52,111 @@ class DashboardService
       throw new RuntimeException('Booking tidak ditemukan.');
     }
 
+    // Pastikan status booking masih PENDING
     if ($booking->status !== BookingStatus::PENDING) {
       throw new RuntimeException('Booking ini tidak dapat dibayar (status bukan Menunggu).');
     }
 
-    // Ambil payment record dengan status pending yang belum terbayar
-    $payment = $booking->payments
-      ->where('status', PaymentStatus::PENDING)
-      ->first();
+    // Ambil data payment dengan status pending
+    $payment = $booking->payments->where('status', PaymentStatus::PENDING)->first();
 
-    if (! $payment) {
-      throw new RuntimeException('Tidak ada tagihan yang perlu dibayar.');
+    // Jika data payment atau snap_token tidak ada -> tolak
+    if (! $payment || ! $payment->snap_token) {
+      throw new RuntimeException('Tagihan atau token pembayaran tidak ditemukan.');
     }
 
-    // Jika snap_token masih ada dan belum expired -> reuse token
-    if ($payment->snap_token && $payment->snap_token_expiry?->isFuture()) {
-      return $payment->snap_token;
-    }
-
-    // Ambil order id bawaan
-    $orderId = $payment->order_id;
-
-    // Jika snap_token ada tapi expired -> Tolak dan ubah status jadi CANCELLED
-    if ($payment->snap_token && $payment->snap_token_expiry?->isPast()) {
-      // Ubah status jadi Batal
+    // Jika token expired -> Tolak dan ubah status jadi CANCELLED
+    if ($payment->snap_token_expiry?->isPast()) {
       $payment->update(['status' => PaymentStatus::CANCELLED]);
       $booking->update(['status' => BookingStatus::CANCELLED]);
-      
+
       throw new RuntimeException('Batas waktu pembayaran (1 Jam) telah habis. Reservasi otomatis dibatalkan.');
     }
 
-    // Token expired atau belum ada -> buat token baru ke Midtrans
-    $snapToken = $this->midtrans->getSnapToken(
-      orderId: $orderId,
-      grossAmount: $payment->amount,
-      user: $user,
-      booking: $booking,
-    );
+    return $payment->snap_token;
+  }
 
-    // Update snap_token dan expiry di database
-    // Set expiry 1 jam dari sekarang
-    $payment->update([
-      'order_id' => $orderId,
-      'snap_token' => $snapToken,
-      'snap_token_expiry' => Carbon::now()->addHour(),
+  /**
+   * Batalkan booking milik user.
+   * Hanya booking dengan status PENDING yang bisa dibatalkan.
+   * @param string $bookingCode
+   * @param int    $userId
+   */
+  public function cancelBooking(string $bookingCode, int $userId): void
+  {
+    $booking = $this->repository->findByCodeAndUser($bookingCode, $userId);
+
+    if (! $booking) {
+      throw new RuntimeException('Booking tidak ditemukan.');
+    }
+
+    if ($booking->status !== BookingStatus::PENDING) {
+      throw new RuntimeException('Booking ini tidak dapat dibatalkan.');
+    }
+
+    // Update status booking ke CANCELLED
+    $booking->update(['status' => BookingStatus::CANCELLED]);
+
+    // Update semua payment terkait yang masih PENDING ke CANCELLED
+    $booking->payments()
+      ->where('status', PaymentStatus::PENDING)
+      ->update(['status' => PaymentStatus::CANCELLED]);
+  }
+
+  /**
+   * Ubah jadwal booking milik user.
+   * Aturan:
+   * - Status harus PENDING atau DP_PAID
+   * - Booking harus masih > 24 jam ke depan (H-1)
+   * - Slot baru tidak boleh bentrok dengan booking lain
+   * @param string $bookingCode
+   * @param int    $userId
+   * @param string $newDate       Format: Y-m-d
+   * @param string $newStartTime  Format: H:i
+   */
+  public function rescheduleBooking(string $bookingCode, int $userId, string $newDate, string $newStartTime): void
+  {
+    $maxRescheduleCount = 3;
+    $booking = $this->repository->findByCodeAndUser($bookingCode, $userId);
+
+    if (! $booking) {
+      throw new RuntimeException('Booking tidak ditemukan.');
+    }
+
+    $allowedStatuses = [BookingStatus::PENDING, BookingStatus::DP_PAID, BookingStatus::SUCCESS];
+    if (! in_array($booking->status, $allowedStatuses)) {
+      throw new RuntimeException('Booking ini tidak dapat diubah jadwalnya.');
+    }
+
+    // Cek apakah reschedule_count = 3, jika valid throw error
+    if ($booking->reschedule_count >= $maxRescheduleCount) {
+      throw new RuntimeException('Jadwal sudah melebihi batas reschedule (3 kali).');
+    }
+
+    // Validasi H-1: harus > 24 jam sebelum jadwal awal
+    $originalDateTime = $booking->booking_date->copy()->setTimeFrom($booking->start_time);
+    if (! $originalDateTime->isAfter(Carbon::now()->addHours(24))) {
+      throw new RuntimeException('Jadwal sudah terlalu dekat untuk diubah (batas H-1).');
+    }
+
+    // Hitung end_time baru berdasarkan durasi variant
+    // Ambil durasi dari variant jika tidak ada maka default 30 menit
+    $duration   = $booking->packageVariant?->duration ?? 30;
+    $newEndTime = Carbon::parse($newStartTime)->addMinutes($duration)->format('H:i');
+
+    // Validasi slot baru tidak bentrok (kecuali dengan booking sendiri)
+    if ($this->repository->isSlotOccupiedExcluding($newDate, $newStartTime, $newEndTime, $booking->id)) {
+      throw new RuntimeException('Slot waktu yang dipilih sudah terisi. Silakan pilih waktu lain.');
+    }
+
+    // Update jadwal
+    $booking->update([
+      'booking_date' => $newDate,
+      'start_time'   => $newStartTime,
+      'end_time'     => $newEndTime,
     ]);
 
-    return $snapToken;
+    // Tambah reschedule_count, untuk membatasi reschedule maksimal
+    $booking->increment('reschedule_count');
   }
 }
