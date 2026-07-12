@@ -13,6 +13,12 @@ Route::middleware('auth')->group(function () {
   // action repay midtrans / lunasi pemayaran
   Route::post('/dashboard/repay', [DashboardController::class, 'repay'])
     ->name('frontdoor.dashboard.repay');
+  // cancel booking
+  Route::post('/dashboard/cancel', [DashboardController::class, 'cancel'])
+    ->name('frontdoor.dashboard.cancel');
+  // reschedule booking
+  Route::post('/dashboard/reschedule', [DashboardController::class, 'reschedule'])
+    ->name('frontdoor.dashboard.reschedule');
   // halaman profil
   Route::get('/dashboard/profil', [DashboardController::class, 'profil'])
     ->name('frontdoor.dashboard.profil');

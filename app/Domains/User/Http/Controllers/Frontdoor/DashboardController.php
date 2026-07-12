@@ -3,6 +3,7 @@
 namespace App\Domains\User\Http\Controllers\Frontdoor;
 
 use App\Domains\Booking\Services\DashboardService;
+use App\Domains\MasterData\Repositories\ScheduleRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly DashboardService $dashboardService,
+        private readonly ScheduleRepository $scheduleRepository
     ) {}
 
     /**
@@ -20,7 +22,8 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        return view('frontdoor.dashboard.jadwal');
+        $activeDays = $this->scheduleRepository->getDays();
+        return view('frontdoor.dashboard.jadwal', compact('activeDays'));
     }
 
     /**
@@ -53,7 +56,7 @@ class DashboardController extends Controller
         ]);
 
         try {
-            $snapToken = $this->dashboardService->getOrCreateSnapToken(
+            $snapToken = $this->dashboardService->getValidSnapToken(
                 bookingCode: $request->booking_code,
                 user: Auth::user(),
             );
@@ -62,11 +65,86 @@ class DashboardController extends Controller
                 'success'    => true,
                 'snap_token' => $snapToken,
             ]);
-        } catch (\Exception $e) {
+        } catch (\RuntimeException $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Batalkan booking milik user yang sedang login.
+     * @param Request $request
+     */
+    public function cancel(Request $request): JsonResponse
+    {
+        $request->validate([
+            'booking_code' => ['required', 'string'],
+        ]);
+
+        try {
+            $this->dashboardService->cancelBooking(
+                bookingCode: $request->booking_code,
+                userId: Auth::id(),
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking berhasil dibatalkan.',
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Ubah jadwal booking milik user yang sedang login.
+     * @param Request $request
+     */
+    public function reschedule(Request $request): JsonResponse
+    {
+        $request->validate([
+            'booking_code' => ['required', 'string'],
+            'new_date'     => ['required', 'date', 'after:today'],
+            'new_time'     => ['required', 'date_format:H:i'],
+        ]);
+
+        try {
+            $this->dashboardService->rescheduleBooking(
+                bookingCode: $request->booking_code,
+                userId: Auth::id(),
+                newDate: $request->new_date,
+                newStartTime: $request->new_time,
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal berhasil diubah.',
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
+            ], 500);
         }
     }
 
