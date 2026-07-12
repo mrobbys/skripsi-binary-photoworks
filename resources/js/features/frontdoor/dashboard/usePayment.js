@@ -1,3 +1,4 @@
+import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
 
@@ -7,7 +8,7 @@ export default function usePayment({ state, fetchAppointments }) {
     state.isProcessingPayment = bookingCode;
 
     try {
-      const res = await window.axios.post(route("frontdoor.dashboard.repay"), {
+      const res = await axiosInstance.post(route("frontdoor.dashboard.repay"), {
         booking_code: bookingCode,
       });
 

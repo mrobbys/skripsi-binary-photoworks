@@ -1,3 +1,4 @@
+import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 
 export default function useAppointments({ state }) {
@@ -9,7 +10,7 @@ export default function useAppointments({ state }) {
     state.isLoading = true;
     state.appointments = [];
     try {
-      const res = await window.axios.get(route("frontdoor.dashboard.appointments"), {
+      const res = await axiosInstance.get(route("frontdoor.dashboard.appointments"), {
         params: {
           tab: state.activeTab,
           page: state.currentPage || 1,

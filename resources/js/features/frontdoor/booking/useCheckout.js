@@ -1,5 +1,6 @@
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function useCheckout({ state, buildAddonsPayload }) {
   const triggerCheckout = async () => {
@@ -16,7 +17,7 @@ export default function useCheckout({ state, buildAddonsPayload }) {
         ...(addons.length && { addons }),
       };
 
-      const { data } = await window.axios.post(route("frontdoor.booking.checkout"), payload);
+      const { data } = await axiosInstance.post(route("frontdoor.booking.checkout"), payload);
 
       state.bookingCode = data.booking_code;
 

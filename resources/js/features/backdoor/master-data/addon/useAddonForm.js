@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Modal, Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import axiosInstance from "@/lib/axiosInstance";
 
 const addonSchema = z.object({
   name: z.string().min(1, "Nama add-on wajib diisi.").max(100, "Nama add-on maksimal 100 karakter."),
@@ -75,7 +76,7 @@ export default function useAddonForm({ state, table }) {
     const method = state.isEdit ? "put" : "post";
 
     try {
-      const response = await window.axios[method](url, payload);
+      const response = await axiosInstance[method](url, payload);
 
       closeDrawer();
       table.reload();

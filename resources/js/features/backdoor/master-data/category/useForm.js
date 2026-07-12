@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Modal, Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import axiosInstance from "@/lib/axiosInstance";
 
 const categorySchema = z.object({
   category_code: z.string().min(1, "Kode kategori wajib diisi.").max(3, "Maksimal 3 karakter."),
@@ -60,7 +61,7 @@ export default function useForm({ state, table }) {
     const method = state.isEdit ? "put" : "post";
 
     try {
-      const response = await window.axios[method](url, state.form);
+      const response = await axiosInstance[method](url, state.form);
       closeDrawer();
 
       table.reload();

@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import axiosInstance from "@/lib/axiosInstance";
 
 const scheduleTimeSchema = z
   .object({
@@ -43,7 +44,7 @@ export default function useActions({ state, table }) {
     state.savingIds = new Set([...state.savingIds, scheduleId]);
 
     try {
-      const response = await window.axios.patch(route("backdoor.data-master.schedule.update", scheduleId), {
+      const response = await axiosInstance.patch(route("backdoor.data-master.schedule.update", scheduleId), {
         start_time: newStartTime,
         end_time: newEndTime,
         is_active: item.is_active,
@@ -95,7 +96,7 @@ export default function useActions({ state, table }) {
     state.savingIds = new Set([...state.savingIds, scheduleId]);
 
     try {
-      const response = await window.axios.patch(route("backdoor.data-master.schedule.toggle", scheduleId));
+      const response = await axiosInstance.patch(route("backdoor.data-master.schedule.toggle", scheduleId));
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
       if (item) item.is_active = currentStatus; // rollback

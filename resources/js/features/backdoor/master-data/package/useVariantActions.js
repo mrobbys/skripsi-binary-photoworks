@@ -1,5 +1,6 @@
 import route from "@/lib/route";
 import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function useVariantActions({ state, table }) {
   const toggleVariantStatus = async (packageSlug, variantId, event) => {
@@ -7,7 +8,7 @@ export default function useVariantActions({ state, table }) {
     const originalChecked = !checkbox.checked;
     state.isLoading = true;
     try {
-      const response = await window.axios.patch(
+      const response = await axiosInstance.patch(
         route("backdoor.data-master.package.variants.toggle", { package: packageSlug, variant: variantId }),
       );
       const idx = table.data.findIndex((v) => v.id === variantId);
@@ -31,7 +32,7 @@ export default function useVariantActions({ state, table }) {
     if (!result.isConfirmed) return;
     state.isLoading = true;
     try {
-      const response = await window.axios.delete(
+      const response = await axiosInstance.delete(
         route("backdoor.data-master.package.variants.destroy", { package: packageSlug, variant: variantId }),
       );
       table.reload();

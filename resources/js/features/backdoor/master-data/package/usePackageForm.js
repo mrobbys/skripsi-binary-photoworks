@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Modal, Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import axiosInstance from "@/lib/axiosInstance";
 
 const packageSchema = z.object({
   category_id: z.union([z.string().min(1, "Kategori wajib dipilih."), z.number().min(1, "Kategori wajib dipilih.")]),
@@ -58,7 +59,7 @@ export default function usePackageForm({ state, table }) {
   const handleEditSuccess = async () => {
     if (window.__packageSlug) {
       // Jika di halaman detail paket (ShowPackage), perbarui data info paket & URL
-      const response2 = await window.axios.get(route("backdoor.data-master.package.show", state.packageId));
+      const response2 = await axiosInstance.get(route("backdoor.data-master.package.show", state.packageId));
       const pkg = response2.data.data;
 
       setPackageInfo({
@@ -99,7 +100,7 @@ export default function usePackageForm({ state, table }) {
       : route("backdoor.data-master.package.store");
     const method = state.isEdit ? "put" : "post";
     try {
-      const response = await window.axios[method](url, payload);
+      const response = await axiosInstance[method](url, payload);
       closeDrawer();
       Toast.fire({ icon: "success", title: response.data.message });
 

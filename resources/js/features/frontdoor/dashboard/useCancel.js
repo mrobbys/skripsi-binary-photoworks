@@ -1,3 +1,4 @@
+import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import { Toast, confirmModal } from "@/lib/sweetalert";
 
@@ -16,7 +17,7 @@ export default function useCancel({ state, fetchAppointments, clearDetail }) {
     state.isCancelling = bookingCode;
 
     try {
-      const res = await window.axios.post(route("frontdoor.dashboard.cancel"), {
+      const res = await axiosInstance.post(route("frontdoor.dashboard.cancel"), {
         booking_code: bookingCode,
       });
 

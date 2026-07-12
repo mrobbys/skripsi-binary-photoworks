@@ -1,5 +1,6 @@
 import route from "@/lib/route";
 import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function useBackgroundActions({ state, table }) {
   const toggleBackgroundStatus = async (id, currentStatus) => {
@@ -9,7 +10,7 @@ export default function useBackgroundActions({ state, table }) {
     if (item) item.is_active = !currentStatus;
 
     try {
-      const response = await window.axios.patch(route("backdoor.data-master.background.toggle", id));
+      const response = await axiosInstance.patch(route("backdoor.data-master.background.toggle", id));
 
       if (response.data.total_active_backgrounds !== undefined) {
         state.totalActiveBackgrounds = response.data.total_active_backgrounds;
@@ -42,7 +43,7 @@ export default function useBackgroundActions({ state, table }) {
     state.isLoading = true;
 
     try {
-      const response = await window.axios.delete(route("backdoor.data-master.background.destroy", id));
+      const response = await axiosInstance.delete(route("backdoor.data-master.background.destroy", id));
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {

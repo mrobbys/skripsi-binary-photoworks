@@ -1,3 +1,4 @@
+import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import { Toast, confirmModal } from "@/lib/sweetalert";
 import { initBaseFlatpickr, formatIdDate } from "@/lib/calendarHelper";
@@ -46,7 +47,7 @@ export default function useReschedule({ state, fetchAppointments, clearDetail })
     }
 
     try {
-      const res = await window.axios.get(route("frontdoor.booking.api.slots"), {
+      const res = await axiosInstance.get(route("frontdoor.booking.api.slots"), {
         params: {
           date: date,
           duration: state.rescheduleTarget.variant_duration,
@@ -111,7 +112,7 @@ export default function useReschedule({ state, fetchAppointments, clearDetail })
     state.isRescheduling = true;
 
     try {
-      const res = await window.axios.post(route("frontdoor.dashboard.reschedule"), {
+      const res = await axiosInstance.post(route("frontdoor.dashboard.reschedule"), {
         booking_code: state.rescheduleTarget.booking_code,
         new_date: state.selectedRescheduleDate,
         new_time: state.selectedRescheduleSlot.start_time,
