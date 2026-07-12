@@ -20,15 +20,14 @@
           <span x-text="state.formattedDate"></span>
         </template>
         <template x-if="!state.selectedDate">
-          <span class="text-stone-400 font-normal text-base">Silakan pilih tanggal...</span>
+          <span class="text-stone-500 font-normal text-sm flex items-center gap-2">
+            <i class="ri-calendar-event-line text-stone-400"></i>
+            Pilih tanggal terlebih dahulu.
+          </span>
         </template>
       </h3>
 
       <div class="min-h-[220px]">
-        <template x-if="!state.selectedDate">
-          <p class="text-sm text-stone-400">Pilih tanggal terlebih dahulu pada kalender.</p>
-        </template>
-
         <template x-if="state.isFetchingSlots">
           <div class="flex items-center gap-2 text-stone-500 text-sm py-4">
             <i class="ri-loader-4-line animate-spin"></i>

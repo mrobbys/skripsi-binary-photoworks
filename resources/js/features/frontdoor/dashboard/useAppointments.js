@@ -4,7 +4,7 @@ export default function useAppointments({ state }) {
   // Ambil data booking dari backend berdasarkan tab dan halaman (page)
   const fetchAppointments = async () => {
     state.isLoading = true;
-
+    state.appointments = [];
     try {
       const res = await window.axios.get(route("frontdoor.dashboard.appointments"), {
         params: {

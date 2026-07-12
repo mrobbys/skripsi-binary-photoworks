@@ -10,7 +10,9 @@
 
   <x-slot:content>
     <div class="w-full min-h-dvh py-12"
-      x-data="Dashboard">
+      x-data="Dashboard"
+      x-init="state.activeDays = {{ Js::from($activeDays) }}"
+      x-cloak>
 
       <div class="mx-auto flex flex-col md:flex-row gap-8">
 
@@ -19,8 +21,8 @@
         {{-- sidebar nav end --}}
 
         {{-- main content start --}}
-        <main class="w-full">
-          <section class="border border-stone-300 p-6 sm:p-8 space-y-6">
+        <div class="w-full">
+          <section class="border border-stone-300 pt-6 px-6 space-y-6">
             <h1 class="text-xl font-bold text-stone-900">Jadwal Sesi Foto Anda</h1>
 
             {{-- tab filter start --}}
@@ -60,9 +62,12 @@
           <x-frontdoor.dashboard.jadwal.help-footer />
           {{-- footer end --}}
 
-        </main>
+        </div>
         {{-- main content end --}}
       </div>
+
+      {{-- drawer form --}}
+      <x-frontdoor.dashboard.jadwal.reschedule-drawer />
     </div>
   </x-slot:content>
 
