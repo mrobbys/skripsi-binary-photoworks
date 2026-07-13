@@ -9,7 +9,7 @@
   </x-slot:heads>
 
   <x-slot:content>
-    <div class="w-full min-h-dvh py-12"
+    <div class="w-full py-12"
       x-data="Dashboard"
       x-init="state.activeDays = {{ Js::from($activeDays) }}"
       x-cloak>
