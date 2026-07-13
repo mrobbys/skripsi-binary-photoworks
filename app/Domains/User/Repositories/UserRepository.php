@@ -7,8 +7,16 @@ use App\Domains\User\Models\User;
 class UserRepository
 {
     /**
+     * Cari user berdasarkan id
+     * @param int $userId
+     */
+    public function findById(int $userId): ?User
+    {
+        return User::find($userId);
+    }
+
+    /**
      * cari user berdasarkan email
-     *
      * @param string $email
      * @return User|null
      */
@@ -18,8 +26,7 @@ class UserRepository
     }
 
     /**
-     * cari user berdasarkan google id | socialite
-     * 
+     * cari user berdasarkan google id
      * @param string $googleId
      * @return User|null
      */
@@ -30,12 +37,21 @@ class UserRepository
 
     /**
      * simpan user baru
-     *
      * @param array $data
      * @return User
      */
     public function create(array $data): User
     {
         return User::create($data);
+    }
+
+    /**
+     * Update data user berdasarkan id
+     * @param int $userId
+     * @param array $data
+     */
+    public function updateById(int $userId, array $data): void
+    {
+        User::where('id', $userId)->update($data);
     }
 }

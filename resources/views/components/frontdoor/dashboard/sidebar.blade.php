@@ -15,8 +15,8 @@
         Jadwal Saya
       </x-shared.button>
 
-      <x-shared.button as="a" href="{{ route('frontdoor.dashboard.profil') }}"
-        class="justify-start w-full py-2.5 {{ request()->routeIs('frontdoor.dashboard.profil') ? 'bg-stone-200 text-stone-900' : 'text-stone-700 hover:bg-stone-100' }}">
+      <x-shared.button as="a" href="{{ route('frontdoor.dashboard.profile') }}"
+        class="justify-start w-full py-2.5 {{ request()->routeIs('frontdoor.dashboard.profile') ? 'bg-stone-200 text-stone-900' : 'text-stone-700 hover:bg-stone-100' }}">
         <x-slot:iconLeft>
           <i class="ri-user-line text-xl"></i>
         </x-slot:iconLeft>
