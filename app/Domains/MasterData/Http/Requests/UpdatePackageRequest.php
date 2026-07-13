@@ -28,6 +28,7 @@ class UpdatePackageRequest extends FormRequest
       ],
       'description' => ['required', 'string', 'max:500'],
       'is_active' => ['required', 'boolean'],
+      'image' => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
       'features' => ['nullable', 'array'],
       'features.*' => ['string', 'max:255'],
     ];
@@ -45,6 +46,11 @@ class UpdatePackageRequest extends FormRequest
 
       'description.required' => 'Deskripsi wajib diisi.',
       'description.max' => 'Deskripsi maksimal 500 karakter.',
+
+      'image.file' => 'Gambar harus berupa file.',
+      'image.image' => 'File harus berupa gambar.',
+      'image.mimes' => 'Format gambar harus jpeg, jpg, png, webp.',
+      'image.max' => 'Ukuran gambar maksimal 2MB.',
 
       'is_active.required' => 'Status aktif wajib diisi.',
     ];

@@ -1,9 +1,20 @@
+@php
+  $packageImage = $package->getFirstMediaUrl('package-image');
+@endphp
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12" x-init="if (!state.selectedVariantId && state.allVariants.length > 0) selectVariant(state.allVariants[0])">
   {{-- section kiri start --}}
   <div>
-    <div class="aspect-4/5 overflow-hidden bg-stone-100">
-      <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800"
-        alt="{{ $package->name }}" class="w-full h-full object-cover select-none pointer-events-none">
+    <div class="aspect-4/5 w-full bg-stone-200 border border-stone-300 overflow-hidden">
+      @if ($packageImage)
+        <img src="{{ $packageImage }}" alt="{{ $package->name }}"
+          class="w-full h-full object-cover select-none pointer-events-none">
+      @else
+        <div class="w-full h-full flex flex-col items-center justify-center text-stone-400 gap-2 p-4 text-center">
+          <i class="ri-image-line text-4xl" aria-hidden="true"></i>
+          <span class="text-base font-semibold">Belum ada gambar</span>
+        </div>
+      @endif
     </div>
 
     <div class="mt-8">
@@ -75,8 +86,7 @@
       {{-- button paket variant wa only start --}}
       <template x-if="state.selectedVariant?.is_whatsapp_only">
         <x-shared.button as="a" target="_blank" size="lg" value="Reservasi via WhatsApp"
-          class="w-full bg-stone-800 text-white hover:bg-stone-700"
-          x-bind:disabled="!state.selectedVariantId"
+          class="w-full bg-stone-800 text-white hover:bg-stone-700" x-bind:disabled="!state.selectedVariantId"
           x-bind:href="state.selectedVariant ?
               `https://wa.me/6281234567890?text=${encodeURIComponent('Halo Admin, saya ingin reservasi paket ' + state.packageName + ' - ' + state.selectedVariant.name)}` :
               '#'">

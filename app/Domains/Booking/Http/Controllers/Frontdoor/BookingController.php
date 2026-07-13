@@ -63,11 +63,13 @@ class BookingController extends Controller
             $items = collect($packages->items())->map(function ($package) {
                 $minPrice = $package->variants->min('price');
                 $isWhatsappOnly = $package->variants->isNotEmpty() && $package->variants->every(fn($v) => $v->is_whatsapp_only);
+                $imageUrl = $package->getFirstMediaUrl('package-image');
 
                 return array_merge($package->toArray(), [
                     'min_price_formatted' => Formatter::rupiah($minPrice),
                     'category_name' => $package->category?->name ?? '',
                     'is_whatsapp_only' => $isWhatsappOnly,
+                    'image_url' => $imageUrl,
                 ]);
             });
 
