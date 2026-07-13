@@ -13,9 +13,8 @@
       "files": "*.blade.php",
       "options": {
         "parser": "blade",
-        "wrapAttributes": "preserve",
+        "wrapAttributes": "auto",
         "singleQuote": true,
-        "wrapLineLength": 120,
         "endWithNewline": true,
         "sortTailwindClasses": true,
         "noStructureSort": true,
