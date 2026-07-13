@@ -8,6 +8,7 @@
   *   - title          : string — judul header
   *   - maxWidth       : string — Tailwind class lebar max panel (default: max-w-lg)
   *   - ariaLabelledBy : string — ID untuk aria-labelledby
+  *   - formAction     : Submit Form
   *
   * Slots:
   *   - default  : isi body (scrollable)
@@ -20,13 +21,15 @@
     'title' => 'Drawer',
     'maxWidth' => 'max-w-lg',
     'ariaLabelledBy' => 'drawer-title',
+    'formAction' => null,
 ])
 
 <div
   x-show="{{ $openState }}"
   x-on:keydown.escape.window="{{ $closeAction }}"
   class="relative z-50"
-  x-init="$watch('{{ $openState }}', val => document.body.style.overflow = val ? 'hidden' : '')"
+  x-init="$watch('{{ $openState }}', val => document.body.style.overflow = val ? 'hidden' : '');
+  $cleanup(() => document.body.style.overflow = '');"
   x-cloak>
 
   {{-- backdrop start --}}
@@ -57,7 +60,9 @@
           x-transition:leave-end="translate-x-full"
           class="w-screen {{ $maxWidth }} pointer-events-auto">
 
-          <div class="flex flex-col h-full bg-stone-50 border-l border-stone-200 overflow-hidden">
+          <{{ $formAction ? 'form' : 'div' }}
+            @if ($formAction) x-on:submit.prevent="{{ $formAction }}" @endif
+            class="flex flex-col h-full bg-stone-50 border-l border-stone-200 overflow-hidden">
 
             {{-- header start --}}
             <div class="p-4 border-b-2 border-stone-300 bg-stone-200 flex justify-between items-center shrink-0">
@@ -90,7 +95,7 @@
             @endif
             {{-- footer end --}}
 
-          </div>
+            </{{ $formAction ? 'form' : 'div' }}>
         </div>
         {{-- sliding panel end --}}
 

@@ -26,7 +26,8 @@
   closeAction="closeRescheduleDrawer()"
   title="Ubah Jadwal"
   maxWidth="max-w-lg"
-  ariaLabelledBy="reschedule-drawer-title">
+  ariaLabelledBy="reschedule-drawer-title"
+  formAction="submitReschedule()">
 
   {{-- Info Jadwal Lama (Versi Compact) --}}
   <div
@@ -117,8 +118,7 @@
       class="text-stone-600 hover:text-stone-900 transition font-semibold text-sm cursor-pointer disabled:opacity-50"
       value="Batal" />
     <x-shared.button
-      type="button"
-      x-on:click="submitReschedule()"
+      type="submit"
       x-bind:disabled="!state.selectedRescheduleSlot || state.isRescheduling"
       class="bg-stone-700 text-stone-50 px-4 py-2 border border-stone-700 hover:bg-stone-800 font-semibold text-sm tracking-wide disabled:opacity-50 disabled:pointer-events-none">
       <span x-text="state.isRescheduling ? 'Menyimpan...' : 'Konfirmasi Ubah Jadwal'"></span>
