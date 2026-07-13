@@ -16,6 +16,7 @@ class StorePackageRequest extends FormRequest
     return [
       'category_id' => ['required', 'integer', 'exists:categories,id'],
       'name' => ['required', 'string', 'min:3', 'max:100', 'unique:packages,name'],
+      'description' => ['required', 'string', 'max:500'],
       'is_active' => ['required', 'boolean'],
       'features' => ['nullable', 'array'],
       'features.*' => ['string', 'max:255'],
@@ -32,6 +33,9 @@ class StorePackageRequest extends FormRequest
       'name.min' => 'Nama paket minimal 3 karakter.',
       'name.max' => 'Nama paket maksimal 100 karakter.',
       'name.unique' => 'Nama paket sudah terdaftar.',
+
+      'description.required' => 'Deskripsi wajib diisi.',
+      'description.max' => 'Deskripsi maksimal 500 karakter.',
       
       'is_active.required' => 'Status aktif wajib diisi.',
     ];

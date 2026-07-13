@@ -32,10 +32,8 @@
       <h1 class="text-3xl md:text-4xl font-heading font-bold text-stone-900 mb-4">
         {{ $package->name }}
       </h1>
-      {{-- TODO: jangan lupa dibuat field baru di package (description) --}}
       <p class="text-stone-600 text-sm md:text-base leading-relaxed">
-        Abadikan momen berharga Anda dengan sesi fotografi wisuda profesional kami. Pilih paket dan latar belakang yang
-        Anda inginkan untuk pengalaman yang lebih personal.
+        {{ $package->description ?? '' }}
       </p>
     </div>
 

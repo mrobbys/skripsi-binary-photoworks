@@ -16,6 +16,7 @@ export default function useState(Alpine) {
     form: {
       category_id: "",
       name: "",
+      description: "",
       is_active: true,
       features: [""],
     },

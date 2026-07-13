@@ -18,7 +18,7 @@
   </x-slot:heads>
 
   <x-slot:content>
-    <div class="w-full space-y-6" x-data="ShowPackage" x-init="setPackageInfo({{ json_encode(['slug' => $package->slug, 'category_id' => $package->category_id, 'category_name' => $package->category?->name, 'name' => $package->name, 'is_active' => $package->is_active, 'features' => $package->features->pluck('description')->values()->all()]) }})">
+    <div class="w-full space-y-6" x-data="ShowPackage" x-init="setPackageInfo({{ json_encode(['slug' => $package->slug, 'category_id' => $package->category_id, 'category_name' => $package->category?->name, 'name' => $package->name, 'description' => $package->description, 'is_active' => $package->is_active, 'features' => $package->features->pluck('description')->values()->all()]) }})">
       {{-- title section start --}}
       <div class="space-y-6">
         <a
@@ -41,6 +41,9 @@
               x-text="state.packageInfo?.category_name"></span>
             <h3 class="text-xl md:text-2xl font-bold font-heading text-stone-900 mt-1" x-text="state.packageInfo?.name">
             </h3>
+            <template x-if="state.packageInfo?.description">
+              <p class="mt-3 text-sm text-stone-600 leading-relaxed max-w-3xl" x-text="state.packageInfo?.description"></p>
+            </template>
           </div>
           <button
             type="button"
@@ -127,7 +130,8 @@
                 <div class="flex flex-col gap-1" x-data="{ open: false }">
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-stone-900 text-sm md:text-base" x-text="item.name"></span>
-                    <x-shared.badge value="WA Only" variant="neutral" icon="ri-whatsapp-line" alpine="item.is_whatsapp_only" />
+                    <x-shared.badge value="WA Only" variant="neutral" icon="ri-whatsapp-line"
+                      alpine="item.is_whatsapp_only" />
                   </div>
 
                   <ul class="flex flex-col gap-1 mt-1">

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-#[Fillable('category_id', 'name', 'slug', 'is_active')]
+#[Fillable('category_id', 'name', 'description', 'slug', 'is_active')]
 class Package extends Model
 {
     use HasSlug;

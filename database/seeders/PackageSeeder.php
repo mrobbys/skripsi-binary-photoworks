@@ -27,6 +27,7 @@ class PackageSeeder extends Seeder
                 'category_id' => $category->id,
                 'name' => $packageData['name'],
                 'slug' => Str::slug($packageData['name']),
+                'description' => $packageData['description'],
                 'is_active' => true,
             ]);
 

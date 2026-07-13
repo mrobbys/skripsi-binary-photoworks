@@ -26,6 +26,7 @@ class UpdatePackageRequest extends FormRequest
         'max:100',
         Rule::unique('packages', 'name')->ignore($package?->id),
       ],
+      'description' => ['required', 'string', 'max:500'],
       'is_active' => ['required', 'boolean'],
       'features' => ['nullable', 'array'],
       'features.*' => ['string', 'max:255'],
@@ -37,10 +38,15 @@ class UpdatePackageRequest extends FormRequest
     return [
       'category_id.required' => 'Kategori wajib dipilih.',
       'category_id.exists' => 'Kategori tidak ditemukan.',
-      
+
       'name.required' => 'Nama paket wajib diisi.',
       'name.min' => 'Nama paket minimal 3 karakter.',
       'name.unique' => 'Nama paket sudah terdaftar.',
+
+      'description.required' => 'Deskripsi wajib diisi.',
+      'description.max' => 'Deskripsi maksimal 500 karakter.',
+
+      'is_active.required' => 'Status aktif wajib diisi.',
     ];
   }
 }

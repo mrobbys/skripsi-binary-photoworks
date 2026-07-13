@@ -6,6 +6,7 @@ import axiosInstance from "@/lib/axiosInstance";
 const packageSchema = z.object({
   category_id: z.union([z.string().min(1, "Kategori wajib dipilih."), z.number().min(1, "Kategori wajib dipilih.")]),
   name: z.string().min(3, "Nama paket minimal 3 karakter.").max(100, "Maksimal 100 karakter."),
+  description: z.string().max(500, "Deskripsi maksimal 500 karakter."),
   is_active: z.boolean(),
   features: z.array(z.string()).optional(),
 });
@@ -16,6 +17,7 @@ export default function usePackageForm({ state, table }) {
     state.packageId = null;
     state.form.category_id = "";
     state.form.name = "";
+    state.form.description = "";
     state.form.is_active = true;
     state.form.features = ["", ""];
     state.errors = {};
@@ -37,6 +39,7 @@ export default function usePackageForm({ state, table }) {
     state.packageId = pkg?.slug ?? window.__packageSlug;
     state.form.category_id = pkg?.category_id ?? "";
     state.form.name = pkg?.name ?? "";
+    state.form.description = pkg?.description ?? "";
     state.form.is_active = pkg?.is_active ?? true;
     state.form.features = pkg.features
       ? pkg.features.map((f) => (typeof f === "object" && f !== null ? f.description : f))
@@ -67,6 +70,7 @@ export default function usePackageForm({ state, table }) {
         category_id: pkg.category_id,
         category_name: pkg.category?.name ?? "",
         name: pkg.name,
+        description: pkg.description,
         is_active: pkg.is_active,
         features: pkg.features?.map((f) => (typeof f === "string" ? f : f.description)) ?? [],
       });
