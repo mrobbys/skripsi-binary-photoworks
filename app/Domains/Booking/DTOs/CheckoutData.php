@@ -14,7 +14,7 @@ class CheckoutData extends Data
         public readonly string $booking_date,   // Y-m-d
         public readonly string $start_time,     // H:i
         public readonly PaymentScheme $payment_scheme, // 'lunas' | 'dp'
-        public readonly ?string $keterangan = null,
+        public readonly ?string $notes = null,
         /** @var array<int, array{addon_id: int, quantity: int}> */
         public readonly array $addons = [],
     ) {}
@@ -27,7 +27,7 @@ class CheckoutData extends Data
             booking_date: $request->validated('booking_date'),
             start_time: $request->validated('start_time'),
             payment_scheme: PaymentScheme::from($request->validated('payment_scheme')),
-            keterangan: $request->validated('keterangan'),
+            notes: $request->validated('notes'),
             addons: $request->validated('addons') ?? [],
         );
     }

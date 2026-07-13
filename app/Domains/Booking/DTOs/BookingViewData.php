@@ -23,7 +23,7 @@ class BookingViewData extends Data
     public readonly string $formatted_dp_amount,
     public readonly string $formatted_remaining_amount,
     public readonly string $order_id,
-    public readonly ?string $keterangan,
+    public readonly ?string $notes,
     public readonly ?string $gdrive_link
   ) {}
 
@@ -46,7 +46,7 @@ class BookingViewData extends Data
       formatted_dp_amount: Formatter::rupiah($dpAmount),
       formatted_remaining_amount: Formatter::rupiah($booking->total_price - $dpAmount),
       order_id: $payment?->order_id ?? '#',
-      keterangan: $booking->keterangan,
+      notes: $booking->notes,
       gdrive_link: $booking->gdrive_link
     );
   }

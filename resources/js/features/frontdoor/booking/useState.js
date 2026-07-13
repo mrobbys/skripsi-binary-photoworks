@@ -24,6 +24,6 @@ export default function useState(Alpine) {
     paymentScheme: "lunas",
     isProcessing: false,
     bookingCode: null,
-    keterangan: null,
+    notes: null,
   });
 }

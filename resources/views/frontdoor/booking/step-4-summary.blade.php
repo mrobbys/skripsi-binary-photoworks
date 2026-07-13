@@ -110,12 +110,12 @@
 
     {{-- section 5 keterangan start --}}
     <div class="space-y-3">
-      <label for="keterangan" class="block text-xs font-bold tracking-wider text-stone-600 uppercase">
+      <label for="notes" class="block text-xs font-bold tracking-wider text-stone-600 uppercase">
         Catatan Tambahan (Opsional)
       </label>
       <textarea
-        id="keterangan"
-        x-model="state.keterangan"
+        id="notes"
+        x-model="state.notes"
         rows="3"
         placeholder="Tuliskan keterangan / catatan Anda di sini (contoh: membawa properti sendiri, dll)..."
         class="w-full bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-400 text-sm p-3 focus:outline-none focus:border-stone-500 resize-none"></textarea>
