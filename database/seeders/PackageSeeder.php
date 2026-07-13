@@ -27,8 +27,13 @@ class PackageSeeder extends Seeder
                 'category_id' => $category->id,
                 'name' => $packageData['name'],
                 'slug' => Str::slug($packageData['name']),
+                'description' => $packageData['description'],
                 'is_active' => true,
             ]);
+
+            // Tambahkan gambar dummy dari Unsplash
+            $package->addMediaFromUrl('https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800')
+                    ->toMediaCollection('package-image');
 
             if (!empty($packageData['features'])) {
                 $package->features()->createMany(

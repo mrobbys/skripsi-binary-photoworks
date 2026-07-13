@@ -94,7 +94,9 @@ class PackageController extends Controller
 
         if (request()->wantsJson()) {
             return response()->json([
-                'data' => $package,
+                'data' => array_merge($package->toArray(), [
+                    'image_url' => $package->getFirstMediaUrl('package-image'),
+                ]),
             ]);
         }
 
@@ -108,12 +110,23 @@ class PackageController extends Controller
     #[Middleware('permission:package-variant-master-create')]
     public function store(StorePackageRequest $request): JsonResponse
     {
-        $package = $this->packageService->createPackage(PackageData::from($request));
+        $package = $this->packageService->createPackage(
+            PackageData::from($request),
+            $request->file('image'),
+        );
 
         return response()->json([
             'status' => 'success',
             'message' => 'Paket berhasil ditambahkan.',
-            'data' => $package,
+            'data' => [
+                'id' => $package->id,
+                'category_id' => $package->category_id,
+                'name' => $package->name,
+                'slug' => $package->slug,
+                'description' => $package->description,
+                'is_active' => $package->is_active,
+                'image_url' => $package->getFirstMediaUrl('package-image'),
+            ],
         ], 201);
     }
 
@@ -125,12 +138,24 @@ class PackageController extends Controller
     #[Middleware('permission:package-variant-master-update')]
     public function update(UpdatePackageRequest $request, string $slug): JsonResponse
     {
-        $package = $this->packageService->updatePackage($slug, PackageData::from($request));
+        $package = $this->packageService->updatePackage(
+            $slug,
+            PackageData::from($request),
+            $request->file('image'),
+        );
 
         return response()->json([
             'status' => 'success',
             'message' => 'Paket berhasil diperbarui.',
-            'data' => $package,
+            'data' => [
+                'id' => $package->id,
+                'category_id' => $package->category_id,
+                'name' => $package->name,
+                'slug' => $package->slug,
+                'description' => $package->description,
+                'is_active' => $package->is_active,
+                'image_url' => $package->getFirstMediaUrl('package-image'),
+            ],
         ]);
     }
 

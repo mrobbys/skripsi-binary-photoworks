@@ -16,11 +16,19 @@ export default function useState(Alpine) {
     form: {
       category_id: "",
       name: "",
+      description: "",
       is_active: true,
       features: [""],
     },
     errors: {},
 
+    pendingImageFile: null,
+
+    // Preview image modal
+    isPreviewOpen: false,
+    previewImageUrl: "",
+    previewImageName: "",
+    
     // Variant Page States (Stats)
     totalActiveVariants: 0,
 

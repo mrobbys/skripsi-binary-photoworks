@@ -5,6 +5,7 @@ return [
   [
     'category_code' => 'PSN',
     'name' => 'Personal Studio',
+    'description' => 'Ekspresikan diri Anda dengan sesi pemotretan studio personal. Cocok untuk profil profesional, portofolio, atau sekadar merayakan momen unik Anda dengan kualitas gambar terbaik.',
     'features' => [
       'Tidak ada foto cetak',
       'File foto dikirim melalui link Google Drive',
@@ -39,6 +40,7 @@ return [
   [
     'category_code' => 'CPS',
     'name' => 'Custom Photoshoot Studio',
+    'description' => 'Wujudkan konsep impian Anda dengan sesi foto kustom. Mulai dari gaya editorial hingga konsep tematik khusus, kami siap mendokumentasikan visi kreatif Anda di studio.',
     'features' => [
       'Tidak ada foto cetak',
       'Paket berlaku untuk photoshoot dengan konsep pilihan klien',
@@ -61,6 +63,7 @@ return [
   [
     'category_code' => 'BDY',
     'name' => 'Birthday Studio',
+    'description' => 'Abadikan momen perayaan ulang tahun Anda atau orang terkasih dengan gaya yang menyenangkan di studio. Jadikan hari spesial ini tak terlupakan dalam bingkai foto yang ceria.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya dekorasi dan kue ulang tahun',
@@ -81,6 +84,7 @@ return [
   [
     'category_code' => 'EVT',
     'name' => 'Birthday Event',
+    'description' => 'Dokumentasi lengkap untuk kemeriahan pesta ulang tahun Anda. Kami hadir langsung ke lokasi acara untuk menangkap setiap tawa, kejutan, dan momen bahagia bersama tamu undangan.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi',
@@ -107,6 +111,7 @@ return [
   [
     'category_code' => 'ENG',
     'name' => 'Engagement',
+    'description' => 'Simpan kenangan manis langkah awal menuju pernikahan Anda. Sesi pertunangan ini dirancang untuk merekam janji suci dan kehangatan cinta antara Anda dan pasangan.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi ke luar kota',
@@ -133,6 +138,7 @@ return [
   [
     'category_code' => 'TDC',
     'name' => 'Traditional Ceremony',
+    'description' => 'Hargai dan abadikan nilai-nilai budaya dalam acara adat Anda. Kami menangkap setiap prosesi sakral dengan detail dan penuh makna untuk diwariskan ke generasi berikutnya.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi',
@@ -159,6 +165,7 @@ return [
   [
     'category_code' => 'SYU',
     'name' => 'Syukuran',
+    'description' => 'Dokumentasi momen penuh syukur dan kebersamaan keluarga. Kami merekam setiap rangkaian acara syukuran Anda dengan nuansa yang hangat dan khidmat.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi',
@@ -185,6 +192,7 @@ return [
   [
     'category_code' => 'EVT',
     'name' => 'Event Launching / Grand Opening',
+    'description' => 'Liputan profesional untuk peluncuran produk atau peresmian bisnis Anda. Tangkap kemeriahan acara, interaksi tamu, dan momen penting untuk keperluan publikasi dan arsip perusahaan.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi',
@@ -211,6 +219,7 @@ return [
   [
     'category_code' => 'CPL',
     'name' => 'Couple Session Studio',
+    'description' => 'Rayakan romantisme bersama pasangan dengan sesi foto berdua yang intim di studio. Ciptakan kenangan abadi dengan berbagai pilihan latar belakang yang elegan.',
     'features' => [
       'Tidak ada foto cetak',
       'Paket hanya untuk foto studio (indoor)',
@@ -234,6 +243,7 @@ return [
   [
     'category_code' => 'CPL',
     'name' => 'Couple Session Outdoor',
+    'description' => 'Eksplorasi gaya kasual dan romantis di alam terbuka. Sesi foto pasangan di lokasi outdoor pilihan yang memberikan nuansa natural dan kebebasan berekspresi.',
     'features' => [
       'Tidak ada foto cetak',
       'Hanya berlaku untuk lokasi atau daerah sekitar Kota Banjarbaru',
@@ -264,6 +274,7 @@ return [
   [
     'category_code' => 'MAT',
     'name' => 'Maternity Studio',
+    'description' => 'Abadikan keindahan masa kehamilan dengan sesi foto maternity yang elegan di studio. Kenang momen penantian sang buah hati dengan pencahayaan dan pose yang artistik.',
     'features' => [
       'Tidak ada foto cetak',
       'Klien memilih foto yang akan di edit',
@@ -283,6 +294,7 @@ return [
   [
     'category_code' => 'MAT',
     'name' => 'Maternity Outdoor / Home Service',
+    'description' => 'Sesi foto kehamilan yang lebih santai dan personal, baik di lokasi outdoor favorit maupun kenyamanan rumah Anda sendiri. Menangkap kehangatan keluarga dalam suasana yang natural.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi dan biaya tambahan yang diperlukan untuk lokasi photoshoot',
@@ -309,6 +321,7 @@ return [
   [
     'category_code' => 'GRP',
     'name' => 'Group Studio',
+    'description' => 'Ajak sahabat atau kolega Anda untuk sesi pemotretan grup yang seru di studio. Kenang kebersamaan dan kekompakan kalian dengan hasil foto yang tajam dan profesional.',
     'features' => [
       'Tidak ada foto cetak',
       'Klien memilih background yang tersedia di studio',
@@ -344,6 +357,7 @@ return [
   [
     'category_code' => 'FAM',
     'name' => 'Family Studio',
+    'description' => 'Kumpulkan keluarga tercinta untuk potret keluarga yang hangat dan tak lekang oleh waktu. Sesi foto studio yang nyaman untuk semua anggota keluarga, dari anak-anak hingga kakek-nenek.',
     'features' => [
       'Tidak ada foto cetak',
       'Tidak diperbolehkan membawa kue ulang tahun',
@@ -381,6 +395,7 @@ return [
   [
     'category_code' => 'FAM',
     'name' => 'Family & Group Outdoor / Home Service',
+    'description' => 'Pemotretan keluarga besar atau grup dalam suasana yang lebih leluasa, baik di luar ruangan maupun di rumah. Cocok untuk acara kumpul keluarga dengan nuansa yang lebih hidup dan dinamis.',
     'features' => [
       'Berlaku untuk satu tempat / lokasi photoshoot',
       'Tidak ada foto cetak',
@@ -421,6 +436,7 @@ return [
   [
     'category_code' => 'GRD',
     'name' => 'Graduation Studio',
+    'description' => 'Rayakan pencapaian akademis Anda dengan potret kelulusan resmi di studio. Tampil membanggakan dengan toga dan ijazah bersama teman atau keluarga terkasih.',
     'features' => [
       'Tidak ada foto cetak',
       'Klien memilih background yang tersedia di studio',
@@ -457,6 +473,7 @@ return [
   [
     'category_code' => 'GRD',
     'name' => 'Graduation On The Spot',
+    'description' => 'Dokumentasi langsung di lokasi acara wisuda Anda. Kami menangkap momen-momen spontan yang penuh kebanggaan dan haru sesaat setelah Anda resmi diwisuda.',
     'features' => [
       'Tidak ada foto cetak',
       'Klien memilih foto yang akan diedit',
@@ -476,6 +493,7 @@ return [
   [
     'category_code' => 'WDG',
     'name' => 'Wedding All In One',
+    'description' => 'Paket dokumentasi pernikahan komprehensif dari awal hingga akhir. Mencakup sesi lamaran, acara adat, hingga hari pernikahan untuk memastikan tidak ada satu momen pun yang terlewatkan.',
     'features' => [
       '2 Album Magazine Hard Cover + Box',
       '2 Album Magnetic + 240 Foto Ukuran 4R',
@@ -504,6 +522,7 @@ return [
   [
     'category_code' => 'WDG',
     'name' => 'Wedding Foto & Video',
+    'description' => 'Abadikan hari pernikahan Anda dalam bentuk foto dan video sinematik yang memukau. Liputan profesional yang merekam keindahan, emosi, dan janji suci di hari bahagia Anda.',
     'features' => [
       'Tidak ada foto cetak',
       'Harga belum termasuk biaya transportasi ke luar kota',

@@ -6,6 +6,7 @@ use App\Domains\MasterData\DTOs\PackageData;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Repositories\PackageRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\UploadedFile;
 
 class PackageService
 {
@@ -17,10 +18,17 @@ class PackageService
    * Tambah data paket
    * @param PackageData $data
    */
-  public function createPackage(PackageData $data): Package
+  public function createPackage(PackageData $data, ?UploadedFile $image = null): Package
   {
     $package = $this->packageRepository->create($data->except('features')->toArray());
     $this->syncFeatures($package, $data->features);
+
+    // jika ada image
+    if ($image) {
+      $package
+        ->addMedia($image)
+        ->toMediaCollection('package-image');
+    }
 
     return $package->load('features', 'category');
   }
@@ -30,11 +38,18 @@ class PackageService
    * @param string $slug
    * @param PackageData $data
    */
-  public function updatePackage(string $slug, PackageData $data): Package
+  public function updatePackage(string $slug, PackageData $data, ?UploadedFile $image = null): Package
   {
     $package = $this->findOrFail($slug);
     $this->packageRepository->update($package, $data->except('features')->toArray());
     $this->syncFeatures($package, $data->features);
+
+    // jika ada image
+    if ($image) {
+      $package
+        ->addMedia($image)
+        ->toMediaCollection('package-image');
+    }
 
     return $package->load('features', 'category');
   }

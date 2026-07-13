@@ -13,7 +13,7 @@ export default function useCheckout({ state, buildAddonsPayload }) {
         booking_date: state.selectedDate,
         start_time: state.selectedSlot?.start_time,
         payment_scheme: state.paymentScheme,
-        keterangan: state.keterangan,
+        notes: state.notes,
         ...(addons.length && { addons }),
       };
 

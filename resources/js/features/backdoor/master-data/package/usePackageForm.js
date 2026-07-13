@@ -6,6 +6,7 @@ import axiosInstance from "@/lib/axiosInstance";
 const packageSchema = z.object({
   category_id: z.union([z.string().min(1, "Kategori wajib dipilih."), z.number().min(1, "Kategori wajib dipilih.")]),
   name: z.string().min(3, "Nama paket minimal 3 karakter.").max(100, "Maksimal 100 karakter."),
+  description: z.string().min(3, "Deskripsi minimal 3 karakter.").max(500, "Deskripsi maksimal 500 karakter."),
   is_active: z.boolean(),
   features: z.array(z.string()).optional(),
 });
@@ -16,9 +17,13 @@ export default function usePackageForm({ state, table }) {
     state.packageId = null;
     state.form.category_id = "";
     state.form.name = "";
+    state.form.description = "";
     state.form.is_active = true;
     state.form.features = ["", ""];
     state.errors = {};
+    state.pendingImageFile = null;
+    // Kirim event untuk reset FilePond instance di DOM
+    document.dispatchEvent(new CustomEvent("package:reset-filepond"));
   };
 
   const setPackageInfo = (pkg) => {
@@ -37,6 +42,7 @@ export default function usePackageForm({ state, table }) {
     state.packageId = pkg?.slug ?? window.__packageSlug;
     state.form.category_id = pkg?.category_id ?? "";
     state.form.name = pkg?.name ?? "";
+    state.form.description = pkg?.description ?? "";
     state.form.is_active = pkg?.is_active ?? true;
     state.form.features = pkg.features
       ? pkg.features.map((f) => (typeof f === "object" && f !== null ? f.description : f))
@@ -67,6 +73,8 @@ export default function usePackageForm({ state, table }) {
         category_id: pkg.category_id,
         category_name: pkg.category?.name ?? "",
         name: pkg.name,
+        description: pkg.description,
+        image_url: pkg.image_url,
         is_active: pkg.is_active,
         features: pkg.features?.map((f) => (typeof f === "string" ? f : f.description)) ?? [],
       });
@@ -85,6 +93,14 @@ export default function usePackageForm({ state, table }) {
   const submitPackage = async () => {
     state.isLoading = true;
     state.errors = {};
+
+    console.log(state);
+    
+    // validasi input gambar wajib saat create
+    if (!state.isEdit && !state.pendingImageFile) {
+      state.errors.image = "Gambar paket wajib diunggah.";
+    }
+    
     const filteredFeatures = state.form.features.filter((f) => f.trim() !== "");
     const validation = packageSchema.safeParse({ ...state.form, features: filteredFeatures });
     if (!validation.success) {
@@ -94,13 +110,43 @@ export default function usePackageForm({ state, table }) {
       state.isLoading = false;
       return;
     }
-    const payload = { ...state.form, features: filteredFeatures };
+
+    if (Object.keys(state.errors).length > 0) {
+      state.isLoading = false;
+      return;
+    }
+
+    // eslint-disable-next-line no-undef
+    const formData = new FormData();
+    formData.append("category_id", state.form.category_id);
+    formData.append("name", state.form.name);
+    formData.append("description", state.form.description ?? "");
+    formData.append("is_active", state.form.is_active ? "1" : "0");
+
+    // Append array features ke FormData
+    filteredFeatures.forEach((feature, index) => {
+      formData.append(`features[${index}]`, feature);
+    });
+
+    if (state.pendingImageFile) {
+      formData.append("image", state.pendingImageFile);
+    }
+
+    if (state.isEdit) {
+      formData.append("_method", "PUT");
+    }
+
     const url = state.isEdit
       ? route("backdoor.data-master.package.update", state.packageId)
       : route("backdoor.data-master.package.store");
-    const method = state.isEdit ? "put" : "post";
+
     try {
-      const response = await axiosInstance[method](url, payload);
+      // WAJIB gunakan POST untuk multipart/form-data di Laravel (dikawinkan dengan _method=PUT)
+      const response = await axiosInstance.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       closeDrawer();
       Toast.fire({ icon: "success", title: response.data.message });
 

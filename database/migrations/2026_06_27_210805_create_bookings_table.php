@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('payment_scheme'); // e.g., 'dp', 'lunas'
             $table->string('status'); // e.g., 'pending', 'paid', 'completed', 'cancelled'
             $table->integer('reschedule_count')->default(0);
-            $table->text('keterangan')->nullable();
+            $table->text('notes')->nullable();
             $table->string('gdrive_link')->nullable();
             $table->timestamps();
 

@@ -1,8 +1,8 @@
 <div
   class="border border-stone-200 bg-stone-50 flex flex-col h-full hover:border-stone-300 transition-all duration-300">
   <div class="h-80 overflow-hidden p-6">
-    <img src="https://placehold.co/600x800?text=Image"
-      :alt="package.name"
+    <img x-bind:src="package.image_url || 'https://placehold.co/600x800?text=No+Image'"
+      x-bind:alt="package.name"
       class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-in-out">
   </div>
   <div class="px-6 pb-6 flex flex-col flex-1">

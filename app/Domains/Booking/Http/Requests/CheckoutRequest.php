@@ -21,7 +21,7 @@ class CheckoutRequest extends FormRequest
             'booking_date' => ['required', 'date', 'after_or_equal:today'],
             'start_time' => ['required', 'date_format:H:i'],
             'payment_scheme' => ['required', Rule::enum(PaymentScheme::class)],
-            'keterangan' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
             'addons' => ['nullable', 'array'],
             'addons.*.addon_id' => ['required', 'integer', 'exists:addons,id'],
             'addons.*.quantity' => ['required', 'integer', 'min:1'],

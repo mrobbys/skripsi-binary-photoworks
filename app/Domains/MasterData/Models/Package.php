@@ -10,13 +10,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-#[Fillable('category_id', 'name', 'slug', 'is_active')]
-class Package extends Model
+#[Fillable('category_id', 'name', 'description', 'slug', 'is_active')]
+class Package extends Model implements HasMedia
 {
-    use HasSlug;
+    use HasSlug, InteractsWithMedia;
 
     protected function casts(): array
     {
@@ -31,6 +33,16 @@ class Package extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    /**
+     * Registrasi koleksi media untuk gambar package
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('package-image')
+            ->useDisk(env('MEDIA_DISK', 's3'))
+            ->singleFile();
     }
 
     /**
