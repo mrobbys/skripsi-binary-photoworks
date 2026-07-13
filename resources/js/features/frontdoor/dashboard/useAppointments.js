@@ -1,12 +1,16 @@
+import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 
 export default function useAppointments({ state }) {
-  // Ambil data booking dari backend berdasarkan tab dan halaman (page)
-  const fetchAppointments = async () => {
+  /**
+   * Ambil data booking dari backend berdasarkan tab dan halaman (page)
+   * Parameter shouldScrollToTop menentukan apakah layar harus gulir ke atas saat fetchAppointments dipanggil
+   */
+  const fetchAppointments = async (shouldScrollToTop = false) => {
     state.isLoading = true;
     state.appointments = [];
     try {
-      const res = await window.axios.get(route("frontdoor.dashboard.appointments"), {
+      const res = await axiosInstance.get(route("frontdoor.dashboard.appointments"), {
         params: {
           tab: state.activeTab,
           page: state.currentPage || 1,
@@ -25,19 +29,21 @@ export default function useAppointments({ state }) {
       state.isLoading = false;
 
       // Gulir layar perlahan ke atas saat pindah halaman
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (shouldScrollToTop) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   };
 
   // Ganti tab aktif, reset ke halaman 1, lalu fetch ulang
   const switchTab = (tab) => {
-    if(state.activeTab === tab) return;
+    if (state.activeTab === tab) return;
     state.activeTab = tab;
     state.selectedAppointment = null;
     state.appointments = [];
     state.currentPage = 1;
 
-    fetchAppointments();
+    fetchAppointments(true);
   };
 
   return {

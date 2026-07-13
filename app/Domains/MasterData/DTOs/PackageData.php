@@ -2,7 +2,8 @@
 
 namespace App\Domains\MasterData\DTOs;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Domains\MasterData\Http\Requests\StorePackageRequest;
+use App\Domains\MasterData\Http\Requests\UpdatePackageRequest;
 use Spatie\LaravelData\Data;
 
 class PackageData extends Data
@@ -14,7 +15,7 @@ class PackageData extends Data
     public readonly array $features = [],
   ) {}
 
-  public static function fromRequest(FormRequest $request): self
+  public static function fromRequest(StorePackageRequest|UpdatePackageRequest $request): self
   {
     return new self(
       category_id: (int) $request->validated('category_id'),

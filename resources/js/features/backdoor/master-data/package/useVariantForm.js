@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Modal, Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import axiosInstance from "@/lib/axiosInstance";
 
 const variantSchema = z.object({
   name: z.string().min(3, "Nama varian minimal 3 karakter.").max(100, "Maksimal 100 karakter."),
@@ -82,7 +83,7 @@ export default function useVariantForm({ state, table }) {
       : route("backdoor.data-master.package.variants.store", state.currentPackageSlug);
     const method = state.isVariantEdit ? "put" : "post";
     try {
-      const response = await window.axios[method](url, payload);
+      const response = await axiosInstance[method](url, payload);
       closeVariantDrawer();
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });

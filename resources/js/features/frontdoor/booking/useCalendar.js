@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
 import { initBaseFlatpickr, formatIdDate } from "@/lib/calendarHelper";
+import axiosInstance from "@/lib/axiosInstance";
 
 let _fp = null;
 
@@ -46,7 +47,7 @@ export default function useCalendar({ state }) {
     }
 
     try {
-      const res = await window.axios.get(route("frontdoor.booking.api.slots"), {
+      const res = await axiosInstance.get(route("frontdoor.booking.api.slots"), {
         params: {
           date: dateStr,
           duration: state.selectedVariant?.duration || 30,

@@ -1,6 +1,7 @@
 import Choices from "choices.js";
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function Services(Alpine) {
   // --- Reactive State ---
@@ -39,7 +40,7 @@ export default function Services(Alpine) {
   const fetchGrid = async () => {
     state.isLoading = true;
     try {
-      const response = await window.axios.get(route("frontdoor.services.index"), {
+      const response = await axiosInstance.get(route("frontdoor.services.index"), {
         params: {
           category: state.activeCategory,
           page: state.currentPage,

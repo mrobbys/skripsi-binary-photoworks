@@ -1,5 +1,6 @@
 import route from "@/lib/route";
 import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function useAddonActions({ state, table }) {
   const toggleAddonStatus = async (id, currentStatus) => {
@@ -10,7 +11,7 @@ export default function useAddonActions({ state, table }) {
     if (item) item.is_active = !currentStatus;
 
     try {
-      const response = await window.axios.patch(route("backdoor.data-master.addon.toggle", id));
+      const response = await axiosInstance.patch(route("backdoor.data-master.addon.toggle", id));
 
       if (response.data.total_active_addons !== undefined) {
         state.totalActiveAddons = response.data.total_active_addons;
@@ -43,7 +44,7 @@ export default function useAddonActions({ state, table }) {
     state.isLoading = true;
 
     try {
-      const response = await window.axios.delete(route("backdoor.data-master.addon.destroy", id));
+      const response = await axiosInstance.delete(route("backdoor.data-master.addon.destroy", id));
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {

@@ -1,5 +1,6 @@
 import route from "@/lib/route";
 import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function usePackageActions({ state, table }) {
   const togglePackageStatus = async (slug, event) => {
@@ -7,7 +8,7 @@ export default function usePackageActions({ state, table }) {
     const originalChecked = !checkbox.checked;
     state.isLoading = true;
     try {
-      const response = await window.axios.patch(route("backdoor.data-master.package.toggle", slug));
+      const response = await axiosInstance.patch(route("backdoor.data-master.package.toggle", slug));
       if (response.data.total_active_variants !== undefined) {
         state.totalActivePackages = response.data.total_active_packages;
         state.totalActiveVariants = response.data.total_active_variants;
@@ -33,7 +34,7 @@ export default function usePackageActions({ state, table }) {
     if (!result.isConfirmed) return;
     state.isLoading = true;
     try {
-      const response = await window.axios.delete(route("backdoor.data-master.package.destroy", pkg.slug));
+      const response = await axiosInstance.delete(route("backdoor.data-master.package.destroy", pkg.slug));
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {

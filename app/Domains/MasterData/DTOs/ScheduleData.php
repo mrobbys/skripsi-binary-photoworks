@@ -2,8 +2,8 @@
 
 namespace App\Domains\MasterData\DTOs;
 
+use App\Domains\MasterData\Http\Requests\UpdateScheduleRequest;
 use App\Domains\MasterData\Models\Schedule;
-use Illuminate\Foundation\Http\FormRequest;
 use Spatie\LaravelData\Data;
 
 class ScheduleData extends Data
@@ -18,7 +18,7 @@ class ScheduleData extends Data
     public readonly ?string $day_label = null
   ) {}
 
-  public static function fromRequest(FormRequest $request): self
+  public static function fromRequest(UpdateScheduleRequest $request): self
   {
     return new self(
       start_time: $request->validated('start_time'),

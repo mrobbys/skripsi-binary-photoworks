@@ -1,6 +1,7 @@
 import route from "@/lib/route";
 import { Modal, Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import axiosInstance from "@/lib/axiosInstance";
 
 const backgroundSchema = z.object({
   name: z.string().min(1, "Nama background wajib diisi.").max(50, "Nama background maksimal 50 karakter."),
@@ -79,7 +80,7 @@ export default function useBackgroundForm({ state, table }) {
       : route("backdoor.data-master.background.store");
 
     try {
-      const response = await window.axios.post(url, formData, {
+      const response = await axiosInstance.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

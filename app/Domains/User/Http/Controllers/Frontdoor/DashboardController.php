@@ -147,12 +147,4 @@ class DashboardController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Tampilkan halaman Profil
-     */
-    public function profil(): View
-    {
-        return view('frontdoor.dashboard.profil');
-    }
 }

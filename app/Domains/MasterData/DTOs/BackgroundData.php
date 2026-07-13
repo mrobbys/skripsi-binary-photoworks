@@ -2,7 +2,8 @@
 
 namespace App\Domains\MasterData\DTOs;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Domains\MasterData\Http\Requests\StoreBackgroundRequest;
+use App\Domains\MasterData\Http\Requests\UpdateBackgroundRequest;
 use Spatie\LaravelData\Data;
 
 class BackgroundData extends Data
@@ -13,7 +14,7 @@ class BackgroundData extends Data
         public readonly bool $is_active = true,
     ) {}
 
-    public static function fromRequest(FormRequest $request): self
+    public static function fromRequest(StoreBackgroundRequest|UpdateBackgroundRequest $request): self
     {
         return new self(
             name: trim($request->validated('name')),

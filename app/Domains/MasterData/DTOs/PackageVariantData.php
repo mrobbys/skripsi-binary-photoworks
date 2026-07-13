@@ -2,7 +2,7 @@
 
 namespace App\Domains\MasterData\DTOs;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Domains\MasterData\Http\Requests\PackageVariantRequest;
 use Spatie\LaravelData\Data;
 
 class PackageVariantData extends Data
@@ -16,7 +16,7 @@ class PackageVariantData extends Data
         public readonly array $features = [],
     ) {}
 
-    public static function fromRequest(FormRequest $request): self
+    public static function fromRequest(PackageVariantRequest $request): self
     {
         return new self(
             name: trim($request->validated('name')),

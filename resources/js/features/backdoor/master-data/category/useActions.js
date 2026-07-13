@@ -1,5 +1,6 @@
 import route from "@/lib/route";
 import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function useActions({ state, table }) {
   // Fungsi untuk mengubah status kategori dengan toggle
@@ -9,7 +10,7 @@ export default function useActions({ state, table }) {
 
     state.isLoading = true;
     try {
-      const response = await window.axios.patch(route("backdoor.data-master.category.toggle", slug));
+      const response = await axiosInstance.patch(route("backdoor.data-master.category.toggle", slug));
       state.activeCount = response.data.active_count ?? state.activeCount;
 
       // Update data di table secara reaktif
@@ -50,7 +51,7 @@ export default function useActions({ state, table }) {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await window.axios.delete(route("backdoor.data-master.category.destroy", slug));
+      const response = await axiosInstance.delete(route("backdoor.data-master.category.destroy", slug));
       table.reload();
       Toast.fire({
         icon: "success",
