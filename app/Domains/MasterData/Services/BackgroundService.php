@@ -46,6 +46,7 @@ class BackgroundService
 
     if ($image) {
       $background
+        ->clearMediaCollection('background-image')
         ->addMedia($image)
         ->toMediaCollection('background-image');
     }
