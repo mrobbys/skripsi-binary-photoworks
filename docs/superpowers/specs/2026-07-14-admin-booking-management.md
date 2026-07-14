@@ -2020,7 +2020,11 @@ export default function Show(Alpine) {
 
 ### A. Hal yang Perlu Diperhatikan
 
-1. **`source` column di `bookings`:** Spec ini mengasumsikan ada kolom `source` (tipe `string`, nullable) di tabel `bookings` untuk membedakan booking dari frontdoor (`midtrans`) vs. backdoor (`manual`). Jika belum ada, tambahkan migration baru.
+1. **Kolom `source` (Pelacakan Asal Pesanan):** 
+   - Buat file Enum baru `App\Domains\Booking\Enums\BookingSource` yang memiliki dua case: `FRONTDOOR = 'frontdoor'` dan `MANUAL = 'manual'`.
+   - Buat file migration baru untuk menambahkan kolom `string('source')` ke tabel `bookings`, dan set default valuenya ke `BookingSource::FRONTDOOR->value`.
+   - Daftarkan kolom ini pada metode `casts()` di file model `Booking.php` (`'source' => BookingSource::class`).
+   - Pada `CreateManualBookingService.php`, gunakan enum ini: `'source' => BookingSource::MANUAL`.
 
 2. **`PaymentScheme::FULL`:** Semua booking manual menggunakan skema `FULL` (lunas). Pastikan enum `PaymentScheme` memiliki case `FULL`.
 
