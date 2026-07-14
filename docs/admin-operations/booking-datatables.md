@@ -53,10 +53,12 @@ $$
 
 ### B. Sirkuit Menu Aksi Dropdown Kontrol Admin
 
-Ketika operator mengklik tombol aksi tiga titik pada baris data, sistem akan menyediakan dua opsi krusial:
+Ketika operator mengklik tombol aksi tiga titik pada baris data tabel, sistem akan menyediakan empat opsi krusial yang menavigasi atau merubah status data:
 
-1. **Trigger Modal Pelunasan Manual**: Hanya aktif jika status baris data bernilai `DP Terbayar`. Berfungsi mencatat pelunasan uang sisa (40% sisa pembayaran) secara tunai/QRIS di kasir studio foto, mengubah status booking menjadi `Lunas`.
-2. **Trigger Input Tautan Aset (`gdrive_link`)**: Menyediakan form pop-up untuk menempelkan URL folder Google Drive hasil edit foto sesi klien. Penyimpanan data ini otomatis memicu _Fonnte Service Layer_ mengirim notifikasi WhatsApp berisi link unduh ke nomor HP pelanggan.
+1. **Lihat Detail**: Mengarahkan admin ke halaman khusus Detail Booking untuk melihat rincian pemesan, riwayat pembayaran, serta form penambahan *addons*.
+2. **Tandai Lunas Penuh (Manual Kasir)**: Hanya muncul jika status baris data bernilai `DP Terbayar`. Berfungsi mencatat pelunasan uang sisa (40%) secara tunai/QRIS statis di kasir studio foto, mengubah status booking menjadi `Lunas` (Fully Paid) tanpa melalui Midtrans.
+3. **Input Tautan Aset (`gdrive_link`)**: Hanya muncul jika status baris data bernilai `Lunas`. Menyediakan form *pop-up* untuk menempelkan URL folder Google Drive hasil edit foto. Penyimpanan data ini otomatis memicu *Fonnte Service Layer* mengirim notifikasi WhatsApp berisi link unduh ke nomor HP pelanggan.
+4. **Batalkan Booking**: Membatalkan pesanan. Digunakan jika klien tidak datang, atau sebagai bagian dari metode "Void & Recreate" saat klien ingin merubah/ *downgrade* paket. Merubah status menjadi `Cancelled`.
 
 ---
 
@@ -77,3 +79,19 @@ Ketika operator mengklik tombol aksi tiga titik pada baris data, sistem akan men
 ```
 
 - **Optimasi Detak Payload (Debounce)**: Fitur input pencarian kata kunci pada _Live Search Box_ wajib menggunakan pengawal fungsi Debounce minimal sebesar `400ms` sebelum mengirimkan request query ke database PostgreSQL guna mencegah overload load server.
+
+---
+
+---
+
+## 4. Spesifikasi Halaman Tambah Booking Manual (Create Page)
+
+Halaman form pembuatan reservasi manual oleh admin dirancang dengan susunan form reaktif sebagai berikut:
+1. **Dropdown Klien:** Pemilihan user yang sudah terdaftar menggunakan pustaka `Choices.js`.
+2. **Paket & Varian:** Dropdown bertingkat menggunakan `Choices.js` (Pilih paket -> memicu data varian).
+3. **Pilihan Background:** Dropdown menggunakan `Choices.js`.
+4. **Kalender Sesi (Booking Date):** Pemilihan tanggal menggunakan antarmuka kalender `Flatpickr` (konfigurasi dasar).
+5. **Time Slot (Jadwal Waktu):** Menggunakan elemen Dropdown `Choices.js` (bukan tombol grid seperti frontdoor) untuk menghemat ruang vertikal. Opsi waktu dirender berdasarkan durasi varian terpilih.
+6. **Total Harga:** Atribut `readonly`, dikalkulasi secara reaktif oleh Alpine.js.
+7. **Status Awal Booking:** Dropdown pilihan status saat dibuat menggunakan `Choices.js` (contoh: `Pending` atau `Lunas`).
+8. **Input Add-ons (Dynamic Repeater):** Diimplementasikan menggunakan pendekatan *Form Repeater* (Alpine.js). Admin dapat menekan tombol `[+ Tambah Layanan Tambahan]` untuk memunculkan baris baru berisi *Dropdown* pilihan Add-on (wajib menggunakan `Choices.js`) dan *Input* kuantitas angka. *Field* kuantitas akan otomatis terkunci pada angka `1` jika data Add-on di- *database* memiliki atribut `has_quantity = false`.
