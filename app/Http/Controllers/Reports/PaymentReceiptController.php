@@ -40,6 +40,9 @@ class PaymentReceiptController extends Controller
         // package name dan package variant
         $packageName = "{$payment->booking->packageVariant->package->name} - {$payment->booking->packageVariant->name}";
 
+        // Hitung total seluruh pembayaran yang berstatus Lunas (Misal: Gabungan DP + Cashier)
+        $totalPaid = $payment->booking->payments()->where('status', PaymentStatus::SETTLEMENT)->sum('amount');
+
         $formattedData = new Fluent(([
             'booking_code' => $payment->booking->booking_code,
             'order_id' => $payment->order_id,
@@ -50,12 +53,12 @@ class PaymentReceiptController extends Controller
             'package_name' => $packageName,
             'package_price' => Formatter::rupiah($payment->booking->packageVariant->price),
             'total_price' => Formatter::rupiah($payment->booking->total_price),
-            'amount_paid' => Formatter::rupiah($payment->amount),
+            'amount_paid' => Formatter::rupiah($totalPaid),
             'payment_type' => strtoupper($payment->payment_type ?? '-'),
             'pay_date' => Formatter::dateId($payment->pay_date ?? $payment->created_at, 'l, d F Y'),
-            // total price - amount
+            // total price - total paid
             'remaining' => Formatter::rupiah(
-                $payment->booking->total_price - $payment->amount
+                $payment->booking->total_price - $totalPaid
             ),
             'payment_scheme' => $payment->booking->payment_scheme,
             'payment_purpose' => $payment->payment_purpose,
