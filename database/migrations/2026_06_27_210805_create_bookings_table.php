@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('reschedule_count')->default(0);
             $table->text('notes')->nullable();
             $table->string('gdrive_link')->nullable();
+            $table->string('source')->nullable(); // 'manual', 'frontdoor'
             $table->timestamps();
 
             // Composite index for schedule lookup

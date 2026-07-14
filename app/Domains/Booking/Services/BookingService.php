@@ -4,6 +4,7 @@ namespace App\Domains\Booking\Services;
 
 use App\Domains\Booking\DTOs\BookingData;
 use App\Domains\Booking\DTOs\CheckoutData;
+use App\Domains\Booking\Enums\BookingSource;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Enums\PaymentScheme;
 use App\Domains\Booking\Repositories\BookingRepository;
@@ -97,6 +98,7 @@ class BookingService
                     payment_scheme: $data->payment_scheme,
                     notes: $data->notes,
                     status: BookingStatus::PENDING,
+                    source: BookingSource::FRONTDOOR,
                 ));
 
                 // Ambil semua model addon sekaligus
