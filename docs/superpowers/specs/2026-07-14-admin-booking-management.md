@@ -90,10 +90,19 @@ resources/views/backdoor/operations/bookings/
 └── show.blade.php                      ← BARU
 
 resources/js/features/backdoor/bookings/
-├── Index.js                            ← BARU
-├── Create.js                           ← BARU
-├── Show.js                             ← BARU
-└── useUpsellAddon.js                   ← BARU
+├── index/
+│   ├── Index.js                        ← BARU
+│   ├── useBookingActions.js            ← BARU
+│   └── useState.js                     ← BARU
+├── create/
+│   ├── Create.js                       ← BARU
+│   ├── useCreateForm.js                ← BARU
+│   └── useState.js                     ← BARU
+└── show/
+    ├── Show.js                         ← BARU
+    ├── useBookingActions.js            ← BARU
+    ├── useUpsellAddon.js               ← BARU
+    └── useState.js                     ← BARU
 ```
 
 ---
@@ -111,11 +120,11 @@ Route::prefix('operations/bookings')->name('backdoor.bookings.')->group(function
     Route::get('/',             [ManageBookingController::class, 'index'])->name('index');
     Route::get('/create',       [ManageBookingController::class, 'create'])->name('create');
     Route::post('/',            [ManageBookingController::class, 'store'])->name('store');
-    Route::get('/{booking}',    [ManageBookingController::class, 'show'])->name('show');
-    Route::patch('/{booking}/settle',  [ManageBookingController::class, 'settle'])->name('settle');
-    Route::patch('/{booking}/gdrive',  [ManageBookingController::class, 'updateGdrive'])->name('gdrive');
-    Route::delete('/{booking}', [ManageBookingController::class, 'cancel'])->name('cancel');
-    Route::post('/{booking}/addons',   [ManageBookingController::class, 'upsellAddon'])->name('addons.upsell');
+    Route::get('/{booking:booking_code}',    [ManageBookingController::class, 'show'])->name('show');
+    Route::patch('/{booking:booking_code}/settle',  [ManageBookingController::class, 'settle'])->name('settle');
+    Route::patch('/{booking:booking_code}/gdrive',  [ManageBookingController::class, 'updateGdrive'])->name('gdrive');
+    Route::patch('/{booking:booking_code}/cancel', [ManageBookingController::class, 'cancel'])->name('cancel');
+    Route::post('/{booking:booking_code}/addons',   [ManageBookingController::class, 'upsellAddon'])->name('addons.upsell');
 });
 ```
 
@@ -570,7 +579,7 @@ class ManageBookingController extends Controller
     /**
      * Halaman Detail: Ringkasan booking (read-only) + inline upsell addon.
      */
-    public function show(Booking $booking): View
+    public function show(Request $request, Booking $booking): View|JsonResponse
     {
         $booking->load([
             'user',
@@ -579,6 +588,11 @@ class ManageBookingController extends Controller
             'addons',
             'payments',
         ]);
+
+        // Jika dipanggil via AJAX, kembalikan JSON untuk reaktivitas frontend
+        if ($request->expectsJson()) {
+            return response()->json($booking);
+        }
 
         $availableAddons = Addon::where('is_active', true)->orderBy('name')->get();
 
@@ -681,160 +695,126 @@ class ManageBookingController extends Controller
 
 ## 8. Frontend — JS Modules (Alpine.js)
 
-### 8.1 `Index.js` — DataTables Handler
+### 8.1 Index (DataTables & Aksi)
 
+**A. `useState.js` (Index)**
 ```javascript
-/**
- * Logika halaman Index Manajemen Pemesanan.
- * Menangani DataTables native Alpine.js dengan live search debounce 400ms,
- * serta aksi baris (settle, gdrive, cancel).
- *
- * File: resources/js/features/backdoor/bookings/Index.js
- * Penggunaan di Blade: <div x-data="Index">
- *
- * @param {import('alpinejs').Alpine} Alpine
- */
-import route from "@/lib/route";
-import { Toast, confirmModal } from "@/lib/sweetalert";
-
-export default function Index(Alpine) {
-  // ---------------------------------------------------------------------------
-  // State
-  // ---------------------------------------------------------------------------
-  const state = Alpine.reactive({
-    bookings:    [],
-    meta:        {},
-    currentPage: 1,
-    search:      '',
-    isLoading:   false,
-
-    // GDrive modal inline
+export default function useState(Alpine) {
+  return Alpine.reactive({
     gdriveBookingId: null,
     gdriveLink:      '',
     isGdriveOpen:    false,
     isGdriveLoading: false,
   });
+}
+```
 
-  // ---------------------------------------------------------------------------
-  // Side Effects — search debounce 400ms
-  // ---------------------------------------------------------------------------
-  let debounceTimer = null;
-  Alpine.effect(() => {
-    const keyword = state.search;
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      state.currentPage = 1;
-      fetchBookings(keyword, 1);
-    }, 400);
-  });
+**B. `useBookingActions.js` (Index)**
+```javascript
+import route from "@/lib/route";
+import { Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
-  // ---------------------------------------------------------------------------
-  // Methods
-  // ---------------------------------------------------------------------------
-
-  /** Ambil data bookings dari server */
-  const fetchBookings = async (search = '', page = 1) => {
-    state.isLoading = true;
-    try {
-      const res = await window.axios.get(route('backdoor.bookings.index'), {
-        params: { search, page },
-        headers: { Accept: 'application/json' },
-      });
-      state.bookings    = res.data.data;
-      state.meta        = res.data.meta ?? res.data;
-      state.currentPage = page;
-    } catch {
-      Toast.fire({ icon: 'error', title: 'Gagal memuat data pemesanan.' });
-    } finally {
-      state.isLoading = false;
-    }
-  };
-
-  /** Inisialisasi — muat data pertama kali */
-  const init = () => fetchBookings();
-
-  /** Navigasi halaman DataTables */
-  const goToPage = (page) => fetchBookings(state.search, page);
-
-  /** Tandai lunas (settle) */
+export default function useBookingActions({ state, table }) {
   const settle = async (bookingId, bookingCode) => {
     const confirmed = await confirmModal({
       title: 'Tandai Lunas?',
-      text:  `Booking ${bookingCode} akan ditandai lunas penuh. Pastikan pembayaran sudah diterima di kasir.`,
+      text: `Booking ${bookingCode} akan ditandai lunas penuh.`,
       confirmButtonText: 'Ya, Tandai Lunas',
     });
     if (!confirmed) return;
 
     try {
-      const res = await window.axios.patch(route('backdoor.bookings.settle', bookingId));
+      const res = await axiosInstance.patch(route('backdoor.bookings.settle', bookingCode));
       Toast.fire({ icon: 'success', title: res.data.message });
-      fetchBookings(state.search, state.currentPage);
+      table.reload();
     } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Gagal memproses pelunasan.';
-      Toast.fire({ icon: 'error', title: msg });
+      Toast.fire({ icon: 'error', title: err?.response?.data?.message ?? 'Gagal memproses pelunasan.' });
     }
   };
 
-  /** Buka form input GDrive */
   const openGdrive = (bookingId) => {
     state.gdriveBookingId = bookingId;
-    state.gdriveLink      = '';
-    state.isGdriveOpen    = true;
+    state.gdriveLink = '';
+    state.isGdriveOpen = true;
   };
 
-  /** Tutup form GDrive */
   const closeGdrive = () => {
-    state.isGdriveOpen    = false;
+    state.isGdriveOpen = false;
     state.gdriveBookingId = null;
-    state.gdriveLink      = '';
+    state.gdriveLink = '';
   };
 
-  /** Submit link GDrive */
   const submitGdrive = async () => {
     state.isGdriveLoading = true;
     try {
-      const res = await window.axios.patch(
-        route('backdoor.bookings.gdrive', state.gdriveBookingId),
-        { gdrive_link: state.gdriveLink }
-      );
+      const res = await axiosInstance.patch(route('backdoor.bookings.gdrive', state.gdriveBookingId), { gdrive_link: state.gdriveLink });
       Toast.fire({ icon: 'success', title: res.data.message });
       closeGdrive();
-      fetchBookings(state.search, state.currentPage);
+      table.reload();
     } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Gagal menyimpan link GDrive.';
-      Toast.fire({ icon: 'error', title: msg });
+      Toast.fire({ icon: 'error', title: err?.response?.data?.message ?? 'Gagal menyimpan link GDrive.' });
     } finally {
       state.isGdriveLoading = false;
     }
   };
 
-  /** Batalkan booking */
   const cancel = async (bookingId, bookingCode) => {
     const confirmed = await confirmModal({
-      title:             'Batalkan Booking?',
-      text:              `Booking ${bookingCode} akan dibatalkan secara permanen.`,
-      icon:              'warning',
+      title: 'Batalkan Booking?',
+      text: `Booking ${bookingCode} akan dibatalkan secara permanen.`,
+      icon: 'warning',
       confirmButtonText: 'Ya, Batalkan',
     });
     if (!confirmed) return;
 
     try {
-      const res = await window.axios.delete(route('backdoor.bookings.cancel', bookingId));
+      const res = await axiosInstance.patch(route('backdoor.bookings.cancel', bookingCode));
       Toast.fire({ icon: 'success', title: res.data.message });
-      fetchBookings(state.search, state.currentPage);
+      table.reload();
     } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Gagal membatalkan booking.';
-      Toast.fire({ icon: 'error', title: msg });
+      Toast.fire({ icon: 'error', title: err?.response?.data?.message ?? 'Gagal membatalkan booking.' });
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Return
-  // ---------------------------------------------------------------------------
+  return { settle, openGdrive, closeGdrive, submitGdrive, cancel };
+}
+```
+
+**C. `Index.js`**
+```javascript
+import useDatatable from "@/lib/useDatatable";
+import useState from "./useState";
+import useBookingActions from "./useBookingActions";
+import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
+
+export default function Index(Alpine) {
+  const state = useState(Alpine);
+
+  const {
+    state: table,
+    fetch,
+    setSearch,
+    nextPage,
+    prevPage,
+    goToPage,
+    reload,
+    getPages,
+  } = useDatatable(Alpine, route("backdoor.bookings.index"), {
+    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data pemesanan." }),
+  });
+
+  Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });
+
+  const init = () => fetch();
+
+  const { settle, openGdrive, closeGdrive, submitGdrive, cancel } = useBookingActions({ state, table });
+
   return {
     state,
+    table,
     init,
-    goToPage,
     settle,
     openGdrive,
     closeGdrive,
@@ -844,100 +824,45 @@ export default function Index(Alpine) {
 }
 ```
 
-### 8.2 `Create.js` — Form Booking Manual
+### 8.2 Create (Form Booking Manual)
 
+**A. `useState.js` (Create)**
 ```javascript
-/**
- * Logika form pembuatan booking manual oleh admin.
- * Mengelola dropdown bertingkat (Paket → Varian → Time Slot),
- * Flatpickr kalender, dan Dynamic Repeater untuk Add-ons.
- *
- * File: resources/js/features/backdoor/bookings/Create.js
- * Penggunaan di Blade: <div x-data="Create">
- *
- * @param {import('alpinejs').Alpine} Alpine
- */
+export default function useState(Alpine) {
+  return Alpine.reactive({
+    userId: null,
+    packageId: null,
+    variantId: null,
+    backgroundId: null,
+    bookingDate: '',
+    startTime: '',
+    bookingStatus: '',
+    addons: [],
+
+    variants: [],
+    timeSlots: [],
+    totalPrice: 0,
+
+    isLoading: false,
+    errors: {},
+
+    allPackages: [],
+    allAddons: [],
+  });
+}
+```
+
+**B. `useCreateForm.js`**
+```javascript
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
-export default function Create(Alpine) {
-  // ---------------------------------------------------------------------------
-  // State
-  // ---------------------------------------------------------------------------
-  const state = Alpine.reactive({
-    // Form fields
-    userId:           null,
-    packageId:        null,
-    variantId:        null,
-    backgroundId:     null,
-    bookingDate:      '',
-    startTime:        '',
-    bookingStatus:    '',
-    addons:           [], // [{ addon_id: null, quantity: 1, has_quantity: true }]
-
-    // Computed
-    variants:        [],  // Dimuat saat packageId berubah
-    timeSlots:       [],  // Dimuat saat variantId + bookingDate berubah
-    totalPrice:      0,   // Dikalkulasi secara reaktif
-
-    // UI state
-    isLoading:       false,
-    errors:          {},
-
-    // Data master (diinisialisasi dari Blade via init())
-    allPackages:     [],
-    allAddons:       [],
-  });
-
-  // ---------------------------------------------------------------------------
-  // Side Effects
-  // ---------------------------------------------------------------------------
-
-  /** Muat varian ketika paket berubah */
-  Alpine.effect(() => {
-    if (state.packageId) {
-      const pkg = state.allPackages.find(p => p.id == state.packageId);
-      state.variants  = pkg ? pkg.variants : [];
-      state.variantId = null;
-      state.timeSlots = [];
-      state.startTime = '';
-    }
-  });
-
-  /** Kalkulasi total price secara reaktif */
-  Alpine.effect(() => {
-    const variant = state.variants.find(v => v.id == state.variantId);
-    const basePrice = variant ? variant.price : 0;
-
-    const addonTotal = state.addons.reduce((sum, item) => {
-      const addon = state.allAddons.find(a => a.id == item.addon_id);
-      return sum + (addon ? addon.price * item.quantity : 0);
-    }, 0);
-
-    state.totalPrice = basePrice + addonTotal;
-  });
-
-  // ---------------------------------------------------------------------------
-  // Methods
-  // ---------------------------------------------------------------------------
-
-  /** Inisialisasi — terima data master dari Blade */
-  const init = (packages, addons) => {
-    state.allPackages = packages;
-    state.allAddons   = addons;
-  };
-
-  /** Muat time slots berdasarkan varian & tanggal yang dipilih */
+export default function useCreateForm({ state }) {
   const loadTimeSlots = async () => {
     if (!state.variantId || !state.bookingDate) return;
-
     try {
-      const res = await window.axios.get(route('api.timeslots'), {
-        params: {
-          variant_id:   state.variantId,
-          booking_date: state.bookingDate,
-        },
-      });
+      const res = await axiosInstance.get(route('api.timeslots'), { params: { variant_id: state.variantId, booking_date: state.bookingDate }});
       state.timeSlots = res.data;
       state.startTime = '';
     } catch {
@@ -945,237 +870,229 @@ export default function Create(Alpine) {
     }
   };
 
-  /** Tambah baris add-on baru di Repeater */
-  const addAddonRow = () => {
-    state.addons.push({ addon_id: null, quantity: 1 });
-  };
+  const addAddonRow = () => state.addons.push({ addon_id: null, quantity: 1 });
+  const removeAddonRow = (index) => state.addons.splice(index, 1);
 
-  /** Hapus baris add-on dari Repeater */
-  const removeAddonRow = (index) => {
-    state.addons.splice(index, 1);
-  };
-
-  /**
-   * Cek apakah addon yang dipilih di baris ini memiliki has_quantity = false.
-   * Jika ya, paksa quantity = 1 dan disable input qty.
-   */
   const onAddonChange = (index) => {
     const addonId = state.addons[index].addon_id;
-    const addon   = state.allAddons.find(a => a.id == addonId);
-    if (addon && !addon.has_quantity) {
-      state.addons[index].quantity = 1;
-    }
+    const addon = state.allAddons.find(a => a.id == addonId);
+    if (addon && !addon.has_quantity) state.addons[index].quantity = 1;
   };
 
   const isQtyDisabled = (index) => {
-    const addonId = state.addons[index].addon_id;
-    const addon   = state.allAddons.find(a => a.id == addonId);
+    const addon = state.allAddons.find(a => a.id == state.addons[index].addon_id);
     return addon ? !addon.has_quantity : false;
   };
 
-  /** Submit form */
   const submit = async () => {
     state.isLoading = true;
-    state.errors    = {};
-
+    state.errors = {};
     const payload = {
-      user_id:            state.userId,
+      user_id: state.userId,
       package_variant_id: state.variantId,
-      background_id:      state.backgroundId,
-      booking_date:       state.bookingDate,
-      start_time:         state.startTime,
-      status:             state.bookingStatus,
-      addons:             state.addons.filter(a => a.addon_id),
+      background_id: state.backgroundId,
+      booking_date: state.bookingDate,
+      start_time: state.startTime,
+      status: state.bookingStatus,
+      addons: state.addons.filter(a => a.addon_id),
     };
 
     try {
-      const res = await window.axios.post(route('backdoor.bookings.store'), payload);
-      // Redirect ke halaman detail (server mengirim redirect, axios ikuti)
+      const res = await axiosInstance.post(route('backdoor.bookings.store'), payload);
       window.location.href = res.request.responseURL;
     } catch (err) {
       if (err.response?.status === 422) {
         state.errors = err.response.data.errors;
         Toast.fire({ icon: 'warning', title: 'Periksa kembali isian form.' });
-        return;
+      } else {
+        Toast.fire({ icon: 'error', title: 'Terjadi kesalahan.' });
       }
-      Toast.fire({ icon: 'error', title: 'Terjadi kesalahan. Coba lagi.' });
     } finally {
       state.isLoading = false;
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Return
-  // ---------------------------------------------------------------------------
-  return {
-    state,
-    init,
-    loadTimeSlots,
-    addAddonRow,
-    removeAddonRow,
-    onAddonChange,
-    isQtyDisabled,
-    submit,
-  };
+  return { loadTimeSlots, addAddonRow, removeAddonRow, onAddonChange, isQtyDisabled, submit };
 }
 ```
 
-### 8.3 `useUpsellAddon.js` — Composable Upsell Detail
-
+**C. `Create.js`**
 ```javascript
-/**
- * Composable hook untuk form Inline Upsell Add-on di halaman Detail.
- *
- * File: resources/js/features/backdoor/bookings/useUpsellAddon.js
- */
+import useState from "./useState";
+import useCreateForm from "./useCreateForm";
+
+export default function Create(Alpine) {
+  const state = useState(Alpine);
+
+  Alpine.effect(() => {
+    if (state.packageId) {
+      const pkg = state.allPackages.find(p => p.id == state.packageId);
+      state.variants = pkg ? pkg.variants : [];
+      state.variantId = null;
+      state.timeSlots = [];
+      state.startTime = '';
+    }
+  });
+
+  Alpine.effect(() => {
+    const variant = state.variants.find(v => v.id == state.variantId);
+    const basePrice = variant ? variant.price : 0;
+    const addonTotal = state.addons.reduce((sum, item) => {
+      const addon = state.allAddons.find(a => a.id == item.addon_id);
+      return sum + (addon ? addon.price * item.quantity : 0);
+    }, 0);
+    state.totalPrice = basePrice + addonTotal;
+  });
+
+  const init = (packages, addons) => {
+    state.allPackages = packages;
+    state.allAddons = addons;
+  };
+
+  const formActions = useCreateForm({ state });
+
+  return { state, init, ...formActions };
+}
+```
+
+### 8.3 Show (Detail & Aksi Inline)
+
+**A. `useState.js` (Show)**
+```javascript
+export default function useState(Alpine) {
+  return Alpine.reactive({
+    bookingId: null,
+    bookingCode: '',
+    booking: null, // Data lengkap booking (di-update via AJAX)
+    isPageLoading: true,
+
+    gdriveLink: '',
+    isGdriveLoading: false,
+
+    upsell: { addonId: null, quantity: 1, isLoading: false },
+    allAddons: [],
+  });
+}
+```
+
+**B. `useBookingActions.js` (Show)**
+```javascript
+import route from "@/lib/route";
+import { Toast, confirmModal } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
+
+export default function useBookingActions({ state, fetchBooking }) {
+  const settle = async () => {
+    const confirmed = await confirmModal({
+      title: 'Tandai Lunas?',
+      text: `Booking ${state.bookingCode} akan ditandai lunas penuh.`,
+      confirmButtonText: 'Ya, Tandai Lunas',
+    });
+    if (!confirmed) return;
+
+    try {
+      const res = await axiosInstance.patch(route('backdoor.bookings.settle', state.bookingCode));
+      Toast.fire({ icon: 'success', title: res.data.message });
+      await fetchBooking();
+    } catch (err) {
+      Toast.fire({ icon: 'error', title: err?.response?.data?.message ?? 'Gagal memproses pelunasan.' });
+    }
+  };
+
+  const submitGdrive = async () => {
+    state.isGdriveLoading = true;
+    try {
+      const res = await axiosInstance.patch(route('backdoor.bookings.gdrive', state.bookingCode), { gdrive_link: state.gdriveLink });
+      Toast.fire({ icon: 'success', title: res.data.message });
+      await fetchBooking();
+    } catch (err) {
+      Toast.fire({ icon: 'error', title: err?.response?.data?.message ?? 'Gagal menyimpan link GDrive.' });
+    } finally {
+      state.isGdriveLoading = false;
+    }
+  };
+
+  return { settle, submitGdrive };
+}
+```
+
+**C. `useUpsellAddon.js`**
+```javascript
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
+import axiosInstance from "@/lib/axiosInstance";
 
-export default function useUpsellAddon({ state }) {
-  const submitUpsell = async (bookingId) => {
-    if (!state.upsell.addonId) {
-      Toast.fire({ icon: 'warning', title: 'Pilih layanan tambahan terlebih dahulu.' });
-      return;
-    }
-
+export default function useUpsellAddon({ state, fetchBooking }) {
+  const submitUpsell = async () => {
+    if (!state.upsell.addonId) return Toast.fire({ icon: 'warning', title: 'Pilih layanan.' });
     state.upsell.isLoading = true;
 
     try {
-      const res = await window.axios.post(
-        route('backdoor.bookings.addons.upsell', bookingId),
-        {
-          addon_id: state.upsell.addonId,
-          quantity:  state.upsell.quantity,
-        }
-      );
-
+      const res = await axiosInstance.post(route('backdoor.bookings.addons.upsell', state.bookingCode), {
+        addon_id: state.upsell.addonId,
+        quantity: state.upsell.quantity,
+      });
       Toast.fire({ icon: 'success', title: res.data.message });
-
-      // Reset form upsell & reload halaman agar total price ter-update
-      state.upsell.addonId  = null;
+      state.upsell.addonId = null;
       state.upsell.quantity = 1;
-      window.location.reload();
+      await fetchBooking(); // Reload UI otomatis tanpa refresh web
     } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Gagal menambahkan layanan tambahan.';
-      Toast.fire({ icon: 'error', title: msg });
+      Toast.fire({ icon: 'error', title: err?.response?.data?.message ?? 'Gagal menambahkan.' });
     } finally {
       state.upsell.isLoading = false;
     }
   };
 
-  const onUpsellAddonChange = (allAddons) => {
-    const addon = allAddons.find(a => a.id == state.upsell.addonId);
-    if (addon && !addon.has_quantity) {
-      state.upsell.quantity = 1;
-    }
+  const onUpsellAddonChange = () => {
+    const addon = state.allAddons.find(a => a.id == state.upsell.addonId);
+    if (addon && !addon.has_quantity) state.upsell.quantity = 1;
   };
 
   return { submitUpsell, onUpsellAddonChange };
 }
 ```
 
-### 8.4 `Show.js` — Orchestrator Detail Page
-
+**D. `Show.js`**
 ```javascript
-/**
- * Logika halaman Detail Pemesanan.
- * Menangani aksi Tandai Lunas, Input GDrive, dan Inline Upsell Add-on.
- *
- * File: resources/js/features/backdoor/bookings/Show.js
- * Penggunaan di Blade: <div x-data="Show">
- *
- * @param {import('alpinejs').Alpine} Alpine
- */
+import useState from "./useState";
+import useBookingActions from "./useBookingActions";
+import useUpsellAddon from "./useUpsellAddon";
 import route from "@/lib/route";
-import { Toast, confirmModal } from "@/lib/sweetalert";
-import useUpsellAddon from "./useUpsellAddon.js";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function Show(Alpine) {
-  // ---------------------------------------------------------------------------
-  // State
-  // ---------------------------------------------------------------------------
-  const state = Alpine.reactive({
-    bookingId:   null,
-    bookingCode: '',
+  const state = useState(Alpine);
 
-    // Aksi GDrive
-    gdriveLink:      '',
-    isGdriveLoading: false,
-
-    // Upsell add-on inline
-    upsell: {
-      addonId:   null,
-      quantity:  1,
-      isLoading: false,
-    },
-
-    // Data master addons (dari Blade)
-    allAddons: [],
-  });
-
-  // ---------------------------------------------------------------------------
-  // Composable hooks
-  // ---------------------------------------------------------------------------
-  const { submitUpsell, onUpsellAddonChange } = useUpsellAddon({ state });
-
-  // ---------------------------------------------------------------------------
-  // Methods
-  // ---------------------------------------------------------------------------
-
-  /** Inisialisasi — terima data dari Blade */
-  const init = (bookingId, bookingCode, addons) => {
-    state.bookingId   = bookingId;
-    state.bookingCode = bookingCode;
-    state.allAddons   = addons;
-  };
-
-  /** Tandai Lunas */
-  const settle = async () => {
-    const confirmed = await confirmModal({
-      title: 'Tandai Lunas?',
-      text:  `Booking ${state.bookingCode} akan ditandai lunas penuh. Pastikan pembayaran sudah diterima di kasir.`,
-      confirmButtonText: 'Ya, Tandai Lunas',
-    });
-    if (!confirmed) return;
-
+  const fetchBooking = async () => {
     try {
-      const res = await window.axios.patch(route('backdoor.bookings.settle', state.bookingId));
-      Toast.fire({ icon: 'success', title: res.data.message });
-      window.location.reload();
-    } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Gagal memproses pelunasan.';
-      Toast.fire({ icon: 'error', title: msg });
-    }
-  };
-
-  /** Simpan Link GDrive */
-  const submitGdrive = async () => {
-    state.isGdriveLoading = true;
-    try {
-      const res = await window.axios.patch(
-        route('backdoor.bookings.gdrive', state.bookingId),
-        { gdrive_link: state.gdriveLink }
-      );
-      Toast.fire({ icon: 'success', title: res.data.message });
-      window.location.reload();
-    } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Gagal menyimpan link GDrive.';
-      Toast.fire({ icon: 'error', title: msg });
+      const res = await axiosInstance.get(route('backdoor.bookings.show', state.bookingCode));
+      state.booking = res.data;
+      state.gdriveLink = res.data.gdrive_link ?? '';
+    } catch (e) {
+      console.error(e);
     } finally {
-      state.isGdriveLoading = false;
+      state.isPageLoading = false;
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Return
-  // ---------------------------------------------------------------------------
+  const init = (bookingId, bookingCode, addons) => {
+    state.bookingId = bookingId;
+    state.bookingCode = bookingCode;
+    state.allAddons = addons;
+    fetchBooking();
+  };
+
+  const { settle, submitGdrive } = useBookingActions({ state, fetchBooking });
+  const { submitUpsell, onUpsellAddonChange } = useUpsellAddon({ state, fetchBooking });
+
   return {
     state,
     init,
     settle,
     submitGdrive,
-    submitUpsell: () => submitUpsell(state.bookingId),
-    onUpsellAddonChange: () => onUpsellAddonChange(state.allAddons),
+    submitUpsell,
+    onUpsellAddonChange,
+    formatRupiah: (num) => 'Rp ' + Number(num).toLocaleString('id-ID'),
   };
 }
 ```
@@ -1189,239 +1106,102 @@ export default function Show(Alpine) {
 ```blade
 <x-layouts.backdoor
     title="Manajemen Pemesanan"
-    js-module="backdoor/bookings/Index">
+    js-module="backdoor/bookings/index/Index">
 
     <x-slot:content>
         <div x-data="Index" x-init="init()" x-cloak>
 
-            {{-- ============================================================ --}}
-            {{-- WIDGET STATISTIK                                              --}}
-            {{-- ============================================================ --}}
+            {{-- Widget Statistik --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-px border border-stone-200 bg-stone-200 mb-6">
-
-                {{-- Total Transaksi Sukses --}}
                 <div class="bg-white p-6">
                     <p class="text-xs font-semibold text-stone-500 uppercase tracking-widest mb-1">Total Transaksi Sukses</p>
                     <p class="text-2xl font-bold text-stone-900">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</p>
                 </div>
-
-                {{-- Booking Lunas --}}
                 <div class="bg-white p-6">
                     <p class="text-xs font-semibold text-stone-500 uppercase tracking-widest mb-1">Booking Lunas</p>
                     <p class="text-2xl font-bold text-stone-900">{{ $stats['count_success'] }} <span class="text-sm font-normal text-stone-400">Sesi</span></p>
                 </div>
-
-                {{-- DP Terbayar --}}
                 <div class="bg-white p-6">
                     <p class="text-xs font-semibold text-stone-500 uppercase tracking-widest mb-1">DP Terbayar</p>
                     <p class="text-2xl font-bold text-stone-900">{{ $stats['count_dp_paid'] }} <span class="text-sm font-normal text-stone-400">Sesi</span></p>
                 </div>
-
             </div>
 
-            {{-- ============================================================ --}}
-            {{-- TOOLBAR: SEARCH + TAMBAH                                     --}}
-            {{-- ============================================================ --}}
+            {{-- Toolbar --}}
             <div class="flex items-center justify-between gap-4 mb-4">
-                <div class="relative flex-1 max-w-sm">
-                    <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
-                    <input
-                        type="text"
-                        x-model="state.search"
-                        placeholder="Cari kode booking atau nama klien..."
-                        class="w-full border border-stone-300 bg-white pl-9 pr-4 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500">
-                </div>
+                <x-backdoor.table.search placeholder="Cari kode booking atau nama klien..." />
+                
                 <a href="{{ route('backdoor.bookings.create') }}"
                    class="inline-flex items-center gap-2 bg-stone-800 text-white text-sm font-semibold px-4 py-2 hover:bg-stone-900 transition-colors">
                     <i class="ri-add-line"></i> Tambah Booking
                 </a>
             </div>
 
-            {{-- ============================================================ --}}
-            {{-- DATATABLES                                                   --}}
-            {{-- ============================================================ --}}
-            <div class="border border-stone-200 bg-white">
-                <table class="w-full text-sm">
-                    <thead class="bg-stone-100 border-b border-stone-200">
-                        <tr>
-                            <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3 w-10">No.</th>
-                            <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Kode Booking</th>
-                            <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Nama Klien</th>
-                            <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Jadwal Sesi</th>
-                            <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Paket & Varian</th>
-                            <th class="text-left text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Total Bayar</th>
-                            <th class="text-center text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3">Status</th>
-                            <th class="text-center text-xs font-semibold text-stone-500 uppercase tracking-wider px-4 py-3 w-16">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-100">
+            {{-- Datatables --}}
+            <x-backdoor.table.container headers="No.,Kode Booking,Nama Klien,Jadwal Sesi,Paket & Varian,Total Bayar,Status,Aksi">
+                <template x-for="(booking, index) in table.data" :key="booking.id">
+                    <tr class="hover:bg-stone-50 transition-colors">
+                        <td class="px-6 py-4 text-stone-400 text-xs" x-text="index + 1 + ((table.pagination.current_page - 1) * table.pagination.per_page)"></td>
+                        <td class="px-6 py-4 font-mono font-semibold text-stone-800 text-xs" x-text="booking.booking_code"></td>
+                        <td class="px-6 py-4 text-stone-700 text-sm" x-text="booking.user?.name ?? '-'"></td>
+                        <td class="px-6 py-4 text-stone-600 text-xs" x-text="booking.booking_date"></td>
+                        <td class="px-6 py-4 text-stone-600 text-xs">
+                            <span x-text="booking.package_variant?.package?.name ?? '-'"></span>
+                            <span class="text-stone-400"> — </span>
+                            <span x-text="booking.package_variant?.name ?? ''"></span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-semibold text-stone-800 text-xs" x-text="'Rp ' + Number(booking.total_price).toLocaleString('id-ID')"></span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="inline-block px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider border"
+                                :class="{
+                                    'bg-emerald-50 text-emerald-700 border-emerald-200': booking.status === 'Lunas',
+                                    'bg-sky-50 text-sky-700 border-sky-200':             booking.status === 'DP Terbayar',
+                                    'bg-amber-50 text-amber-700 border-amber-200':       booking.status === 'Menunggu',
+                                    'bg-stone-100 text-stone-500 border-stone-200':      booking.status === 'Batal',
+                                    'bg-violet-50 text-violet-700 border-violet-200':    booking.status === 'Selesai',
+                                }"
+                                x-text="booking.status">
+                            </span>
+                        </td>
+                        <x-backdoor.table.actions>
+                            <x-backdoor.table.action-item x-bind:href="`/admin/operations/bookings/${booking.booking_code}`" text="Lihat Detail" />
+                            
+                            <template x-if="booking.status === 'DP Terbayar'">
+                                <x-backdoor.table.action-item @click="settle(booking.id, booking.booking_code)" color="text-emerald-700" text="Tandai Lunas" />
+                            </template>
 
-                        {{-- Loading state --}}
-                        <template x-if="state.isLoading">
-                            <tr>
-                                <td colspan="8" class="text-center text-stone-400 py-12 text-sm">
-                                    <i class="ri-loader-4-line animate-spin text-xl block mb-2"></i>
-                                    Memuat data...
-                                </td>
-                            </tr>
-                        </template>
+                            <template x-if="booking.status === 'Lunas' || booking.status === 'Selesai'">
+                                <x-backdoor.table.action-item @click="openGdrive(booking.id)" color="text-sky-700" text="Input GDrive" />
+                            </template>
 
-                        {{-- Empty state --}}
-                        <template x-if="!state.isLoading && state.bookings.length === 0">
-                            <tr>
-                                <td colspan="8" class="text-center text-stone-400 py-12 text-sm">
-                                    <i class="ri-inbox-2-line text-3xl block mb-2"></i>
-                                    Tidak ada data pemesanan ditemukan.
-                                </td>
-                            </tr>
-                        </template>
+                            <template x-if="booking.status !== 'Batal'">
+                                <x-backdoor.table.action-item @click="cancel(booking.id, booking.booking_code)" color="text-red-600" text="Batalkan" />
+                            </template>
+                        </x-backdoor.table.actions>
+                    </tr>
+                </template>
+            </x-backdoor.table.container>
 
-                        {{-- Data rows --}}
-                        <template x-for="(booking, index) in state.bookings" :key="booking.id">
-                            <tr class="hover:bg-stone-50 transition-colors">
-                                <td class="px-4 py-3 text-stone-400 text-xs" x-text="index + 1 + ((state.meta.current_page - 1) * state.meta.per_page)"></td>
-                                <td class="px-4 py-3 font-mono font-semibold text-stone-800 text-xs" x-text="booking.booking_code"></td>
-                                <td class="px-4 py-3 text-stone-700" x-text="booking.user?.name ?? '-'"></td>
-                                <td class="px-4 py-3 text-stone-600 text-xs" x-text="booking.booking_date"></td>
-                                <td class="px-4 py-3 text-stone-600 text-xs">
-                                    <span x-text="booking.package_variant?.package?.name ?? '-'"></span>
-                                    <span class="text-stone-400"> — </span>
-                                    <span x-text="booking.package_variant?.name ?? ''"></span>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <span class="font-semibold text-stone-800 text-xs" x-text="'Rp ' + Number(booking.total_price).toLocaleString('id-ID')"></span>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span
-                                        class="inline-block px-2 py-0.5 text-xs font-bold uppercase tracking-wide border"
-                                        :class="{
-                                            'bg-emerald-50 text-emerald-700 border-emerald-200': booking.status === 'Lunas',
-                                            'bg-sky-50 text-sky-700 border-sky-200':             booking.status === 'DP Terbayar',
-                                            'bg-amber-50 text-amber-700 border-amber-200':       booking.status === 'Menunggu',
-                                            'bg-stone-100 text-stone-500 border-stone-200':      booking.status === 'Batal',
-                                            'bg-violet-50 text-violet-700 border-violet-200':    booking.status === 'Selesai',
-                                        }"
-                                        x-text="booking.status">
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-center relative">
-                                    {{-- Dropdown aksi 3 titik --}}
-                                    <div x-data="{ open: false }" class="relative inline-block">
-                                        <button @click="open = !open" type="button"
-                                            class="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors">
-                                            <i class="ri-more-2-fill text-base"></i>
-                                        </button>
-                                        <div
-                                            x-show="open"
-                                            x-on:click.outside="open = false"
-                                            x-transition.opacity
-                                            class="absolute right-0 z-20 mt-1 w-48 bg-white border border-stone-200 py-1">
+            <x-backdoor.table.pagination />
 
-                                            {{-- Lihat Detail --}}
-                                            <a :href="`/admin/operations/bookings/${booking.id}`"
-                                               class="flex items-center gap-2 px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">
-                                                <i class="ri-eye-line text-stone-400"></i> Lihat Detail
-                                            </a>
-
-                                            {{-- Tandai Lunas — hanya jika DP_PAID --}}
-                                            <template x-if="booking.status === 'DP Terbayar'">
-                                                <button type="button"
-                                                    @click="open = false; settle(booking.id, booking.booking_code)"
-                                                    class="w-full flex items-center gap-2 px-4 py-2 text-sm text-emerald-700 hover:bg-stone-50">
-                                                    <i class="ri-checkbox-circle-line text-emerald-500"></i> Tandai Lunas
-                                                </button>
-                                            </template>
-
-                                            {{-- Input GDrive — hanya jika Lunas/Selesai --}}
-                                            <template x-if="booking.status === 'Lunas' || booking.status === 'Selesai'">
-                                                <button type="button"
-                                                    @click="open = false; openGdrive(booking.id)"
-                                                    class="w-full flex items-center gap-2 px-4 py-2 text-sm text-sky-700 hover:bg-stone-50">
-                                                    <i class="ri-drive-line text-sky-500"></i> Input Link GDrive
-                                                </button>
-                                            </template>
-
-                                            {{-- Batalkan Booking --}}
-                                            <template x-if="booking.status !== 'Batal'">
-                                                <button type="button"
-                                                    @click="open = false; cancel(booking.id, booking.booking_code)"
-                                                    class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-stone-50">
-                                                    <i class="ri-close-circle-line text-red-400"></i> Batalkan Booking
-                                                </button>
-                                            </template>
-
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-
-                    </tbody>
-                </table>
-
-                {{-- Pagination --}}
-                <div class="flex items-center justify-between px-4 py-3 border-t border-stone-200 bg-stone-50" x-show="state.meta.last_page > 1">
-                    <p class="text-xs text-stone-500">
-                        Menampilkan <span x-text="state.meta.from ?? 0"></span>–<span x-text="state.meta.to ?? 0"></span>
-                        dari <span x-text="state.meta.total ?? 0"></span> data
-                    </p>
-                    <div class="flex gap-1">
-                        <button @click="goToPage(state.currentPage - 1)" :disabled="state.currentPage <= 1"
-                            class="px-3 py-1.5 text-xs border border-stone-200 text-stone-600 hover:bg-stone-100 disabled:opacity-40 disabled:pointer-events-none transition">
-                            <i class="ri-arrow-left-s-line"></i>
-                        </button>
-                        <button @click="goToPage(state.currentPage + 1)" :disabled="state.currentPage >= state.meta.last_page"
-                            class="px-3 py-1.5 text-xs border border-stone-200 text-stone-600 hover:bg-stone-100 disabled:opacity-40 disabled:pointer-events-none transition">
-                            <i class="ri-arrow-right-s-line"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {{-- ============================================================ --}}
-            {{-- POPUP FORM INPUT GDRIVE (Inline Modal)                       --}}
-            {{-- ============================================================ --}}
-            <div
-                x-show="state.isGdriveOpen"
-                x-on:keydown.escape.window="closeGdrive()"
-                class="fixed inset-0 z-50 flex items-center justify-center"
-                x-cloak>
-
-                {{-- Backdrop --}}
+            {{-- GDrive Modal Inline --}}
+            <div x-show="state.isGdriveOpen" x-on:keydown.escape.window="closeGdrive()" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
                 <div class="absolute inset-0 bg-stone-900/60" @click="closeGdrive()"></div>
-
-                {{-- Dialog --}}
                 <div class="relative z-10 bg-white border border-stone-200 w-full max-w-md mx-4 p-6">
                     <h3 class="text-base font-bold text-stone-900 mb-4">Input Link Google Drive</h3>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-stone-700 uppercase tracking-wide mb-2">
-                            URL Folder Google Drive <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="url"
-                            x-model="state.gdriveLink"
-                            placeholder="https://drive.google.com/drive/folders/..."
-                            class="w-full border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500">
-                    </div>
-
+                    <input type="url" x-model="state.gdriveLink" placeholder="https://drive.google.com/..." class="w-full border border-stone-300 bg-white px-3 py-2.5 text-sm">
                     <div class="flex justify-end gap-4 mt-6">
-                        <button type="button" @click="closeGdrive()"
-                            class="text-sm font-semibold text-stone-600 hover:text-stone-900">
-                            Batal
-                        </button>
-                        <button type="button" @click="submitGdrive()" :disabled="state.isGdriveLoading || !state.gdriveLink"
-                            class="bg-stone-800 text-white text-sm font-semibold px-4 py-2 hover:bg-stone-900 disabled:opacity-50 disabled:pointer-events-none transition">
-                            <span x-text="state.isGdriveLoading ? 'Menyimpan...' : 'Simpan & Kirim WA'"></span>
-                        </button>
+                        <button type="button" @click="closeGdrive()" class="text-sm font-semibold text-stone-600 hover:text-stone-900">Batal</button>
+                        <button type="button" @click="submitGdrive()" :disabled="state.isGdriveLoading || !state.gdriveLink" class="bg-stone-800 text-white text-sm px-4 py-2">Simpan</button>
                     </div>
                 </div>
-
             </div>
 
         </div>
     </x-slot:content>
-
 </x-layouts.backdoor>
 ```
 
@@ -1721,296 +1501,127 @@ export default function Show(Alpine) {
 ```blade
 <x-layouts.backdoor
     title="Detail Booking — {{ $booking->booking_code }}"
-    js-module="backdoor/bookings/Show">
+    js-module="backdoor/bookings/show/Show">
 
     <x-slot:content>
-        <div
-            x-data="Show"
-            x-init="init(
-                {{ $booking->id }},
-                '{{ $booking->booking_code }}',
-                {{ Js::from($availableAddons) }}
-            )"
-            x-cloak>
-
-            {{-- Header --}}
-            <div class="flex items-start justify-between mb-6">
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('backdoor.bookings.index') }}"
-                       class="text-stone-400 hover:text-stone-700 transition-colors">
-                        <i class="ri-arrow-left-line text-xl"></i>
-                    </a>
-                    <div>
-                        <h1 class="text-xl font-bold text-stone-900 font-mono">{{ $booking->booking_code }}</h1>
-                        <p class="text-xs text-stone-500 mt-0.5">Detail Pemesanan — Hanya Baca</p>
-                    </div>
-                </div>
-
-                {{-- Badge Status --}}
-                <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest border
-                    @if($booking->status === \App\Domains\Booking\Enums\BookingStatus::SUCCESS) bg-emerald-50 text-emerald-700 border-emerald-200
-                    @elseif($booking->status === \App\Domains\Booking\Enums\BookingStatus::DP_PAID) bg-sky-50 text-sky-700 border-sky-200
-                    @elseif($booking->status === \App\Domains\Booking\Enums\BookingStatus::PENDING) bg-amber-50 text-amber-700 border-amber-200
-                    @elseif($booking->status === \App\Domains\Booking\Enums\BookingStatus::CANCELLED) bg-stone-100 text-stone-500 border-stone-200
-                    @else bg-violet-50 text-violet-700 border-violet-200 @endif">
-                    {{ $booking->status->label() }}
-                </span>
+        <div x-data="Show" x-init="init({{ $booking->id }}, '{{ $booking->booking_code }}', {{ Js::from($availableAddons) }})" x-cloak>
+            
+            {{-- Loading overlay saat fetch pertama kali --}}
+            <div x-show="state.isPageLoading" class="py-12 text-center text-stone-400">
+                <i class="ri-loader-4-line animate-spin text-3xl"></i>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {{-- ============================================================ --}}
-                {{-- KOLOM KIRI: Rincian Booking                                  --}}
-                {{-- ============================================================ --}}
-                <div class="lg:col-span-2 space-y-5">
-
-                    {{-- Info Klien --}}
-                    <div class="border border-stone-200 bg-white">
-                        <div class="px-5 py-3 border-b border-stone-200 bg-stone-50">
-                            <h2 class="text-xs font-bold text-stone-700 uppercase tracking-widest">Informasi Klien</h2>
-                        </div>
-                        <div class="p-5 grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">Nama</p>
-                                <p class="text-sm font-semibold text-stone-800">{{ $booking->user->name }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">Email</p>
-                                <p class="text-sm text-stone-700">{{ $booking->user->email }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">No. WhatsApp</p>
-                                <p class="text-sm text-stone-700">{{ $booking->user->phone ?? '-' }}</p>
-                            </div>
+            <div x-show="!state.isPageLoading" class="hidden" :class="!state.isPageLoading ? '!block' : ''">
+                {{-- Header --}}
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex items-center gap-4">
+                        <a href="{{ route('backdoor.bookings.index') }}" class="text-stone-400 hover:text-stone-700 transition-colors">
+                            <i class="ri-arrow-left-line text-xl"></i>
+                        </a>
+                        <div>
+                            <h1 class="text-xl font-bold text-stone-900 font-mono" x-text="state.bookingCode"></h1>
+                            <p class="text-xs text-stone-500 mt-0.5">Detail Pemesanan — Hanya Baca</p>
                         </div>
                     </div>
+                    <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest border"
+                        :class="{
+                            'bg-emerald-50 text-emerald-700 border-emerald-200': state.booking?.status === 'Lunas',
+                            'bg-sky-50 text-sky-700 border-sky-200':             state.booking?.status === 'DP Terbayar',
+                            'bg-amber-50 text-amber-700 border-amber-200':       state.booking?.status === 'Menunggu',
+                            'bg-stone-100 text-stone-500 border-stone-200':      state.booking?.status === 'Batal',
+                            'bg-violet-50 text-violet-700 border-violet-200':    state.booking?.status === 'Selesai',
+                        }" x-text="state.booking?.status"></span>
+                </div>
 
-                    {{-- Info Paket & Jadwal --}}
-                    <div class="border border-stone-200 bg-white">
-                        <div class="px-5 py-3 border-b border-stone-200 bg-stone-50">
-                            <h2 class="text-xs font-bold text-stone-700 uppercase tracking-widest">Paket & Jadwal</h2>
-                        </div>
-                        <div class="p-5 grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">Paket</p>
-                                <p class="text-sm font-semibold text-stone-800">{{ $booking->packageVariant->package->name }}</p>
-                                <p class="text-xs text-stone-500">{{ $booking->packageVariant->name }}</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-5">
+                        
+                        {{-- Addons --}}
+                        <div class="border border-stone-200 bg-white">
+                            <div class="px-5 py-3 border-b border-stone-200 bg-stone-50">
+                                <h2 class="text-xs font-bold text-stone-700 uppercase tracking-widest">Layanan Tambahan</h2>
                             </div>
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">Background</p>
-                                <p class="text-sm text-stone-700">{{ $booking->background->name }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">Tanggal Sesi</p>
-                                <p class="text-sm font-semibold text-stone-800">{{ $booking->booking_date->translatedFormat('l, d F Y') }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-1">Waktu</p>
-                                <p class="text-sm text-stone-700">
-                                    {{ $booking->start_time->format('H:i') }} – {{ $booking->end_time->format('H:i') }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
 
-                    {{-- Daftar Add-ons --}}
-                    <div class="border border-stone-200 bg-white">
-                        <div class="px-5 py-3 border-b border-stone-200 bg-stone-50">
-                            <h2 class="text-xs font-bold text-stone-700 uppercase tracking-widest">Layanan Tambahan</h2>
-                        </div>
+                            <template x-if="!state.booking?.addons?.length">
+                                <p class="px-5 py-4 text-xs text-stone-400 italic">Tidak ada layanan tambahan.</p>
+                            </template>
 
-                        @if($booking->addons->isEmpty())
-                            <p class="px-5 py-4 text-xs text-stone-400 italic">Tidak ada layanan tambahan.</p>
-                        @else
-                            <table class="w-full text-sm">
-                                <thead class="border-b border-stone-100">
-                                    <tr>
-                                        <th class="text-left text-xs font-semibold text-stone-500 uppercase px-5 py-2">Layanan</th>
-                                        <th class="text-center text-xs font-semibold text-stone-500 uppercase px-5 py-2">Qty</th>
-                                        <th class="text-right text-xs font-semibold text-stone-500 uppercase px-5 py-2">Harga Satuan</th>
-                                        <th class="text-right text-xs font-semibold text-stone-500 uppercase px-5 py-2">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-stone-100">
-                                    @foreach($booking->addons as $addon)
-                                        <tr>
-                                            <td class="px-5 py-3 text-stone-700">{{ $addon->name }}</td>
-                                            <td class="px-5 py-3 text-center text-stone-600">{{ $addon->pivot->quantity }}</td>
-                                            <td class="px-5 py-3 text-right text-stone-600">Rp {{ number_format($addon->pivot->price_at_purchase, 0, ',', '.') }}</td>
-                                            <td class="px-5 py-3 text-right font-semibold text-stone-800">Rp {{ number_format($addon->pivot->quantity * $addon->pivot->price_at_purchase, 0, ',', '.') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @endif
+                            <template x-if="state.booking?.addons?.length">
+                                <table class="w-full text-sm">
+                                    <thead class="border-b border-stone-100">
+                                        <tr><th class="text-left px-5 py-2">Layanan</th><th class="text-center px-5 py-2">Qty</th><th class="text-right px-5 py-2">Harga Satuan</th><th class="text-right px-5 py-2">Subtotal</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-stone-100">
+                                        <template x-for="addon in state.booking?.addons" :key="addon.id">
+                                            <tr>
+                                                <td class="px-5 py-3 text-stone-700" x-text="addon.name"></td>
+                                                <td class="px-5 py-3 text-center text-stone-600" x-text="addon.pivot.quantity"></td>
+                                                <td class="px-5 py-3 text-right text-stone-600" x-text="formatRupiah(addon.pivot.price_at_purchase)"></td>
+                                                <td class="px-5 py-3 text-right font-semibold text-stone-800" x-text="formatRupiah(addon.pivot.quantity * addon.pivot.price_at_purchase)"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </template>
 
-                        {{-- ============================================ --}}
-                        {{-- INLINE FORM UPSELL ADD-ON                   --}}
-                        {{-- Hanya tampil jika status bukan Cancelled/Done --}}
-                        {{-- ============================================ --}}
-                        @if(!in_array($booking->status, [\App\Domains\Booking\Enums\BookingStatus::CANCELLED, \App\Domains\Booking\Enums\BookingStatus::DONE]))
-                            <div class="border-t border-stone-200 bg-stone-50 px-5 py-4">
-                                <p class="text-xs font-bold text-stone-600 uppercase tracking-widest mb-3">+ Tambahkan Layanan ke Tagihan</p>
-                                <div class="flex items-center gap-3">
-
-                                    {{-- Dropdown Addon --}}
+                            {{-- Inline Form Upsell --}}
+                            <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
+                                <div class="border-t border-stone-200 bg-stone-50 px-5 py-4 flex gap-3">
                                     <div class="flex-1">
-                                        <select
-                                            x-data="choices({ placeholder: true, placeholderValue: '--- Pilih Layanan ---' })"
-                                            x-modelable="value"
-                                            x-model="state.upsell.addonId"
-                                            @change="onUpsellAddonChange()">
-                                            @foreach ($availableAddons as $addon)
-                                                <option value="{{ $addon->id }}">
-                                                    {{ $addon->name }} — Rp {{ number_format($addon->price, 0, ',', '.') }}
-                                                </option>
-                                            @endforeach
+                                        <select x-data="choices({ placeholder: true })" x-modelable="value" x-model="state.upsell.addonId" @change="onUpsellAddonChange()">
+                                            <option value="">--- Pilih Layanan ---</option>
+                                            <template x-for="ad in state.allAddons" :key="ad.id">
+                                                <option :value="ad.id" x-text="ad.name + ' — ' + formatRupiah(ad.price)"></option>
+                                            </template>
                                         </select>
                                     </div>
-
-                                    {{-- Input Qty --}}
                                     <div class="w-20">
-                                        <input
-                                            type="number"
-                                            x-model.number="state.upsell.quantity"
-                                            :disabled="state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity"
-                                            min="1"
-                                            class="w-full border border-stone-300 bg-white px-3 py-2.5 text-sm text-center text-stone-900 focus:outline-none focus:border-stone-500 disabled:bg-stone-200 disabled:text-stone-400">
+                                        <input type="number" x-model.number="state.upsell.quantity" :disabled="state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity" min="1" class="w-full border border-stone-300 px-3 py-2 text-sm text-center">
                                     </div>
-
-                                    {{-- Tombol Tambah --}}
-                                    <button type="button"
-                                        @click="submitUpsell()"
-                                        :disabled="state.upsell.isLoading || !state.upsell.addonId"
-                                        class="bg-stone-800 text-white text-xs font-bold px-4 py-2.5 hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap">
-                                        <span x-text="state.upsell.isLoading ? 'Menambahkan...' : '+ Tambah ke Tagihan'"></span>
+                                    <button type="button" @click="submitUpsell()" :disabled="state.upsell.isLoading || !state.upsell.addonId" class="bg-stone-800 text-white text-xs font-bold px-4 py-2">
+                                        <span x-text="state.upsell.isLoading ? 'Menambahkan...' : '+ Tambah'"></span>
                                     </button>
-
                                 </div>
-                            </div>
-                        @endif
-
-                    </div>
-
-                    {{-- Link GDrive (jika sudah ada) --}}
-                    @if($booking->gdrive_link)
-                        <div class="border border-stone-200 bg-white px-5 py-4 flex items-center gap-3">
-                            <i class="ri-drive-line text-xl text-sky-500"></i>
-                            <div>
-                                <p class="text-xs text-stone-400 uppercase tracking-wide mb-0.5">Link Hasil Foto (Google Drive)</p>
-                                <a href="{{ $booking->gdrive_link }}" target="_blank"
-                                   class="text-sm text-sky-600 hover:underline break-all">{{ $booking->gdrive_link }}</a>
-                            </div>
-                        </div>
-                    @endif
-
-                </div>
-
-                {{-- ============================================================ --}}
-                {{-- KOLOM KANAN: Ringkasan Finansial & Tombol Aksi               --}}
-                {{-- ============================================================ --}}
-                <div class="space-y-4">
-
-                    {{-- Ringkasan Pembayaran --}}
-                    <div class="border border-stone-200 bg-white">
-                        <div class="px-5 py-3 border-b border-stone-200 bg-stone-50">
-                            <h2 class="text-xs font-bold text-stone-700 uppercase tracking-widest">Ringkasan Pembayaran</h2>
-                        </div>
-                        <div class="p-5 space-y-3">
-                            @php
-                                $totalPaid = $booking->payments->where('status', \App\Domains\Payment\Enums\PaymentStatus::SETTLEMENT)->sum('amount');
-                                $remaining = $booking->total_price - $totalPaid;
-                            @endphp
-                            <div class="flex justify-between text-sm">
-                                <span class="text-stone-500">Total Tagihan</span>
-                                <span class="font-semibold text-stone-800">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-stone-500">Total Terbayar</span>
-                                <span class="font-semibold text-emerald-700">Rp {{ number_format($totalPaid, 0, ',', '.') }}</span>
-                            </div>
-                            @if($remaining > 0)
-                                <div class="flex justify-between text-sm border-t border-stone-100 pt-3">
-                                    <span class="text-stone-500">Sisa Tagihan</span>
-                                    <span class="font-bold text-red-600">Rp {{ number_format($remaining, 0, ',', '.') }}</span>
-                                </div>
-                            @else
-                                <div class="flex justify-between text-sm border-t border-stone-100 pt-3">
-                                    <span class="text-stone-500">Sisa Tagihan</span>
-                                    <span class="font-bold text-emerald-600">Rp 0 (LUNAS)</span>
-                                </div>
-                            @endif
+                            </template>
                         </div>
                     </div>
 
-                    {{-- Tombol Aksi --}}
-                    <div class="space-y-2">
-
-                        {{-- Tandai Lunas — hanya jika DP_PAID --}}
-                        @if($booking->status === \App\Domains\Booking\Enums\BookingStatus::DP_PAID)
-                            <button type="button" @click="settle()"
-                                class="w-full bg-emerald-600 text-white text-sm font-bold py-3 hover:bg-emerald-700 transition-colors">
-                                <i class="ri-checkbox-circle-line mr-1.5"></i> Tandai Lunas Penuh
-                            </button>
-                        @endif
-
-                        {{-- Input GDrive — jika Lunas atau Done --}}
-                        @if(in_array($booking->status, [\App\Domains\Booking\Enums\BookingStatus::SUCCESS, \App\Domains\Booking\Enums\BookingStatus::DONE]))
-                            <div class="border border-stone-200 bg-white p-4 space-y-3">
-                                <label class="block text-xs font-semibold text-stone-700 uppercase tracking-wide">
-                                    {{ $booking->gdrive_link ? 'Perbarui' : 'Input' }} Link GDrive
-                                </label>
-                                <input
-                                    type="url"
-                                    x-model="state.gdriveLink"
-                                    value="{{ $booking->gdrive_link }}"
-                                    placeholder="https://drive.google.com/..."
-                                    class="w-full border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500">
-                                <button type="button" @click="submitGdrive()" :disabled="state.isGdriveLoading || !state.gdriveLink"
-                                    class="w-full bg-sky-600 text-white text-sm font-bold py-2.5 hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:pointer-events-none">
-                                    <span x-text="state.isGdriveLoading ? 'Menyimpan...' : 'Simpan & Kirim Notif WA'"></span>
-                                </button>
+                    <div class="space-y-4">
+                        {{-- Ringkasan Keuangan --}}
+                        <div class="border border-stone-200 bg-white">
+                            <div class="px-5 py-3 border-b border-stone-200 bg-stone-50">
+                                <h2 class="text-xs font-bold text-stone-700">Ringkasan Pembayaran</h2>
                             </div>
-                        @endif
-
-                        {{-- Riwayat Pembayaran (collapsible) --}}
-                        <div x-data="{ open: false }" class="border border-stone-200 bg-white">
-                            <button @click="open = !open" type="button"
-                                class="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-stone-600 uppercase tracking-wide hover:bg-stone-50">
-                                <span>Riwayat Pembayaran</span>
-                                <i class="ri-arrow-down-s-line transition-transform" :class="open ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div x-show="open" x-transition class="border-t border-stone-100 divide-y divide-stone-100">
-                                @forelse($booking->payments as $payment)
-                                    <div class="px-4 py-3 flex justify-between items-start">
-                                        <div>
-                                            <p class="text-xs font-semibold text-stone-700">{{ $payment->payment_purpose?->name ?? '-' }}</p>
-                                            <p class="text-xs text-stone-400 mono">{{ $payment->order_id }}</p>
-                                            <p class="text-xs text-stone-400">{{ $payment->pay_date?->format('d M Y, H:i') ?? '-' }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs font-bold text-stone-800">Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
-                                            <span class="text-xs px-1.5 py-0.5
-                                                @if($payment->status === \App\Domains\Payment\Enums\PaymentStatus::SETTLEMENT) text-emerald-700 bg-emerald-50
-                                                @else text-stone-500 bg-stone-100 @endif">
-                                                {{ $payment->status->label() }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <p class="px-4 py-3 text-xs text-stone-400 italic">Belum ada riwayat pembayaran.</p>
-                                @endforelse
+                            <div class="p-5 space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-stone-500">Total Tagihan</span>
+                                    <span class="font-semibold" x-text="formatRupiah(state.booking?.total_price || 0)"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-stone-500">Total Terbayar</span>
+                                    <span class="font-semibold text-emerald-700" x-text="formatRupiah(state.booking?.payments?.filter(p => p.status === 'Settlement').reduce((sum, p) => sum + p.amount, 0) || 0)"></span>
+                                </div>
                             </div>
                         </div>
 
+                        {{-- Tombol Lunas --}}
+                        <template x-if="state.booking?.status === 'DP Terbayar'">
+                            <button type="button" @click="settle()" class="w-full bg-emerald-600 text-white py-3 font-bold hover:bg-emerald-700"><i class="ri-checkbox-circle-line"></i> Tandai Lunas</button>
+                        </template>
+
+                        {{-- Input GDrive --}}
+                        <template x-if="state.booking?.status === 'Lunas' || state.booking?.status === 'Selesai'">
+                            <div class="border border-stone-200 bg-white p-4">
+                                <input type="url" x-model="state.gdriveLink" placeholder="Link GDrive..." class="w-full border border-stone-300 py-2 px-3 text-sm mb-3">
+                                <button type="button" @click="submitGdrive()" :disabled="state.isGdriveLoading || !state.gdriveLink" class="w-full bg-sky-600 text-white py-2 font-bold hover:bg-sky-700">Simpan GDrive</button>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
             </div>
-
         </div>
     </x-slot:content>
-
 </x-layouts.backdoor>
 ```
 

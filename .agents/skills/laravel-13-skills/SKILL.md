@@ -1,5 +1,5 @@
 ---
-name: Laravel 13 Attribute Refactor
+name: laravel-13-attribute-refactor
 description: Write new Laravel 13 code with PHP 8 attributes, and refactor old Laravel code from property-based configuration to attribute syntax. Supports Models, Jobs, Commands, Controllers, FormRequests, Factories, Testing, and Container DI.
 version: 1.0.1
 author: shamimstack

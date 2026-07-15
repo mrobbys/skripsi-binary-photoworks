@@ -13,12 +13,10 @@
       "files": "*.blade.php",
       "options": {
         "parser": "blade",
-        "wrapAttributes": "auto",
+        "wrapAttributes": "force-expand-multiline",
         "singleQuote": true,
-        "endWithNewline": true,
-        "sortTailwindClasses": true,
-        "noStructureSort": true,
-        "noMultipleEmptyLines": true
+        "endWithNewLine": true,
+        "sortTailwindcssClasses": true
       }
     }
   ]
