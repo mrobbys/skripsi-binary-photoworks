@@ -15,6 +15,8 @@ use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\Payment\Enums\PaymentPurpose;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
+use App\Jobs\SendWhatsappNotificationJob;
+use App\Support\Formatter;
 use Carbon\Carbon;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
@@ -31,14 +33,13 @@ class CreateManualBookingService
 
     /**
      * Create data booking manual dan data payment
-     * @param ManualBookingData $data
      */
     public function execute(ManualBookingData $data): Booking
     {
         $lock = Cache::lock("booking_checkout_{$data->booking_date}_{$data->start_time}", 10);
 
         try {
-            return $lock->block(5, function () use ($data) {
+            $bookingResult = $lock->block(5, function () use ($data) {
                 return DB::transaction(function () use ($data) {
                     $variant = PackageVariant::with('package.category')->findOrFail($data->package_variant_id);
                     $status = BookingStatus::from($data->status);
@@ -97,7 +98,7 @@ class CreateManualBookingService
                         Payment::create([
                             'booking_id' => $booking->id,
                             'order_id' => $booking->booking_code,
-                            'payment_type' => $data->payment_type ?? 'manual',
+                            'payment_type' => 'manual',
                             'payment_purpose' => PaymentPurpose::DP,
                             'amount' => $totalPrice * 0.6,
                             'status' => PaymentStatus::SETTLEMENT,
@@ -107,7 +108,7 @@ class CreateManualBookingService
                         Payment::create([
                             'booking_id' => $booking->id,
                             'order_id' => $booking->booking_code,
-                            'payment_type' => $data->payment_type ?? 'manual',
+                            'payment_type' => 'manual',
                             'payment_purpose' => PaymentPurpose::LUNAS,
                             'amount' => $totalPrice,
                             'status' => PaymentStatus::SETTLEMENT,
@@ -118,8 +119,70 @@ class CreateManualBookingService
                     return $booking;
                 });
             });
+
+            // Dispatch notifikasi WA di luar block database transaction agar jika gagal tidak rollback pesanan
+            if ($data->send_wa_notification) {
+                // Relasi dipastikan terload untuk notifikasi
+                $bookingResult = Booking::with(['user', 'packageVariant.package', 'addons'])->find($bookingResult->id);
+                SendWhatsappNotificationJob::dispatch(
+                    $bookingResult->user->phone,
+                    $this->buildWaMessage($bookingResult)
+                );
+            }
+
+            return $bookingResult;
         } catch (LockTimeoutException $e) {
             throw new \RuntimeException('Sistem sedang memproses pesanan di tanggal ini secara bersamaan, silakan coba lagi.');
         }
+    }
+
+    /**
+     * Membangun template pesan WhatsApp untuk Booking Manual
+     */
+    private function buildWaMessage(Booking $booking): string
+    {
+        $code = $booking->booking_code;
+        $user = $booking->user?->name;
+        $package = $booking->packageVariant?->package?->name;
+        $variant = $booking->packageVariant?->name;
+        $bookingDate = Formatter::dateId($booking->booking_date, 'l, d F Y');
+        $sessionTime = Formatter::timeRange($booking->start_time, $booking->end_time);
+        $totalPrice = Formatter::rupiah($booking->total_price);
+        $statusStr = $booking->status->label();
+
+        $dashboardUrl = route('frontdoor.dashboard.index');
+
+        $message = <<<TEXT
+Halo {$user}, pesanan Anda telah berhasil kami catat!
+
+Berikut adalah rincian booking Anda:
+*Kode Booking*: {$code}
+*Paket*: {$package} ({$variant})
+*Tanggal*: {$bookingDate}
+*Waktu*: {$sessionTime} WITA
+*Total Biaya*: {$totalPrice}
+*Status Pembayaran*: {$statusStr}
+
+TEXT;
+
+        if ($booking->status === BookingStatus::DP_PAID) {
+            $dpAmount = Formatter::rupiah($booking->total_price * 0.6);
+            $sisaAmount = Formatter::rupiah($booking->total_price * 0.4);
+            $receiptUrl = route('payments.receipt', ['payment' => $booking->booking_code]);
+
+            $message .= "\nAnda telah membayarkan DP sebesar {$dpAmount}. Sisa pelunasan sebesar {$sisaAmount} dapat dibayarkan di studio nanti.";
+            $message .= "\n\nUnduh Bukti Pembayaran DP Anda:\n{$receiptUrl}";
+            $message .= "\n\nPantau status jadwal Anda di Dasbor Klien:\n{$dashboardUrl}";
+        } else {
+            $receiptUrl = route('payments.receipt', ['payment' => $booking->booking_code]);
+
+            $message .= "\nPembayaran Anda sudah *LUNAS*. Terima kasih!";
+            $message .= "\n\nUnduh Bukti Pembayaran Anda:\n{$receiptUrl}";
+            $message .= "\n\nPantau status jadwal Anda di Dasbor Klien:\n{$dashboardUrl}";
+        }
+
+        $message .= "\n\nTerima kasih telah mempercayakan momen berharga Anda kepada kami! Sampai jumpa di studio!";
+
+        return $message;
     }
 }

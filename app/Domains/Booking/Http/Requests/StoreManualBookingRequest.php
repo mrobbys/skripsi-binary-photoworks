@@ -22,6 +22,7 @@ class StoreManualBookingRequest extends FormRequest
       'booking_date'       => ['required', 'date', 'after_or_equal:today'],
       'start_time'         => ['required', 'date_format:H:i'],
       'status'             => ['required', Rule::in([BookingStatus::DP_PAID->value, BookingStatus::SUCCESS->value])],
+      'send_wa_notification' => ['required', 'boolean'],
       'addons'             => ['nullable', 'array'],
       'addons.*.addon_id'  => ['required_with:addons', 'integer', 'exists:addons,id'],
       'addons.*.quantity'  => ['required_with:addons', 'integer', 'min:1'],

@@ -82,11 +82,16 @@ class ManageBookingController extends Controller
                     'total' => $bookings->total(),
                 ], $stats));
             }
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ]);
+            ], 500);
         }
 
         return view('backdoor.booking-management.index');
@@ -116,11 +121,24 @@ class ManageBookingController extends Controller
      */
     public function create(): View
     {
-        $packages = Package::with('variants')->where('is_active', true)->orderBy('name')->get();
+        $users = User::orderBy('name')->get(['id', 'name', 'phone', 'email']);
+        $packages = Package::where('is_active', true)
+            ->with(['variants' => function ($query) {
+                $query->where('is_active', true)
+                    ->where('is_whatsapp_only', false);
+            }])
+            ->whereHas('variants', function ($query) {
+                $query->where('is_active', true)
+                    ->where('is_whatsapp_only', false);
+            })
+            ->orderBy('name')
+            ->get();
+
         $backgrounds = Background::where('is_active', true)->orderBy('name')->get();
         $addons = Addon::where('is_active', true)->orderBy('name')->get();
 
         return view('backdoor.booking-management.create', compact(
+            'users',
             'packages',
             'backgrounds',
             'addons'
@@ -132,13 +150,25 @@ class ManageBookingController extends Controller
      */
     public function store(StoreManualBookingRequest $request): JsonResponse
     {
-        $booking = $this->createService->execute(ManualBookingData::fromRequest($request));
+        try {
+            $booking = $this->createService->execute(ManualBookingData::fromRequest($request));
 
-        return response()->json([
-            'success' => true,
-            'message' => "Booking {$booking->booking_code} berhasil dibuat.",
-            'data' => $booking,
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => "Booking {$booking->booking_code} berhasil dibuat.",
+                'data' => $booking,
+            ], 201);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -176,7 +206,7 @@ class ManageBookingController extends Controller
                 'data' => $booking,
             ]);
         } catch (\RuntimeException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server.'], 500);
         }
@@ -187,14 +217,14 @@ class ManageBookingController extends Controller
      */
     public function updateGdrive(Request $request, Booking $booking): JsonResponse
     {
-        try {
-            $validated = $request->validate([
-                'gdrive_link' => ['required', 'url'],
-            ], [
-                'gdrive_link.required' => 'Link Google Drive wajib diisi.',
-                'gdrive_link.url' => 'Format link tidak valid.',
-            ]);
+        $validated = $request->validate([
+            'gdrive_link' => ['required', 'url'],
+        ], [
+            'gdrive_link.required' => 'Link Google Drive wajib diisi.',
+            'gdrive_link.url' => 'Format link tidak valid.',
+        ]);
 
+        try {
             $booking->update(['gdrive_link' => $validated['gdrive_link'], 'status' => BookingStatus::DONE]);
 
             // Kirim notifikasi WA via Fonnte Service
@@ -212,7 +242,7 @@ class ManageBookingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], 400);
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -242,7 +272,7 @@ class ManageBookingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], 400);
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
