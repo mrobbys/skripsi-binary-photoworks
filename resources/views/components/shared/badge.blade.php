@@ -13,6 +13,9 @@
       'secondary' => 'bg-stone-100 text-stone-600 border border-stone-200',
       'neutral' => 'bg-stone-200 text-stone-700 border border-stone-300',
       'success' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+      'warning' => 'bg-yellow-50 text-yellow-600 border border-yellow-200',
+      'danger' => 'bg-red-50 text-red-600 border border-red-200',
+      'lime' => 'bg-green-50 text-lime-600 border border-green-200',
   ][$variant] ?? 'bg-stone-100 text-stone-600 border border-stone-200';
 @endphp
 
