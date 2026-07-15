@@ -28,8 +28,7 @@
   x-show="{{ $openState }}"
   x-on:keydown.escape.window="{{ $closeAction }}"
   class="relative z-50"
-  x-init="$watch('{{ $openState }}', val => document.body.style.overflow = val ? 'hidden' : '');
-  $cleanup(() => document.body.style.overflow = '');"
+  x-init="$watch('{{ $openState }}', val => document.body.style.overflow = val ? 'hidden' : '')"
   x-cloak>
 
   {{-- backdrop start --}}

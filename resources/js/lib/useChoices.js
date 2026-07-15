@@ -12,6 +12,8 @@ export default function useChoices(options = {}) {
         ...options,
       });
 
+      this.$el._choices = choicesInstance;
+
       this.$el.addEventListener("change", (e) => {
         this.value = e.target.value;
       });
@@ -33,6 +35,9 @@ export default function useChoices(options = {}) {
 
     destroy() {
       if (choicesInstance) {
+        if (this.$el._choices === choicesInstance) {
+          delete this.$el._choices;
+        }
         choicesInstance.destroy();
         choicesInstance = null;
       }
