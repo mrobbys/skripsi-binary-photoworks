@@ -39,8 +39,6 @@ class DashboardService
    * 2. Pastikan status booking masih PENDING (boleh bayar)
    * 3. Cek payment record dengan status pending
    * 4. Jika snap_token ada dan belum expired -> kembalikan token lama
-   * 5. Jika token expired atau tidak ada -> request token baru ke Midtrans, update record
-   *
    * @param string $bookingCode
    * @param User   $user
    */
@@ -74,33 +72,6 @@ class DashboardService
     }
 
     return $payment->snap_token;
-  }
-
-  /**
-   * Batalkan booking milik user.
-   * Hanya booking dengan status PENDING yang bisa dibatalkan.
-   * @param string $bookingCode
-   * @param int    $userId
-   */
-  public function cancelBooking(string $bookingCode, int $userId): void
-  {
-    $booking = $this->repository->findByCodeAndUser($bookingCode, $userId);
-
-    if (! $booking) {
-      throw new RuntimeException('Booking tidak ditemukan.');
-    }
-
-    if ($booking->status !== BookingStatus::PENDING) {
-      throw new RuntimeException('Booking ini tidak dapat dibatalkan.');
-    }
-
-    // Update status booking ke CANCELLED
-    $booking->update(['status' => BookingStatus::CANCELLED]);
-
-    // Update semua payment terkait yang masih PENDING ke CANCELLED
-    $booking->payments()
-      ->where('status', PaymentStatus::PENDING)
-      ->update(['status' => PaymentStatus::CANCELLED]);
   }
 
   /**

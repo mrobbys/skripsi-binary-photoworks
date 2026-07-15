@@ -2,6 +2,7 @@
 
 namespace App\Domains\User\Http\Controllers\Frontdoor;
 
+use App\Domains\Booking\Services\CancelBookingService;
 use App\Domains\Booking\Services\DashboardService;
 use App\Domains\MasterData\Repositories\ScheduleRepository;
 use App\Http\Controllers\Controller;
@@ -14,7 +15,8 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly DashboardService $dashboardService,
-        private readonly ScheduleRepository $scheduleRepository
+        private readonly ScheduleRepository $scheduleRepository,
+        private readonly CancelBookingService $cancelBookingService
     ) {}
 
     /**
@@ -89,7 +91,7 @@ class DashboardController extends Controller
         ]);
 
         try {
-            $this->dashboardService->cancelBooking(
+            $this->cancelBookingService->execute(
                 bookingCode: $request->booking_code,
                 userId: Auth::id(),
             );

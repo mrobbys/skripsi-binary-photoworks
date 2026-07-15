@@ -3,6 +3,7 @@
 namespace App\Domains\Booking\Http\Controllers\Frontdoor;
 
 use App\Domains\Booking\Enums\BookingStatus;
+use App\Domains\Booking\Models\Booking;
 use App\Domains\Payment\Enums\PaymentPurpose;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
@@ -102,10 +103,10 @@ class WebhookController extends Controller
 
     /**
      * Function membuat pesan untuk notifikasi whatsapp fonnte
-     * @param object $booking
-     * @param object $payment
+     * @param Booking $booking
+     * @param Payment $payment
      */
-    private function buildMessage(object $booking, object $payment): string
+    private function buildMessage(Booking $booking, Payment $payment): string
     {
         $code = $booking->booking_code;
         $date = Formatter::dateId($booking->booking_date, 'l, d F Y');
