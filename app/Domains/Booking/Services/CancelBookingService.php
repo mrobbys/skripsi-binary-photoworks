@@ -35,14 +35,12 @@ class CancelBookingService
 
     /**
      * Update status di table booking menjadi CANCELLED
-     * Update status di table payment menjadi CANCELLED, jika statusnya PENDING
-     * Status yang SETTLEMENT tidak bisa dibatalkan
+     * Update semua status di table payment terkait menjadi CANCELLED
+     * Hal ini karena jika admin membatalkan, uang direfund / dikembalikan dan transaksi dianggap batal
      */
     DB::transaction(function () use ($booking) {
       $booking->update(['status' => BookingStatus::CANCELLED]);
-      $booking->payments()
-        ->where('status', PaymentStatus::PENDING)
-        ->update(['status' => PaymentStatus::CANCELLED]);
+      $booking->payments()->update(['status' => PaymentStatus::CANCELLED]);
     });
   }
 }
