@@ -160,6 +160,7 @@
                   x-on:click="closeDropdown()"
                   x-bind:href="`{{ route('backdoor.booking-management.show', ':booking_code') }}`
                   .replace(':booking_code', booking.booking_code)"
+                  color="text-blue-600"
                   text="Lihat Detail"
                 />
 
@@ -174,7 +175,7 @@
                 <template x-if="booking.status === 'Lunas'">
                   <x-backdoor.table.action-item
                     x-on:click="closeDropdown(); openGdrive(booking.booking_code)"
-                    color="text-stone-600"
+                    color="text-green-600"
                     text="Input GDrive"
                   />
                 </template>
