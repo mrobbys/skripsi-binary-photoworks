@@ -6,7 +6,7 @@
   ];
 @endphp
 
-<x-layouts.backdoor
+<x-layouts.backdoor.index
   title="Tambah Booking Manual"
   :breadcrumbs="$breadcrumbs"
   jsModule="backdoor/booking-management/create/Create"
@@ -24,16 +24,18 @@
     >
 
       {{-- header start --}}
-      <div class="mb-6 flex items-center gap-4">
+      <div class="space-y-6 pb-6">
         <a
           href="{{ route('backdoor.booking-management.index') }}"
-          class="text-stone-400 transition-colors hover:text-stone-700"
+          class="inline-flex cursor-pointer items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-stone-500 transition hover:text-stone-950 md:text-xs"
         >
-          <i class="ri-arrow-left-line text-xl"></i>
+          <i
+            class="ri-arrow-left-line"
+            aria-hidden="true"
+          ></i>
+          <span>Kembali Ke Manajemen Pemesanan</span>
         </a>
-        <div>
-          <h1 class="text-xl font-bold text-stone-900">Tambah Booking Manual</h1>
-        </div>
+        <x-backdoor.shared.page-header title="Tambah Booking Manual" />
       </div>
       {{-- header end --}}
 
@@ -43,8 +45,8 @@
         <div class="space-y-5 lg:col-span-2">
 
           {{-- section user start --}}
-          <div class="border border-stone-200 bg-white">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3">
+          <div class="border border-stone-300">
+            <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
               <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Informasi Klien</h2>
             </div>
             <div class="p-5">
@@ -77,13 +79,13 @@
           {{-- section user end --}}
 
           {{-- secition paket start --}}
-          <div class="border border-stone-200 bg-white">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3">
+          <div class="border border-stone-300">
+            <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
               <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Detail Paket</h2>
             </div>
             <div class="space-y-4 p-5">
 
-              {{-- Pilih Paket --}}
+              {{-- pilih paket start --}}
               <div>
                 <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-700">
                   Paket <span class="text-red-500">*</span>
@@ -105,8 +107,9 @@
                   ></p>
                 </template>
               </div>
+              {{-- pilih paket end --}}
 
-              {{-- Pilih Varian --}}
+              {{-- pilih varian start --}}
               <div>
                 <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-700">
                   Varian <span class="text-red-500">*</span>
@@ -135,8 +138,9 @@
                   ></p>
                 </template>
               </div>
+              {{-- pilih varian end --}}
 
-              {{-- Pilih Background --}}
+              {{-- pilih background start --}}
               <div>
                 <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-700">
                   Background <span class="text-red-500">*</span>
@@ -157,19 +161,20 @@
                   ></p>
                 </template>
               </div>
+              {{-- pilih background end --}}
 
             </div>
           </div>
           {{-- secition paket start --}}
 
           {{-- section jadwal sesi start --}}
-          <div class="border border-stone-200 bg-white">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3">
+          <div class="border border-stone-300">
+            <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
               <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Jadwal Sesi</h2>
             </div>
             <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
 
-              {{-- Tanggal (Flatpickr) --}}
+              {{-- tanggal start --}}
               <div>
                 <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-700">
                   Tanggal Sesi <span class="text-red-500">*</span>
@@ -187,7 +192,7 @@
                   })"
                   placeholder="--- Pilih tanggal ---"
                   readonly
-                  class="w-full cursor-pointer border border-stone-300 bg-white px-3 py-3 text-sm text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500"
+                  class="w-full cursor-pointer border border-stone-300 bg-stone-50 px-3 py-3 text-sm text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500"
                 >
                 <template x-if="state.errors['booking_date']">
                   <p
@@ -196,8 +201,9 @@
                   ></p>
                 </template>
               </div>
+              {{-- tanggal end --}}
 
-              {{-- Slot Waktu --}}
+              {{-- slot waktu start --}}
               <div>
                 <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-700">
                   Slot Waktu <span class="text-red-500">*</span>
@@ -234,14 +240,15 @@
                   ></p>
                 </template>
               </div>
+              {{-- slot waktu end --}}
 
             </div>
           </div>
           {{-- section jadwal sesi end --}}
 
           {{-- section layanan tambahan start --}}
-          <div class="border border-stone-200 bg-white">
-            <div class="flex items-center justify-between border-b border-stone-200 bg-stone-50 px-5 py-3">
+          <div class="border border-stone-300">
+            <div class="flex items-center justify-between border-b border-stone-300 bg-stone-100 px-5 py-3">
               <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Layanan Tambahan <span
                   class="text-xs font-normal text-stone-600"
                 >(Opsional)</span></h2>
@@ -267,8 +274,6 @@
                 :key="item.id"
               >
                 <div class="flex items-center gap-3">
-
-                  {{-- Dropdown Addon --}}
                   <div class="flex-1">
                     <select
                       x-data="choices({ placeholder: true, placeholderValue: '--- Pilih Layanan ---' })"
@@ -303,18 +308,19 @@
                     </select>
                   </div>
 
-                  {{-- Input Qty --}}
+                  {{-- input qty start --}}
                   <div class="w-20">
                     <input
                       type="number"
                       x-model.number="item.quantity"
                       x-bind:disabled="isQtyDisabled(item)"
                       min="1"
-                      class="w-full border border-stone-300 bg-white px-3 py-2.5 text-center text-sm text-stone-900 focus:border-stone-500 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400"
+                      class="w-full border border-stone-300 bg-stone-50 px-3 py-2.5 text-center text-sm text-stone-900 focus:border-stone-500 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400"
                     >
                   </div>
+                  {{-- input qty end --}}
 
-                  {{-- Hapus baris --}}
+                  {{-- hapus addon start --}}
                   <button
                     type="button"
                     x-on:click="removeAddonRow(index)"
@@ -322,6 +328,7 @@
                   >
                     <i class="ri-delete-bin-line text-lg"></i>
                   </button>
+                  {{-- hapus addon end --}}
 
                 </div>
               </template>
@@ -337,8 +344,8 @@
         <div class="space-y-4">
 
           {{-- status booking start --}}
-          <div class="border border-stone-200 bg-white">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3">
+          <div class="border border-stone-300">
+            <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
               <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Status Awal Booking</h2>
             </div>
             <div class="p-5">
@@ -348,7 +355,7 @@
                 x-model="state.bookingStatus"
               >
                 <option value="DP Terbayar">DP Terbayar - Sudah Bayar 60%</option>
-                <option value="Lunas">LUNAS — Bayar Full</option>
+                <option value="Lunas">LUNAS - Bayar Full</option>
               </select>
               <template x-if="state.errors['status']">
                 <p
@@ -361,12 +368,12 @@
           {{-- status booking end --}}
 
           {{-- ringkasan harga start --}}
-          <div class="border border-stone-200 bg-white">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3">
+          <div class="border border-stone-300">
+            <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
               <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Ringkasan Pesanan</h2>
             </div>
             <div class="space-y-3 p-5">
-              <div class="flex items-center justify-between border-b border-stone-100 pb-3 text-sm">
+              <div class="flex items-center justify-between pb-3 text-sm">
                 <span class="font-semibold text-stone-600">Total Biaya Layanan</span>
                 <span
                   class="font-bold text-stone-900"
@@ -405,7 +412,7 @@
           {{-- ringkasan harga end --}}
 
           {{-- kirim notif wa start --}}
-          <div class="border border-stone-200 bg-white p-5">
+          <div class="border border-stone-300 p-5">
             <label class="flex cursor-pointer items-start gap-3">
               <input
                 type="checkbox"
@@ -414,7 +421,7 @@
               >
               <div class="flex flex-col">
                 <span class="text-sm font-semibold text-stone-900">Kirim Notifikasi WhatsApp</span>
-                <span class="text-xs text-stone-500">Kirim rincian pesanan ke pelanggan.</span>
+                <span class="text-xs text-stone-500">Kirim rincian pesanan ke Klien.</span>
               </div>
             </label>
           </div>
@@ -425,7 +432,7 @@
             type="button"
             x-on:click="submit()"
             x-bind:disabled="isSubmitDisabled()"
-            class="w-full bg-stone-800 text-white hover:bg-stone-900"
+            class="w-full bg-stone-800 text-stone-50 hover:bg-stone-900"
           >
             <span x-text="state.isLoading ? 'Menyimpan...' : 'Simpan Pesanan'"></span>
           </x-shared.button>
@@ -435,7 +442,7 @@
           <x-shared.button
             as="a"
             href="{{ route('backdoor.booking-management.index') }}"
-            class="w-full border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900"
+            class="w-full border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900"
           >
             Batal
           </x-shared.button>
@@ -449,4 +456,4 @@
     </div>
   </x-slot:content>
 
-</x-layouts.backdoor>
+</x-layouts.backdoor.index>

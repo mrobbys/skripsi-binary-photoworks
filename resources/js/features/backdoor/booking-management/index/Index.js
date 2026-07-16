@@ -9,7 +9,7 @@ import formatDate from "@/utils/formatDate";
 export default function Index(Alpine) {
   const state = useState(Alpine);
 
-  const { 
+  const {
     state: table,
     fetch,
     setSearch,
@@ -31,16 +31,13 @@ export default function Index(Alpine) {
 
   const init = () => fetch();
 
-  const { settle, openGdrive, closeGdrive, submitGdrive, cancel } = useBookingActions({ state, table });
+  const { settle, cancel } = useBookingActions({ table });
 
   return {
     state,
     table,
     init,
     settle,
-    openGdrive,
-    closeGdrive,
-    submitGdrive,
     cancel,
 
     formatRupiah,

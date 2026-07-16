@@ -4,11 +4,5 @@ export default function useState(Alpine) {
     totalRevenue: 0,
     countSuccess: 0,
     countDpPaid: 0,
-    
-    gdriveLink: "",
-    isGdriveOpen: false,
-    isGdriveLoading: false,
-
-    gdriveErrors: {},
   });
 }

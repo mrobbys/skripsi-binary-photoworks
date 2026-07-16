@@ -172,14 +172,6 @@
                   />
                 </template>
 
-                <template x-if="booking.status === 'Lunas'">
-                  <x-backdoor.table.action-item
-                    x-on:click="closeDropdown(); openGdrive(booking.booking_code)"
-                    color="text-green-600"
-                    text="Input GDrive"
-                  />
-                </template>
-
                 <template x-if="booking.status !== 'Batal' && booking.status !== 'Selesai'">
                   <x-backdoor.table.action-item
                     x-on:click="closeDropdown(); cancel(booking.booking_code)"
@@ -195,9 +187,7 @@
 
         <x-backdoor.table.pagination />
 
-        {{-- gdrive modal form start --}}
-        <x-backdoor.booking-management.gdrive-modal />
-        {{-- gdrive modal form end --}}
+
 
       </div>
       {{-- table card end --}}
