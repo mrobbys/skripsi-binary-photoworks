@@ -55,24 +55,19 @@ class ManageBookingController extends Controller
                 if ($search = $request->input('search')) {
                     $query->where(function ($q) use ($search) {
                         $q->where('booking_code', 'ilike', "%{$search}%")
-                            ->orWhereHas('user', fn ($u) => $u->where('name', 'ilike', "%{$search}%"))
-                            ->orWhereHas('user', fn ($u) => $u->where('phone', 'ilike', "%{$search}%"));
+                            ->orWhereHas('user', fn($u) => $u->where('name', 'ilike', "%{$search}%"))
+                            ->orWhereHas('user', fn($u) => $u->where('phone', 'ilike', "%{$search}%"));
                     });
                 }
 
                 $limit = max(1, min((int) $request->query('limit', 10), 100));
                 $bookings = $query->paginate($limit);
 
-                $page = (int) $request->query('page', 1);
-                $stats = [];
-
-                if ($page === 1) {
-                    $stats = [
-                        'total_revenue' => Payment::where('status', PaymentStatus::SETTLEMENT)->sum('amount'),
-                        'count_success' => Booking::where('status', BookingStatus::SUCCESS)->count(),
-                        'count_dp_paid' => Booking::where('status', BookingStatus::DP_PAID)->count(),
-                    ];
-                }
+                $stats = [
+                    'total_revenue' => Payment::where('status', PaymentStatus::SETTLEMENT)->sum('amount'),
+                    'count_success' => Booking::where('status', BookingStatus::SUCCESS)->count(),
+                    'count_dp_paid' => Booking::where('status', BookingStatus::DP_PAID)->count(),
+                ];
 
                 return response()->json(array_merge([
                     'success' => true,
@@ -174,7 +169,7 @@ class ManageBookingController extends Controller
     /**
      * Halaman Detail: Ringkasan booking (read-only) + penambahan data add-ons.
      */
-    public function show(Booking $booking): View
+    public function show(Request $request, Booking $booking): JsonResponse|View
     {
         $booking->load([
             'user',
@@ -183,6 +178,14 @@ class ManageBookingController extends Controller
             'addons',
             'payments',
         ]);
+
+        // jika request ajax
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $booking,
+            ]);
+        }
 
         $availableAddons = Addon::where('is_active', true)->orderBy('name')->get();
 
@@ -218,24 +221,29 @@ class ManageBookingController extends Controller
     public function updateGdrive(Request $request, Booking $booking): JsonResponse
     {
         $validated = $request->validate([
-            'gdrive_link' => ['required', 'url'],
+            'gdrive_link' => ['required', 'url', 'starts_with:http://,https://'],
         ], [
             'gdrive_link.required' => 'Link Google Drive wajib diisi.',
             'gdrive_link.url' => 'Format link tidak valid.',
+            'gdrive_link.starts_with' => 'Link harus diawali dengan http:// atau https://',
         ]);
 
         try {
             $booking->update(['gdrive_link' => $validated['gdrive_link'], 'status' => BookingStatus::DONE]);
 
-            // Kirim notifikasi WA via Fonnte Service
-            SendWhatsappNotificationJob::dispatch(
-                $booking->user->phone,
-                $this->buildMessage($booking)
-            );
+            $isSendWa = $request->boolean('send_wa_notification', true);
+
+            if ($isSendWa) {
+                // Kirim notifikasi WA via Fonnte Service
+                SendWhatsappNotificationJob::dispatch(
+                    $booking->user->phone,
+                    $this->buildMessage($booking)
+                );
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => "Link GDrive berhasil disimpan. Notifikasi WA dikirim ke {$booking->user->phone}.",
+                'message' => "Link GDrive berhasil disimpan." . ($isSendWa ? " Notifikasi WA dikirim ke {$booking->user->phone}." : ""),
                 'data' => $booking,
             ]);
         } catch (\RuntimeException $e) {
@@ -340,9 +348,9 @@ class ManageBookingController extends Controller
 Halo {$user}, sesi foto Anda telah selesai!
 
 Berikut adalah rincian pesanan Anda:
-Kode Booking : {$code}
-Paket : {$package} - {$variant}
-Tanggal Sesi: : {$bookingDate}
+*Kode Booking* : {$code}
+*Paket* : {$package} - {$variant}
+*Tanggal Sesi* : {$bookingDate}
 
 Berikut adalah Link Goggle Drive untuk mengunduh hasil foto Anda:
 {$gdriveLink}

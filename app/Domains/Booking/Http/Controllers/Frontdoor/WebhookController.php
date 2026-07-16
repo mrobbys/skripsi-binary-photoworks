@@ -44,8 +44,8 @@ class WebhookController extends Controller
         $payment = Payment::where('order_id', $payload['order_id'])->firstOrFail();
         $booking = $payment->booking()->with('user')->firstOrFail();
 
-        // jika payment sudah lunas, kembalikan response
-        if ($payment->status === PaymentStatus::SETTLEMENT) {
+        // jika payment sudah lunas dan webhook BUKAN refund, kembalikan response
+        if ($payment->status === PaymentStatus::SETTLEMENT && $payload['transaction_status'] !== 'refund') {
             return response('OK', 200);
         }
 
@@ -97,6 +97,23 @@ class WebhookController extends Controller
                 // update booking
                 $booking->update(['status' => BookingStatus::CANCELLED]);
             }
+        } elseif ($status === 'refund') {
+            // update payment ke refunded
+            $payment->update([
+                'status' => PaymentStatus::REFUNDED,
+                'payment_type' => $paymentType
+            ]);
+
+            // asalkan booking belum DONE, batalkan booking
+            if ($booking->status !== BookingStatus::DONE) {
+                $booking->update(['status' => BookingStatus::CANCELLED]);
+            }
+
+            // kirim notifikasi whatsapp bahwa dana dikembalikan (refund)
+            SendWhatsappNotificationJob::dispatch(
+                $booking->user->phone,
+                $this->buildRefundMessage($booking, $payment)
+            );
         }
         return response('OK', 200);
     }
@@ -133,17 +150,51 @@ TEXT;
         return <<<TEXT
 Halo {$booking->user->name}, terima kasih! Pembayaran Anda telah berhasil kami terima.
 
-Kode Booking : {$code}
-Status : LUNAS (100% Terbayar)
-Total Bayar : {$amount}
-Tanggal Sesi : {$date}
-Waktu Sesi : {$time}
+*Kode Booking* : {$code}
+*Status* : LUNAS (100% Terbayar)
+*Total Bayar* : {$amount}
+*Tanggal Sesi* : {$date}
+*Waktu Sesi* : {$time}
 
 Unduh Bukti Pembayaran Anda melalui tautan berikut:
 {$receiptUrl}
 
 Pantau status jadwal dan detail reservasi Anda langsung di halaman Dashboard:
 {$dashboardUrl}
+TEXT;
+    }
+
+    /**
+     * Function membuat pesan notifikasi refund (pembatalan) via whatsapp
+     */
+    private function buildRefundMessage(Booking $booking, Payment $payment): string
+    {
+        $code = $booking->booking_code;
+        $amount = Formatter::rupiah($payment->amount);
+        $package = $booking->packageVariant?->package?->name;
+        $variant = $booking->packageVariant?->name;
+        
+        $bookingDate = Formatter::dateId($booking->booking_date, 'l, d F Y');
+        $sessionTime = Formatter::timeRange($booking->start_time, $booking->end_time);
+
+        $servicesUrl = route('frontdoor.services.index');
+
+        return <<<TEXT
+Halo {$booking->user->name},
+
+Booking Anda dengan rincian berikut telah *DIBATALKAN*:
+
+*Detail Booking:*
+*Kode Booking*: {$code}
+*Paket*: {$package} - ({$variant})
+*Jadwal*: {$bookingDate} | {$sessionTime} WITA
+
+Dana Anda sebesar {$amount} telah *dikembalikan (Refund)*. Proses pengembalian dana mungkin memakan waktu beberapa hari kerja tergantung metode pembayaran (QRIS/Transfer Bank/E-Wallet) yang Anda gunakan.
+
+Jika Anda ingin membuat jadwal baru, silakan lakukan pemesanan kembali melalui tautan berikut:
+{$servicesUrl}
+
+Terima kasih atas pengertian Anda.
 TEXT;
     }
 }
