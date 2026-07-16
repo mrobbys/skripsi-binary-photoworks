@@ -2,6 +2,7 @@
 
 namespace App\Domains\User\Http\Controllers\Frontdoor;
 
+use App\Domains\Booking\Services\CancelBookingService;
 use App\Domains\Booking\Services\DashboardService;
 use App\Domains\MasterData\Repositories\ScheduleRepository;
 use App\Http\Controllers\Controller;
@@ -14,7 +15,8 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly DashboardService $dashboardService,
-        private readonly ScheduleRepository $scheduleRepository
+        private readonly ScheduleRepository $scheduleRepository,
+        private readonly CancelBookingService $cancelBookingService
     ) {}
 
     /**
@@ -38,10 +40,10 @@ class DashboardController extends Controller
         $history = $this->dashboardService->getBookingHistory(Auth::id(), $tab, $limit);
 
         return response()->json([
-            'data'         => $history->items(),
+            'data' => $history->items(),
             'current_page' => $history->currentPage(),
-            'last_page'    => $history->lastPage(),
-            'total'        => $history->total(),
+            'last_page' => $history->lastPage(),
+            'total' => $history->total(),
         ]);
     }
 
@@ -62,14 +64,14 @@ class DashboardController extends Controller
             );
 
             return response()->json([
-                'success'    => true,
+                'success' => true,
                 'snap_token' => $snapToken,
             ]);
         } catch (\RuntimeException $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], 400);
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -89,7 +91,7 @@ class DashboardController extends Controller
         ]);
 
         try {
-            $this->dashboardService->cancelBooking(
+            $this->cancelBookingService->execute(
                 bookingCode: $request->booking_code,
                 userId: Auth::id(),
             );
@@ -102,7 +104,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], 400);
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -119,8 +121,8 @@ class DashboardController extends Controller
     {
         $request->validate([
             'booking_code' => ['required', 'string'],
-            'new_date'     => ['required', 'date', 'after:today'],
-            'new_time'     => ['required', 'date_format:H:i'],
+            'new_date' => ['required', 'date', 'after:today'],
+            'new_time' => ['required', 'date_format:H:i'],
         ]);
 
         try {
@@ -139,7 +141,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], 400);
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

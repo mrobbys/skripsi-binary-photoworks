@@ -2,6 +2,7 @@
 
 namespace App\Domains\Booking\Models;
 
+use App\Domains\Booking\Enums\BookingSource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,7 @@ class Booking extends Model
             'end_time' => 'datetime:H:i',
             'payment_scheme' => PaymentScheme::class,
             'status' => BookingStatus::class,
+            'source' => BookingSource::class
         ];
     }
 

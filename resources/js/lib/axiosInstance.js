@@ -12,6 +12,11 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Abaikan jika request sengaja dibatalkan (AbortController)
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     // Server mati / tidak ada koneksi
     if (!error.response) {
       Toast.fire({ icon: "error", title: "Tidak dapat terhubung ke server." });

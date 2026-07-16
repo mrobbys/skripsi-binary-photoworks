@@ -54,3 +54,13 @@ Berbeda dengan merubah paket utama, menambah layanan tambahan (seperti Cetak Fot
 2. Admin menggunakan form **"+ Tambah Layanan Tambahan"** di Halaman Detail Pemesanan.
 3. Sistem hanya menjumlahkan harga total dan tagihan akhir secara akumulatif.
 4. Selisih harga ditagihkan langsung di kasir sebelum Admin menekan tombol "Tandai Lunas Penuh".
+
+---
+
+## 5. Aturan Pencatatan Ledger (Tabel Payments)
+
+Tabel `payments` berfungsi sebagai *ledger* (buku besar) universal, bukan sekadar riwayat Midtrans. Untuk memastikan keakuratan Kartu Statistik Pendapatan dan perhitungan Sisa Tagihan pada Kuitansi PDF, *Controller* wajib mematuhi aturan berikut:
+
+1. **Pembuatan Booking Manual (Create Page):** Jika Admin membuat pesanan manual dan mengatur statusnya menjadi `Lunas` (Fully Paid), sistem **WAJIB** melakukan insert 1 baris ke tabel `payments` dengan `amount` sebesar total harga, status `Settlement`, dan tipe `cash` atau `manual_transfer`.
+2. **Pelunasan Kasir (Tandai Lunas):** Jika klien sebelumnya membayar DP via Midtrans (sehingga sudah ada 1 baris *payment* DP), dan melunasi sisa 40% di kasir, sistem **WAJIB** melakukan insert baris *payment* ke-2 untuk pesanan tersebut dengan `amount` sebesar 40% sisanya.
+3. **Kalkulasi Kuitansi (PaymentReceiptController):** Controller penghasil PDF Kuitansi tidak boleh lagi berasumsi bahwa 1 Booking hanya memiliki 1 Payment. Perhitungan uang muka (amount paid) dan sisa tagihan (remaining) harus menggunakan fungsi agregasi `SUM(amount)` dari seluruh baris `payments` milik *booking* terkait yang berstatus `Settlement`.

@@ -7,6 +7,7 @@ enum PaymentStatus: string
     case PENDING = 'Pending';
     case SETTLEMENT = 'Settlement';
     case CANCELLED = 'Batal';
+    case REFUNDED = 'Refunded';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum PaymentStatus: string
             self::PENDING => 'Menunggu Pembayaran',
             self::SETTLEMENT => 'Settlement',
             self::CANCELLED => 'Dibatalkan',
+            self::REFUNDED => 'Dikembalikan (Refund)',
         };
     }
 }

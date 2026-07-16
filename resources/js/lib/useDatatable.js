@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/lib/axiosInstance";
 
 /**
  * useDatatable — Composable untuk tabel data dengan pagination & search.
@@ -64,11 +64,6 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     } catch (error) {
       // Abaikan error dari request yang sengaja dibatalkan (saat debounce)
       if (error.code === "ERR_CANCELED") return;
-
-      if (error.response?.status === 419 || error.response?.status === 401) {
-        window.location.reload();
-        return;
-      }
 
       state.error = error.response?.data?.message ?? "Gagal memuat data.";
       onError?.(error);

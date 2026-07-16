@@ -15,10 +15,11 @@
     'href' => '#',
     'icon' => 'ri-dashboard-line',
     'title' => 'Dashboard',
+    'active' => null,
 ])
 
 @php
-  $isActive = request()->url() === url($href);
+  $isActive = $active ?? (request()->url() === url($href));
 @endphp
 
 <li>

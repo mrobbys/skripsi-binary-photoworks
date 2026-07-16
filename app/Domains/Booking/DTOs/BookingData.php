@@ -2,6 +2,7 @@
 
 namespace App\Domains\Booking\DTOs;
 
+use App\Domains\Booking\Enums\BookingSource;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Enums\PaymentScheme;
 use Spatie\LaravelData\Data;
@@ -19,6 +20,7 @@ class BookingData extends Data
         public readonly int $total_price,
         public readonly PaymentScheme $payment_scheme,
         public readonly BookingStatus $status,
+        public readonly BookingSource $source,
         public readonly ?string $notes = null,
     ) {}
 }
