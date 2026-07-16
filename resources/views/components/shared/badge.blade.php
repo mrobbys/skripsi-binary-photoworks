@@ -3,10 +3,17 @@
     'variant' => 'secondary',
     'icon' => null,
     'alpine' => null,
+    'size' => 'xs',
 ])
 
 @php
-  $baseClasses = 'inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider select-none';
+  $baseClasses = 'inline-flex items-center gap-1 font-bold uppercase tracking-wider select-none';
+
+  $sizeClasses = [
+      'xs' => 'px-2 py-0.5 text-[10px]',
+      'sm' => 'px-3 py-1 text-xs',
+      'md' => 'px-4 py-1.5 text-sm',
+  ][$size] ?? 'px-2 py-0.5 text-[10px]';
 
   $variantClasses = [
       'primary' => 'bg-stone-800 text-stone-50 border border-stone-900',
@@ -21,7 +28,7 @@
 
 @if ($alpine)
   <template x-if="{{ $alpine }}">
-    <span {{ $attributes->merge(['class' => "$baseClasses $variantClasses"]) }}>
+    <span {{ $attributes->merge(['class' => "$baseClasses $sizeClasses $variantClasses"]) }}>
       @if ($icon)
         <i class="{{ $icon }} text-xs"></i>
       @endif
@@ -29,7 +36,7 @@
     </span>
   </template>
 @else
-  <span {{ $attributes->merge(['class' => "$baseClasses $variantClasses"]) }}>
+  <span {{ $attributes->merge(['class' => "$baseClasses $sizeClasses $variantClasses"]) }}>
     @if ($icon)
       <i class="{{ $icon }} text-xs"></i>
     @endif

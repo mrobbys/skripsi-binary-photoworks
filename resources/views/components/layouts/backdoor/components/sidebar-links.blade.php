@@ -25,6 +25,7 @@
     {{-- manajemen pemesanan start --}}
     <x-layouts.backdoor.components.sidebar-link-item
       :href="route('backdoor.booking-management.index')"
+      :active="request()->routeIs('backdoor.booking-management.*')"
       icon='ri-calendar-check-line'
       title='Manajemen Pemesanan'
     />

@@ -29,7 +29,7 @@
 
 @php
   $baseClasses =
-      'inline-flex items-center justify-center cursor-pointer transition-colors duration-300 disabled:pointer-events-none font-medium focus:outline-none disabled:opacity-50';
+      'inline-flex items-center justify-center cursor-pointer transition-colors duration-300 disabled:cursor-not-allowed font-medium focus:outline-none disabled:opacity-50';
 
   $sizeClasses =
       [
