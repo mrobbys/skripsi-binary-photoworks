@@ -17,12 +17,6 @@ class PaymentReceiptController extends Controller
 {
     public function __invoke(Booking $booking)
     {
-        // $payment->load([
-        //     'booking.user',
-        //     'booking.packageVariant',
-        //     'booking.addons'
-        // ]);
-
         $booking->load([
             'user',
             'packageVariant',
@@ -31,8 +25,11 @@ class PaymentReceiptController extends Controller
         ]);
 
         // bukti pembayaran berdasarkan pemilik booking / user
-        if (Auth::id() !== $booking->user_id) {
-            // abort(403, 'Unauthorized access to this payment receipt.');
+        // TODO : sesuaikan lagi untuk pengkondisian, siapa saja yang memiliki hak akses
+        $isOwned = Auth::id() === $booking->user_id;
+        $isSuperadmin = Auth::user()->hasRole('superadmin');
+        
+        if (!$isOwned && !$isSuperadmin) {
             abort(403, 'Anda tidak memiliki izin untuk mengakses bukti pembayaran ini.');
         }
 
@@ -61,7 +58,7 @@ class PaymentReceiptController extends Controller
         // package name dan package variant
         $packageName = "{$booking->packageVariant->package->name} - {$booking->packageVariant->name}";
 
-        // Hitung total seluruh pembayaran yang berstatus Lunas (Misal: Gabungan DP + Cashier)
+        // Hitung total seluruh pembayaran yang berstatus Lunas
         $totalPaid = $settledPayments->sum('amount');
 
         // Format daftar riwayat pembayaran untuk ditampilkan di PDF
