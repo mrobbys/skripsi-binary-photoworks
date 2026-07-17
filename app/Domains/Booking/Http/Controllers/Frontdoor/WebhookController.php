@@ -130,7 +130,7 @@ class WebhookController extends Controller
         $time = Formatter::timeRange($booking->start_time, $booking->end_time);
         $amount = Formatter::rupiah($payment->amount);
 
-        $receiptUrl = route('payments.receipt', ['payment' => $payment->order_id]);
+        $receiptUrl = route('payments.receipt', ['booking' => $booking->booking_code]);
         $dashboardUrl = route('frontdoor.dashboard.index');
 
         if ($payment->payment_purpose === PaymentPurpose::DP) {

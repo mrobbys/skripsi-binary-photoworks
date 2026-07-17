@@ -1,7 +1,15 @@
 @php
+  if (request()->routeIs('backdoor.session-schedule.*')) {
+      $backUrl = route('backdoor.session-schedule.list');
+      $backLabel = 'Jadwal Sesi';
+  } else {
+      $backUrl = route('backdoor.booking-management.index');
+      $backLabel = 'Manajemen Pemesanan';
+  }
+
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard')],
-      ['label' => 'Manajemen Pemesanan', 'url' => route('backdoor.booking-management.index')],
+      ['label' => $backLabel, 'url' => $backUrl],
       ['label' => 'Detail Booking', 'url' => ''],
   ];
 @endphp
@@ -35,14 +43,14 @@
         <div class="flex items-start justify-between">
           <div class="space-y-6 pb-6">
             <a
-              href="{{ route('backdoor.booking-management.index') }}"
+              href="{{ $backUrl }}"
               class="inline-flex cursor-pointer items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-stone-500 transition hover:text-stone-950 md:text-xs"
             >
               <i
                 class="ri-arrow-left-line"
                 aria-hidden="true"
               ></i>
-              <span>Kembali Ke Manajemen Pemesanan</span>
+              <span>Kembali Ke {{ $backLabel }}</span>
             </a>
             <div class="flex flex-col gap-2">
               <div class="flex flex-wrap items-center gap-4">

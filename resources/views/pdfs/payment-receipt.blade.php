@@ -77,16 +77,38 @@
     </div>
     {{-- table section end --}}
 
+    {{-- payment history start --}}
+    <div class="mb-10 print:break-inside-avoid">
+      <h2 class="text-xs font-bold tracking-widest text-stone-500 uppercase mb-3">Riwayat Pembayaran</h2>
+      <table class="w-full text-left text-xs border border-stone-200">
+        <thead>
+          <tr class="bg-stone-100 border-b border-stone-200 text-stone-700 font-semibold">
+            <th class="py-2 px-3">Waktu Transaksi</th>
+            <th class="py-2 px-3">Keterangan</th>
+            <th class="py-2 px-3 text-center">Metode</th>
+            <th class="py-2 px-3 text-right">Jumlah</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-200 text-stone-600">
+          @foreach($paymentsList as $payment)
+            <tr>
+              <td class="py-2 px-3">{{ $payment->date }}</td>
+              <td class="py-2 px-3 font-medium text-stone-900">{{ $payment->purpose }}</td>
+              <td class="py-2 px-3 text-center uppercase">{{ $payment->method }}</td>
+              <td class="py-2 px-3 text-right text-stone-900">{{ $payment->amount }}</td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+    {{-- payment history end --}}
+
     {{-- totals section start --}}
     <div class="flex justify-end mb-16 text-sm">
       <div class="w-1/2 md:w-1/2">
-        <div class="flex justify-between py-2 border-b border-stone-200">
+        <div class="flex justify-between py-2">
           <span class="text-stone-600">Total Harga Reservasi</span>
           <span class="text-stone-900 font-medium">{{ $formattedData->total_price }}</span>
-        </div>
-        <div class="flex justify-between py-2">
-          <span class="text-stone-600">Metode Pembayaran</span>
-          <span class="text-stone-900 font-medium uppercase">{{ $formattedData->payment_type }}</span>
         </div>
         <div class="flex justify-between py-3 font-bold text-base text-stone-900 border-t border-stone-900 mt-2">
           <span>Jumlah yang Dibayar</span>

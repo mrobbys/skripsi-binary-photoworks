@@ -3,6 +3,7 @@
 namespace App\Domains\Booking\DTOs;
 
 use App\Domains\Booking\Enums\PaymentScheme;
+use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use Spatie\LaravelData\Data;
 use App\Support\Formatter;
@@ -11,6 +12,7 @@ class BookingViewData extends Data
 {
   public function __construct(
     public readonly string $booking_code,
+    public readonly BookingStatus $status,
     public readonly string $package_name,
     public readonly string $variant_name,
     public readonly string $background_name,
@@ -34,6 +36,7 @@ class BookingViewData extends Data
 
     return new self(
       booking_code: $booking->booking_code,
+      status: $booking->status,
       package_name: $booking->packageVariant?->package?->name ?? '-',
       variant_name: $booking->packageVariant?->name ?? '-',
       background_name: $booking->background?->name ?? 'Tanpa Background',
