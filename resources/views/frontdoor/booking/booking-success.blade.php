@@ -4,20 +4,37 @@
       <div
         class="w-full max-w-2xl border border-stone-300 p-12 flex flex-col items-stretch">
 
-        {{-- icon centan start --}}
+        {{-- icon centang start --}}
         <div class="flex justify-center mb-6">
-          <div
-            class="w-16 h-16 border border-stone-900 flex items-center justify-center">
-            <i class="ri-check-line text-3xl "></i>
-          </div>
+          @if ($booking->status === \App\Domains\Booking\Enums\BookingStatus::PENDING)
+            <div class="w-16 h-16 border border-amber-600 flex items-center justify-center text-amber-600">
+              <i class="ri-time-line text-3xl"></i>
+            </div>
+          @elseif ($booking->status === \App\Domains\Booking\Enums\BookingStatus::CANCELLED)
+            <div class="w-16 h-16 border border-red-600 flex items-center justify-center text-red-600">
+              <i class="ri-close-line text-3xl"></i>
+            </div>
+          @else
+            <div class="w-16 h-16 border border-stone-900 flex items-center justify-center">
+              <i class="ri-check-line text-3xl"></i>
+            </div>
+          @endif
         </div>
-        {{-- icon centan end --}}
+        {{-- icon centang end --}}
 
         {{-- header start --}}
         <div class="text-center mb-10 space-y-3">
-          <h1 class="text-3xl font-bold tracking-tight">Reservasi Berhasil!</h1>
-          <p class="font-light">Terima kasih, sesi foto Anda telah berhasil
-            dijadwalkan.</p>
+          @if ($booking->status === \App\Domains\Booking\Enums\BookingStatus::PENDING)
+            <h1 class="text-3xl font-bold tracking-tight text-amber-600">Menunggu Pembayaran</h1>
+            <p class="font-light">Reservasi Anda telah dicatat. Kami sedang menunggu konfirmasi pembayaran dari sistem.</p>
+            <p class="text-sm text-stone-500 italic mt-2">Jika Anda sudah membayar, harap tunggu beberapa saat dan refresh halaman ini.</p>
+          @elseif ($booking->status === \App\Domains\Booking\Enums\BookingStatus::CANCELLED)
+            <h1 class="text-3xl font-bold tracking-tight text-red-600">Reservasi Dibatalkan</h1>
+            <p class="font-light">Waktu pembayaran telah habis atau pembayaran dibatalkan.</p>
+          @else
+            <h1 class="text-3xl font-bold tracking-tight">Reservasi Berhasil!</h1>
+            <p class="font-light">Terima kasih, sesi foto Anda telah berhasil dijadwalkan.</p>
+          @endif
         </div>
         {{-- header end --}}
 
@@ -90,7 +107,17 @@
               </span>
             </div>
             <div>
-              @if ($booking->payment_scheme === \App\Domains\Booking\Enums\PaymentScheme::DP)
+              @if ($booking->status === \App\Domains\Booking\Enums\BookingStatus::PENDING)
+                <span
+                  class="inline-block bg-amber-100 border border-amber-300 text-xs font-bold tracking-wider uppercase px-4 py-2 text-amber-700 select-none">
+                  Menunggu Pembayaran
+                </span>
+              @elseif ($booking->status === \App\Domains\Booking\Enums\BookingStatus::CANCELLED)
+                <span
+                  class="inline-block bg-red-100 border border-red-300 text-xs font-bold tracking-wider uppercase px-4 py-2 text-red-700 select-none">
+                  Dibatalkan
+                </span>
+              @elseif ($booking->payment_scheme === \App\Domains\Booking\Enums\PaymentScheme::DP)
                 <span
                   class="inline-block bg-stone-200 border border-stone-300 text-xs font-bold tracking-wider uppercase px-4 py-2 text-stone-500 select-none">
                   DP 60% Terbayar ({{$booking->formatted_dp_amount}})
