@@ -8,12 +8,13 @@ import axios from "@/lib/axiosInstance";
  * @param {object} options - Opsi konfigurasi
  * @param {function} options.onSuccess - Callback dipanggil setelah fetch berhasil, menerima (responseData)
  * @param {function} options.onError - Callback dipanggil setelah fetch gagal, menerima (error)
- * @param {number} options.debounceMs - Delay debounce untuk search 
+ * @param {number} options.debounceMs - Delay debounce untuk search
+ * @param {function|object} options.extraParams - Params tambahan yang di-merge ke request (function atau object)
  *
  * @returns {{ state, fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages }}
  */
 export default function useDatatable(Alpine, fetchUrl, options = {}) {
-  const { onSuccess, onError, debounceMs = 500 } = options;
+  const { onSuccess, onError, debounceMs = 500, extraParams } = options;
 
   const state = Alpine.reactive({
     data: [],
@@ -44,12 +45,14 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
 
     try {
       const url = typeof fetchUrl === "function" ? fetchUrl() : fetchUrl;
+      const extra = typeof extraParams === "function" ? extraParams() : (extraParams ?? {});
       const response = await axios.get(url, {
         signal: abortController.signal,
         params: {
           page: state.pagination.current_page,
           search: state.search,
           limit: state.pagination.per_page,
+          ...extra,
         },
       });
 
