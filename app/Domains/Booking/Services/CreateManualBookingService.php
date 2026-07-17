@@ -168,13 +168,13 @@ TEXT;
         if ($booking->status === BookingStatus::DP_PAID) {
             $dpAmount = Formatter::rupiah($booking->total_price * 0.6);
             $sisaAmount = Formatter::rupiah($booking->total_price * 0.4);
-            $receiptUrl = route('payments.receipt', ['payment' => $booking->booking_code]);
+            $receiptUrl = route('payments.receipt', ['booking' => $booking->booking_code]);
 
             $message .= "\nAnda telah membayarkan DP sebesar {$dpAmount}. Sisa pelunasan sebesar {$sisaAmount} dapat dibayarkan di studio nanti.";
             $message .= "\n\nUnduh Bukti Pembayaran DP Anda:\n{$receiptUrl}";
             $message .= "\n\nPantau status jadwal Anda di Dasbor Klien:\n{$dashboardUrl}";
         } else {
-            $receiptUrl = route('payments.receipt', ['payment' => $booking->booking_code]);
+            $receiptUrl = route('payments.receipt', ['booking' => $booking->booking_code]);
 
             $message .= "\nPembayaran Anda sudah *LUNAS*. Terima kasih!";
             $message .= "\n\nUnduh Bukti Pembayaran Anda:\n{$receiptUrl}";

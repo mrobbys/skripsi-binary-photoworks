@@ -77,7 +77,7 @@ class SettleBookingService
     $totalPrice = Formatter::rupiah($booking->total_price);
     
     $dashboardUrl = route('frontdoor.dashboard.index');
-    $receiptUrl = route('payments.receipt', ['payment' => $payment->order_id]);
+    $receiptUrl = route('payments.receipt', ['booking' => $booking->booking_code]);
 
     return <<<TEXT
 Halo {$user},

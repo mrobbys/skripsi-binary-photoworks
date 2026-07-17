@@ -61,7 +61,7 @@ class BookingHistoryData extends Data
 
     // Kuitansi pembayaran, hanya muncul jika status SETTLEMENT
     $payment = $booking->payments->where('status', PaymentStatus::SETTLEMENT)->first();
-    $receiptUrl = $payment ? route('payments.receipt', ['payment' => $payment->order_id]) : null;
+    $receiptUrl = $payment ? route('payments.receipt', ['booking' => $booking->booking_code]) : null;
 
     return new self(
       booking_code: $booking->booking_code,

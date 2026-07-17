@@ -160,7 +160,7 @@
             Lihat Riwayat Pesanan
           </x-shared.button>
           <x-shared.button as="a"
-            href="{{ route('payments.receipt', $booking->order_id) }}"
+            href="{{ route('payments.receipt', $booking->booking_code) }}"
             target="_blank"
             size="custom"
             class="w-full border border-stone-500 bg-stone-500 text-stone-50 px-6 py-3 text-sm font-semibold! hover:bg-stone-600 transition-colors duration-150">
