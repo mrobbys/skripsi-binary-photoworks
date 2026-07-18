@@ -45,10 +45,11 @@
         "filepond-plugin-file-validate-type": "^1.2.9",
         "filepond-plugin-image-preview": "^4.6.12",
         "flatpickr": "^4.6.13",
-        "fullcalendar": "^6.1.20",
+        "fullcalendar": "^7.0.0",
         "puppeteer": "^25.3.0",
         "remixicon": "^4.9.1",
         "sweetalert2": "^11.26.25",
+        "temporal-polyfill": "^1.0.1",
         "tippy.js": "^6.3.7",
         "zod": "^4.4.3"
     }
