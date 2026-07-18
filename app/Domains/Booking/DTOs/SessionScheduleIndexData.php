@@ -20,7 +20,7 @@ class SessionScheduleIndexData extends Data
     public readonly string $variant_name,
     public readonly string $background_name,
     public readonly string $booking_status,
-    public readonly string $session_status, // MENDATANG | MENUNGGU | SEDANG BERLANGSUNG | SELESAI
+    public readonly string $session_status,
     public readonly string $formatted_date,
     public readonly string $formatted_time,
     public readonly ?string $gdrive_link,
