@@ -14,8 +14,6 @@
     init() {
         // Pastikan DOM sudah siap
         this.$nextTick(() => {
-            // Hilangkan class hidden dari elemen dropdown agar bisa dirender Tippy
-            this.$refs.dropdown.classList.remove('hidden');
 
             this.tippyInstance = tippy(this.$refs.btn, {
                 content: this.$refs.dropdown,
@@ -42,7 +40,7 @@
   </button>
 
   {{-- Wadah konten dropdown yang akan diambil oleh Tippy --}}
-  <div x-ref="dropdown" class="hidden">
+  <div x-ref="dropdown">
     <div class="w-32 bg-stone-50 border border-stone-300 py-1 shadow-md">
       {{ $slot }}
     </div>
