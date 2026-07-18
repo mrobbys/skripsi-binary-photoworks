@@ -30,13 +30,17 @@
       {{-- daftar jadwal start --}}
       <x-layouts.backdoor.components.sidebar-collapse-link
         :href="route('backdoor.session-schedule.list')"
-        :active="request()->routeIs('backdoor.session-schedule.*')"
+        :active="request()->routeIs('backdoor.session-schedule.list.*')"
         title='Daftar Jadwal'
       />
       {{-- daftar jadwal end --}}
 
       {{-- kalender sesi start --}}
-      <x-layouts.backdoor.components.sidebar-collapse-link title='Kalender' />
+      <x-layouts.backdoor.components.sidebar-collapse-link
+        :href="route('backdoor.session-schedule.calendar')"
+        :active="request()->routeIs('backdoor.session-schedule.calendar')"
+        title='Kalender'
+      />
       {{-- kalender sesi end --}}
     </x-layouts.backdoor.components.sidebar-collapse-item>
     {{-- jadwal sesi end --}}
