@@ -54,6 +54,15 @@
     />
     {{-- manajemen pemesanan end --}}
 
+    {{-- data klien start --}}
+    <x-layouts.backdoor.components.sidebar-link-item
+      :href="route('backdoor.client-data.index')"
+      :active="request()->routeIs('backdoor.client-data.*')"
+      icon='ri-team-line'
+      title='Data Klien'
+    />
+    {{-- data klien end --}}
+
     {{-- data master start --}}
     <x-layouts.backdoor.components.sidebar-collapse-item
       title='Data Master'
