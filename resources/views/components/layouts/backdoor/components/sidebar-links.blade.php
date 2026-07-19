@@ -111,6 +111,16 @@
     </x-layouts.backdoor.components.sidebar-collapse-item>
     {{-- data master end --}}
 
+    {{-- ulasan klien start --}}
+    {{-- TODO: tambahkan route, icon, isActive --}}
+    <x-layouts.backdoor.components.sidebar-link-item
+      :href="route('backdoor.client-reviews.index')"
+      :active="request()->routeIs('backdoor.client-reviews.*')"
+      icon='ri-chat-quote-line'
+      title='Ulasan Klien'
+    />
+    {{-- ulasan klien end --}}
+
   </ul>
 </nav>
 {{-- sidebar links end --}}
