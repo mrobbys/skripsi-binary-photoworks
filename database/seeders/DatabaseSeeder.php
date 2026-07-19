@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Domains\User\Models\User;
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Domains\User\Enums\RoleType;
+
 use Illuminate\Support\Facades\Storage;
 
 class DatabaseSeeder extends Seeder
@@ -32,26 +32,9 @@ class DatabaseSeeder extends Seeder
             PackageSeeder::class,
             ScheduleSeeder::class,
             BackgroundSeeder::class,
-            AddonSeeder::class
+            AddonSeeder::class,
+            UserSeeder::class,
+            ReviewSeeder::class
         ]);
-
-        User::factory(5)
-            ->create()
-            ->each(function ($user) {
-                $user->assignRole(RoleType::USER->value);
-            });
-
-        $superadminAccount = User::factory()->create([
-            'name' => 'superadmin',
-            'email' => 'superadmin@gmail.com'
-        ]);
-        $superadminAccount->assignRole(RoleType::SUPERADMIN->value);
-
-        $personalAccount = User::factory()->create([
-            'name' => 'robby',
-            'email' => 'robby@gmail.com',
-            'phone' => '6281936020227'
-        ]);
-        $personalAccount->assignRole(RoleType::USER->value);
     }
 }

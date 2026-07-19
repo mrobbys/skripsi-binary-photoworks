@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Domains\User\Models\User;
+use Database\Factories\ReviewFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 
 #[Guarded(['id'])]
+#[UseFactory(ReviewFactory::class)]
 class Review extends Model
 {
     use HasFactory;
