@@ -112,7 +112,6 @@
     {{-- data master end --}}
 
     {{-- ulasan klien start --}}
-    {{-- TODO: tambahkan route, icon, isActive --}}
     <x-layouts.backdoor.components.sidebar-link-item
       :href="route('backdoor.client-reviews.index')"
       :active="request()->routeIs('backdoor.client-reviews.*')"
@@ -120,6 +119,37 @@
       title='Ulasan Klien'
     />
     {{-- ulasan klien end --}}
+
+    {{-- laporan start --}}
+    {{-- TODO: tambahkan href, active,  --}}
+    <x-layouts.backdoor.components.sidebar-link-item
+      icon='ri-file-pdf-line'
+      title='Laporan'
+    />
+    {{-- laporan end --}}
+    
+    {{-- pengaturan sistem start --}}
+    {{-- TODO: tambahkan halaman lain, href, active, icon --}}
+    <x-layouts.backdoor.components.sidebar-collapse-item
+      title='Pengaturan Sistem'
+      icon='ri-settings-3-line'
+      :active="request()->routeIs('backdoor.activity-logs.*')"
+    >
+      <x-layouts.backdoor.components.sidebar-collapse-link
+        title='Manajemen User'
+      />
+      
+      <x-layouts.backdoor.components.sidebar-collapse-link
+        title='Manajemen Role'
+      />
+
+      <x-layouts.backdoor.components.sidebar-collapse-link
+        :href="route('backdoor.activity-logs.index')"
+        :active="request()->routeIs('backdoor.activity-logs.*')"
+        title='Activity Logs'
+      />
+    </x-layouts.backdoor.components.sidebar-collapse-item>
+    {{-- pengaturan sistem end --}}
 
   </ul>
 </nav>
