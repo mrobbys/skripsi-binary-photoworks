@@ -133,7 +133,7 @@
     <x-layouts.backdoor.components.sidebar-collapse-item
       title='Pengaturan Sistem'
       icon='ri-settings-3-line'
-      :active="request()->routeIs('backdoor.activity-logs.*')"
+      :active="request()->routeIs('backdoor.system-settings.*')"
     >
       <x-layouts.backdoor.components.sidebar-collapse-link
         title='Manajemen User'
@@ -144,8 +144,8 @@
       />
 
       <x-layouts.backdoor.components.sidebar-collapse-link
-        :href="route('backdoor.activity-logs.index')"
-        :active="request()->routeIs('backdoor.activity-logs.*')"
+        :href="route('backdoor.system-settings.activity-logs.index')"
+        :active="request()->routeIs('backdoor.system-settings.activity-logs.*')"
         title='Activity Logs'
       />
     </x-layouts.backdoor.components.sidebar-collapse-item>
