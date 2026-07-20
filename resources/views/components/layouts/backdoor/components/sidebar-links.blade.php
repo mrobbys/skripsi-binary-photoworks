@@ -127,7 +127,7 @@
       title='Laporan'
     />
     {{-- laporan end --}}
-    
+
     {{-- pengaturan sistem start --}}
     {{-- TODO: tambahkan halaman lain, href, active, icon --}}
     <x-layouts.backdoor.components.sidebar-collapse-item
@@ -135,11 +135,11 @@
       icon='ri-settings-3-line'
       :active="request()->routeIs('backdoor.system-settings.*')"
     >
+      <x-layouts.backdoor.components.sidebar-collapse-link title='Manajemen User' />
+
       <x-layouts.backdoor.components.sidebar-collapse-link
-        title='Manajemen User'
-      />
-      
-      <x-layouts.backdoor.components.sidebar-collapse-link
+        :href="route('backdoor.system-settings.roles.index')"
+        :active="request()->routeIs('backdoor.system-settings.roles.*')"
         title='Manajemen Role'
       />
 
