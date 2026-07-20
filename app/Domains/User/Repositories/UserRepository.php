@@ -52,6 +52,9 @@ class UserRepository
      */
     public function updateById(int $userId, array $data): void
     {
-        User::where('id', $userId)->update($data);
+        $user = $this->findById($userId);
+        if ($user) {
+            $user->update($data);
+        }
     }
 }

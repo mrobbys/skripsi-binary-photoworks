@@ -83,7 +83,7 @@ class PackageVariantService
    */
   private function syncFeatures(PackageVariant $variant, array $featureDescriptions): void
   {
-    $variant->features()->delete();
+    $variant->features()->get()->each->delete();
 
     $featureData = collect($featureDescriptions)
       ->filter(fn(string $desc) => trim($desc) !== '')

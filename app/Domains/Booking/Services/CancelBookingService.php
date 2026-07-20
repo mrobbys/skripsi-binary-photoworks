@@ -43,8 +43,8 @@ class CancelBookingService
      */
     DB::transaction(function () use ($booking) {
       $booking->update(['status' => BookingStatus::CANCELLED]);
-      $booking->payments()->where('status', PaymentStatus::PENDING)->update(['status' => PaymentStatus::CANCELLED]);
-      $booking->payments()->where('status', PaymentStatus::SETTLEMENT)->update(['status' => PaymentStatus::REFUNDED]);
+      $booking->payments()->where('status', PaymentStatus::PENDING)->get()->each->update(['status' => PaymentStatus::CANCELLED]);
+      $booking->payments()->where('status', PaymentStatus::SETTLEMENT)->get()->each->update(['status' => PaymentStatus::REFUNDED]);
     });
 
     // Relasi harus di-load sebelum membangun pesan
