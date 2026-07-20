@@ -13,13 +13,16 @@ use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Models\Background;
 use App\Domains\MasterData\Models\Addon;
 use App\Domains\Payment\Models\Payment;
-
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Enums\PaymentScheme;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[Guarded(['id'])]
 class Booking extends Model
 {
+    use LogsActivity;
+
     protected function casts(): array
     {
         return [
@@ -57,4 +60,18 @@ class Booking extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    /**
+     * Implement Activity Log Spatie
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logUnguarded()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('booking')
+            ->setDescriptionForEvent(fn(string $event) => $event);
+    }
 }
+ 

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -18,7 +20,7 @@ use Spatie\Sluggable\SlugOptions;
 #[Fillable('category_id', 'name', 'description', 'slug', 'is_active')]
 class Package extends Model implements HasMedia
 {
-    use HasSlug, InteractsWithMedia;
+    use HasSlug, InteractsWithMedia, LogsActivity;
 
     protected function casts(): array
     {
@@ -67,5 +69,18 @@ class Package extends Model implements HasMedia
     public function features(): MorphMany
     {
         return $this->morphMany(Feature::class, 'featureable');
+    }
+
+    /**
+     * Implement Activity Log Spatie
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('master-data')
+            ->setDescriptionForEvent(fn(string $event) => $event);
     }
 }

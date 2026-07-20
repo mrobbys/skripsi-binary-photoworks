@@ -14,9 +14,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 #[UseFactory(UserFactory::class)]
 #[Fillable(['name', 'email', 'password', 'phone', 'google_id', 'google_token'])]
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable, CanResetPassword, HasUuids;
+    use HasFactory, HasRoles, Notifiable, CanResetPassword, HasUuids, LogsActivity;
 
     /**
      * Definisikan hanya kolom uuid yang mendapat nilai UUID otomatis
@@ -48,25 +49,6 @@ class User extends Authenticatable implements CanResetPasswordContract
         ];
     }
 
-    /**
-     * Konfigurasi untuk activity log
-     */
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['name', 'email', 'phone'])
-            ->logOnlyDirty()
-            ->useLogName('user')
-            ->setDescriptionForEvent(function (string $eventName) {
-                return match ($eventName) {
-                    'created' => "User: {$this->name} telah dibuat",
-                    'updated' => "User: {$this->name} telah diupdate",
-                    'deleted' => "User: {$this->name} telah dihapus",
-                    default => "User: {$this->name} telah di-{$eventName}",
-                };
-            });
-    }
-
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
@@ -75,5 +57,18 @@ class User extends Authenticatable implements CanResetPasswordContract
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Implement Activity Log Spatie
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('user')
+            ->setDescriptionForEvent(fn(string $event) => $event);
     }
 }
