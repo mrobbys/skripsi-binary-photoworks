@@ -98,7 +98,7 @@ class PackageService
    */
   private function syncFeatures(Package $package, array $featureDescriptions): void
   {
-    $package->features()->delete();
+    $package->features()->get()->each->delete();
 
     $featureData = collect($featureDescriptions)
       ->filter(fn(string $desc) => trim($desc) !== '')

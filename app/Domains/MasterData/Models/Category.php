@@ -6,6 +6,8 @@ use App\Domains\MasterData\Models\Package;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -13,7 +15,7 @@ use Spatie\Sluggable\SlugOptions;
 class Category extends Model
 {
 
-    use HasSlug;
+    use HasSlug, LogsActivity;
 
     protected function casts(): array
     {
@@ -41,5 +43,18 @@ class Category extends Model
     public function packages(): HasMany
     {
         return $this->hasMany(Package::class);
+    }
+
+    /**
+     * Implement Activity Log Spatie
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('master-data')
+            ->setDescriptionForEvent(fn(string $event) => $event);
     }
 }
