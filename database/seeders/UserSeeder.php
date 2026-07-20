@@ -22,6 +22,12 @@ class UserSeeder extends Seeder
     ]);
     $superadminAccount->assignRole(RoleType::SUPERADMIN->value);
 
+    $adminAccount = User::factory()->create([
+      'name' => 'admin',
+      'email' => 'admin@gmail.com'
+    ]);
+    $adminAccount->assignRole(RoleType::ADMIN->value);
+    
     $personalAccount = User::factory()->create([
       'name' => 'robby',
       'email' => 'robby@gmail.com',
