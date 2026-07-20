@@ -6,3 +6,4 @@ require __DIR__ . '/booking-management.php';
 require __DIR__ . '/client-data.php';
 require __DIR__ . '/data-master/data-master.php';
 require __DIR__ . '/client-reviews.php';
+require __DIR__ . '/system-settings/system-settings.php';
