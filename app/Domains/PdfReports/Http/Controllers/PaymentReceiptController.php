@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Reports;
+namespace App\Domains\PdfReports\Http\Controllers;
 
 use App\Domains\Booking\Models\Booking;
 use App\Domains\Payment\Enums\PaymentPurpose;
