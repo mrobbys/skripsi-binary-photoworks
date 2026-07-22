@@ -1,6 +1,6 @@
 @php
   $breadcrumbs = [
-      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard')],
+      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Data Master', 'url' => '#'],
       ['label' => 'Layanan Tambahan', 'url' => ''],
   ];
