@@ -8,6 +8,7 @@ use App\Domains\Payment\Models\Payment;
 use App\Domains\User\Models\User;
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Models\Background;
+use App\Domains\MasterData\Models\Addon;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Enums\PaymentScheme;
 use App\Domains\Booking\Enums\BookingSource;
@@ -30,6 +31,7 @@ class BookingPaymentDummySeeder extends Seeder
         
         $packageVariants = PackageVariant::all();
         $backgrounds = Background::all();
+        $addons = Addon::all();
         
         if ($packageVariants->isEmpty() || $backgrounds->isEmpty()) {
             $this->command->error('Tidak ada paket atau background. Jalankan MasterData seeder dulu.');
@@ -53,7 +55,22 @@ class BookingPaymentDummySeeder extends Seeder
             
             $variant = $packageVariants->random();
             $bg = $backgrounds->random();
-            $totalPrice = $variant->price;
+            
+            $selectedAddons = [];
+            $addonTotalPrice = 0;
+            if ($addons->isNotEmpty() && rand(1, 100) <= 70) {
+                $randomAddons = $addons->random(rand(1, min(3, $addons->count())));
+                foreach ($randomAddons as $addonItem) {
+                    $qty = $addonItem->has_quantity ? rand(1, 3) : 1;
+                    $selectedAddons[$addonItem->id] = [
+                        'price_at_purchase' => $addonItem->price,
+                        'quantity' => $qty,
+                    ];
+                    $addonTotalPrice += ($addonItem->price * $qty);
+                }
+            }
+
+            $totalPrice = $variant->price + $addonTotalPrice;
             
             $status = array_rand(array_flip([
                 BookingStatus::PENDING->value,
@@ -89,6 +106,10 @@ class BookingPaymentDummySeeder extends Seeder
                 'gdrive_link' => $status === BookingStatus::DONE->value ? 'https://drive.google.com/dummy' : null,
                 'source' => array_rand(array_flip([BookingSource::FRONTDOOR->value, BookingSource::MANUAL->value])),
             ]);
+
+            if (!empty($selectedAddons)) {
+                $booking->addons()->attach($selectedAddons);
+            }
 
             // Create Payment berdasarkan relasi status
             $amountDP = $totalPrice * 0.5;
