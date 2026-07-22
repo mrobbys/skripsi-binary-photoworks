@@ -13,7 +13,7 @@ trait RedirectsUsers
     // Jika memiliki izin masuk ke halaman admin, lempar be halaman admin
     // Jika tidak, lempar ke halaman utama
     $routeName = $user->can('dashboard-admin-view')
-      ? 'backdoor.dashboard'
+      ? 'backdoor.dashboard.index'
       : 'frontdoor.home';
 
     return redirect()->intended(route($routeName));

@@ -1,6 +1,6 @@
 @php
   $breadcrumbs = [
-      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard')],
+      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Pengaturan Sistem', 'url' => '#'],
       ['label' => 'Manajemen Role', 'url' => route('backdoor.system-settings.roles.index')],
       ['label' => 'Edit: ' . $role->name, 'url' => ''],

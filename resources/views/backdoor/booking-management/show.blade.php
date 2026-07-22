@@ -8,7 +8,7 @@
   }
 
   $breadcrumbs = [
-      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard')],
+      ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => $backLabel, 'url' => $backUrl],
       ['label' => 'Detail Booking', 'url' => ''],
   ];

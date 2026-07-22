@@ -15,7 +15,7 @@
 
     {{-- dashboard start --}}
     <x-layouts.backdoor.components.sidebar-link-item
-      :href="route('backdoor.dashboard')"
+      :href="route('backdoor.dashboard.index')"
       icon='ri-dashboard-line'
       title='Dashboard'
     />
