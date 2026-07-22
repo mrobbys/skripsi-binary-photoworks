@@ -121,8 +121,9 @@
     {{-- ulasan klien end --}}
 
     {{-- laporan start --}}
-    {{-- TODO: tambahkan href, active,  --}}
     <x-layouts.backdoor.components.sidebar-link-item
+      :href="route('backdoor.reports.index')"
+      :active="request()->routeIs('backdoor.reports.*')"
       icon='ri-file-pdf-line'
       title='Laporan'
     />
@@ -135,9 +136,10 @@
       :active="request()->routeIs('backdoor.system-settings.*')"
     >
       <x-layouts.backdoor.components.sidebar-collapse-link
-      :href="route('backdoor.system-settings.users.index')"
-      :active="request()->routeIs('backdoor.system-settings.users.*')"
-      title='Manajemen User' />
+        :href="route('backdoor.system-settings.users.index')"
+        :active="request()->routeIs('backdoor.system-settings.users.*')"
+        title='Manajemen User'
+      />
 
       <x-layouts.backdoor.components.sidebar-collapse-link
         :href="route('backdoor.system-settings.roles.index')"
