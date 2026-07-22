@@ -6,17 +6,49 @@ import useDashboardCharts from "./useDashboardCharts";
 
 export default function Dashboard(Alpine) {
   const state = useState(Alpine);
-  const { hasChartData, renderBookingTrendChart, renderRevenueTrendChart, renderPackageChart, renderAddonChart } =
+  const { charts, hasChartData, renderBookingTrendChart, renderRevenueTrendChart, renderPackageChart, renderAddonChart } =
     useDashboardCharts();
 
   let fetchDebounceTimer = null;
+
+  const updateCharts = () => {
+    Alpine.nextTick(() => {
+      if (hasChartData(state.chartData.bookingTrend)) {
+        renderBookingTrendChart(state.chartData.bookingTrend);
+      } else {
+        charts.bookingTrend?.destroy();
+        charts.bookingTrend = null;
+      }
+
+      if (hasChartData(state.chartData.revenueTrend)) {
+        renderRevenueTrendChart(state.chartData.revenueTrend);
+      } else {
+        charts.revenueTrend?.destroy();
+        charts.revenueTrend = null;
+      }
+
+      if (hasChartData(state.chartData.package)) {
+        renderPackageChart(state.chartData.package);
+      } else {
+        charts.package?.destroy();
+        charts.package = null;
+      }
+
+      if (hasChartData(state.chartData.addon)) {
+        renderAddonChart(state.chartData.addon);
+      } else {
+        charts.addon?.destroy();
+        charts.addon = null;
+      }
+    });
+  };
 
   const fetchChartData = async () => {
     state.isLoadingCharts = true;
 
     try {
       const res = await axiosInstance.get(route("backdoor.dashboard.analytics"), {
-        params: { year: state.selectedYear },
+        params: { year: Number(state.selectedYear) },
       });
 
       const data = res.data;
@@ -24,24 +56,28 @@ export default function Dashboard(Alpine) {
       state.chartData.revenueTrend = data.revenue_trend;
       state.chartData.package = data.package_proportion;
       state.chartData.addon = data.addon_proportion;
-
-      Alpine.nextTick(() => {
-        if (hasChartData(state.chartData.bookingTrend)) renderBookingTrendChart(state.chartData.bookingTrend);
-        if (hasChartData(state.chartData.revenueTrend)) renderRevenueTrendChart(state.chartData.revenueTrend);
-        if (hasChartData(state.chartData.package)) renderPackageChart(state.chartData.package);
-        if (hasChartData(state.chartData.addon)) renderAddonChart(state.chartData.addon);
-      });
     } catch (err) {
       console.error(err);
       Toast.fire({ icon: "error", title: "Gagal memuat data." });
     } finally {
       state.isLoadingCharts = false;
     }
+
+    updateCharts();
   };
 
   const debouncedFetchCharts = () => {
     clearTimeout(fetchDebounceTimer);
-    fetchDebounceTimer = setTimeout(() => fetchChartData(), 400);
+    fetchDebounceTimer = setTimeout(() => {
+      const selectEl = document.getElementById("yearPicker");
+      if (selectEl && selectEl._choices) {
+        const val = selectEl._choices.getValue(true);
+        if (val) {
+          state.selectedYear = Number(val);
+        }
+      }
+      fetchChartData();
+    }, 300);
   };
 
   return {
@@ -51,3 +87,4 @@ export default function Dashboard(Alpine) {
     hasChartData,
   };
 }
+
