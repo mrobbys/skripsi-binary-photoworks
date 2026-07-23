@@ -7,18 +7,35 @@ use App\Domains\Booking\Models\Booking;
 use App\Http\Controllers\Controller;
 use App\Support\Formatter;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class JadwalOperasionalHarianController extends Controller
 {
-  public function __invoke()
+  /**
+   * Controller ini digunakan di halaman session-schedule.daily-report dan backdoor.reports.jadwal-harian.pdf
+   */
+  public function __invoke(Request $request)
   {
-    $today = Carbon::today();
+    $request->validate([
+      'date' => ['nullable', 'date'],
+    ]);
 
-    $bookings = Booking::with(['user', 'packageVariant.package', 'background'])
-      ->whereDate('booking_date', $today)
+    // Jika ada tanggal di request, maka gunakan tanggal tersebut
+    // Jika tidak ada tanggal di request, maka gunakan tanggal hari ini
+    $tanggal = $request->filled('date')
+      ? Carbon::parse($request->input('date'))
+      : Carbon::today();
+
+    $bookings = Booking::with([
+      'user:id,name',
+      'packageVariant:id,package_id,name',
+      'packageVariant.package:id,name',
+      'background:id,name',
+    ])
+      ->whereDate('booking_date', $tanggal)
       ->whereIn('status', [BookingStatus::DP_PAID, BookingStatus::SUCCESS, BookingStatus::DONE])
       ->orderBy('start_time', 'asc')
       ->get();
@@ -32,12 +49,19 @@ class JadwalOperasionalHarianController extends Controller
       'notes' => $booking->notes ?? '',
     ]));
 
-    $printDate = Formatter::dateId($today, 'l, d F Y');
+    $printDate = Formatter::dateId($tanggal, 'd F Y');
     $printTime = Carbon::now()->format('H:i');
 
     return pdf()
-      ->view('pdfs.jadwal-operasional-harian', compact('rows', 'printDate', 'printTime'))
+      ->view('pdfs.jadwal-operasional-harian', compact(
+        'tanggal',
+        'rows',
+        'printDate',
+        'printTime'
+      ))
       ->format('a4')
-      ->name("jadwal-harian-{$today->format('Y-m-d')}.pdf");
+      ->portrait()
+      ->margins(10, 10, 10, 10)
+      ->name("jadwal-harian-{$tanggal->format('d-m-Y')}.pdf");
   }
 }
