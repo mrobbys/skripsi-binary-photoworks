@@ -1,7 +1,6 @@
 @props([
     'name',
     'label' => 'STATUS',
-    'placeholder' => 'Semua Status',
     'options' => [],
     'value' => null,
 ])
@@ -12,10 +11,10 @@
   </label>
   <select
     name="{{ $name }}"
-    x-data="choices({ searchEnabled: false, shouldSort: false, placeholder: true, placeholderValue: '{{ $placeholder }}' })"
+    x-data="choices({ searchEnabled: false, shouldSort: false, placeholder: true, placeholderValue: '--- Pilih Status ---' })"
     {{ $attributes->merge(['class' => 'w-full border border-stone-300 bg-stone-50 px-3.5 py-2.5 text-sm text-stone-900 transition focus:border-stone-700 focus:bg-white focus:outline-none focus:ring-0']) }}
   >
-    <option value="">{{ $placeholder }}</option>
+    <option value="" selected>Semua Status</option>
     @foreach($options as $optValue => $optLabel)
       <option value="{{ $optValue }}" @selected($value == $optValue)>{{ $optLabel }}</option>
     @endforeach

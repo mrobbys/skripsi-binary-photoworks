@@ -1,15 +1,14 @@
 @php
+  use App\Domains\Booking\Enums\BookingStatus;
+
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Laporan', 'url' => ''],
   ];
 
-  $bookingStatusOptions = [
-      'Menunggu' => 'Menunggu',
-      'Lunas' => 'Lunas',
-      'Selesai' => 'Selesai',
-      'Batal' => 'Batal',
-  ];
+  $bookingStatusOptions = collect(BookingStatus::cases())
+      ->pluck('value', 'value')
+      ->toArray();
 @endphp
 
 <x-layouts.backdoor.index
@@ -40,30 +39,49 @@
           description="Menghitung total pendapatan dari payment berdasarkan status = SETTLEMENT."
           :action="route('backdoor.reports.pendapatan.pdf')"
         >
-          <x-backdoor.reports.date-input name="start_date" label="TANGGAL AWAL" />
-          <x-backdoor.reports.date-input name="end_date" label="TANGGAL AKHIR" />
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi pendapatan transaksi end --}}
 
         {{-- laporan rekapitulasi pemesanan start --}}
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Pemesanan"
-          description="Kompilasi sejarah seluruh reservasi masuk berdasarkan tanggal reservasi dan status."
-          action="#"
+          description="Menampilkan seluruh riwayat booking berdasarkan tanggal (created_at) dan status booking."
+          :action="route('backdoor.reports.pemesanan.pdf')"
         >
-          <x-backdoor.reports.date-input name="start_date" label="TANGGAL AWAL" />
-          <x-backdoor.reports.date-input name="end_date" label="TANGGAL AKHIR" />
-          <x-backdoor.reports.select-input name="status" label="STATUS PEMESANAN" :options="$bookingStatusOptions" />
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
+          <x-backdoor.reports.select-input
+            name="status"
+            label="STATUS PEMESANAN"
+            :options="$bookingStatusOptions"
+          />
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi pemesanan end --}}
-        
+
         {{-- laporan jadwal operasional harian start --}}
         <x-backdoor.reports.card
           title="Laporan Jadwal Operasional Harian"
           description="Lembar panduan kerja (job sheet) kru fotografer dan admin studio untuk 1 hari spesifik."
           action="#"
         >
-          <x-backdoor.reports.date-input name="date" label="TANGGAL PELAKSANAAN" />
+          <x-backdoor.reports.date-input
+            name="date"
+            label="TANGGAL PELAKSANAAN"
+          />
         </x-backdoor.reports.card>
         {{-- laporan jadwal operasional harian end --}}
 
@@ -73,8 +91,14 @@
           description="Mengukur tingkat kepadatan operasional untuk mengetahui hari dengan volume reservasi tertinggi."
           action="#"
         >
-          <x-backdoor.reports.date-input name="start_date" label="TANGGAL AWAL" />
-          <x-backdoor.reports.date-input name="end_date" label="TANGGAL AKHIR" />
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi performa hari end --}}
 
@@ -84,8 +108,14 @@
           description="Bahan evaluasi internal tim untuk memantau nilai kepuasan dan ulasan pelanggan studio."
           action="#"
         >
-          <x-backdoor.reports.date-input name="start_date" label="TANGGAL AWAL" />
-          <x-backdoor.reports.date-input name="end_date" label="TANGGAL AKHIR" />
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi ulasan pelanggan end --}}
 
@@ -95,8 +125,14 @@
           description="Daftar identitas pelanggan baru yang terdaftar di sistem berdasarkan tanggal akun dibuat."
           action="#"
         >
-          <x-backdoor.reports.date-input name="start_date" label="TANGGAL AWAL" />
-          <x-backdoor.reports.date-input name="end_date" label="TANGGAL AKHIR" />
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
         </x-backdoor.reports.card>
         {{-- laporan data klien end --}}
 
@@ -118,8 +154,14 @@
           description="Merangkum kepadatan pemesanan studio jangka panjang untuk manajemen stok background."
           action="#"
         >
-          <x-backdoor.reports.date-input name="start_date" label="TANGGAL AWAL" />
-          <x-backdoor.reports.date-input name="end_date" label="TANGGAL AKHIR" />
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi jadwal pemotretan end --}}
 
