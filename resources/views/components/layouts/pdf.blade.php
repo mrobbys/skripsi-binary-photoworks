@@ -37,6 +37,13 @@
     body {
       font-family: 'Inter', sans-serif !important;
     }
+
+    @media print {
+      tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    }
   </style>
 </head>
 
