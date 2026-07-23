@@ -21,6 +21,7 @@ export default function Index() {
       const startDateInput = card.querySelector("input[name='start_date']");
       const endDateInput = card.querySelector("input[name='end_date']");
       const singleDateInput = card.querySelector("input[name='date']");
+      const dropdownStatus = card.querySelector("select[name='status']");
       const form = card.querySelector("form");
       const btnSubmitForm = form.querySelector("button[type='submit']");
 
@@ -64,6 +65,10 @@ export default function Index() {
             if (selectedDates[0]) {
               // set min date agar tidak bisa memilih sebelum start_date
               fpEnd.set("minDate", selectedDates[0]);
+
+              // Set tampilan kalender memiliki bulan yang sama dengan start_date
+              // Contoh: start_date bulan juli 2026, maka end_date tampilan awal akan juli 2026
+              fpEnd.jumpToDate(selectedDates[0]);
             }
 
             updateButtonState();
@@ -106,6 +111,9 @@ export default function Index() {
             fpEnd.close();
           }
           if (fpSingle) fpSingle.clear();
+          if (dropdownStatus && dropdownStatus._choices) {
+            dropdownStatus._choices.setChoiceByValue("");
+          }
           updateButtonState();
         }, 100);
       });
