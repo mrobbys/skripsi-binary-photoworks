@@ -76,7 +76,7 @@
         <x-backdoor.reports.card
           title="Laporan Jadwal Operasional Harian"
           description="Lembar panduan kerja (job sheet) kru fotografer dan admin studio untuk 1 hari spesifik."
-          action="#"
+          :action="route('backdoor.reports.jadwal-harian.pdf')"
         >
           <x-backdoor.reports.date-input
             name="date"
@@ -89,7 +89,7 @@
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Performa Hari"
           description="Mengukur tingkat kepadatan operasional untuk mengetahui hari dengan volume reservasi tertinggi."
-          action="#"
+          :action="route('backdoor.reports.performa-hari.pdf')"
         >
           <x-backdoor.reports.date-input
             name="start_date"
@@ -106,7 +106,7 @@
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Ulasan Pelanggan"
           description="Bahan evaluasi internal tim untuk memantau nilai kepuasan dan ulasan pelanggan studio."
-          action="#"
+          :action="route('backdoor.reports.ulasan-pelanggan.pdf')"
         >
           <x-backdoor.reports.date-input
             name="start_date"
@@ -123,7 +123,7 @@
         <x-backdoor.reports.card
           title="Laporan Data Klien"
           description="Daftar identitas pelanggan baru yang terdaftar di sistem berdasarkan tanggal akun dibuat."
-          action="#"
+          :action="route('backdoor.reports.data-klien.pdf')"
         >
           <x-backdoor.reports.date-input
             name="start_date"
@@ -140,7 +140,7 @@
         <x-backdoor.reports.card
           title="Laporan Data Paket (Katalog Master)"
           description="Menyajikan katalog data master harga, varian paket, dan durasi studio yang sedang aktif."
-          action="#"
+          :action="route('backdoor.reports.data-paket.pdf')"
         >
           <div class="py-2 text-xs italic text-stone-500">
             Dokumen ini mengekspor seluruh data master katalog paket yang aktif secara langsung (Format Landscape).
@@ -152,7 +152,7 @@
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Jadwal Pemotretan"
           description="Merangkum kepadatan pemesanan studio jangka panjang untuk manajemen stok background."
-          action="#"
+          :action="route('backdoor.reports.jadwal-pemotretan.pdf')"
         >
           <x-backdoor.reports.date-input
             name="start_date"
