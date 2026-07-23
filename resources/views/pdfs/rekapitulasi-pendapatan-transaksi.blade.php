@@ -4,11 +4,27 @@
     <x-pdfs.kop-surat />
 
     {{-- metadata information --}}
-    <x-pdfs.metadata
-      :printedBy="$printedBy"
-      :filterText="$filterText"
-      :printDate="$printDate"
-    />
+    <x-pdfs.metadata>
+      <x-slot:left>
+        <tr>
+          <td class="py-0.5 pr-2 align-top font-semibold">Cetak</td>
+          <td class="py-0.5 pr-2 align-top">:</td>
+          <td class="py-0.5 align-top">{{ $printedBy }}</td>
+        </tr>
+        <tr>
+          <td class="py-0.5 pr-2 align-top font-semibold">Filter</td>
+          <td class="py-0.5 pr-2 align-top">:</td>
+          <td class="py-0.5 align-top">{{ $filterText }}</td>
+        </tr>
+      </x-slot:left>
+      <x-slot:right>
+        <tr>
+          <td class="py-0.5 pr-2 align-top font-semibold">Tanggal Cetak</td>
+          <td class="py-0.5 pr-2 align-top">:</td>
+          <td class="py-0.5 align-top">{{ $printDate }}</td>
+        </tr>
+      </x-slot:right>
+    </x-pdfs.metadata>
 
     {{-- title --}}
     <x-pdfs.title value="LAPORAN REKAPITULASI PENDAPATAN TRANSAKSI" />
@@ -16,16 +32,14 @@
     {{-- table section start --}}
     <div class="mb-8">
       @if ($rows->isEmpty())
-        <div class="border border-stone-300 py-10 text-center">
-          <p class="text-sm font-medium text-stone-500">Tidak ada data transaksi pendapatan pada periode filter ini.</p>
-        </div>
+        <x-pdfs.empty-state message="Tidak ada data transaksi pendapatan pada periode filter ini." />
       @else
         <table class="w-full border-collapse border border-stone-400 text-left text-xs">
           <thead class="table-row-group">
             <tr class="border-b border-stone-400 bg-stone-200 text-stone-900">
               <th class="w-[4%] border-r border-stone-300 p-2 text-center font-bold uppercase">No</th>
               <th class="w-[10%] border-r border-stone-300 p-2 text-center font-bold uppercase">Tanggal Bayar</th>
-              <th class="w-[17%] border-r border-stone-300 p-2 text-center fon  t-bold uppercase">Kode Booking</th>
+              <th class="w-[17%] border-r border-stone-300 p-2 text-center font-bold uppercase">Kode Booking</th>
               <th class="w-[13%] border-r border-stone-300 p-2 font-bold uppercase">Nama Klien</th>
               <th class="w-[14%] border-r border-stone-300 p-2 font-bold uppercase">Paket</th>
               <th class="w-[11%] border-r border-stone-300 p-2 text-center font-bold uppercase">Harga Paket</th>
