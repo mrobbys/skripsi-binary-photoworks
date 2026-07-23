@@ -19,13 +19,11 @@ class DateRangeReportRequest extends FormRequest
       'start_date' => [
         'required',
         'date',
-        'before_or_equal:today'
       ],
       'end_date' => [
         'required',
         'date',
         'after_or_equal:start_date',
-        'before_or_equal:today'
       ],
       /**
        * Opsional

@@ -10,7 +10,6 @@ export default function Index() {
     altInput: true,
     altFormat: "d-m-Y",
     disableMobile: true,
-    maxDate: "today",
   };
 
   const initFlatpickr = (containerEl) => {
