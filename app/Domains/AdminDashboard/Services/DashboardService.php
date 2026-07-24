@@ -67,7 +67,8 @@ class DashboardService
    */
   public function getAvailableYears(): array
   {
-    $years = Booking::selectRaw('EXTRACT(YEAR FROM booking_date)::int as year')
+    $years = Booking::selectRaw('EXTRACT(YEAR FROM created_at)::int as year')
+      ->union(Booking::selectRaw('EXTRACT(YEAR FROM booking_date)::int as year'))
       ->distinct()
       ->orderBy('year', 'desc')
       ->pluck('year')
@@ -82,9 +83,9 @@ class DashboardService
    */
   public function getBookingTrend(int $year): array
   {
-    $raw = Booking::whereYear('booking_date', $year)
+    $raw = Booking::whereYear('created_at', $year)
       ->where('status', '!=', BookingStatus::CANCELLED)
-      ->selectRaw('EXTRACT(MONTH FROM booking_date)::int as month, COUNT(id) as total')
+      ->selectRaw('EXTRACT(MONTH FROM created_at)::int as month, COUNT(id) as total')
       ->groupBy('month')
       ->orderBy('month')
       ->pluck('total', 'month')
