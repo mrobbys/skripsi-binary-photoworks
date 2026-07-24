@@ -5,6 +5,7 @@ use App\Domains\PdfReports\Http\Controllers\DataKlienController;
 use App\Domains\PdfReports\Http\Controllers\DataPaketController;
 use App\Domains\PdfReports\Http\Controllers\JadwalOperasionalHarianController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiJadwalPemotretanController;
+use App\Domains\PdfReports\Http\Controllers\PendapatanTahunanController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiPemesananController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiPendapatanTransaksiController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiPerformaHariController;
@@ -20,6 +21,9 @@ Route::middleware('auth')
 
     // report rekapitulasi pendapatan transaksi
     Route::get('/rekapitulasi-pendapatan-transaksi', RekapitulasiPendapatanTransaksiController::class)->name('pendapatan.pdf');
+
+    // laporan pendapatan tahunan
+    Route::get('/pendapatan-tahunan', PendapatanTahunanController::class)->name('pendapatan-tahunan.pdf');
 
     // report rekapitulasi pemesanan
     Route::get('/rekapitulasi-pemesanan', RekapitulasiPemesananController::class)->name('pemesanan.pdf');
@@ -42,4 +46,3 @@ Route::middleware('auth')
     // laporan rekapitulasi jadwal pemotretan
     Route::get('/rekapitulasi-jadwal-pemotretan', RekapitulasiJadwalPemotretanController::class)->name('jadwal-pemotretan.pdf');
   });
-

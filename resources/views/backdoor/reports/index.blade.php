@@ -1,13 +1,20 @@
 @php
   use App\Domains\Booking\Enums\BookingStatus;
+  use App\Domains\Booking\Models\Booking;
+  use Carbon\Carbon;
 
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Laporan', 'url' => ''],
   ];
 
-  $bookingStatusOptions = collect(BookingStatus::cases())
-      ->pluck('value', 'value')
+  // Untuk option select status
+  $bookingStatusOptions = collect(BookingStatus::cases())->pluck('value', 'value')->toArray();
+
+  // Untuk option select tahun
+  $minYear = Booking::min('booking_date') ? Carbon::parse(Booking::min('booking_date'))->year : now()->year;
+  $tahunOptions = collect(range($minYear, now()->year))
+      ->mapWithKeys(fn($y) => [$y => (string) $y])
       ->toArray();
 @endphp
 
@@ -36,7 +43,7 @@
         {{-- laporan rekapitulasi pendapatan transaksi start --}}
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Pendapatan Transaksi"
-          description="Menghitung total pendapatan dari payment berdasarkan status = SETTLEMENT."
+          description="Menghitung total pendapatan dari payment berdasarkan tanggal (pay_date) dan status = SETTLEMENT."
           :action="route('backdoor.reports.pendapatan.pdf')"
         >
           <x-backdoor.reports.date-input
@@ -49,6 +56,22 @@
           />
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi pendapatan transaksi end --}}
+
+        {{-- laporan pendapatan tahunan start --}}
+        <x-backdoor.reports.card
+          title="Laporan Pendapatan Tahunan"
+          description="Total pendapatan dan sesi foto per bulan berdasarkan filter tahun."
+          :action="route('backdoor.reports.pendapatan-tahunan.pdf')"
+        >
+          <x-backdoor.reports.select-input
+            name="tahun"
+            label="TAHUN LAPORAN"
+            placeholder="--- Pilih Tahun ---"
+            :selectedNullOption="false"
+            :options="$tahunOptions"
+          />
+          {{-- laporan pendapatan tahunan end --}}
+        </x-backdoor.reports.card>
 
         {{-- laporan rekapitulasi pemesanan start --}}
         <x-backdoor.reports.card
@@ -75,7 +98,7 @@
         {{-- laporan jadwal operasional harian start --}}
         <x-backdoor.reports.card
           title="Laporan Jadwal Operasional Harian"
-          description="Lembar panduan kerja (job sheet) kru fotografer dan admin studio untuk 1 hari spesifik."
+          description="Jadwal sesi foto harian berdasarkan tanggal (booking_date)."
           :action="route('backdoor.reports.jadwal-harian.pdf')"
         >
           <x-backdoor.reports.date-input
@@ -88,7 +111,7 @@
         {{-- laporan rekapitulasi performa hari start --}}
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Performa Hari"
-          description="Mengukur tingkat kepadatan operasional untuk mengetahui hari dengan volume reservasi tertinggi."
+          description="Cek tingkat kepadatan operasional studio per harinya berdasarkan tanggal (booking_date)."
           :action="route('backdoor.reports.performa-hari.pdf')"
         >
           <x-backdoor.reports.date-input
@@ -105,7 +128,7 @@
         {{-- laporan rekapitulasi ulasan pelanggan start --}}
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Ulasan Pelanggan"
-          description="Bahan evaluasi internal tim untuk memantau nilai kepuasan dan ulasan pelanggan studio."
+          description="Lihat semua ulasan pelanggan berdasarkan tanggal (created_at)."
           :action="route('backdoor.reports.ulasan-pelanggan.pdf')"
         >
           <x-backdoor.reports.date-input
@@ -122,7 +145,7 @@
         {{-- laporan data klien start --}}
         <x-backdoor.reports.card
           title="Laporan Data Klien"
-          description="Daftar identitas pelanggan baru yang terdaftar di sistem berdasarkan tanggal akun dibuat."
+          description="Daftar Klien yang terdaftar di sistem berdasarkan tanggal akun dibuat (created_at)."
           :action="route('backdoor.reports.data-klien.pdf')"
         >
           <x-backdoor.reports.date-input
@@ -136,22 +159,22 @@
         </x-backdoor.reports.card>
         {{-- laporan data klien end --}}
 
-        {{-- laporan data paket (katalog master) start --}}
+        {{-- laporan data paket start --}}
         <x-backdoor.reports.card
-          title="Laporan Data Paket (Katalog Master)"
-          description="Menyajikan katalog data master harga, varian paket, dan durasi studio yang sedang aktif."
+          title="Laporan Data Paket"
+          description="Menyajikan katalog data paket beserta variannya."
           :action="route('backdoor.reports.data-paket.pdf')"
         >
-          <div class="py-2 text-xs italic text-stone-500">
-            Dokumen ini mengekspor seluruh data master katalog paket yang aktif secara langsung (Format Landscape).
-          </div>
+          <p class="text-sm text-stone-500">
+            Laporan ini menampilkan seluruh data master katalog paket.
+          </p>
         </x-backdoor.reports.card>
-        {{-- laporan data paket (katalog master) end --}}
+        {{-- laporan data paket end --}}
 
         {{-- laporan rekapitulasi jadwal pemotretan start --}}
         <x-backdoor.reports.card
           title="Laporan Rekapitulasi Jadwal Pemotretan"
-          description="Merangkum kepadatan pemesanan studio jangka panjang untuk manajemen stok background."
+          description="Jadwal sesi foto dengan rentang waktu Tanggal Awal s/d Tanggal Akhir berdasarkan tanggal (booking_date)."
           :action="route('backdoor.reports.jadwal-pemotretan.pdf')"
         >
           <x-backdoor.reports.date-input
