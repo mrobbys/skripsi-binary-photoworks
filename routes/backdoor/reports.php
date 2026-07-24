@@ -9,6 +9,7 @@ use App\Domains\PdfReports\Http\Controllers\PendapatanTahunanController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiPemesananController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiPendapatanTransaksiController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiPerformaHariController;
+use App\Domains\PdfReports\Http\Controllers\RekapitulasiPendapatanAddonController;
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiUlasanPelangganController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,4 +46,7 @@ Route::middleware('auth')
 
     // laporan rekapitulasi jadwal pemotretan
     Route::get('/rekapitulasi-jadwal-pemotretan', RekapitulasiJadwalPemotretanController::class)->name('jadwal-pemotretan.pdf');
+
+    // laporan rekapitulasi pendapatan add-ons
+    Route::get('/rekapitulasi-pendapatan-addon', RekapitulasiPendapatanAddonController::class)->name('pendapatan-addon.pdf');
   });

@@ -188,6 +188,23 @@
         </x-backdoor.reports.card>
         {{-- laporan rekapitulasi jadwal pemotretan end --}}
 
+        {{-- laporan rekapitulasi pendapatan add-ons start --}}
+        <x-backdoor.reports.card
+          title="Laporan Rekapitulasi Pendapatan Add-ons"
+          description="Pendapatan dari penjualan add-on berdasarkan status booking (Lunas/Selesai) pada periode tanggal pemotretan (booking_date)."
+          :action="route('backdoor.reports.pendapatan-addon.pdf')"
+        >
+          <x-backdoor.reports.date-input
+            name="start_date"
+            label="TANGGAL AWAL"
+          />
+          <x-backdoor.reports.date-input
+            name="end_date"
+            label="TANGGAL AKHIR"
+          />
+        </x-backdoor.reports.card>
+        {{-- laporan rekapitulasi pendapatan add-ons end --}}
+
       </div>
 
     </div>
