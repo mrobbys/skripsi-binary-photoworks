@@ -26,8 +26,17 @@ export default function useDashboardCharts() {
   };
 
   const renderBookingTrendChart = ({ labels, data }) => {
-    charts.bookingTrend?.destroy();
-    const ctx = document.getElementById("bookingTrendChart").getContext("2d");
+    const canvas = document.getElementById("bookingTrendChart");
+    if (!canvas) return;
+
+    if (charts.bookingTrend) {
+      charts.bookingTrend.data.labels = labels;
+      charts.bookingTrend.data.datasets[0].data = data;
+      charts.bookingTrend.update();
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
     charts.bookingTrend = new Chart(ctx, {
       type: "bar",
       data: {
@@ -36,6 +45,7 @@ export default function useDashboardCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
       },
@@ -43,8 +53,17 @@ export default function useDashboardCharts() {
   };
 
   const renderRevenueTrendChart = ({ labels, data }) => {
-    charts.revenueTrend?.destroy();
-    const ctx = document.getElementById("revenueTrendChart").getContext("2d");
+    const canvas = document.getElementById("revenueTrendChart");
+    if (!canvas) return;
+
+    if (charts.revenueTrend) {
+      charts.revenueTrend.data.labels = labels;
+      charts.revenueTrend.data.datasets[0].data = data;
+      charts.revenueTrend.update();
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
     charts.revenueTrend = new Chart(ctx, {
       type: "line",
       data: {
@@ -62,6 +81,7 @@ export default function useDashboardCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         plugins: { legend: { display: false } },
         scales: {
           y: {
@@ -80,32 +100,58 @@ export default function useDashboardCharts() {
   };
 
   const renderPackageChart = ({ labels, data }) => {
-    charts.package?.destroy();
-    const ctx = document.getElementById("packageChart").getContext("2d");
+    const canvas = document.getElementById("packageChart");
+    if (!canvas) return;
+
+    const colors = generateStonePalette(labels.length);
+
+    if (charts.package) {
+      charts.package.data.labels = labels;
+      charts.package.data.datasets[0].data = data;
+      charts.package.data.datasets[0].backgroundColor = colors;
+      charts.package.update();
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
     charts.package = new Chart(ctx, {
       type: "doughnut",
       data: {
         labels,
-        datasets: [{ data, backgroundColor: generateStonePalette(labels.length) }],
+        datasets: [{ data, backgroundColor: colors }],
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         plugins: { legend: { position: "bottom" } },
       },
     });
   };
 
   const renderAddonChart = ({ labels, data }) => {
-    charts.addon?.destroy();
-    const ctx = document.getElementById("addonChart").getContext("2d");
+    const canvas = document.getElementById("addonChart");
+    if (!canvas) return;
+
+    const colors = generateStonePalette(labels.length);
+
+    if (charts.addon) {
+      charts.addon.data.labels = labels;
+      charts.addon.data.datasets[0].data = data;
+      charts.addon.data.datasets[0].backgroundColor = colors;
+      charts.addon.update();
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
     charts.addon = new Chart(ctx, {
       type: "pie",
       data: {
         labels,
-        datasets: [{ data, backgroundColor: generateStonePalette(labels.length) }],
+        datasets: [{ data, backgroundColor: colors }],
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         plugins: { legend: { position: "bottom" } },
       },
     });
