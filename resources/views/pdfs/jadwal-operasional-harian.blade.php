@@ -16,7 +16,7 @@
       <div class="text-right">
         <h1 class="text-2xl font-bold uppercase tracking-tight">Jadwal Operasional Harian</h1>
         <div class="mt-2 text-sm font-semibold">
-          <p>Tanggal: {{ $printDate }}</p>
+          <p>Tanggal: {{ $sessionDate }}</p>
         </div>
       </div>
       {{-- section right end --}}
@@ -26,7 +26,7 @@
     {{-- table section start --}}
     <div class="mb-10">
       @if ($rows->isEmpty())
-        <x-pdfs.empty-state message="Tidak ada jadwal sesi foto untuk {{ $printDate }}." />
+        <x-pdfs.empty-state message="Tidak ada jadwal sesi foto untuk {{ $sessionDate }}." />
       @else
         <table class="w-full border border-stone-300 text-left text-sm">
           <thead class="table-row-group">
