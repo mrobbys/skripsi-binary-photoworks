@@ -49,12 +49,13 @@ class JadwalOperasionalHarianController extends Controller
       'notes' => $booking->notes ?? '',
     ]));
 
-    $printDate = Formatter::dateId($tanggal, 'd F Y');
+    $sessionDate = Formatter::dateId($tanggal, 'd F Y');
+    $printDate = Formatter::dateId(Carbon::now(), 'd F Y');
     $printTime = Carbon::now()->format('H:i');
 
     return pdf()
       ->view('pdfs.jadwal-operasional-harian', compact(
-        'tanggal',
+        'sessionDate',
         'rows',
         'printDate',
         'printTime'
