@@ -10,7 +10,7 @@
       ></i>
     </div>
     <div>
-      <h2 class="text-base font-semibold text-stone-900">{{ $title }}</h2>
+      <h2 class="text-base font-semibold text-stone-900 mr-2">{{ $title }}</h2>
       @if ($description)
         <p class="mt-1 text-xs leading-relaxed text-stone-500">{{ $description }}</p>
       @endif
