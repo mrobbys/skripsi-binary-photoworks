@@ -37,32 +37,32 @@
         <table class="w-full border-collapse border border-stone-400 text-left text-xs">
           <thead class="table-row-group">
             <tr class="border-b border-stone-400 bg-stone-200 text-stone-900">
-              <th class="w-[4%] border-r border-stone-300 p-2 text-center font-bold uppercase">No</th>
-              <th class="w-[10%] border-r border-stone-300 p-2 text-center font-bold uppercase">Tanggal Bayar</th>
-              <th class="w-[17%] border-r border-stone-300 p-2 text-center font-bold uppercase">Kode Booking</th>
-              <th class="w-[13%] border-r border-stone-300 p-2 font-bold uppercase">Nama Klien</th>
-              <th class="w-[14%] border-r border-stone-300 p-2 font-bold uppercase">Paket</th>
-              <th class="w-[11%] border-r border-stone-300 p-2 text-center font-bold uppercase">Harga Paket</th>
-              <th class="w-[9%] border-r border-stone-300 p-2 text-center font-bold uppercase">Total Add-ons</th>
-              <th class="w-[10%] border-r border-stone-300 p-2 text-center font-bold uppercase">Jenis Pembayaran</th>
-              <th class="w-[12%] p-2 text-right font-bold uppercase">Total Pendapatan</th>
+              <th class="w-[4%] border border-stone-400 p-2 text-center font-bold uppercase">No</th>
+              <th class="w-[10%] border border-stone-400 p-2 text-center font-bold uppercase">Tanggal Bayar</th>
+              <th class="w-[17%] border border-stone-400 p-2 text-center font-bold uppercase">Kode Booking</th>
+              <th class="w-[13%] border border-stone-400 p-2 font-bold uppercase">Nama Klien</th>
+              <th class="w-[14%] border border-stone-400 p-2 font-bold uppercase">Paket</th>
+              <th class="w-[11%] border border-stone-400 p-2 text-center font-bold uppercase">Harga Paket</th>
+              <th class="w-[9%] border border-stone-400 p-2 text-center font-bold uppercase">Total Add-ons</th>
+              <th class="w-[10%] border border-stone-400 p-2 text-center font-bold uppercase">Jenis Pembayaran</th>
+              <th class="w-[12%] border border-stone-400 p-2 text-right font-bold uppercase">Total Pendapatan</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-stone-300">
+          <tbody>
             @foreach ($rows as $row)
               <tr class="even:bg-stone-50">
-                <td class="border-r border-stone-300 p-2 text-center align-top">{{ $row->no }}</td>
-                <td class="border-r border-stone-300 p-2 text-center align-top">{{ $row->pay_date }}</td>
-                <td class="border-r border-stone-300 p-2 text-center align-top font-mono font-semibold">
+                <td class="border border-b-0 border-stone-300 p-2 text-center align-top">{{ $row->no }}</td>
+                <td class="border border-b-0 border-stone-300 p-2 text-center align-top">{{ $row->pay_date }}</td>
+                <td class="border border-b-0 border-stone-300 p-2 text-center align-top font-mono font-semibold">
                   {{ $row->booking_code }}</td>
-                <td class="border-r border-stone-300 p-2 align-top font-semibold">{{ $row->client_name }}</td>
-                <td class="border-r border-stone-300 p-2 align-top">{{ $row->package_name }}</td>
-                <td class="border-r border-stone-300 p-2 text-center align-top">{{ $row->package_price }}</td>
-                <td class="border-r border-stone-300 p-2 text-center align-top">{{ $row->addons_total }}</td>
-                <td class="border-r border-stone-300 p-2 text-center align-top font-semibold uppercase">
+                <td class="border border-b-0 border-stone-300 p-2 align-top font-semibold">{{ $row->client_name }}</td>
+                <td class="border border-b-0 border-stone-300 p-2 align-top">{{ $row->package_name }}</td>
+                <td class="border border-b-0 border-stone-300 p-2 text-center align-top">{{ $row->package_price }}</td>
+                <td class="border border-b-0 border-stone-300 p-2 text-center align-top">{{ $row->addons_total }}</td>
+                <td class="border border-b-0 border-stone-300 p-2 text-center align-top font-semibold uppercase">
                   {{ $row->payment_purpose }}
                 </td>
-                <td class="p-2 text-right align-top font-semibold">
+                <td class="border border-b-0 border-stone-300 p-2 text-right align-top font-semibold">
                   {{ $row->total_pendapatan }}</td>
               </tr>
             @endforeach

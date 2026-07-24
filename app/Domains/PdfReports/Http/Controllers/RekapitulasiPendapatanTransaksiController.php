@@ -22,12 +22,13 @@ class RekapitulasiPendapatanTransaksiController extends Controller
 
     /**
      * Ambil data payment yang statusnya SETTLEMENT
-     * Dan tanggalnya antara start_date dan end_date (berdasarkan created_at)
+     * Dan tanggalnya antara start_date dan end_date (berdasarkan pay_date)
      */
     $payments = Payment::with(['booking.user', 'booking.packageVariant.package', 'booking.addons'])
       ->where('status', PaymentStatus::SETTLEMENT)
-      ->whereBetween('created_at', [$startDate, $endDate])
-      ->orderBy('created_at', 'asc')
+      ->whereNotNull('pay_date')
+      ->whereBetween('pay_date', [$startDate, $endDate])
+      ->orderBy('pay_date', 'asc')
       ->get();
 
     $rows = $payments->map(function ($payment, $index) {
@@ -40,18 +41,18 @@ class RekapitulasiPendapatanTransaksiController extends Controller
 
       // Hitung total penghasilan dari addons
       $addonsTotal = $booking?->addons ? $booking->addons->sum(fn($addonItem) => ($addonItem->pivot->price_at_purchase ?? 0) * ($addonItem->pivot->quantity ?? 1)) : 0;
-      // 
+
       $totalPendapatan = $payment->amount ?? 0;
 
       return new Fluent([
         'no' => $index + 1,
-        'pay_date' => Formatter::dateId($payment->pay_date ?? $payment->created_at, 'd-m-Y'),
+        'pay_date' => Formatter::dateId($payment->pay_date, 'd-m-Y'),
         'booking_code' => $booking?->booking_code ?? '-',
         'client_name' => $booking?->user?->name ?? '-',
         'package_name' => $packageName,
         'package_price' => Formatter::rupiah($packagePrice),
         'addons_total' => Formatter::rupiah($addonsTotal),
-        'payment_purpose' => $payment->payment_purpose,
+        'payment_purpose' => $payment->payment_purpose?->value ?? '-',
         'total_pendapatan' => Formatter::rupiah($totalPendapatan),
         'raw_total' => $totalPendapatan,
       ]);
