@@ -183,6 +183,7 @@ class BookingPaymentDummySeeder extends Seeder
           'notes' => 'Transaksi dummy otomatis',
           'gdrive_link' => ($status === BookingStatus::DONE->value) ? 'https://drive.google.com/dummy-photos' : null,
           'source' => (rand(1, 100) <= 80 ? BookingSource::FRONTDOOR->value : BookingSource::MANUAL->value),
+          'reminder_sent_at' => $createdAt,
           'created_at' => $createdAt,
           'updated_at' => $createdAt,
         ]);
