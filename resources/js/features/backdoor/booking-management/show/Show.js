@@ -29,7 +29,7 @@ export default function Show(Alpine) {
   };
 
   const { settle, submitGdrive } = useBookingActions({ state, fetchBooking });
-  const { submitUpsell, onUpsellAddonChange } = useUpsellAddon({ state, fetchBooking });
+  const { submitUpsell, onUpsellAddonChange, removeAddon } = useUpsellAddon({ state, fetchBooking });
 
   return {
     fetchBooking,
@@ -39,6 +39,7 @@ export default function Show(Alpine) {
     submitGdrive,
     submitUpsell,
     onUpsellAddonChange,
+    removeAddon,
     formatRupiah: (num) => "Rp " + Number(num).toLocaleString("id-ID"),
   };
 }

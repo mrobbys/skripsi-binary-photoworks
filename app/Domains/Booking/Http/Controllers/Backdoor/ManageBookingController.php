@@ -333,6 +333,37 @@ class ManageBookingController extends Controller
     }
 
     /**
+     * Hapus addon dari booking (di halaman detail).
+     */
+    public function removeAddon(Booking $booking, Addon $addon): JsonResponse
+    {
+        $pivot = $booking->addons()->where('addon_id', $addon->id)->first();
+        if (! $pivot) {
+            return response()->json(['message' => 'Layanan tambahan tidak ditemukan pada pemesanan ini.'], 404);
+        }
+
+        DB::transaction(function () use ($booking, $addon, $pivot) {
+            $deductedAmount = $pivot->pivot->price_at_purchase * $pivot->pivot->quantity;
+            $booking->decrement('total_price', $deductedAmount);
+            $booking->addons()->detach($addon->id);
+        });
+
+        $booking->refresh()->load([
+            'addons',
+            'packageVariant.package',
+            'packageVariant',
+            'background',
+            'user',
+            'payments' => fn ($q) => $q->orderBy('created_at', 'desc')
+        ]);
+
+        return response()->json([
+            'message' => 'Layanan tambahan berhasil dihapus.',
+            'data' => $booking
+        ]);
+    }
+
+    /**
      * Buat pesan untuk notifikasi whatsapp fonnte
      */
     private function buildMessage(Booking $booking): string
