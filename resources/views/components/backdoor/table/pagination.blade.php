@@ -8,7 +8,7 @@
   {{-- pagination meta end --}}
 
   {{-- pagination controls start --}}
-  <div class="flex items-center gap-1">
+  <div class="flex flex-wrap items-center gap-1">
     {{-- prev btn start --}}
     <x-backdoor.table.pagination-button
       x-on:click="table.prevPage()"
@@ -18,7 +18,7 @@
     {{-- prev btn end --}}
 
     {{-- page numbers start --}}
-    <template x-for="page in table.getPages()" x-bind:key="page">
+    <template x-for="(page, index) in table.getPages()" x-bind:key="index">
       <button
         class="w-10 h-10"
         x-on:click="table.goToPage(page)"
