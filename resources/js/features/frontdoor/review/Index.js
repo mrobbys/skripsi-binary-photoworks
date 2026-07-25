@@ -168,17 +168,24 @@ export default function Index(Alpine) {
   const getPages = () => {
     const current = state.currentPage;
     const last = state.lastPage;
-    const pages = [];
-
-    for (let i = 1; i <= last; i++) {
-      if (i === 1 || i === last || (i >= current - 1 && i <= current + 1)) {
-        pages.push(i);
-      } else if (pages.at(-1) !== "...") {
-        pages.push("...");
-      }
+    
+    // Jika total halaman sedikit, tampilkan semuanya
+    if (last <= 7) {
+      return Array.from({ length: last }, (_, i) => i + 1);
     }
 
-    return pages;
+    // Jika di awal
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, "...", last];
+    }
+
+    // Jika di akhir
+    if (current >= last - 3) {
+      return [1, "...", last - 4, last - 3, last - 2, last - 1, last];
+    }
+
+    // Jika di tengah
+    return [1, "...", current - 1, current, current + 1, "...", last];
   };
 
   // ---------------------------------------------------------------------------

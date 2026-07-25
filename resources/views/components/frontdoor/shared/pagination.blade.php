@@ -8,7 +8,7 @@
   {{-- pagination meta end --}}
 
   {{-- pagination controls start --}}
-  <div class="flex items-center gap-1">
+  <div class="flex flex-wrap items-center gap-1">
     {{-- prev btn start --}}
     <button
       class="w-10 h-10 flex items-center justify-center border border-stone-300 bg-transparent text-stone-600 hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
@@ -19,7 +19,7 @@
     {{-- prev btn end --}}
 
     {{-- page numbers start --}}
-    <template x-for="page in getPages()" :key="page">
+    <template x-for="(page, index) in getPages()" :key="index">
       <button
         class="w-10 h-10"
         x-on:click="goToPage(page)"
