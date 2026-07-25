@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->text('gdrive_link')->nullable();
             $table->string('source')->nullable(); // 'manual', 'frontdoor'
+            $table->timestamp('reminder_sent_at')->nullable(); // Timestamp kapan reminder WA terakhir dikirim
             $table->timestamps();
 
             // Composite index for schedule lookup

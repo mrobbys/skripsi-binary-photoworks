@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('booking:cancel-expired')->everyMinute();
+Schedule::command('booking:send-reminders')->dailyAt('09:00');

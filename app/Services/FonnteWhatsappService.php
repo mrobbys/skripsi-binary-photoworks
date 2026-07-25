@@ -10,6 +10,7 @@ class FonnteWhatsappService
 {
     public function __construct(
         #[Config('fonnte.token')] private string $token,
+        #[Config('fonnte.enabled')] private bool $enabled = false,
     ) {}
 
     /**
@@ -19,6 +20,16 @@ class FonnteWhatsappService
      */
     public function send(string $phone, string $message): bool
     {
+        // Safety guard: Jika Fonnte dinonaktifkan (misal di lokal), simpan di log saja
+        if (! $this->enabled) {
+            Log::channel('whatsapp')->info('[DRY-RUN] WA Notification (Fonnte Disabled)', [
+                'phone'   => $phone,
+                'message' => $message,
+            ]);
+
+            return true;
+        }
+
         // Normalisasi nomor
         $normalized = $this->normalizePhone($phone);
 
