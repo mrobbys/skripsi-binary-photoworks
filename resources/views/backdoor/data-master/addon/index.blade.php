@@ -2,7 +2,7 @@
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Data Master', 'url' => '#'],
-      ['label' => 'Layanan Tambahan', 'url' => ''],
+      ['label' => 'Layanan Tambahan (Addon)', 'url' => ''],
   ];
 @endphp
 

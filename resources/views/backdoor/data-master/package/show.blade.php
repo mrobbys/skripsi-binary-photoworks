@@ -1,6 +1,7 @@
 @php
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
+      ['label' => 'Data Master', 'url' => '#'],
       ['label' => 'Kelola Paket & Varian', 'url' => route('backdoor.data-master.package.index')],
       ['label' => 'Detail Paket', 'url' => ''],
   ];

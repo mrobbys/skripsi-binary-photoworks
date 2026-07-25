@@ -113,27 +113,24 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
 
   const getPages = () => {
     const { current_page: current, last_page: last } = state.pagination;
-    const delta = 1;
-    const range = [];
-    const result = [];
-    let prev;
-
-    for (let i = 1; i <= last; i++) {
-      if (i === 1 || i === last || Math.abs(i - current) <= delta) {
-        range.push(i);
-      }
+    
+    // Jika total halaman sedikit, tampilkan semuanya
+    if (last <= 7) {
+      return Array.from({ length: last }, (_, i) => i + 1);
     }
 
-    for (const page of range) {
-      if (prev !== undefined) {
-        if (page - prev === 2) result.push(prev + 1);
-        else if (page - prev > 2) result.push("...");
-      }
-      result.push(page);
-      prev = page;
+    // Jika di awal
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, "...", last];
     }
 
-    return result;
+    // Jika di akhir
+    if (current >= last - 3) {
+      return [1, "...", last - 4, last - 3, last - 2, last - 1, last];
+    }
+
+    // Jika di tengah
+    return [1, "...", current - 1, current, current + 1, "...", last];
   };
 
   return {

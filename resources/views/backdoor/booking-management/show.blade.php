@@ -326,6 +326,17 @@
                     x-text="formatRupiah(Math.max(0, (state.booking?.total_price || 0) - (state.booking?.payments?.filter(p => p.status === 'Settlement').reduce((sum, p) => sum + p.amount, 0) || 0)))"
                   ></span>
                 </div>
+
+                <div class="mt-4 border-t border-stone-300 pt-4" x-show="state.bookingCode">
+                  <a
+                    :href="`/payments/${state.bookingCode}/receipt`"
+                    target="_blank"
+                    class="flex w-full items-center justify-center gap-2 border border-stone-300 bg-stone-50 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-100 hover:text-stone-900"
+                  >
+                    <i class="ri-printer-line text-lg" aria-hidden="true"></i>
+                    <span>Cetak / Lihat Kuitansi</span>
+                  </a>
+                </div>
               </div>
             </div>
             {{-- ringkasan keuangan end --}}
