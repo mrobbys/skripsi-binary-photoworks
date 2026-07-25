@@ -4,7 +4,6 @@ namespace App\Domains\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Domains\User\Http\Requests\LoginRequest;
-use App\Domains\User\Services\LoginService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -14,16 +13,8 @@ use App\Domains\User\Traits\RedirectsUsers;
 
 class LoginController extends Controller
 {
-
   use RedirectsUsers;
 
-  public function __construct(protected LoginService $loginService) {}
-
-  /**
-   * Menampilkan halaman login.
-   *
-   * @return View
-   */
   public function index(): View
   {
     return view('auth.login.index');
@@ -31,16 +22,17 @@ class LoginController extends Controller
 
   /**
    * Handle login pengguna.
-   * 
    * @param LoginRequest $request
-   * @return RedirectResponse
    */
   public function store(LoginRequest $request): RedirectResponse
   {
     $request->ensureIsNotRateLimited();
-    $loginData = $request->toDto();
+    $validated = $request->validated();
 
-    if (!$this->loginService->login($loginData)) {
+    if (!Auth::attempt([
+      'email' => $validated['email'],
+      'password' => $validated['password'],
+    ], $validated['remember'] ?? false)) {
       RateLimiter::hit($request->throttleKey(), 300);
 
       throw ValidationException::withMessages([

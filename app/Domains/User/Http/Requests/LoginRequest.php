@@ -7,7 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
-use App\Domains\User\DTOs\LoginData;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -32,7 +31,7 @@ class LoginRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'email:rfc,dns'
+                'email:rfc'
             ],
             'password' => [
                 'required',
@@ -47,20 +46,6 @@ class LoginRequest extends FormRequest
                 'boolean'
             ]
         ];
-    }
-
-    /**
-     * Return data yang telah divalidasi ke DTO LoginData
-     */
-    public function toDto(): LoginData
-    {
-        $validated = $this->validated();
-
-        return new LoginData(
-            email: trim($validated['email']),
-            password: $validated['password'],
-            remember: $validated['remember'] ?? false
-        );
     }
 
     /**
@@ -103,7 +88,6 @@ class LoginRequest extends FormRequest
             'email.max' => 'Email tidak boleh lebih dari 255 karakter.',
             'email.email' => 'Format email tidak valid.',
             'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
-            'email.dns' => 'Domain email tidak valid.',
 
             'password.required' => 'Password harus diisi.',
             'password.string' => 'Password harus berupa string.',
