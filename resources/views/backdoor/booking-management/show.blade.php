@@ -204,6 +204,9 @@
                       <th class="px-5 py-2 text-center">Qty</th>
                       <th class="px-5 py-2 text-right">Harga Satuan</th>
                       <th class="px-5 py-2 text-right">Subtotal</th>
+                      <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
+                        <th class="px-5 py-2 text-right w-16">Aksi</th>
+                      </template>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-stone-300">
@@ -228,6 +231,18 @@
                           class="px-5 py-3 text-right font-semibold text-stone-800"
                           x-text="formatRupiah(addon.pivot.quantity * addon.pivot.price_at_purchase)"
                         ></td>
+                        <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
+                          <td class="px-5 py-3 text-right">
+                            <button 
+                              type="button"
+                              x-on:click="removeAddon(addon.id)" 
+                              x-bind:disabled="state.upsell.isLoading"
+                              class="text-red-500 hover:text-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Hapus Layanan">
+                              <i class="ri-delete-bin-line"></i>
+                            </button>
+                          </td>
+                        </template>
                       </tr>
                     </template>
                   </tbody>

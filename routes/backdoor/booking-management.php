@@ -24,4 +24,6 @@ Route::middleware('auth')
         Route::patch('/{booking:booking_code}', [ManageBookingController::class, 'cancel'])->name('cancel');
         // upsell addon
         Route::post('/{booking:booking_code}/addons', [ManageBookingController::class, 'upsellAddon'])->name('addons.upsell');
+        // remove addon di halaman detail
+        Route::delete('/{booking:booking_code}/addons/{addon}', [ManageBookingController::class, 'removeAddon'])->name('addons.remove');
     });

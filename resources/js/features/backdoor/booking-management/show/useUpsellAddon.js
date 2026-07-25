@@ -1,5 +1,5 @@
 import route from "@/lib/route";
-import { Toast } from "@/lib/sweetalert";
+import { Toast, confirmModal } from "@/lib/sweetalert";
 import axiosInstance from "@/lib/axiosInstance";
 
 export default function useUpsellAddon({ state, fetchBooking }) {
@@ -26,10 +26,32 @@ export default function useUpsellAddon({ state, fetchBooking }) {
     }
   };
 
+  const removeAddon = async (addonId) => {
+    const isConfirm = await confirmModal(
+      "Hapus Layanan?",
+      "Layanan akan dihapus dari pemesanan ini.",
+      "warning",
+      "Ya, Hapus"
+    );
+
+    if (isConfirm.isConfirmed) {
+      state.upsell.isLoading = true;
+      try {
+        const res = await axiosInstance.delete(route("backdoor.booking-management.addons.remove", [state.bookingCode, addonId]));
+        Toast.fire({ icon: "success", title: res.data.message });
+        await fetchBooking();
+      } catch (err) {
+        Toast.fire({ icon: "error", title: err?.response?.data?.message ?? "Gagal menghapus layanan." });
+      } finally {
+        state.upsell.isLoading = false;
+      }
+    }
+  };
+
   const onUpsellAddonChange = () => {
     const addon = state.allAddons.find((a) => a.id == state.upsell.addonId);
     if (addon && !addon.has_quantity) state.upsell.quantity = 1;
   };
 
-  return { submitUpsell, onUpsellAddonChange };
+  return { submitUpsell, onUpsellAddonChange, removeAddon };
 }
