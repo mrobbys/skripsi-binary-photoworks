@@ -35,16 +35,7 @@ class PackageVariantController extends Controller
 			->orderBy('created_at', 'asc')
 			->paginate($limit);
 
-		return $this->successResponse(
-			'Data varian berhasil dimuat.',
-			$variants->items(),
-			200,
-			[
-				'current_page' => $variants->currentPage(),
-				'last_page' => $variants->lastPage(),
-				'total' => $variants->total(),
-			]
-		);
+		return response()->json($variants);
 	}
 
 	/**
