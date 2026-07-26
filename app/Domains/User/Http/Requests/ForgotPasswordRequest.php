@@ -2,7 +2,6 @@
 
 namespace App\Domains\User\Http\Requests;
 
-use App\Domains\User\DTOs\ForgotPasswordData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ForgotPasswordRequest extends FormRequest
@@ -27,20 +26,11 @@ class ForgotPasswordRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'email:rfc,dns'
+                'email:rfc'
             ],
         ];
     }
 
-    /**
-     * Return data yang telah di validasi ke DTO ForgotPasswordData
-     */
-    public function toDto(): ForgotPasswordData
-    {
-        return new ForgotPasswordData(
-            email: trim($this->validated('email'))
-        );
-    }
 
     public function messages(): array
     {
@@ -50,7 +40,6 @@ class ForgotPasswordRequest extends FormRequest
             'email.max' => 'Email tidak boleh lebih dari 255 karakter.',
             'email.email' => 'Format email tidak valid.',
             'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
-            'email.dns' => 'Domain email tidak valid.',
         ];
     }
 }
