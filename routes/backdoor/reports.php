@@ -13,9 +13,8 @@ use App\Domains\PdfReports\Http\Controllers\RekapitulasiPendapatanAddonControlle
 use App\Domains\PdfReports\Http\Controllers\RekapitulasiUlasanPelangganController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')
-  ->prefix('backdoor/reports')
-  ->name('backdoor.reports.')
+Route::prefix('reports')
+  ->name('reports.')
   ->group(function () {
     // tampil halaman index / semua pilihan report
     Route::get('/', [ReportIndexController::class, 'index'])->name('index');

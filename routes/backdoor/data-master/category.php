@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Domains\MasterData\Http\Controllers\CategoryController;
 
-Route::middleware('auth')
-  ->prefix('backdoor/data-master/category')
-  ->name('backdoor.data-master.category.')
+Route::prefix('category')
+  ->name('category.')
   ->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('index');
     Route::post('/', [CategoryController::class, 'store'])->name('store');

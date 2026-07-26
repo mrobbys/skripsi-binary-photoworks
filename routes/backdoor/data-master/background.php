@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Domains\MasterData\Http\Controllers\BackgroundController;
 
-Route::middleware('auth')
-  ->prefix('backdoor/data-master/background')
-  ->name('backdoor.data-master.background.')
+Route::prefix('background')
+  ->name('background.')
   ->group(function () {
     Route::get('/', [BackgroundController::class, 'index'])->name('index');
     Route::post('/', [BackgroundController::class, 'store'])->name('store');

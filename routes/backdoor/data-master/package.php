@@ -4,9 +4,8 @@ use App\Domains\MasterData\Http\Controllers\PackageController;
 use App\Domains\MasterData\Http\Controllers\PackageVariantController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])
-    ->prefix('backdoor/data-master/package')
-    ->name('backdoor.data-master.package.')
+Route::prefix('package')
+    ->name('package.')
     ->group(function () {
         // Package Routes
         Route::get('/', [PackageController::class, 'index'])->name('index');

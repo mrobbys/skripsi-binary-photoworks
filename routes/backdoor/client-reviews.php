@@ -3,9 +3,8 @@
 use App\Domains\Review\Http\Controllers\Backdoor\ReviewManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')
-    ->prefix('backdoor/client-reviews')
-    ->name('backdoor.client-reviews.')
+Route::prefix('client-reviews')
+    ->name('client-reviews.')
     ->group(function () {
         // halaman index
         Route::get('/', [ReviewManagementController::class, 'index'])

@@ -3,9 +3,8 @@
 use App\Domains\User\Http\Controllers\Backdoor\ClientDataController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')
-  ->prefix('backdoor/client-data')
-  ->name('backdoor.client-data.')
+Route::prefix('client-data')
+  ->name('client-data.')
   ->group(function () {
     // halaman daftar klien
     Route::get('/', [ClientDataController::class, 'index'])

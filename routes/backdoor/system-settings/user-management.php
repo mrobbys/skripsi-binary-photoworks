@@ -3,9 +3,8 @@
 use App\Domains\SystemSettings\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')
-  ->prefix('backdoor/system-settings/users')
-  ->name('backdoor.system-settings.users.')
+Route::prefix('users')
+  ->name('users.')
   ->group(function () {
 
     // Halaman index
