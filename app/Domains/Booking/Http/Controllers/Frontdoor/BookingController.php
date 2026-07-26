@@ -19,16 +19,15 @@ use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Domains\MasterData\Models\Background;
+use App\Domains\MasterData\Models\Schedule;
 use App\Support\Formatter;
-use App\Domains\MasterData\Repositories\ScheduleRepository;
 
 #[Middleware('auth', only: ['flow', 'checkout', 'success'])]
 class BookingController extends Controller
 {
     public function __construct(
         private readonly BookingService $bookingService,
-        private readonly BookingRepository $repository,
-        private readonly ScheduleRepository $scheduleRepository
+        private readonly BookingRepository $repository
     ) {}
 
     /**
@@ -98,7 +97,7 @@ class BookingController extends Controller
             ->get();
 
         $addons = Addon::where('is_active', true)->orderBy('name')->get();
-        $activeDays = $this->scheduleRepository->getDays();
+        $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
         // ambil background yang aktif, beserta URL gambar thumbnail
         $backgrounds = Background::where('is_active', true)
             ->get()
@@ -127,7 +126,7 @@ class BookingController extends Controller
         $dayOfWeek = Carbon::parse($date)->dayOfWeekIso;
 
         // ambil slot waktu
-        $schedules = $this->scheduleRepository->queryActive()
+        $schedules = Schedule::where('is_active', true)
             ->where('day', $dayOfWeek)
             ->orderBy('start_time')
             ->get(['start_time', 'end_time']);
