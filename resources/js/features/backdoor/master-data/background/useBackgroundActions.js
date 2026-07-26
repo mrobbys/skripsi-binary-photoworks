@@ -3,24 +3,14 @@ import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
 import axiosInstance from "@/lib/axiosInstance";
 
 export default function useBackgroundActions({ state, table }) {
-  const toggleBackgroundStatus = async (id, currentStatus) => {
+  const toggleBackgroundStatus = async (id) => {
     state.isLoading = true;
 
-    const item = table.data.find((bg) => bg.id === id);
-    if (item) item.is_active = !currentStatus;
-
     try {
-      const response = await axiosInstance.patch(route("backdoor.data-master.background.toggle", id));
-
-      if (response.data.total_active_backgrounds !== undefined) {
-        state.totalActiveBackgrounds = response.data.total_active_backgrounds;
-      }
-
-      Toast.fire({ icon: "success", title: response.data.message });
+      await axiosInstance.patch(route("backdoor.data-master.background.toggle", id));
+      table.reload();
+      Toast.fire({ icon: "success", title: "Status background berhasil diperbarui" });
     } catch (error) {
-      // Rollback optimistic update
-      if (item) item.is_active = currentStatus;
-
       Toast.fire({
         icon: "error",
         title: error.response?.data?.message ?? "Terjadi kesalahan server.",

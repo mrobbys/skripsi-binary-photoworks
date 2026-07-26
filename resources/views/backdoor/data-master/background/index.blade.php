@@ -14,7 +14,6 @@
   <x-slot:content>
     <div
       x-data="Background"
-      x-init="state.totalActiveBackgrounds = {{ $totalActiveBackgrounds }}; state.totalBackgrounds = {{ $totalBackgrounds }};"
       class="w-full space-y-6">
 
       {{-- title section start --}}
