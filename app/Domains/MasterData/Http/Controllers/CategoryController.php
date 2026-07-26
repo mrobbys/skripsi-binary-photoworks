@@ -5,6 +5,7 @@ namespace App\Domains\MasterData\Http\Controllers;
 use App\Domains\MasterData\DTOs\CategoryData;
 use App\Domains\MasterData\Http\Requests\StoreCategoryRequest;
 use App\Domains\MasterData\Http\Requests\UpdateCategoryRequest;
+use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Services\CategoryService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -39,7 +40,7 @@ class CategoryController extends Controller
 			'current_page' => $categories->currentPage(),
 			'last_page' => $categories->lastPage(),
 			'total' => $categories->total(),
-			'active_count' => $this->categoryService->countActive(),
+			'active_count' => Category::where('is_active', true)->count(),
 		]);
 	}
 

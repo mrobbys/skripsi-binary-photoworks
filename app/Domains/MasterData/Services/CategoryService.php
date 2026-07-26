@@ -29,14 +29,6 @@ class CategoryService
 	}
 
 	/**
-	 * Hitung jumlah kategori yang aktif
-	 */
-	public function countActive(): int
-	{
-		return Category::where('is_active', true)->count();
-	}
-
-	/**
 	 * Membuat kategori baru
 	 * @param CategoryData $data
 	 */
