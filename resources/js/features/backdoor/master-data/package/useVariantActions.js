@@ -11,8 +11,7 @@ export default function useVariantActions({ state, table }) {
       const response = await axiosInstance.patch(
         route("backdoor.data-master.package.variants.toggle", { package: packageSlug, variant: variantId }),
       );
-      const idx = table.data.findIndex((v) => v.id === variantId);
-      if (idx !== -1) table.data[idx].is_active = !originalChecked;
+      table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
       checkbox.checked = originalChecked;

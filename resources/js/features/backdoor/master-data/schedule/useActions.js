@@ -89,17 +89,14 @@ export default function useActions({ state, table }) {
   /**
    * Toggle status aktif dengan optimistic update.
    */
-  const toggleScheduleStatus = async (scheduleId, currentStatus) => {
-    const item = table.data.find((s) => s.id === scheduleId);
-    if (item) item.is_active = !currentStatus;
-
+  const toggleScheduleStatus = async (scheduleId) => {
     state.savingIds = new Set([...state.savingIds, scheduleId]);
 
     try {
-      const response = await axiosInstance.patch(route("backdoor.data-master.schedule.toggle", scheduleId));
-      Toast.fire({ icon: "success", title: response.data.message });
+      await axiosInstance.patch(route("backdoor.data-master.schedule.toggle", scheduleId));
+      table.reload();
+      Toast.fire({ icon: "success", title: "Status jadwal berhasil diperbarui" });
     } catch (error) {
-      if (item) item.is_active = currentStatus; // rollback
       Toast.fire({
         icon: "error",
         title: error.response?.data?.message ?? "Terjadi kesalahan server.",

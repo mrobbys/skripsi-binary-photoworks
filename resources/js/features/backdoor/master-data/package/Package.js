@@ -18,9 +18,10 @@ export default function Package(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, route("backdoor.data-master.package.index"), {
+  } = useDatatable(Alpine, route("backdoor.data-master.package.data"), {
+    useHistory: true,
     onSuccess: (res) => {
-      if (res.total_packages !== undefined) state.totalPackages = res.total_packages;
+      if (res.total !== undefined) state.totalPackages = res.total;
       if (res.total_active_packages !== undefined) state.totalActivePackages = res.total_active_packages;
       if (res.total_active_variants !== undefined) state.totalActiveVariants = res.total_active_variants;
     },

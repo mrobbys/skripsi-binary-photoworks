@@ -26,10 +26,7 @@ export default function usePackageForm({ state, table }) {
     document.dispatchEvent(new CustomEvent("package:reset-filepond"));
   };
 
-  const setPackageInfo = (pkg) => {
-    state.packageInfo = pkg;
-    state.packageId = pkg.slug;
-  };
+
 
   const openDrawer = () => {
     resetPackageForm();
@@ -39,7 +36,7 @@ export default function usePackageForm({ state, table }) {
   const openEditDrawer = (pkg) => {
     resetPackageForm();
     state.isEdit = true;
-    state.packageId = pkg?.slug ?? window.__packageSlug;
+    state.packageId = pkg?.slug ?? state.packageSlug;
     state.form.category_id = pkg?.category_id ?? "";
     state.form.name = pkg?.name ?? "";
     state.form.description = pkg?.description ?? "";
@@ -63,26 +60,17 @@ export default function usePackageForm({ state, table }) {
   };
 
   const handleEditSuccess = async () => {
-    if (window.__packageSlug) {
+    if (state.packageSlug) {
       // Jika di halaman detail paket (ShowPackage), perbarui data info paket & URL
-      const response2 = await axiosInstance.get(route("backdoor.data-master.package.show", state.packageId));
+      const response2 = await axiosInstance.get(route("backdoor.data-master.package.info", state.packageId));
       const pkg = response2.data.data;
 
-      setPackageInfo({
-        slug: pkg.slug,
-        category_id: pkg.category_id,
-        category_name: pkg.category?.name ?? "",
-        name: pkg.name,
-        description: pkg.description,
-        image_url: pkg.image_url,
-        is_active: pkg.is_active,
-        features: pkg.features?.map((f) => (typeof f === "string" ? f : f.description)) ?? [],
-      });
+      state.packageInfo = pkg;
 
       if (pkg.slug !== state.packageId) {
         state.packageId = pkg.slug;
         window.history.replaceState(null, "", route("backdoor.data-master.package.show", pkg.slug));
-        window.__packageSlug = pkg.slug; // keep global var updated
+        state.packageSlug = pkg.slug; // update alpine state
       }
     } else {
       // Jika di halaman list paket (Package), reload datatable
@@ -179,6 +167,5 @@ export default function usePackageForm({ state, table }) {
     addFeature,
     removeFeature,
     submitPackage,
-    setPackageInfo,
   };
 }

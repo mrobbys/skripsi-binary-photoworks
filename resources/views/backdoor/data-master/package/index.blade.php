@@ -14,9 +14,6 @@
   <x-slot:content>
     <div
       x-data="Package"
-      x-init="state.totalPackages = {{ $totalPackages }};
-      state.totalActivePackages = {{ $totalActivePackages }};
-      state.totalActiveVariants = {{ $totalActiveVariants }};"
       class="w-full space-y-6">
 
       {{-- title section start --}}

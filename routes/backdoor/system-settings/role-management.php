@@ -3,9 +3,8 @@
 use App\Domains\SystemSettings\Http\Controllers\RoleManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')
-  ->prefix('backdoor/system-settings/roles')
-  ->name('backdoor.system-settings.roles.')
+Route::prefix('roles')
+  ->name('roles.')
   ->group(function () {
 
     // Halaman index (view)

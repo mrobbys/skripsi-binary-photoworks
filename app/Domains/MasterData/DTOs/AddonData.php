@@ -2,8 +2,7 @@
 
 namespace App\Domains\MasterData\DTOs;
 
-use App\Domains\MasterData\Http\Requests\StoreAddonRequest;
-use App\Domains\MasterData\Http\Requests\UpdateAddonRequest;
+use Illuminate\Foundation\Http\FormRequest;
 use Spatie\LaravelData\Data;
 
 class AddonData extends Data
@@ -16,7 +15,7 @@ class AddonData extends Data
     public readonly bool $is_active = true,
   ) {}
 
-  public static function fromRequest(StoreAddonRequest|UpdateAddonRequest $request): self
+  public static function fromRequest(FormRequest $request): self
   {
     return new self(
       name: trim($request->validated('name')),

@@ -2,9 +2,8 @@
 
 use App\Domains\Booking\Http\Controllers\Backdoor\ManageBookingController;
 
-Route::middleware('auth')
-    ->prefix('backdoor/booking-management')
-    ->name('backdoor.booking-management.')
+Route::prefix('booking-management')
+    ->name('booking-management.')
     ->group(function () {
         // tampil semua data booking
         Route::get('/', [ManageBookingController::class, 'index'])->name('index');

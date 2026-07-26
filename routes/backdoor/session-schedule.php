@@ -4,9 +4,8 @@ use App\Domains\Booking\Http\Controllers\Backdoor\ManageBookingController;
 use App\Domains\Booking\Http\Controllers\Backdoor\SessionScheduleController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')
-  ->prefix('backdoor/session-schedule')
-  ->name('backdoor.session-schedule.')
+Route::prefix('session-schedule')
+  ->name('session-schedule.')
   ->group(function () {
     // halaman daftar jadwal
     Route::get('/list', [SessionScheduleController::class, 'index'])

@@ -9,26 +9,36 @@
 <x-layouts.backdoor.index
   title="Kategori Foto"
   :breadcrumbs="$breadcrumbs"
-  jsModule="backdoor/master-data/category/Category">
+  jsModule="backdoor/master-data/category/Category"
+>
 
   <x-slot:content>
     <div
       x-data="Category"
-      x-init="state.activeCount = {{ $activeCount }}"
-      class="w-full space-y-6">
+      class="w-full space-y-6"
+    >
       {{-- title section start --}}
       <x-backdoor.shared.page-header title="Kategori Foto" />
       {{-- title section end --}}
 
       {{-- stats card start --}}
-      <x-backdoor.shared.stats-card
-        label="Total Kategori Aktif"
-        x-text="state.activeCount"
-        suffix="Kategori" />
+      <div class="grid grid-cols-4 gap-6">
+        <x-backdoor.shared.stats-card
+          label="Total Kategori"
+          x-text="state.totalCategory"
+          suffix="Kategori"
+        />
+
+        <x-backdoor.shared.stats-card
+          label="Total Kategori Aktif"
+          x-text="state.activeCount"
+          suffix="Kategori"
+        />
+      </div>
       {{-- stats card end --}}
 
       {{-- table card start --}}
-      <div class="bg-stone-50 border border-stone-200 p-6 relative overflow-visible">
+      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
 
         {{-- table header start --}}
         <x-backdoor.table.header>
@@ -39,7 +49,8 @@
           <x-slot:right>
             <x-backdoor.table.add-button
               x-on:click="openDrawer()"
-              text="Tambah Kategori" />
+              text="Tambah Kategori"
+            />
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
@@ -48,27 +59,32 @@
         <x-backdoor.table.container headers="No,Kode Kategori,Nama Kategori,Status,Aksi">
           <template
             x-for="(item, index) in table.data"
-            x-bind:key="item.slug">
+            x-bind:key="item.slug"
+          >
             <tr
-              class="hover:bg-stone-100 border-b border-stone-200 transition"
+              class="border-b border-stone-200 transition hover:bg-stone-100"
               x-show="!table.isLoading"
-              x-cloak>
+              x-cloak
+            >
               {{-- No start --}}
               <x-backdoor.table.cell
                 class="text-stone-600"
-                x-text="(table.pagination.current_page - 1) * table.pagination.per_page + index + 1" />
+                x-text="(table.pagination.current_page - 1) * table.pagination.per_page + index + 1"
+              />
               {{-- No end --}}
 
               {{-- Kode Kategori start --}}
               <x-backdoor.table.cell
-                class="font-semibold text-stone-900 uppercase"
-                x-text="item.category_code" />
+                class="font-semibold uppercase text-stone-900"
+                x-text="item.category_code"
+              />
               {{-- Kode Kategori end --}}
 
               {{-- Nama Kategori start --}}
               <x-backdoor.table.cell
                 class="font-semibold text-stone-900"
-                x-text="item.name" />
+                x-text="item.name"
+              />
               {{-- Nama Kategori end --}}
 
               {{-- Status toggle start --}}
@@ -76,7 +92,8 @@
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
                   x-bind:disabled="state.isLoading"
-                  x-on:change="toggleCategoryStatus(item.slug, $event)" />
+                  x-on:change="toggleCategoryStatus(item.slug, $event)"
+                />
               </x-backdoor.table.cell>
               {{-- Status toggle end --}}
 
@@ -85,11 +102,13 @@
                 <x-backdoor.table.action-item
                   color="text-yellow-600"
                   x-on:click="closeDropdown(); editCategory(item)"
-                  text="Edit" />
+                  text="Edit"
+                />
                 <x-backdoor.table.action-item
                   color="text-red-600"
                   x-on:click="closeDropdown(); destroyCategory(item)"
-                  text="Hapus" />
+                  text="Hapus"
+                />
               </x-backdoor.table.actions>
               {{-- Aksi end --}}
             </tr>

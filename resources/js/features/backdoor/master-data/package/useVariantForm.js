@@ -33,7 +33,7 @@ export default function useVariantForm({ state, table }) {
 
   const openVariantDrawer = (packageSlug) => {
     resetVariantForm();
-    state.currentPackageSlug = packageSlug ?? window.__packageSlug;
+    state.currentPackageSlug = packageSlug;
     state.isVariantDrawerOpen = true;
   };
   const closeVariantDrawer = () => {
@@ -45,7 +45,7 @@ export default function useVariantForm({ state, table }) {
     resetVariantForm();
     state.isVariantEdit = true;
     state.variantId = variant?.id;
-    state.currentPackageSlug = packageSlug ?? window.__packageSlug;
+    state.currentPackageSlug = packageSlug;
     state.variantForm.name = variant?.name;
     state.variantForm.price = variant?.price;
     state.variantForm.duration = variant?.duration;

@@ -7,8 +7,8 @@ use App\Domains\Booking\DTOs\CheckoutData;
 use App\Domains\Booking\Http\Requests\CheckoutRequest;
 use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Booking\Services\BookingService;
-use App\Domains\MasterData\Repositories\AddonRepository;
-use App\Domains\MasterData\Repositories\CategoryRepository;
+use App\Domains\MasterData\Models\Addon;
+use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Http\Controllers\Controller;
@@ -18,22 +18,16 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Domains\MasterData\Repositories\BackgroundRepository;
-use App\Domains\MasterData\Repositories\PackageRepository;
+use App\Domains\MasterData\Models\Background;
+use App\Domains\MasterData\Models\Schedule;
 use App\Support\Formatter;
-use App\Domains\MasterData\Repositories\ScheduleRepository;
 
 #[Middleware('auth', only: ['flow', 'checkout', 'success'])]
 class BookingController extends Controller
 {
     public function __construct(
         private readonly BookingService $bookingService,
-        private readonly BookingRepository $repository,
-        private readonly CategoryRepository $categoryRepository,
-        private readonly PackageRepository $packageRepository,
-        private readonly BackgroundRepository $backgroundRepository,
-        private readonly AddonRepository $addonRepository,
-        private readonly ScheduleRepository $scheduleRepository
+        private readonly BookingRepository $repository
     ) {}
 
     /**
@@ -44,7 +38,7 @@ class BookingController extends Controller
     {
         if ($request->wantsJson()) {
             // ambil data paket yang aktif, beserta kategori dan variant yang aktif
-            $query = $this->packageRepository->queryActive()
+            $query = Package::where('is_active', true)
                 ->with(['category', 'variants' => function ($q) {
                     $q->where('is_active', true)->orderBy('price');
                 }]);
@@ -81,7 +75,7 @@ class BookingController extends Controller
             ]);
         }
 
-        $categories = $this->categoryRepository->getActive();
+        $categories = Category::where('is_active', true)->get();
 
         return view('frontdoor.services.index', compact('categories'));
     }
@@ -102,10 +96,10 @@ class BookingController extends Controller
             ->orderBy('price')
             ->get();
 
-        $addons = $this->addonRepository->queryActive()->orderBy('name')->get();
-        $activeDays = $this->scheduleRepository->getDays();
+        $addons = Addon::where('is_active', true)->orderBy('name')->get();
+        $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
         // ambil background yang aktif, beserta URL gambar thumbnail
-        $backgrounds = $this->backgroundRepository->queryActive()
+        $backgrounds = Background::where('is_active', true)
             ->get()
             ->map(fn($bg) => [
                 'id' => $bg->id,
@@ -132,7 +126,7 @@ class BookingController extends Controller
         $dayOfWeek = Carbon::parse($date)->dayOfWeekIso;
 
         // ambil slot waktu
-        $schedules = $this->scheduleRepository->queryActive()
+        $schedules = Schedule::where('is_active', true)
             ->where('day', $dayOfWeek)
             ->orderBy('start_time')
             ->get(['start_time', 'end_time']);

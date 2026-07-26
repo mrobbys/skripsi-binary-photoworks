@@ -1,3 +1,4 @@
+import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import useDatatable from "@/lib/useDatatable";
 import useVariantForm from "./useVariantForm";
@@ -10,6 +11,8 @@ import usePackageForm from "./usePackageForm";
 export default function ShowPackage(Alpine) {
   const state = useState(Alpine);
 
+  state.packageSlug = null;
+
   const {
     state: table,
     fetch,
@@ -18,17 +21,29 @@ export default function ShowPackage(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, () => route("backdoor.data-master.package.variants.index", window.__packageSlug ?? ""), {
+  } = useDatatable(Alpine, () => route("backdoor.data-master.package.variants.index", state.packageSlug ?? ""), {
     onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data varian." }),
   });
 
   Object.assign(table, { fetch, nextPage, prevPage, goToPage, reload, getPages });
 
-  const init = function () {
-    fetch();
+  const initData = async function (slug) {
+    state.packageSlug = slug;
+    fetch(); // Load variant table
+    await fetchPackageInfo(); // Load package details
   };
 
-  const { setPackageInfo, openEditDrawer, closeDrawer, addFeature, removeFeature, submitPackage } = usePackageForm({
+  const fetchPackageInfo = async () => {
+    try {
+      const res = await axiosInstance.get(route("backdoor.data-master.package.info", state.packageSlug));
+      state.packageInfo = res.data.data;
+    } catch (error) {
+      Toast.fire({ icon: "error", title: "Gagal memuat detail paket" });
+      console.error(error);
+    }
+  };
+
+  const { openEditDrawer, closeDrawer, addFeature, removeFeature, submitPackage } = usePackageForm({
     state,
     table,
   });
@@ -41,8 +56,7 @@ export default function ShowPackage(Alpine) {
   return {
     state,
     table,
-    init,
-    setPackageInfo,
+    initData,
 
     // Package Drawer
     openEditDrawer,

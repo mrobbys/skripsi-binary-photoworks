@@ -87,10 +87,6 @@ export default function useBackgroundForm({ state, table }) {
       closeDrawer();
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
-
-      if (response.data.total_active_backgrounds !== undefined) {
-        state.totalActiveBackgrounds = response.data.total_active_backgrounds;
-      }
     } catch (error) {
       if (error.response?.status === 422) {
         const errs = error.response.data.errors;

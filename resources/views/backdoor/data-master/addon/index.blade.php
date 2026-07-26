@@ -14,8 +14,6 @@
   <x-slot:content>
     <div
       x-data="Addon"
-      x-init="state.totalAddons = {{ $totalAddons }};
-      state.totalActiveAddons = {{ $totalActiveAddons }};"
       class="w-full space-y-6">
 
       {{-- Page Header --}}

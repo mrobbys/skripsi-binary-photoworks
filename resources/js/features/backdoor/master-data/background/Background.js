@@ -3,7 +3,6 @@ import useState from "./useState";
 import useBackgroundForm from "./useBackgroundForm";
 import useBackgroundActions from "./useBackgroundActions";
 import route from "@/lib/route";
-import { Toast } from "@/lib/sweetalert";
 
 export default function Background(Alpine) {
   const state = useState(Alpine);
@@ -17,16 +16,12 @@ export default function Background(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, route("backdoor.data-master.background.index"), {
+  } = useDatatable(Alpine, route("backdoor.data-master.background.data"), {
+    useHistory: true,
     onSuccess: (res) => {
-      if (res.total_active_backgrounds !== undefined) {
-        state.totalActiveBackgrounds = res.total_active_backgrounds;
-      }
-      if (res.total_backgrounds !== undefined) {
-        state.totalBackgrounds = res.total_backgrounds;
-      }
+      if (res.total_active_backgrounds !== undefined) state.totalActiveBackgrounds = res.total_active_backgrounds;
+      if (res.total_backgrounds !== undefined) state.totalBackgrounds = res.total_backgrounds;
     },
-    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data background." }),
   });
 
   Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });

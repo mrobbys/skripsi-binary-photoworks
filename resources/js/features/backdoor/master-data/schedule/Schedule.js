@@ -11,7 +11,8 @@ export default function Schedule(Alpine) {
     state: table,
     fetch,
     reload,
-  } = useDatatable(Alpine, route("backdoor.data-master.schedule.index"), {
+  } = useDatatable(Alpine, route("backdoor.data-master.schedule.data"), {
+    useHistory: true,
     onError: () => Toast.fire({ icon: "error", title: "Gagal memuat jadwal." }),
   });
 

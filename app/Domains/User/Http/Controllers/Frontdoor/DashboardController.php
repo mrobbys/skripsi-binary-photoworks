@@ -4,7 +4,7 @@ namespace App\Domains\User\Http\Controllers\Frontdoor;
 
 use App\Domains\Booking\Services\CancelBookingService;
 use App\Domains\Booking\Services\DashboardService;
-use App\Domains\MasterData\Repositories\ScheduleRepository;
+use App\Domains\MasterData\Models\Schedule;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +15,6 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly DashboardService $dashboardService,
-        private readonly ScheduleRepository $scheduleRepository,
         private readonly CancelBookingService $cancelBookingService
     ) {}
 
@@ -24,7 +23,7 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        $activeDays = $this->scheduleRepository->getDays();
+        $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
         return view('frontdoor.dashboard.jadwal', compact('activeDays'));
     }
 

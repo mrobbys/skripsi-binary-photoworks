@@ -6,7 +6,6 @@ use App\Domains\MasterData\DTOs\AddonData;
 use App\Domains\MasterData\Http\Requests\StoreAddonRequest;
 use App\Domains\MasterData\Http\Requests\UpdateAddonRequest;
 use App\Domains\MasterData\Models\Addon;
-use App\Domains\MasterData\Repositories\AddonRepository;
 use App\Domains\MasterData\Services\AddonService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -14,108 +13,104 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
+#[Middleware('permission:addon-master-view', only: ['index', 'data'])]
+#[Middleware('permission:addon-master-create', only: ['store'])]
+#[Middleware('permission:addon-master-update', only: ['update', 'toggleActive'])]
+#[Middleware('permission:addon-master-delete', only: ['destroy'])]
 class AddonController extends Controller
 {
-  public function __construct(
-    protected AddonService $addonService,
-    protected AddonRepository $addonRepository,
-  ) {}
+	public function __construct(
+		protected AddonService $addonService,
+	) {}
 
-  /**
-   * Tampil semua data add-on
-   * @param Request $request
-   */
-  #[Middleware('permission:addon-master-view')]
-  public function index(Request $request): View|JsonResponse
-  {
-    $totalAddons       = $this->addonRepository->countAddon();
-    $totalActiveAddons = $this->addonRepository->countActive();
+	public function index(): View
+	{
+		return view('backdoor.data-master.addon.index');
+	}
 
-    if ($request->wantsJson()) {
-      $search = $request->query('search');
-      $limit  = max(1, min((int) $request->query('limit', 10), 100));
+	public function data(Request $request): JsonResponse
+	{
+		$search = $request->query('search');
+		$limit = max(1, min((int) $request->query('limit', 10), 100));
 
-      $addons = $this->addonRepository->searchQuery($search)->paginate($limit);
+		$addons = $this->addonService->searchQuery($search)->paginate($limit);
 
-      return response()->json([
-        'data'                => $addons->items(),
-        'current_page'        => $addons->currentPage(),
-        'last_page'           => $addons->lastPage(),
-        'total'               => $addons->total(),
-        'total_addons'        => $totalAddons,
-        'total_active_addons' => $totalActiveAddons,
-      ]);
-    }
+		return response()->json([
+			'data' => $addons->items(),
+			'current_page' => $addons->currentPage(),
+			'last_page' => $addons->lastPage(),
+			'total' => $addons->total(),
+			'total_addons' => Addon::count(),
+			'total_active_addons' => Addon::where('is_active', true)->count(),
+		]);
+	}
 
-    return view('backdoor.data-master.addon.index', [
-      'totalAddons'       => $totalAddons,
-      'totalActiveAddons' => $totalActiveAddons,
-    ]);
-  }
+	/**
+	 * Menambahkan data add-on
+	 * @param StoreAddonRequest $request
+	 */
+	public function store(StoreAddonRequest $request): JsonResponse
+	{
+		try {
+			$addon = $this->addonService->createAddon(AddonData::fromRequest($request));
 
-  /**
-   * Menambahkan data add-on
-   * @param StoreAddonRequest $request
-   */
-  #[Middleware('permission:addon-master-create')]
-  public function store(StoreAddonRequest $request): JsonResponse
-  {
-    $addon = $this->addonService->createAddon(AddonData::from($request));
+			return $this->successResponse('Add-on berhasil ditambahkan.', $addon, 201);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'status'  => 'success',
-      'message' => 'Add-on berhasil ditambahkan.',
-      'data'    => $addon,
-    ], 201);
-  }
+	/**
+	 * Memperbarui data add-on
+	 * @param UpdateAddonRequest $request
+	 * @param Addon $addon
+	 */
+	public function update(UpdateAddonRequest $request, Addon $addon): JsonResponse
+	{
+		try {
+			$updated = $this->addonService->updateAddon($addon->id, AddonData::fromRequest($request));
 
-  /**
-   * Memperbarui data add-on
-   * @param UpdateAddonRequest $request
-   * @param Addon $addon
-   */
-  #[Middleware('permission:addon-master-update')]
-  public function update(UpdateAddonRequest $request, Addon $addon): JsonResponse
-  {
-    $updated = $this->addonService->updateAddon($addon->id, AddonData::from($request));
+			return $this->successResponse('Add-on berhasil diperbarui.', $updated);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'status'  => 'success',
-      'message' => 'Add-on berhasil diperbarui.',
-      'data'    => $updated,
-    ]);
-  }
+	/**
+	 * Menghapus data add-on
+	 * @param Addon $addon
+	 */
+	public function destroy(Addon $addon): JsonResponse
+	{
+		try {
+			$this->addonService->deleteAddon($addon->id);
 
-  /**
-   * Menghapus data add-on
-   * @param Addon $addon
-   */
-  #[Middleware('permission:addon-master-delete')]
-  public function destroy(Addon $addon): JsonResponse
-  {
-    $this->addonService->deleteAddon($addon->id);
+			return $this->successResponse('Add-on berhasil dihapus.');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'status'  => 'success',
-      'message' => 'Add-on berhasil dihapus.',
-    ]);
-  }
+	/**
+	 * Mengubah status add-on
+	 * @param Addon $addon
+	 */
+	public function toggleActive(Addon $addon): JsonResponse
+	{
+		try {
+			$this->addonService->toggleActiveStatus($addon->id);
 
-  /**
-   * Mengubah status add-on
-   * @param Addon $addon
-   */
-  #[Middleware('permission:addon-master-update')]
-  public function toggleActive(Addon $addon): JsonResponse
-  {
-    $updated           = $this->addonService->toggleActiveStatus($addon->id);
-    $totalActiveAddons = $this->addonRepository->countActive();
-
-    return response()->json([
-      'status'              => 'success',
-      'message'             => 'Status add-on berhasil diperbarui.',
-      'data'                => $updated,
-      'total_active_addons' => $totalActiveAddons,
-    ]);
-  }
+			return $this->successResponse('Status add-on berhasil diperbarui.');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 }

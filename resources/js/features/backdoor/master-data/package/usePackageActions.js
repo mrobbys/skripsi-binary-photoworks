@@ -8,14 +8,9 @@ export default function usePackageActions({ state, table }) {
     const originalChecked = !checkbox.checked;
     state.isLoading = true;
     try {
-      const response = await axiosInstance.patch(route("backdoor.data-master.package.toggle", slug));
-      if (response.data.total_active_variants !== undefined) {
-        state.totalActivePackages = response.data.total_active_packages;
-        state.totalActiveVariants = response.data.total_active_variants;
-      }
-      const idx = table.data.findIndex((p) => p.slug === slug);
-      if (idx !== -1) table.data[idx].is_active = !originalChecked;
-      Toast.fire({ icon: "success", title: response.data.message });
+      await axiosInstance.patch(route("backdoor.data-master.package.toggle", slug));
+      table.reload();
+      Toast.fire({ icon: "success", title: "Status paket berhasil diperbarui" });
     } catch (error) {
       checkbox.checked = originalChecked;
       Toast.fire({ icon: "error", title: error.response?.data?.message ?? "Terjadi kesalahan server." });

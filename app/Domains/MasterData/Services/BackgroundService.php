@@ -4,89 +4,84 @@ namespace App\Domains\MasterData\Services;
 
 use App\Domains\MasterData\DTOs\BackgroundData;
 use App\Domains\MasterData\Models\Background;
-use App\Domains\MasterData\Repositories\BackgroundRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 
 class BackgroundService
 {
-  public function __construct(
-    protected BackgroundRepository $backgroundRepository,
-  ) {}
+	/**
+	 * Query pencarian background
+	 * @param ?string $search
+	 */
+	public function searchQuery(?string $search): Builder
+	{
+		$query = Background::with('media')->latest();
 
-  /**
-   * Tambah background
-   * @param BackgroundData $data
-   * @param UploadedFile|null $image
-   */
-  public function createBackground(BackgroundData $data, ?UploadedFile $image = null): Background
-  {
-    $background = $this->backgroundRepository->create($data->toArray());
+		if ($search) {
+			$term = '%' . $search . '%';
+			$query->where(function ($q) use ($term) {
+				$q->where('name', 'ILIKE', $term)
+					->orWhere('description', 'ILIKE', $term);
+			});
+		}
 
-    if ($image) {
-      $background
-        ->addMedia($image)
-        ->toMediaCollection('background-image');
-    }
+		return $query;
+	}
 
-    return $background->load('media');
-  }
+	/**
+	 * Tambah background
+	 * @param BackgroundData $data
+	 * @param ?UploadedFile $image
+	 */
+	public function createBackground(BackgroundData $data, ?UploadedFile $image = null): Background
+	{
+		$background = Background::create($data->toArray());
 
-  /**
-   * Update background
-   * @param int $id
-   * @param BackgroundData $data
-   * @param UploadedFile|null $image
-   */
-  public function updateBackground(int $id, BackgroundData $data, ?UploadedFile $image = null): Background
-  {
-    $background = $this->findOrFail($id);
+		if ($image) {
+			$background
+				->addMedia($image)
+				->toMediaCollection('background-image');
+		}
 
-    $this->backgroundRepository->update($background, $data->toArray());
+		return $background->load('media');
+	}
 
-    if ($image) {
-      $background
-        ->addMedia($image)
-        ->toMediaCollection('background-image');
-    }
+	/**
+	 * Update background
+	 * @param int $id
+	 * @param BackgroundData $data
+	 */
+	public function updateBackground(int $id, BackgroundData $data, ?UploadedFile $image = null): Background
+	{
+		$background = Background::findOrFail($id);
+		$background->update($data->toArray());
 
-    return $background->load('media');
-  }
+		if ($image) {
+			$background
+				->addMedia($image)
+				->toMediaCollection('background-image');
+		}
 
-  /**
-   * Hapus background
-   * @param int $id
-   */
-  public function deleteBackground(int $id): bool
-  {
-    $background = $this->findOrFail($id);
-    return $this->backgroundRepository->delete($background);
-  }
+		return $background->load('media');
+	}
 
-  /**
-   * Toggle active status
-   * @param int $id
-   */
-  public function toggleActiveStatus(int $id): Background
-  {
-    $background = $this->findOrFail($id);
-    return $this->backgroundRepository->update($background, [
-      'is_active' => ! $background->is_active,
-    ]);
-  }
+	/**
+	 * Hapus background
+	 * @param int $id
+	 */
+	public function deleteBackground(int $id): bool
+	{
+		return Background::findOrFail($id)->delete();
+	}
 
-  /**
-   * Cari background
-   * @param int $id
-   */
-  private function findOrFail(int $id): Background
-  {
-    $background = $this->backgroundRepository->findById($id);
-
-    if (! $background) {
-      throw new ModelNotFoundException('Background tidak ditemukan.');
-    }
-
-    return $background;
-  }
+	/**
+	 * Ubah status aktif background
+	 * @param int $id
+	 */
+	public function toggleActiveStatus(int $id): Background
+	{
+		$background = Background::findOrFail($id);
+		$background->update(['is_active' => !$background->is_active]);
+		return $background;
+	}
 }

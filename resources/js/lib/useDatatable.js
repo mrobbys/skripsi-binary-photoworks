@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import axios from "@/lib/axiosInstance";
 
 /**
@@ -14,7 +16,7 @@ import axios from "@/lib/axiosInstance";
  * @returns {{ state, fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages }}
  */
 export default function useDatatable(Alpine, fetchUrl, options = {}) {
-  const { onSuccess, onError, debounceMs = 500, extraParams } = options;
+  const { onSuccess, onError, debounceMs = 500, extraParams, useHistory } = options;
 
   const state = Alpine.reactive({
     data: [],
@@ -29,6 +31,14 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     },
   });
 
+  if (useHistory) {
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get("page");
+    const search = params.get("search");
+    if (page) state.pagination.current_page = parseInt(page, 10);
+    if (search) state.search = search;
+  }
+
   // AbortController untuk membatalkan request sebelumnya (cegah race condition)
   let abortController = null;
 
@@ -37,7 +47,6 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     if (abortController) {
       abortController.abort();
     }
-    // eslint-disable-next-line no-undef
     abortController = new AbortController();
 
     if (showLoading) state.isLoading = true;
@@ -60,6 +69,14 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
       state.pagination.current_page = response.data.current_page;
       state.pagination.last_page = response.data.last_page;
       state.pagination.total = response.data.total;
+
+      if (useHistory) {
+        const params = new URLSearchParams();
+        if (state.pagination.current_page > 1) params.set("page", state.pagination.current_page);
+        if (state.search) params.set("search", state.search);
+        const qs = params.toString();
+        window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+      }
 
       onSuccess?.(response.data);
 
