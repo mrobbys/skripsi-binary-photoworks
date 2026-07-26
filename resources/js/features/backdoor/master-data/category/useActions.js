@@ -10,18 +10,11 @@ export default function useActions({ state, table }) {
 
     state.isLoading = true;
     try {
-      const response = await axiosInstance.patch(route("backdoor.data-master.category.toggle", slug));
-      state.activeCount = response.data.active_count ?? state.activeCount;
-
-      // Update data di table secara reaktif
-      const itemIndex = table.data.findIndex((i) => i.slug === slug);
-      if (itemIndex !== -1) {
-        table.data[itemIndex].is_active = !originalChecked;
-      }
-
+      await axiosInstance.patch(route("backdoor.data-master.category.toggle", slug));
+      table.reload();
       Toast.fire({
         icon: "success",
-        title: response.data.message,
+        title: "Status aktif kategori berhasil diperbarui",
       });
     } catch (error) {
       checkbox.checked = originalChecked; // jika gagal, kembalikan state sebelum diubah

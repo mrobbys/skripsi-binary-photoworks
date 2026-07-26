@@ -85,14 +85,9 @@ class CategoryController extends Controller
 	public function toggleActive(string $slug): JsonResponse
 	{
 		try {
-			$category = $this->categoryService->toggleCategoryActiveStatus($slug);
-			$activeCount = $this->categoryService->countActive();
+			$this->categoryService->toggleCategoryActiveStatus($slug);
 
-			return $this->successResponse(
-				'Status aktif kategori berhasil diperbarui',
-				$category,
-				extra: ['active_count' => $activeCount],
-			);
+			return $this->successResponse('Status aktif kategori berhasil diperbarui');
 		} catch (\RuntimeException $e) {
 			return $this->errorResponse($e->getMessage(), 422);
 		} catch (\Exception $e) {
