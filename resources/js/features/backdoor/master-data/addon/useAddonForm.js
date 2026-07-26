@@ -81,10 +81,6 @@ export default function useAddonForm({ state, table }) {
       closeDrawer();
       table.reload();
       Toast.fire({ icon: "success", title: response.data.message });
-
-      if (response.data.total_active_addons !== undefined) {
-        state.totalActiveAddons = response.data.total_active_addons;
-      }
     } catch (error) {
       if (error.response?.status === 422) {
         const errs = error.response.data.errors;

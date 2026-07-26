@@ -3,25 +3,14 @@ import { Modal, Toast, confirmModal } from "@/lib/sweetalert";
 import axiosInstance from "@/lib/axiosInstance";
 
 export default function useAddonActions({ state, table }) {
-  const toggleAddonStatus = async (id, currentStatus) => {
+  const toggleAddonStatus = async (id) => {
     state.isLoading = true;
 
-    // Optimistic update
-    const item = table.data.find((a) => a.id === id);
-    if (item) item.is_active = !currentStatus;
-
     try {
-      const response = await axiosInstance.patch(route("backdoor.data-master.addon.toggle", id));
-
-      if (response.data.total_active_addons !== undefined) {
-        state.totalActiveAddons = response.data.total_active_addons;
-      }
-
-      Toast.fire({ icon: "success", title: response.data.message });
+      await axiosInstance.patch(route("backdoor.data-master.addon.toggle", id));
+      table.reload();
+      Toast.fire({ icon: "success", title: "Status add-on berhasil diperbarui" });
     } catch (error) {
-      // Rollback optimistic update
-      if (item) item.is_active = currentStatus;
-
       Toast.fire({
         icon: "error",
         title: error.response?.data?.message ?? "Terjadi kesalahan server.",

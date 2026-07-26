@@ -18,7 +18,8 @@ export default function Addon(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, route("backdoor.data-master.addon.index"), {
+  } = useDatatable(Alpine, route("backdoor.data-master.addon.data"), {
+    useHistory: true,
     onSuccess: (res) => {
       if (res.total_addons !== undefined) state.totalAddons = res.total_addons;
       if (res.total_active_addons !== undefined) state.totalActiveAddons = res.total_active_addons;
