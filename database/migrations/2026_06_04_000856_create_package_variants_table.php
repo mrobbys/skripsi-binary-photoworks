@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('package_variants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('package_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('package_id')->constrained()->index()->cascadeOnDelete();
             $table->string('name', 100);
             $table->unsignedInteger('price');
             $table->unsignedSmallInteger('duration');
