@@ -77,11 +77,6 @@ export default function useForm({ state, table }) {
 
     try {
       const res = await axios[method](url, parsed.data);
-
-      if (res.data.status !== 'success') {
-        throw new Error(res.data.message || "Gagal menyimpan user.");
-      }
-
       closeDrawer();
       table.reload();
       Toast.fire({ icon: "success", title: res.data.message });

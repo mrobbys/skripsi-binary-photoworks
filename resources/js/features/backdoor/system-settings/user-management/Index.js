@@ -18,6 +18,7 @@ export default function Index(Alpine) {
     reload,
     getPages,
   } = useDatatable(Alpine, route("backdoor.system-settings.users.data"), {
+    useHistory: true,
     onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data user." }),
   });
 

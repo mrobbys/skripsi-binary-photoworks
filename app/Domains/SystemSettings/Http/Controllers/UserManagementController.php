@@ -11,45 +11,50 @@ use App\Domains\User\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
+#[Middleware('permission:user-management-view', only: ['index', 'data'])]
+#[Middleware('permission:user-management-create', only: ['store'])]
+#[Middleware('permission:user-management-update', only: ['update'])]
+#[Middleware('permission:user-management-delete', only: ['destroy', 'resetPassword'])]
 class UserManagementController extends Controller
 {
   public function __construct(
     private readonly UserManagementService $service,
   ) {}
 
+  /**
+   * Abort jika role superadmin.
+   * @param User $user
+   * @param string $action
+   */
+  private function abortIfSuperadmin(User $user, string $action): void
+  {
+    abort_if($user->hasRole('superadmin'), 403, "Tidak dapat {$action} superadmin.");
+  }
+
   public function index(): View
   {
+    // Kirim list role yang tersedia ke view, kecuali role superadmin
     $roles = Role::where('name', '!=', 'superadmin')->get(['id', 'name']);
-
     return view('backdoor.system-settings.user.index', compact('roles'));
   }
 
   /**
    * JSON endpoint untuk useDatatable.
    * Filter: superadmin tidak pernah muncul.
+   * @param Request $request
    */
   public function data(Request $request): JsonResponse
   {
-    $search = $request->input('search', '');
+    $search = $request->query('search');
     $limit  = max(1, min($request->integer('limit', 10), 100));
 
-    $query = User::with('roles')
-      ->whereDoesntHave('roles', fn($q) => $q->where('name', 'superadmin'))
-      ->when($search, function ($q) use ($search) {
-        $q->where(function ($inner) use ($search) {
-          $inner->where('name', 'ilike', "%{$search}%")
-            ->orWhere('email', 'ilike', "%{$search}%")
-            ->orWhere('phone', 'ilike', "%{$search}%");
-        });
-      })
-      ->latest('created_at');
-
-    $paginated = $query->paginate($limit);
-
+    $paginated = $this->service->searchQuery($search)->paginate($limit);
+    
     return response()->json([
       'data' => UserRowData::collect($paginated->items()),
       'current_page' => $paginated->currentPage(),
@@ -60,79 +65,77 @@ class UserManagementController extends Controller
 
   /**
    * Simpan user baru.
+   * @param StoreUserRequest $request
    */
   public function store(StoreUserRequest $request): JsonResponse
   {
-    $userData = UserData::fromRequest($request);
-    $user = $this->service->store($userData);
+    try {
+      $user = $this->service->store(UserData::fromRequest($request));
 
-    return response()->json([
-      'status'  => 'success',
-      'message' => "User \"{$user->name}\" berhasil ditambahkan.",
-    ], 201);
+      return $this->successResponse("User \"{$user->name}\" berhasil ditambahkan.", null, 201);
+    } catch (\RuntimeException $e) {
+      return $this->errorResponse($e->getMessage(), 422);
+    } catch (\Exception $e) {
+      return $this->errorResponse('Terjadi kesalahan server');
+    }
   }
 
   /**
    * Update data user yang ada.
+   * @param UpdateUserRequest $request
+   * @param User $user
    */
   public function update(UpdateUserRequest $request, User $user): JsonResponse
   {
-    abort_if($user->hasRole('superadmin'), 403, 'Tidak dapat mengubah data superadmin.');
+    $this->abortIfSuperadmin($user, 'mengubah data');
 
-    $userData = UserData::fromRequest($request);
-    $this->service->update($user, $userData);
+    try {
+      $this->service->update($user, UserData::fromRequest($request));
 
-    return response()->json([
-      'status'  => 'success',
-      'message' => "Data user \"{$user->name}\" berhasil diperbarui.",
-    ]);
+      return $this->successResponse("Data user \"{$user->name}\" berhasil diperbarui.");
+    } catch (\RuntimeException $e) {
+      return $this->errorResponse($e->getMessage(), 422);
+    } catch (\Exception $e) {
+      return $this->errorResponse('Terjadi kesalahan server');
+    }
   }
 
   /**
-   * Hard delete user.
-   * Proteksi self-harm: tidak bisa menghapus akun sendiri.
-   * Activity log eksplisit karena trait log `deleted` event tanpa context yang cukup.
+   * Delete user.
+   * @param User $user
    */
   public function destroy(User $user): JsonResponse
   {
-    abort_if($user->hasRole('superadmin'), 403, 'Tidak dapat menghapus superadmin.');
-
+    $this->abortIfSuperadmin($user, 'menghapus');
     abort_if($user->id === Auth::id(), 403, 'Tidak dapat menghapus akun Anda sendiri.');
 
-    $name = $user->name;
+    try {
+      $this->service->destroy($user);
 
-    $this->service->destroy($user);
-
-    // Explicit activity log untuk delete dengan konteks yang jelas
-    activity('user')
-      ->causedBy(Auth::user())
-      ->withProperties(['deleted_name' => $name])
-      ->log('deleted');
-
-    return response()->json([
-      'status'  => 'success',
-      'message' => "User \"{$name}\" berhasil dihapus.",
-    ]);
+      return $this->successResponse("User \"{$user->name}\" berhasil dihapus.");
+    } catch (\RuntimeException $e) {
+      return $this->errorResponse($e->getMessage(), 422);
+    } catch (\Exception $e) {
+      return $this->errorResponse('Terjadi kesalahan server');
+    }
   }
 
   /**
    * Reset password user ke Password123.
-   * Activity log eksplisit karena auto-log hanya mencatat hash baru yang tidak bermakna.
+   * @param User $user
    */
   public function resetPassword(User $user): JsonResponse
   {
-    abort_if($user->hasRole('superadmin'), 403, 'Tidak dapat mereset password superadmin.');
-    
-    $this->service->resetPassword($user);
+    $this->abortIfSuperadmin($user, 'mereset password');
 
-    activity('user')
-      ->causedBy(Auth::user())
-      ->performedOn($user)
-      ->log('reset-password');
+    try {
+      $this->service->resetPassword($user);
 
-    return response()->json([
-      'status'  => 'success',
-      'message' => "Password \"{$user->name}\" berhasil direset ke Password123.",
-    ]);
+      return $this->successResponse("Password \"{$user->name}\" berhasil direset ke Password123.");
+    } catch (\RuntimeException $e) {
+      return $this->errorResponse($e->getMessage(), 422);
+    } catch (\Exception $e) {
+      return $this->errorResponse('Terjadi kesalahan server');
+    }
   }
 }
