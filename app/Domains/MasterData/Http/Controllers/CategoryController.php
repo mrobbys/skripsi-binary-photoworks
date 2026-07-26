@@ -6,114 +6,97 @@ use App\Domains\MasterData\DTOs\CategoryData;
 use App\Domains\MasterData\Http\Requests\StoreCategoryRequest;
 use App\Domains\MasterData\Http\Requests\UpdateCategoryRequest;
 use App\Domains\MasterData\Services\CategoryService;
-use App\Domains\MasterData\Repositories\CategoryRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
+#[Middleware('permission:category-master-view', only: ['index', 'data'])]
+#[Middleware('permission:category-master-create', only: ['store'])]
+#[Middleware('permission:category-master-update', only: ['update', 'toggleActive'])]
+#[Middleware('permission:category-master-delete', only: ['destroy'])]
 class CategoryController extends Controller
 {
-  public function __construct(
-    protected CategoryService $categoryService,
-    protected CategoryRepository $categoryRepository
-  ) {}
+	public function __construct(
+		protected CategoryService $categoryService,
+	) {}
 
-  /**
-   * Menampilkan daftar kategori.
-   * @param Request $request
-   */
-  #[Middleware('permission:category-master-view')]
-  public function index(Request $request): View|JsonResponse
-  {
-    // hitung jumlah kategori yang aktif
-    $activeCount = $this->categoryRepository->countActive();
+	public function index(): View
+	{
+		return view('backdoor.data-master.category.index');
+	}
 
-    // request json / ajax
-    if ($request->wantsJson()) {
-      $search = $request->query('search');
-      $limit = max(1, min((int) $request->query('limit', 10), 100));
+	public function data(Request $request): JsonResponse
+	{
+		$search = $request->query('search');
+		$limit = max(1, min((int) $request->query('limit', 10), 100));
 
-      $categories = $this->categoryRepository->searchQuery($search)->paginate($limit);
+		$categories = $this->categoryService->searchQuery($search)->paginate($limit);
 
-      return response()->json([
-        'data' => $categories->items(),
-        'current_page' => $categories->currentPage(),
-        'last_page' => $categories->lastPage(),
-        'total' => $categories->total(),
-        'active_count' => $activeCount,
-      ]);
-    }
+		return response()->json([
+			'data' => $categories->items(),
+			'current_page' => $categories->currentPage(),
+			'last_page' => $categories->lastPage(),
+			'total' => $categories->total(),
+			'active_count' => $this->categoryService->countActive(),
+		]);
+	}
 
-    return view('backdoor.data-master.category.index', [
-      'activeCount' => $activeCount
-    ]);
-  }
+	public function store(StoreCategoryRequest $request): JsonResponse
+	{
+		try {
+			$category = $this->categoryService->createCategory(CategoryData::fromRequest($request));
 
-  /**
-   * Simpan kategori baru.
-   * @param StoreCategoryRequest $request
-   */
-  #[Middleware('permission:category-master-create')]
-  public function store(StoreCategoryRequest $request): JsonResponse
-  {
-    $category = $this->categoryService->createCategory(CategoryData::from($request));
+			return $this->successResponse('Kategori berhasil ditambahkan', $category, 201);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Kategori berhasil ditambahkan',
-      'data' => $category,
-    ], 201);
-  }
+	public function update(UpdateCategoryRequest $request, string $slug): JsonResponse
+	{
+		try {
+			$category = $this->categoryService->updateCategory($slug, CategoryData::fromRequest($request));
 
-  /**
-   * Update kategori berdasarkan slug.
-   * @param UpdateCategoryRequest $request
-   * @param string $slug
-   */
-  #[Middleware('permission:category-master-update')]
-  public function update(UpdateCategoryRequest $request, string $slug): JsonResponse
-  {
-    $category = $this->categoryService->updateCategory($slug, CategoryData::from($request));
+			return $this->successResponse('Kategori berhasil diperbarui', $category);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Kategori berhasil diperbarui',
-      'data' => $category,
-    ]);
-  }
+	public function destroy(string $slug): JsonResponse
+	{
+		try {
+			$this->categoryService->deleteCategory($slug);
 
-  /**
-   * Hapus kategori.
-   * @param string $slug
-   */
-  #[Middleware('permission:category-master-delete')]
-  public function destroy(string $slug): JsonResponse
-  {
-    $this->categoryService->deleteCategory($slug);
+			return $this->successResponse('Kategori berhasil dihapus');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Kategori berhasil dihapus',
-    ]);
-  }
+	public function toggleActive(string $slug): JsonResponse
+	{
+		try {
+			$category = $this->categoryService->toggleCategoryActiveStatus($slug);
+			$activeCount = $this->categoryService->countActive();
 
-  /**
-   * Ubah status aktif kategori dengan toggle.
-   * @param string $slug
-   */
-  #[Middleware('permission:category-master-update')]
-  public function toggleActive(string $slug): JsonResponse
-  {
-    $category = $this->categoryService->toggleCategoryActiveStatus($slug);
-    $activeCount = $this->categoryRepository->countActive();
-
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Status aktif kategori berhasil diperbarui',
-      'data' => $category,
-      'active_count' => $activeCount,
-    ]);
-  }
+			return $this->successResponse(
+				'Status aktif kategori berhasil diperbarui',
+				$category,
+				extra: ['active_count' => $activeCount],
+			);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 }

@@ -7,6 +7,7 @@ Route::prefix('category')
   ->name('category.')
   ->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('index');
+    Route::get('/data', [CategoryController::class, 'data'])->name('data');
     Route::post('/', [CategoryController::class, 'store'])->name('store');
     Route::put('{category:slug}', [CategoryController::class, 'update'])->name('update');
     Route::delete('{category:slug}', [CategoryController::class, 'destroy'])->name('destroy');

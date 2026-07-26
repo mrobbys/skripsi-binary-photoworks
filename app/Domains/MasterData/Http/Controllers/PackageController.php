@@ -5,7 +5,7 @@ namespace App\Domains\MasterData\Http\Controllers;
 use App\Domains\MasterData\DTOs\PackageData;
 use App\Domains\MasterData\Http\Requests\StorePackageRequest;
 use App\Domains\MasterData\Http\Requests\UpdatePackageRequest;
-use App\Domains\MasterData\Repositories\CategoryRepository;
+use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Models\Package;
 use App\Domains\MasterData\Repositories\PackageRepository;
 use App\Domains\MasterData\Repositories\PackageVariantRepository;
@@ -20,7 +20,6 @@ class PackageController extends Controller
 {
     public function __construct(
         protected PackageService $packageService,
-        protected CategoryRepository $categoryRepository,
         protected PackageRepository $packageRepository,
         protected PackageVariantRepository $variantRepository
     ) {}
@@ -65,9 +64,9 @@ class PackageController extends Controller
             ]);
         }
 
-        $categories = $this->categoryRepository->queryActive()
+        $categories = Category::where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'category_code', 'name']);
+            ->get();
 
         return view('backdoor.data-master.package.index', [
             'totalPackages' => $totalPackages,
@@ -88,9 +87,9 @@ class PackageController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        $categories = $this->categoryRepository->queryActive()
+        $categories = Category::where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'category_code', 'name']);
+            ->get();
 
         if (request()->wantsJson()) {
             return response()->json([

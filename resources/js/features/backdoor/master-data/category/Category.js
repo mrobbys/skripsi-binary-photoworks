@@ -17,7 +17,8 @@ export default function Category(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, route("backdoor.data-master.category.index"), {
+  } = useDatatable(Alpine, route("backdoor.data-master.category.data"), {
+    useHistory: true,
     onSuccess: (res) => {
       if (res.active_count !== undefined) {
         state.activeCount = res.active_count;

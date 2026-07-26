@@ -14,7 +14,6 @@
   <x-slot:content>
     <div
       x-data="Category"
-      x-init="state.activeCount = {{ $activeCount }}"
       class="w-full space-y-6">
       {{-- title section start --}}
       <x-backdoor.shared.page-header title="Kategori Foto" />

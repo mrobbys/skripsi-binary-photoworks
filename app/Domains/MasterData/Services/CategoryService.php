@@ -4,73 +4,85 @@ namespace App\Domains\MasterData\Services;
 
 use App\Domains\MasterData\DTOs\CategoryData;
 use App\Domains\MasterData\Models\Category;
-use App\Domains\MasterData\Repositories\CategoryRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoryService
 {
-  public function __construct(
-    protected CategoryRepository $categoryRepository
-  ) {}
+	/**
+	 * Query pencarian kategori
+	 * Digunakan di halaman index table data kategori
+	 * @param ?string $search
+	 */
+	public function searchQuery(?string $search): Builder
+	{
+		$query = Category::query()->orderBy('created_at', 'desc');
 
-  /**
-   * Logika bisnis simpan kategori baru (otomatis mengubah kode menjadi HURUF BESAR).
-   * @param CategoryData $data
-   */
-  public function createCategory(CategoryData $data): Category
-  {
-    return $this->categoryRepository->create($data->toArray());
-  }
+		if ($search) {
+			$query->where(function ($q) use ($search) {
+				$searchTerm = '%' . $search . '%';
+				$q->where('name', 'ILIKE', $searchTerm)
+					->orWhere('category_code', 'ILIKE', $searchTerm);
+			});
+		}
 
-  /**
-   * Logika bisnis perbarui kategori.
-   * @param CategoryData $data
-   */
-  public function updateCategory(string $slug, CategoryData $data): Category
-  {
-    // cari kategori berdasarkan slug
-    $category = $this->findCategoryOrFail($slug);
-    return $this->categoryRepository->update($category, $data->toArray());
-  }
+		return $query;
+	}
 
-  /**
-   * Logika bisnis hapus kategori.
-   * @param string $slug
-   */
-  public function deleteCategory(string $slug): bool
-  {
-    // cari kategori berdasarkan slug
-    $category = $this->findCategoryOrFail($slug);
-    return $this->categoryRepository->delete($category);
-  }
+	/**
+	 * Hitung jumlah kategori yang aktif
+	 */
+	public function countActive(): int
+	{
+		return Category::where('is_active', true)->count();
+	}
 
-  /**
-   * Logika toggle status aktif / is_active.
-   * @param string $slug
-   */
-  public function toggleCategoryActiveStatus(string $slug): Category
-  {
-    // cari kategori berdasarkan slug
-    $category = $this->findCategoryOrFail($slug);
+	/**
+	 * Membuat kategori baru
+	 * @param CategoryData $data
+	 */
+	public function createCategory(CategoryData $data): Category
+	{
+		return Category::create($data->toArray());
+	}
 
-    return $this->categoryRepository->update($category, [
-      'is_active' => !$category->is_active,
-    ]);
-  }
+	/**
+	 * Memperbarui data kategori
+	 * @param string $slug
+	 * @param CategoryData $data
+	 */
+	public function updateCategory(string $slug, CategoryData $data): Category
+	{
+		$category = Category::where('slug', $slug)->firstOrFail();
+		$category->update($data->toArray());
+		return $category;
+	}
 
-  // HELPER METHODS
-  /**
-   * Mencari kategori berdasarkan Slug.
-   * @param string $slug
-   */
-  private function findCategoryOrFail(string $slug): Category
-  {
-    $category = $this->categoryRepository->findBySlug($slug);
+	/**
+	 * Menghapus kategori
+	 * @param string $slug
+	 */
+	public function deleteCategory(string $slug): ?bool
+	{
+		$category = Category::where('slug', $slug)->firstOrFail();
 
-    if (!$category) {
-      throw new ModelNotFoundException("Kategori tidak ditemukan.");
-    }
+		// cek apakah paket masih ada yang menggunakan kategori tertentu
+		if ($category->packages()->exists()) {
+			throw new \RuntimeException(
+				'Kategori tidak dapat dihapus karena masih memiliki paket terkait.'
+			);
+		}
 
-    return $category;
-  }
+		return $category->delete();
+	}
+
+	/**
+	 * Ubah status aktif kategori dengan toggle
+	 * @param string $slug
+	 */
+	public function toggleCategoryActiveStatus(string $slug): Category
+	{
+		$category = Category::where('slug', $slug)->firstOrFail();
+		$category->update(['is_active' => !$category->is_active]);
+		return $category;
+	}
 }
