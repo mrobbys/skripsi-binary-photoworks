@@ -11,94 +11,111 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 
+#[Middleware('permission:package-variant-master-view', only: ['index'])]
+#[Middleware('permission:package-variant-master-create', only: ['store'])]
+#[Middleware('permission:package-variant-master-update', only: ['update', 'toggleActive'])]
+#[Middleware('permission:package-variant-master-delete', only: ['destroy'])]
 class PackageVariantController extends Controller
 {
-  public function __construct(
-    protected PackageVariantService $variantService,
-  ) {}
+	public function __construct(
+		protected PackageVariantService $variantService,
+	) {}
 
-  /**
-   * Tampilkan semua variant paket dari paket tertenu
-   * @param Request $request
-   * @param string $packageSlug
-   */
-  #[Middleware('permission:package-variant-master-view')]
-  public function index(Request $request, string $packageSlug): JsonResponse
-  {
-    $limit = max(1, min((int) $request->query('limit', 10), 100));
+	/**
+	 * Tampilkan semua variant paket dari paket tertenu
+	 * @param Request $request
+	 * @param string $packageSlug
+	 */
+	public function index(Request $request, string $packageSlug): JsonResponse
+	{
+		$limit = max(1, min((int) $request->query('limit', 10), 100));
 
-    $variants = PackageVariant::with('features')
-      ->whereHas('package', fn($q) => $q->where('slug', $packageSlug))
-      ->orderBy('created_at', 'asc')
-      ->paginate($limit);
+		$variants = PackageVariant::with('features')
+			->whereHas('package', fn($q) => $q->where('slug', $packageSlug))
+			->orderBy('created_at', 'asc')
+			->paginate($limit);
 
-    return response()->json($variants);
-  }
+		return $this->successResponse(
+			'Data varian berhasil dimuat.',
+			$variants->items(),
+			200,
+			[
+				'current_page' => $variants->currentPage(),
+				'last_page' => $variants->lastPage(),
+				'total' => $variants->total(),
+			]
+		);
+	}
 
-  /**
-   * Tambah varian baru
-   * @param PackageVariantRequest $request
-   * @param string $packageSlug
-   */
-  #[Middleware('permission:package-variant-master-create')]
-  public function store(PackageVariantRequest $request, string $packageSlug): JsonResponse
-  {
-    $variant = $this->variantService->createVariant($packageSlug, PackageVariantData::from($request));
+	/**
+	 * Tambah varian baru
+	 * @param PackageVariantRequest $request
+	 * @param string $packageSlug
+	 */
+	public function store(PackageVariantRequest $request, string $packageSlug): JsonResponse
+	{
+		try {
+			$variant = $this->variantService->createVariant($packageSlug, PackageVariantData::fromRequest($request));
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Varian berhasil ditambahkan.',
-      'data' => $variant,
-    ], 201);
-  }
+			return $this->successResponse('Varian berhasil ditambahkan.', $variant, 201);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-  /**
-   * Perbarui varian paket
-   * @param PackageVariantRequest $request
-   * @param PackageVariant $variant
-   */
-  #[Middleware('permission:package-variant-master-update')]
-  public function update(PackageVariantRequest $request, string $packageSlug, PackageVariant $variant): JsonResponse
-  {
-    $variant = $this->variantService->updateVariant($variant, PackageVariantData::from($request));
+	/**
+	 * Perbarui varian paket
+	 * @param PackageVariantRequest $request
+	 * @param PackageVariant $variant
+	 */
+	public function update(PackageVariantRequest $request, string $packageSlug, PackageVariant $variant): JsonResponse
+	{
+		try {
+			$variant = $this->variantService->updateVariant($variant, PackageVariantData::fromRequest($request));
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Varian berhasil diperbarui.',
-      'data' => $variant,
-    ]);
-  }
+			return $this->successResponse('Varian berhasil diperbarui.', $variant);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-  /**
-   * Hapus varian paket
-   * @param string $packageSlug = sengaja tidak digunakan didalam function, untuk menjaga parameter dari route
-   * @param PackageVariant $variant
-   */
-  #[Middleware('permission:package-variant-master-delete')]
-  public function destroy(string $packageSlug, PackageVariant $variant): JsonResponse
-  {
-    $this->variantService->deleteVariant($variant);
+	/**
+	 * Hapus varian paket
+	 * @param string $packageSlug = sengaja tidak digunakan didalam function, untuk menjaga parameter dari route
+	 * @param PackageVariant $variant
+	 */
+	public function destroy(string $packageSlug, PackageVariant $variant): JsonResponse
+	{
+		try {
+			$this->variantService->deleteVariant($variant);
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Varian berhasil dihapus.',
-    ]);
-  }
+			return $this->successResponse('Varian berhasil dihapus.');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-  /**
-   * Toggle varian aktif
-   * @param string $packageSlug = sengaja tidak digunakan didalam function, untuk menjaga parameter dari route
-   * @param PackageVariant $variant
-   */
-  #[Middleware('permission:package-variant-master-update')]
-  public function toggleActive(string $packageSlug, PackageVariant $variant): JsonResponse
-  {
-    $updated = $this->variantService->toggleVariantActiveStatus($variant);
+	/**
+	 * Toggle varian aktif
+	 * @param string $packageSlug = sengaja tidak digunakan didalam function, untuk menjaga parameter dari route
+	 * @param PackageVariant $variant
+	 */
+	public function toggleActive(string $packageSlug, PackageVariant $variant): JsonResponse
+	{
+		try {
+			$this->variantService->toggleVariantActiveStatus($variant);
 
-    return response()->json([
-      'status' => 'success',
-      'message' => 'Status varian berhasil diperbarui.',
-      'data' => $updated,
-    ]);
-  }
+			return $this->successResponse('Status varian berhasil diperbarui.');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 }
