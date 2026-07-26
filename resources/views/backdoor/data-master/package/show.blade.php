@@ -9,14 +9,8 @@
 
 <x-layouts.backdoor.index title="Detail Paket" :breadcrumbs="$breadcrumbs" jsModule="backdoor/master-data/package/ShowPackage">
 
-  <x-slot:heads>
-    <script>
-      window.__packageSlug = "{{ $package->slug }}";
-    </script>
-  </x-slot:heads>
-
   <x-slot:content>
-    <div class="w-full space-y-6" x-data="ShowPackage" x-init="setPackageInfo({{ json_encode(['slug' => $package->slug, 'category_id' => $package->category_id, 'category_name' => $package->category?->name, 'name' => $package->name, 'description' => $package->description, 'image_url' => $package->getFirstMediaUrl('package-image'), 'is_active' => $package->is_active, 'features' => $package->features->pluck('description')->values()->all()]) }})">
+    <div class="w-full space-y-6" x-data="ShowPackage" x-init="initData('{{ $package->slug }}')">
       {{-- title section start --}}
       <div class="space-y-6">
         <a href="{{ route('backdoor.data-master.package.index') }}"
@@ -124,7 +118,7 @@
           </x-slot:left>
 
           <x-slot:right>
-            <x-backdoor.table.add-button x-on:click="openVariantDrawer('{{ $package->slug }}')" text="Tambah Varian" />
+            <x-backdoor.table.add-button x-on:click="openVariantDrawer(state.packageSlug)" text="Tambah Varian" />
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
@@ -187,16 +181,16 @@
               {{-- Status toggle start --}}
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle x-bind:checked="item.is_active" x-bind:disabled="state.isLoading"
-                  x-on:change="toggleVariantStatus(window.__packageSlug, item.id, $event)" />
+                  x-on:change="toggleVariantStatus(state.packageSlug, item.id, $event)" />
               </x-backdoor.table.cell>
               {{-- Status toggle end --}}
 
               {{-- Aksi start --}}
               <x-backdoor.table.actions>
                 <x-backdoor.table.action-item color="text-yellow-600"
-                  x-on:click="closeDropdown(); editVariant(item, window.__packageSlug)" text="Edit" />
+                  x-on:click="closeDropdown(); editVariant(item, state.packageSlug)" text="Edit" />
                 <x-backdoor.table.action-item x-bind:disabled="state.isLoading" color="text-red-600"
-                  x-on:click="closeDropdown(); destroyVariant(window.__packageSlug, item.id, item.name)"
+                  x-on:click="closeDropdown(); destroyVariant(state.packageSlug, item.id, item.name)"
                   text="Hapus" />
               </x-backdoor.table.actions>
               {{-- Aksi end --}}
