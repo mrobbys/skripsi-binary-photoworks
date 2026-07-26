@@ -2,7 +2,6 @@
 
 namespace App\Domains\User\Http\Controllers;
 
-use App\Domains\User\DTOs\ForgotPasswordData;
 use App\Domains\User\Http\Requests\ForgotPasswordRequest;
 use App\Domains\User\Services\PasswordResetService;
 use App\Http\Controllers\Controller;
@@ -14,11 +13,6 @@ class ForgotPasswordController extends Controller
 {
   public function __construct(protected PasswordResetService $passwordResetService) {}
 
-  /**
-   * Tampilkan halaman forgot password
-   * 
-   * @return View
-   */
   public function index(): View
   {
     return view('auth.forgot-password.index');
@@ -26,14 +20,12 @@ class ForgotPasswordController extends Controller
 
   /**
    * Handle submit form forgot password
-   * 
-   * @return RedirectResponse
+   * @param ForgotPasswordRequest $request
    */
   public function store(ForgotPasswordRequest $request): RedirectResponse
   {
-    $status = $this->passwordResetService->sendResetPasswordLink(
-      $request->toDto()
-    );
+    $email = $request->validated('email');
+    $status = $this->passwordResetService->sendResetPasswordLink($email);
 
     if ($status === Password::RESET_LINK_SENT) {
       // simpan email ke session
@@ -50,8 +42,6 @@ class ForgotPasswordController extends Controller
 
   /**
    * Tampilkan halaman check email setelah mengirim link reset password
-   *
-   * @return View|RedirectResponse
    */
   public function show(): View|RedirectResponse
   {
@@ -65,8 +55,6 @@ class ForgotPasswordController extends Controller
 
   /**
    * Kirim ulang link reset password
-   * 
-   * @return RedirectResponse
    */
   public function resend(): RedirectResponse
   {
@@ -79,7 +67,7 @@ class ForgotPasswordController extends Controller
     }
 
     // kirim ulang link reset password
-    $this->passwordResetService->sendResetPasswordLink(new ForgotPasswordData($email));
+    $this->passwordResetService->sendResetPasswordLink($email);
 
     return back()->with(
       'toast',

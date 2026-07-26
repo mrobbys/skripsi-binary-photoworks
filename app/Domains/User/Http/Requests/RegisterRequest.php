@@ -2,7 +2,6 @@
 
 namespace App\Domains\User\Http\Requests;
 
-use App\Domains\User\DTOs\RegisterData;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -35,7 +34,7 @@ class RegisterRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'email:rfc,dns',
+                'email:rfc',
                 'unique:users,email'
             ],
             'password' => [
@@ -50,26 +49,12 @@ class RegisterRequest extends FormRequest
             'phone' => [
                 'required',
                 'string',
-                'max:15',
-                'regex:/^[0-9]+$/',
+                'min:10',
+                'max:14',
+                'regex:/^62[0-9]+$/',
                 'unique:users,phone',
             ],
         ];
-    }
-
-    /**
-     * Return data yang telah divalidasi ke DTO RegisterData
-     */
-    public function toDto(): RegisterData
-    {
-        $validated = $this->validated();
-
-        return new RegisterData(
-            name: trim($validated['name']),
-            email: trim($validated['email']),
-            password: $validated['password'],
-            phone: trim($validated['phone'])
-        );
     }
 
     public function messages(): array
@@ -86,8 +71,7 @@ class RegisterRequest extends FormRequest
             'email.max' => 'Email maksimal terdiri dari 255 karakter.',
             'email.email' => 'Format email tidak valid.',
             'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
-            'email.dns' => 'Domain email tidak valid.',
-            'email.unique' => 'Email sudah terdaftar.',
+            'email.unique' => 'Email tidak dapat digunakan.',
 
             'password.required' => 'Password harus diisi.',
             'password.string' => 'Password harus berupa string.',
@@ -99,9 +83,10 @@ class RegisterRequest extends FormRequest
 
             'phone.required' => 'Nomor telepon harus diisi.',
             'phone.string' => 'Nomor telepon harus berupa string.',
-            'phone.max' => 'Nomor telepon maksimal terdiri dari 15 karakter.',
-            'phone.regex' => 'Nomor telepon hanya boleh mengandung angka.',
-            'phone.unique' => 'Nomor telepon sudah terdaftar.',
+            'phone.min' => 'Nomor telepon minimal terdiri dari 10 karakter.',
+            'phone.max' => 'Nomor telepon maksimal terdiri dari 14 karakter.',
+            'phone.regex' => 'Nomor telepon harus berawalan 62.',
+            'phone.unique' => 'Nomor telepon tidak dapat digunakan.',
         ];
     }
 }

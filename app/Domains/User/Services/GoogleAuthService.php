@@ -2,17 +2,14 @@
 
 namespace App\Domains\User\Services;
 
-use App\Domains\User\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Illuminate\Support\Str;
 use App\Domains\User\Enums\RoleType;
+use App\Domains\User\Models\User;
 
 class GoogleAuthService
 {
-
-  public function __construct(protected UserRepository $userRepository) {}
-
   /**
    * Handle login dengan google
    * 
@@ -22,7 +19,7 @@ class GoogleAuthService
   public function loginWithGoogle(SocialiteUser $socialiteUser): array
   {
     // cari user berdasarkan google id
-    $user = $this->userRepository->findByGoogleId($socialiteUser->getId());
+    $user = User::where('google_id', $socialiteUser->getId())->first();
 
     // jika ada update token google
     if ($user) {
@@ -33,7 +30,7 @@ class GoogleAuthService
     }
 
     // jika google id tidak ada, cari berdasarkan email
-    $user = $this->userRepository->findByEmail($socialiteUser->getEmail());
+    $user = User::where('email', $socialiteUser->getEmail())->first();
 
     // jika ada update google id dan google token
     if ($user) {
@@ -45,7 +42,7 @@ class GoogleAuthService
     }
 
     // jika belum terdaftar sama sekali, create user
-    $newUser = $this->userRepository->create([
+    $newUser = User::create([
       'name' => $socialiteUser->getName(),
       'email' => $socialiteUser->getEmail(),
       'phone' => null,
