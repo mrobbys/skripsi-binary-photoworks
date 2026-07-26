@@ -4,109 +4,120 @@ namespace App\Domains\MasterData\Services;
 
 use App\Domains\MasterData\DTOs\PackageData;
 use App\Domains\MasterData\Models\Package;
-use App\Domains\MasterData\Repositories\PackageRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 
 class PackageService
 {
-  public function __construct(
-    protected PackageRepository $packageRepository,
-  ) {}
+	/**
+	 * Query pencarian paket
+	 * Digunakan di halaman index table data paket
+	 * @param ?string $search
+	 */
+	public function searchQuery(?string $search): Builder
+	{
+		$query = Package::with([
+			'category:id,name',
+			'features',
+			'variants:package_id,is_active,price',
+		])->withCount('variants')
+			->orderBy('created_at', 'desc');
 
-  /**
-   * Tambah data paket
-   * @param PackageData $data
-   */
-  public function createPackage(PackageData $data, ?UploadedFile $image = null): Package
-  {
-    $package = $this->packageRepository->create($data->except('features')->toArray());
-    $this->syncFeatures($package, $data->features);
+		if ($search) {
+			$query->where(function ($q) use ($search) {
+				$term = '%' . $search . '%';
+				$q->where('name', 'ILIKE', $term)
+					->orWhereHas('category', fn($cq) => $cq->where('name', 'ILIKE', $term));
+			});
+		}
 
-    // jika ada image
-    if ($image) {
-      $package
-        ->addMedia($image)
-        ->toMediaCollection('package-image');
-    }
+		return $query;
+	}
 
-    return $package->load('features', 'category');
-  }
+	/**
+	 * Menambah data paket
+	 * @param PackageData $data
+	 * @param ?UploadedFile $image
+	 */
+	public function createPackage(PackageData $data, ?UploadedFile $image = null): Package
+	{
+		$package = Package::create($data->except('features')->toArray());
+		$this->syncFeatures($package, $data->features);
 
-  /**
-   * Update data paket
-   * @param string $slug
-   * @param PackageData $data
-   */
-  public function updatePackage(string $slug, PackageData $data, ?UploadedFile $image = null): Package
-  {
-    $package = $this->findOrFail($slug);
-    $this->packageRepository->update($package, $data->except('features')->toArray());
-    $this->syncFeatures($package, $data->features);
+		if ($image) {
+			$package
+				->addMedia($image)
+				->toMediaCollection('package-image');
+		}
 
-    // jika ada image
-    if ($image) {
-      $package
-        ->addMedia($image)
-        ->toMediaCollection('package-image');
-    }
+		return $package->load('features', 'category');
+	}
 
-    return $package->load('features', 'category');
-  }
+	/**
+	 * Memperbarui data paket
+	 * @param string $slug
+	 * @param PackageData $data
+	 * @param ?UploadedFile $image
+	 */
+	public function updatePackage(string $slug, PackageData $data, ?UploadedFile $image = null): Package
+	{
+		$package = Package::where('slug', $slug)->firstOrFail();
+		$package->update($data->except('features')->toArray());
+		$this->syncFeatures($package, $data->features);
 
-  /**
-   * Hapus data paket
-   * @param string $slug
-   */
-  public function deletePackage(string $slug): bool
-  {
-    $package = $this->findOrFail($slug);
-    return $this->packageRepository->delete($package);
-  }
+		if ($image) {
+			$package
+				->addMedia($image)
+				->toMediaCollection('package-image');
+		}
 
-  /**
-   * Toggle status aktif paket
-   * @param string $slug
-   */
-  public function toggleActiveStatus(string $slug): Package
-  {
-    $package = $this->findOrFail($slug);
-    return $this->packageRepository->update($package, [
-      'is_active' => ! $package->is_active,
-    ]);
-  }
+		return $package->load('features', 'category');
+	}
 
-  /**
-   * Cari paket berdasarkan slug
-   * @param string $slug
-   */
-  private function findOrFail(string $slug): Package
-  {
-    $package = $this->packageRepository->findBySlug($slug);
+	/**
+	 * Menghapus data paket
+	 * @param string $slug
+	 */
+	public function deletePackage(string $slug): bool
+	{
+		$package = Package::where('slug', $slug)->firstOrFail();
 
-    if (! $package) {
-      throw new ModelNotFoundException('Paket tidak ditemukan.');
-    }
+		if ($package->variants()->whereHas('bookings')->exists()) {
+			throw new \RuntimeException(
+				'Paket tidak dapat dihapus karena masih memiliki varian yang terhubung dengan pemesanan.'
+			);
+		}
 
-    return $package;
-  }
+		return $package->delete();
+	}
 
-  /**
-   * Sinkronisasi features polimorfik: hapus semua, buat ulang dari array baru.
-   *
-   * @param string[] $featureDescriptions
-   */
-  private function syncFeatures(Package $package, array $featureDescriptions): void
-  {
-    $package->features()->get()->each->delete();
+	/**
+	 * Mengubah status aktif paket
+	 * @param string $slug
+	 */
+	public function toggleActiveStatus(string $slug): Package
+	{
+		$package = Package::where('slug', $slug)->firstOrFail();
+		$package->update(['is_active' => !$package->is_active]);
+		return $package;
+	}
 
-    $featureData = collect($featureDescriptions)
-      ->filter(fn(string $desc) => trim($desc) !== '')
-      ->map(fn(string $desc) => ['description' => trim($desc)])
-      ->toArray();
+	/**
+	 * Memperbarui data paket / deskripsi / fitur paket
+	 * @param Package $package
+	 * @param array $featureDescriptions
+	 */
+	private function syncFeatures(Package $package, array $featureDescriptions): void
+	{
+		$package->features()->delete();
 
-    if (!empty($featureData)) {
-      $package->features()->createMany($featureData);
-    }
-  }
+		$featureData = collect($featureDescriptions)
+			->filter(fn(string $desc) => trim($desc) !== '')
+			->map(fn(string $desc) => ['description' => trim($desc)])
+			->toArray();
+
+		if (!empty($featureData)) {
+			$package->features()->createMany($featureData);
+		}
+	}
 }

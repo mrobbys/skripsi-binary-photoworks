@@ -7,8 +7,8 @@ use App\Domains\MasterData\Http\Requests\StorePackageRequest;
 use App\Domains\MasterData\Http\Requests\UpdatePackageRequest;
 use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Models\Package;
-use App\Domains\MasterData\Repositories\PackageRepository;
-use App\Domains\MasterData\Repositories\PackageVariantRepository;
+use App\Domains\MasterData\Models\PackageVariant;
+use Illuminate\Database\Eloquent\Collection;
 use App\Domains\MasterData\Services\PackageService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -16,180 +16,167 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
+#[Middleware('permission:package-variant-master-view', only: ['index', 'show', 'data', 'showInfo'])]
+#[Middleware('permission:package-variant-master-create', only: ['store'])]
+#[Middleware('permission:package-variant-master-update', only: ['update', 'toggleActive'])]
+#[Middleware('permission:package-variant-master-delete', only: ['destroy'])]
 class PackageController extends Controller
 {
     public function __construct(
         protected PackageService $packageService,
-        protected PackageRepository $packageRepository,
-        protected PackageVariantRepository $variantRepository
     ) {}
 
-    /**
-     * Menampilkan daftar paket di halaman index
-     * @param Request $request
-     */
-    #[Middleware('permission:package-variant-master-view')]
-    public function index(Request $request): View|JsonResponse
-    {
-        $totalPackages = $this->packageRepository->countPackages();
-        $totalActivePackages = $this->packageRepository->countActive();
-        $totalActiveVariants = $this->variantRepository->countActive();
+	public function index(): View
+	{
+		return view('backdoor.data-master.package.index', [
+			'categories' => $this->activeCategories(),
+		]);
+	}
 
-        if ($request->wantsJson()) {
-            $search = $request->query('search');
-            $limit = max(1, min((int) $request->query('limit', 10), 100));
+	/**
+	 * Menampilkan data paket di halaman index
+	 * @param Request $request
+	 */
+	public function data(Request $request): JsonResponse
+	{
+		$search = $request->query('search');
+		$limit = max(1, min((int) $request->query('limit', 10), 100));
 
-            $packages = $this->packageRepository->searchQuery($search)->paginate($limit);
+		$packages = $this->packageService->searchQuery($search)->paginate($limit);
 
-            $items = collect($packages->items())->map(function (Package $package) {
-                $activeVariants = $package->variants->where('is_active', true);
-                $priceMin = $activeVariants->min('price');
-                $priceMax = $activeVariants->max('price');
+		$items = collect($packages->items())->map(function (Package $package) {
+			$activeVariants = $package->variants->where('is_active', true);
+			$priceMin = $activeVariants->min('price');
+			$priceMax = $activeVariants->max('price');
 
-                return array_merge($package->toArray(), [
-                    'price_min' => $priceMin,
-                    'price_max' => $priceMax,
-                    'variants_count' => $package->variants_count,
-                ]);
-            });
+			return array_merge($package->toArray(), [
+				'price_min' => $priceMin,
+				'price_max' => $priceMax,
+				'variants_count' => $package->variants_count,
+			]);
+		});
 
-            return response()->json([
-                'data' => $items,
-                'current_page' => $packages->currentPage(),
-                'last_page' => $packages->lastPage(),
-                'total' => $packages->total(),
-                'total_packages' => $totalPackages,
-                'total_active_packages' => $totalActivePackages,
-                'total_active_variants' => $totalActiveVariants,
-            ]);
-        }
+		return response()->json([
+			'data' => $items,
+			'current_page' => $packages->currentPage(),
+			'last_page' => $packages->lastPage(),
+			'total' => $packages->total(),
+			'total_active_packages' => Package::where('is_active', true)->count(),
+            'total_active_variants' => PackageVariant::where('is_active', true)->count(),
+		]);
+	}
 
-        $categories = Category::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+	/**
+	 * Menampilkan detail paket
+	 * @param Package $package
+	 */
+	public function show(Package $package): View
+	{
+		$categories = $this->activeCategories();
+		return view('backdoor.data-master.package.show', compact('categories', 'package'));
+	}
 
-        return view('backdoor.data-master.package.index', [
-            'totalPackages' => $totalPackages,
-            'totalActivePackages' => $totalActivePackages,
-            'totalActiveVariants' => $totalActiveVariants,
-            'categories' => $categories,
-        ]);
-    }
+	/**
+	 * Mengambil data JSON detail paket
+	 * @param string $slug
+	 */
+	public function showInfo(string $slug): JsonResponse
+	{
+		$package = Package::with(['category', 'features'])
+			->where('slug', $slug)
+			->firstOrFail();
 
-    /**
-     * Menampilkan detail paket
-     * @param string $slug
-     */
-    #[Middleware('permission:package-variant-master-view')]
-    public function show(string $slug): View|JsonResponse
-    {
-        $package = Package::with(['category', 'features'])
-            ->where('slug', $slug)
-            ->firstOrFail();
+		return response()->json([
+			'data' => array_merge($package->toArray(), [
+				'image_url' => $package->getFirstMediaUrl('package-image'),
+				'features' => $package->features->pluck('description')->values()->all()
+			]),
+		]);
+	}
 
-        $categories = Category::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+	/**
+	 * Tambah data paket
+	 * @param StorePackageRequest $request
+	 */
+	public function store(StorePackageRequest $request): JsonResponse
+	{
+		try {
+			$package = $this->packageService->createPackage(
+				PackageData::fromRequest($request),
+				$request->file('image'),
+			);
 
-        if (request()->wantsJson()) {
-            return response()->json([
-                'data' => array_merge($package->toArray(), [
-                    'image_url' => $package->getFirstMediaUrl('package-image'),
-                ]),
-            ]);
-        }
+			return $this->successResponse('Paket berhasil ditambahkan', $package, 201);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-        return view('backdoor.data-master.package.show', compact('package', 'categories'));
-    }
+	/**
+	 * Update data paket
+	 * @param UpdatePackageRequest $request
+	 * @param string $slug
+	 */
+	public function update(UpdatePackageRequest $request, string $slug): JsonResponse
+	{
+		try {
+			$package = $this->packageService->updatePackage(
+				$slug,
+				PackageData::fromRequest($request),
+				$request->file('image'),
+			);
 
-    /**
-     * Tambah data paket
-     * @param StorePackageRequest $request
-     */
-    #[Middleware('permission:package-variant-master-create')]
-    public function store(StorePackageRequest $request): JsonResponse
-    {
-        $package = $this->packageService->createPackage(
-            PackageData::from($request),
-            $request->file('image'),
-        );
+			return $this->successResponse('Paket berhasil diperbarui', $package);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Paket berhasil ditambahkan.',
-            'data' => [
-                'id' => $package->id,
-                'category_id' => $package->category_id,
-                'name' => $package->name,
-                'slug' => $package->slug,
-                'description' => $package->description,
-                'is_active' => $package->is_active,
-                'image_url' => $package->getFirstMediaUrl('package-image'),
-            ],
-        ], 201);
-    }
+	/**
+	 * Hapus data paket
+	 * @param string $slug
+	 */
+	public function destroy(string $slug): JsonResponse
+	{
+		try {
+			$this->packageService->deletePackage($slug);
 
-    /**
-     * Update data paket
-     * @param UpdatePackageRequest $request
-     * @param string $slug
-     */
-    #[Middleware('permission:package-variant-master-update')]
-    public function update(UpdatePackageRequest $request, string $slug): JsonResponse
-    {
-        $package = $this->packageService->updatePackage(
-            $slug,
-            PackageData::from($request),
-            $request->file('image'),
-        );
+			return $this->successResponse('Paket berhasil dihapus');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Paket berhasil diperbarui.',
-            'data' => [
-                'id' => $package->id,
-                'category_id' => $package->category_id,
-                'name' => $package->name,
-                'slug' => $package->slug,
-                'description' => $package->description,
-                'is_active' => $package->is_active,
-                'image_url' => $package->getFirstMediaUrl('package-image'),
-            ],
-        ]);
-    }
+	/**
+	 * Toggle status aktif paket
+	 * @param string $slug
+	 */
+	public function toggleActive(string $slug): JsonResponse
+	{
+		try {
+			$this->packageService->toggleActiveStatus($slug);
 
-    /**
-     * Hapus data paket
-     * @param string $slug
-     */
-    #[Middleware('permission:package-variant-master-delete')]
-    public function destroy(string $slug): JsonResponse
-    {
-        $this->packageService->deletePackage($slug);
+			return $this->successResponse('Status paket berhasil diperbarui');
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Paket berhasil dihapus.',
-        ]);
-    }
-
-    /**
-     * Toggle status aktif paket
-     * @param string $slug
-     */
-    #[Middleware('permission:package-variant-master-update')]
-    public function toggleActive(string $slug): JsonResponse
-    {
-        $package = $this->packageService->toggleActiveStatus($slug);
-        $totalActivePackages = $this->packageRepository->countActive();
-        $totalActiveVariants = $this->variantRepository->countActive();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Status paket berhasil diperbarui.',
-            'data' => $package,
-            'total_active_packages' => $totalActivePackages,
-            'total_active_variants' => $totalActiveVariants,
-        ]);
-    }
+	/**
+	 * Ambil kategori yang aktif
+	 */
+	private function activeCategories(): Collection
+	{
+		return Category::where('is_active', true)
+			->orderBy('name')
+			->get();
+	}
 }
