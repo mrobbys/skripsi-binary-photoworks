@@ -19,7 +19,6 @@ use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Domains\MasterData\Repositories\BackgroundRepository;
-use App\Domains\MasterData\Repositories\PackageRepository;
 use App\Support\Formatter;
 use App\Domains\MasterData\Repositories\ScheduleRepository;
 
@@ -29,7 +28,6 @@ class BookingController extends Controller
     public function __construct(
         private readonly BookingService $bookingService,
         private readonly BookingRepository $repository,
-        private readonly PackageRepository $packageRepository,
         private readonly BackgroundRepository $backgroundRepository,
         private readonly AddonRepository $addonRepository,
         private readonly ScheduleRepository $scheduleRepository
@@ -43,7 +41,7 @@ class BookingController extends Controller
     {
         if ($request->wantsJson()) {
             // ambil data paket yang aktif, beserta kategori dan variant yang aktif
-            $query = $this->packageRepository->queryActive()
+            $query = Package::where('is_active', true)
                 ->with(['category', 'variants' => function ($q) {
                     $q->where('is_active', true)->orderBy('price');
                 }]);
