@@ -14,6 +14,7 @@ Route::middleware('guest')->group(function () {
   Route::get('login', [LoginController::class, 'index'])
     ->name('login');
   Route::post('auth/login', [LoginController::class, 'store'])
+    ->middleware('throttle:5,300')
     ->name('login.store');
 
   // register routes
