@@ -4,70 +4,75 @@ namespace App\Domains\MasterData\Services;
 
 use App\Domains\MasterData\DTOs\AddonData;
 use App\Domains\MasterData\Models\Addon;
-use App\Domains\MasterData\Repositories\AddonRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 
 class AddonService
 {
-  public function __construct(
-    protected AddonRepository $addonRepository,
-  ) {}
+	/**
+	 * Query pencarian add-on
+	 * @param ?string $search
+	 */
+	public function searchQuery(?string $search): Builder
+	{
+		$query = Addon::query()->latest();
 
-  /**
-   * Tambah data add-on
-   * @param AddonData $data
-   */
-  public function createAddon(AddonData $data): Addon
-  {
-    return $this->addonRepository->create($data->toArray());
-  }
+		if ($search) {
+			$term = '%' . $search . '%';
+			$query->where(function ($q) use ($term) {
+				$q->where('name', 'ILIKE', $term)
+					->orWhere('description', 'ILIKE', $term);
+			});
+		}
 
-  /**
-   * Update data add-on
-   * @param int $id
-   * @param AddonData $data
-   */
-  public function updateAddon(int $id, AddonData $data): Addon
-  {
-    $addon = $this->findOrFail($id);
-    return $this->addonRepository->update($addon, $data->toArray());
-  }
+		return $query;
+	}
 
-  /**
-   * Hapus data add-on
-   * @param int $id
-   */
-  public function deleteAddon(int $id): bool
-  {
-    $addon = $this->findOrFail($id);
-    return $this->addonRepository->delete($addon);
-  }
+	/**
+	 * Tambah data add-on
+	 * @param AddonData $data
+	 */
+	public function createAddon(AddonData $data): Addon
+	{
+		return Addon::create($data->toArray());
+	}
 
-  /**
-   * Ubah status aktif add-on
-   * @param int $id
-   */
-  public function toggleActiveStatus(int $id): Addon
-  {
-    $addon = $this->findOrFail($id);
+	/**
+	 * Update data add-on
+	 * @param int $id
+	 * @param AddonData $data
+	 */
+	public function updateAddon(int $id, AddonData $data): Addon
+	{
+		$addon = Addon::findOrFail($id);
+		$addon->update($data->toArray());
+		return $addon;
+	}
 
-    return $this->addonRepository->update($addon, [
-      'is_active' => ! $addon->is_active,
-    ]);
-  }
+	/**
+	 * Hapus data add-on
+	 * @param int $id
+	 */
+	public function deleteAddon(int $id): bool
+	{
+		$addon = Addon::findOrFail($id);
 
-  /**
-   * Mencari add-on berdasarkan id
-   * @param int $id
-   */
-  private function findOrFail(int $id): Addon
-  {
-    $addon = $this->addonRepository->findById($id);
+		if ($addon->bookings()->exists()) {
+			throw new \RuntimeException(
+				'Add-on tidak dapat dihapus karena masih terhubung dengan data pemesanan.'
+			);
+		}
 
-    if (! $addon) {
-      throw new ModelNotFoundException('Add-on tidak ditemukan.');
-    }
+		return $addon->delete();
+	}
 
-    return $addon;
-  }
+	/**
+	 * Ubah status aktif add-on
+	 * @param int $id
+	 */
+	public function toggleActiveStatus(int $id): Addon
+	{
+		$addon = Addon::findOrFail($id);
+		$addon->update(['is_active' => !$addon->is_active]);
+		return $addon;
+	}
 }
