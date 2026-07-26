@@ -3,191 +3,134 @@
 namespace App\Domains\SystemSettings\Http\Controllers;
 
 use App\Domains\SystemSettings\DTOs\RoleRowData;
+use App\Domains\SystemSettings\Http\Requests\StoreRoleRequest;
+use App\Domains\SystemSettings\Http\Requests\UpdateRoleRequest;
+use App\Domains\SystemSettings\Services\RoleManagementService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
+#[Middleware('permission:role-management-view', only: ['index', 'data',  'show'])]
+#[Middleware('permission:role-management-create', only: ['create', 'store'])]
+#[Middleware('permission:role-management-update', only: ['edit', 'update'])]
+#[Middleware('permission:role-management-delete', only: ['destroy'])]
 class RoleManagementController extends Controller
 {
-  /**
-   * Halaman daftar role (view).
-   */
-  public function index(): View
-  {
-    return view('backdoor.system-settings.role.index');
-  }
+	public function __construct(
+		private readonly RoleManagementService $service,
+	) {}
 
-  /**
-   * JSON endpoint untuk useDatatable.
-   * Filter: role superadmin tidak pernah muncul.
-   */
-  public function data(Request $request): JsonResponse
-  {
-    $search = $request->input('search', '');
-    $limit = max(1, min($request->integer('limit', 10), 100));
+	/**
+	 * Abort jika role yang sedang login adalah superadmin
+	 */
+	private function abortIfSuperadmin(Role $role, string $action): void
+	{
+		abort_if(strtolower($role->name) === 'superadmin', 403, "Role Superadmin tidak dapat {$action}.");
+	}
 
-    $query = Role::withCount('permissions')
-      ->where('name', '!=', 'superadmin')
-      ->when($search, fn($q) => $q->where('name', 'ilike', "%{$search}%"))
-      ->latest('created_at');
+	public function index(): View
+	{
+		return view('backdoor.system-settings.role.index');
+	}
 
-    $paginated = $query->paginate($limit);
+	public function data(Request $request): JsonResponse
+	{
+		$search = $request->query('search');
+		$limit = max(1, min($request->integer('limit', 10), 100));
 
-    return response()->json([
-      'data' => RoleRowData::collect($paginated->items()),
-      'current_page' => $paginated->currentPage(),
-      'last_page' => $paginated->lastPage(),
-      'total' => $paginated->total(),
-    ]);
-  }
+		$paginated = $this->service->searchQuery($search)->paginate($limit);
 
-  /**
-   * Form tambah role (view).
-   * Mengirim semua permission yang sudah dikelompokkan ke view.
-   */
-  public function create(): View
-  {
-    $groupedPermissions = Permission::all()->groupBy(
-      fn($permission) => explode('-', $permission->name)[0]
-    );
+		return response()->json([
+			'data' => RoleRowData::collect($paginated->items()),
+			'current_page' => $paginated->currentPage(),
+			'last_page' => $paginated->lastPage(),
+			'total' => $paginated->total(),
+		]);
+	}
 
-    return view('backdoor.system-settings.role.create', compact('groupedPermissions'));
-  }
+	public function create(): View
+	{
+		// Ambil data permission
+		$groupedPermissions = $this->service->getGroupedPermissions();
+		return view('backdoor.system-settings.role.create', compact('groupedPermissions'));
+	}
 
-  /**
-   * Simpan role baru ke database.
-   */
-  public function store(Request $request): JsonResponse
-  {
-    $validated = $request->validate([
-      'name' => ['required', 'string', 'max:50', 'unique:roles,name'],
-      'permissions' => ['array'],
-      'permissions.*' => ['string', 'exists:permissions,name'],
-    ]);
+	public function store(StoreRoleRequest $request): JsonResponse
+	{
+		$validated = $request->validated();
 
-    $role = Role::create(['name' => $validated['name']]);
-    $role->syncPermissions($validated['permissions'] ?? []);
+		try {
+			$role = $this->service->store($validated['name'], $validated['permissions'] ?? []);
 
-    $this->logActivity($role, 'created', [], [
-      'name' => $role->name,
-      'permissions' => $validated['permissions'] ?? [],
-    ]);
+			return $this->successResponse("Role \"{$role->name}\" berhasil dibuat.", null, 201, [
+				'redirect' => route('backdoor.system-settings.roles.index'),
+			]);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    return response()->json([
-      'message' => "Role \"{$role->name}\" berhasil dibuat.",
-      'redirect' => route('backdoor.system-settings.roles.index'),
-    ], 201);
-  }
+	public function show(Role $role): View
+	{
+		$role->load('permissions');
 
-  /**
-   * Halaman detail role (view — 100% Blade statis).
-   */
-  public function show(Role $role): View
-  {
-    $role->load('permissions');
+		$groupedPermissions = $role->permissions->groupBy(
+			fn($permission) => explode('-', $permission->name)[0]
+		);
 
-    $groupedPermissions = $role->permissions->groupBy(
-      fn($permission) => explode('-', $permission->name)[0]
-    );
+		return view('backdoor.system-settings.role.show', compact('role', 'groupedPermissions'));
+	}
 
-    return view('backdoor.system-settings.role.show', compact('role', 'groupedPermissions'));
-  }
+	public function edit(Role $role): View
+	{
+		$this->abortIfSuperadmin($role, 'diedit');
 
-  /**
-   * Form edit role (view).
-   * Proteksi: superadmin tidak bisa diedit.
-   */
-  public function edit(Role $role): View
-  {
-    abort_if(strtolower($role->name) === 'superadmin', 403);
+		$role->load('permissions');
 
-    $role->load('permissions');
+		// Ambil data permission
+		$groupedPermissions = $this->service->getGroupedPermissions();
+		// Ambil permission yang aktif dari role yang sedang diedit
+		$activePermissions = $role->permissions->pluck('name')->toArray();
 
-    $groupedPermissions = Permission::all()->groupBy(
-      fn($permission) => explode('-', $permission->name)[0]
-    );
+		return view('backdoor.system-settings.role.edit', compact('role', 'groupedPermissions', 'activePermissions'));
+	}
 
-    $activePermissions = $role->permissions->pluck('name')->toArray();
+	public function update(UpdateRoleRequest $request, Role $role): JsonResponse
+	{
+		$this->abortIfSuperadmin($role, 'dimodifikasi');
 
-    return view('backdoor.system-settings.role.edit', compact('role', 'groupedPermissions', 'activePermissions'));
-  }
+		$validated = $request->validated();
 
-  /**
-   * Update role yang ada.
-   * Proteksi hardcode: superadmin tidak bisa dimodifikasi.
-   */
-  public function update(Request $request, Role $role): JsonResponse
-  {
-    abort_if(strtolower($role->name) === 'superadmin', 403, 'Role Superadmin tidak dapat dimodifikasi.');
+		try {
+			$this->service->update($role, $validated['name'], $validated['permissions'] ?? []);
 
-    $validated = $request->validate([
-      'name' => ['required', 'string', 'max:50', "unique:roles,name,{$role->id}"],
-      'permissions' => ['array'],
-      'permissions.*' => ['string', 'exists:permissions,name'],
-    ]);
+			return $this->successResponse("Role \"{$role->name}\" berhasil diperbarui.", null, 200, [
+				'redirect' => route('backdoor.system-settings.roles.index'),
+			]);
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 
-    $oldName = $role->name;
-    $oldPermissions = $role->permissions->pluck('name')->toArray();
+	public function destroy(Role $role): JsonResponse
+	{
+		$this->abortIfSuperadmin($role, 'dihapus');
 
-    $role->update(['name' => $validated['name']]);
-    $role->syncPermissions($validated['permissions'] ?? []);
+		try {
+			$this->service->destroy($role);
 
-    $this->logActivity($role, 'updated', [
-      'name' => $oldName,
-      'permissions' => $oldPermissions,
-    ], [
-      'name' => $role->name,
-      'permissions' => $validated['permissions'] ?? [],
-    ]);
-
-    return response()->json([
-      'message' => "Role \"{$role->name}\" berhasil diperbarui.",
-      'redirect' => route('backdoor.system-settings.roles.index'),
-    ]);
-  }
-
-  /**
-   * Hapus role.
-   * Proteksi hardcode: superadmin tidak bisa dihapus.
-   */
-  public function destroy(Role $role): JsonResponse
-  {
-    abort_if(strtolower($role->name) === 'superadmin', 403, 'Role Superadmin tidak dapat dihapus.');
-
-    $name = $role->name;
-    $permissions = $role->permissions->pluck('name')->toArray();
-    $role->delete();
-
-    $this->logActivity($role, 'deleted', [
-      'name' => $name,
-      'permissions' => $permissions,
-    ]);
-
-    return response()->json(['message' => "Role \"{$name}\" berhasil dihapus."]);
-  }
-
-  /**
-   * Helper untuk mencatat activity log beserta daftar permissions.
-   */
-  private function logActivity(Role $role, string $action, array $old = [], array $attributes = []): void
-  {
-    $properties = [];
-
-    if (!empty($old)) {
-      $properties['old'] = $old;
-    }
-
-    if (!empty($attributes)) {
-      $properties['attributes'] = $attributes;
-    }
-
-    activity()
-      ->performedOn($role)
-      ->useLog('role')
-      ->withProperties($properties)
-      ->log($action);
-  }
+			return $this->successResponse("Role \"{$role->name}\" berhasil dihapus.");
+		} catch (\RuntimeException $e) {
+			return $this->errorResponse($e->getMessage(), 422);
+		} catch (\Exception $e) {
+			return $this->errorResponse('Terjadi kesalahan server');
+		}
+	}
 }
