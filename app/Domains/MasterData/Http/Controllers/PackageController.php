@@ -16,10 +16,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
-#[Middleware('permission:package-variant-master-view', only: ['index', 'show', 'data', 'showInfo'])]
-#[Middleware('permission:package-variant-master-create', only: ['store'])]
-#[Middleware('permission:package-variant-master-update', only: ['update', 'toggleActive'])]
-#[Middleware('permission:package-variant-master-delete', only: ['destroy'])]
+#[Middleware('permission:packageVariant-master-view', only: ['index', 'show', 'data', 'showInfo'])]
+#[Middleware('permission:packageVariant-master-create', only: ['store'])]
+#[Middleware('permission:packageVariant-master-update', only: ['update', 'toggleActive'])]
+#[Middleware('permission:packageVariant-master-delete', only: ['destroy'])]
 class PackageController extends Controller
 {
     public function __construct(
