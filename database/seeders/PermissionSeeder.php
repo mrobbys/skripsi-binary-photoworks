@@ -13,15 +13,15 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         // TODO : tambahkan permission yang belum ditambahkan
-        
+
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // akses dashboard admin
         Permission::create(['name' => 'dashboard-admin-view']);
-        
+
         // jadwal sesi
-        Permission::create(['name' => 'scheduleSession-view']);  
+        Permission::create(['name' => 'scheduleSession-view']);
         Permission::create(['name' => 'scheduleSession-calendar']);
 
         // manajemen pemesanan
@@ -29,7 +29,10 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'booking-management-create']);
         Permission::create(['name' => 'booking-management-update']);
         Permission::create(['name' => 'booking-management-delete']);
-        
+
+        // data klien
+        Permission::create(['name' => 'clientData-view']);
+
         // data master category
         Permission::create(['name' => 'category-master-view']);
         Permission::create(['name' => 'category-master-create']);
@@ -57,7 +60,7 @@ class PermissionSeeder extends Seeder
         // data master schedule
         Permission::create(['name' => 'schedule-master-view']);
         Permission::create(['name' => 'schedule-master-update']);
-        
+
         // ulasan klien
         Permission::create(['name' => 'review-client-view']);
         Permission::create(['name' => 'review-client-delete']);
@@ -70,7 +73,7 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'user-management-create']);
         Permission::create(['name' => 'user-management-update']);
         Permission::create(['name' => 'user-management-delete']);
-        
+
         // manajemen role
         Permission::create(['name' => 'role-management-view']);
         Permission::create(['name' => 'role-management-create']);
@@ -79,7 +82,7 @@ class PermissionSeeder extends Seeder
 
         // activity logs
         Permission::create(['name' => 'activityLog-management-view']);
-        
+
         // update cache to know about the newly created permissions (required if using WithoutModelEvents in seeders)
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
     }
