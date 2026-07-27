@@ -5,6 +5,7 @@ namespace App\Domains\PdfReports\Http\Controllers;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use function Spatie\LaravelPdf\Support\pdf;
 
 class JadwalOperasionalHarianController extends Controller
 {
+    use HasPdfMetadata;
+
   /**
    * Controller ini digunakan di halaman session-schedule.daily-report dan backdoor.reports.jadwal-harian.pdf
    */
@@ -50,16 +53,10 @@ class JadwalOperasionalHarianController extends Controller
     ]));
 
     $sessionDate = Formatter::dateId($tanggal, 'd F Y');
-    $printDate = Formatter::dateId(Carbon::now(), 'd F Y');
     $printTime = Carbon::now()->format('H:i');
 
     return pdf()
-      ->view('pdfs.jadwal-operasional-harian', compact(
-        'sessionDate',
-        'rows',
-        'printDate',
-        'printTime'
-      ))
+      ->view('pdfs.jadwal-operasional-harian', $this->pdfData(compact('sessionDate', 'rows', 'printTime')))
       ->format('a4')
       ->portrait()
       ->margins(10, 10, 10, 10)

@@ -5,15 +5,17 @@ namespace App\Domains\PdfReports\Http\Controllers;
 use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Domains\Review\Models\Review;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class RekapitulasiUlasanPelangganController extends Controller
 {
+    use HasPdfMetadata;
+
   public function __invoke(DateRangeReportRequest $request)
   {
     $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -36,20 +38,10 @@ class RekapitulasiUlasanPelangganController extends Controller
     $rataRataRating = $reviews->isNotEmpty()
       ? number_format($reviews->avg('rating'), 1)
       : '0.0';
-
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
     $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
     return pdf()
-      ->view('pdfs.rekapitulasi-ulasan-pelanggan', compact(
-        'rows',
-        'totalUlasan',
-        'rataRataRating',
-        'printedBy',
-        'printDate',
-        'filterText',
-      ))
+      ->view('pdfs.rekapitulasi-ulasan-pelanggan', $this->pdfData(compact('rows', 'totalUlasan', 'rataRataRating', 'filterText')))
       ->format('a4')
       ->portrait()
       ->margins(10, 10, 10, 10)

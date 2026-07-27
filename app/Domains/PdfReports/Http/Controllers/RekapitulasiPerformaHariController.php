@@ -8,15 +8,17 @@ use App\Domains\MasterData\Enums\DayOfWeek;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class RekapitulasiPerformaHariController extends Controller
 {
+    use HasPdfMetadata;
+
   public function __invoke(DateRangeReportRequest $request)
   {
     $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -62,20 +64,10 @@ class RekapitulasiPerformaHariController extends Controller
       'total_sesi' => $row['total_sesi'],
       'total_pendapatan' => Formatter::rupiah($row['total_pendapatan']),
     ]));
-
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
     $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
     return pdf()
-      ->view('pdfs.rekapitulasi-performa-hari', compact(
-        'rows',
-        'totalSemua',
-        'grandTotalPendapatan',
-        'printedBy',
-        'printDate',
-        'filterText',
-      ))
+      ->view('pdfs.rekapitulasi-performa-hari', $this->pdfData(compact('rows', 'totalSemua', 'grandTotalPendapatan', 'filterText')))
       ->format('a4')
       ->portrait()
       ->margins(10, 10, 10, 10)
