@@ -170,7 +170,12 @@ class DashboardService
   {
     return Booking::whereDate('booking_date', Carbon::today())
       ->whereNotIn('status', [BookingStatus::PENDING, BookingStatus::CANCELLED])
-      ->with(['user', 'packageVariant.package'])
+      ->with([
+        'user:id,name',
+        'packageVariant:id,package_id',
+        'packageVariant.package:id,name'
+      ])
+      ->select(['id', 'user_id', 'package_variant_id', 'start_time', 'end_time', 'status'])
       ->orderBy('start_time', 'asc')
       ->limit(5)
       ->get();
@@ -181,7 +186,7 @@ class DashboardService
    */
   public function getRecentBookings(): Collection
   {
-    return Booking::with(['user'])
+    return Booking::select(['id', 'booking_code', 'created_at', 'total_price', 'status'])
       ->orderBy('created_at', 'desc')
       ->limit(5)
       ->get();

@@ -1,6 +1,7 @@
 @php
   use App\Domains\Booking\Enums\BookingStatus;
-
+  use App\Support\Formatter;
+  
   $breadcrumbs = [['label' => 'Dashboard', 'url' => '']];
 
   $getBadgeVariant = fn(BookingStatus $status) => match ($status) {
@@ -163,7 +164,7 @@
                 @forelse ($today as $booking)
                   <tr class="border-b border-stone-100 hover:bg-stone-50">
                     <td class="whitespace-nowrap px-4 py-3 text-xs tabular-nums text-stone-700">
-                      {{ $booking->start_time->format('H:i') }} - {{ $booking->end_time->format('H:i') }}
+                      {{ Formatter::timeRange($booking->start_time, $booking->end_time) }}
                     </td>
                     <td class="px-4 py-3 font-medium text-stone-800">{{ $booking->user->name }}</td>
                     <td class="px-4 py-3 text-stone-600">{{ $booking->packageVariant->package->name }}</td>
@@ -215,9 +216,9 @@
                   <tr class="border-b border-stone-100 hover:bg-stone-50">
                     <td class="px-4 py-3 font-mono text-xs text-stone-600">{{ $booking->booking_code }}</td>
                     <td class="whitespace-nowrap px-4 py-3 text-xs text-stone-600">
-                      {{ $booking->created_at->translatedFormat('d M Y') }}</td>
-                    <td class="whitespace-nowrap px-4 py-3 font-medium text-stone-800">Rp
-                      {{ number_format($booking->total_price, 0, ',', '.') }}</td>
+                      {{ Formatter::dateId($booking->created_at) }}</td>
+                    <td class="whitespace-nowrap px-4 py-3 font-medium text-stone-800">
+                      {{ Formatter::rupiah($booking->total_price) }}</td>
                     <td class="px-4 py-3">
                       <x-shared.badge
                         :value="$booking->status->label()"
