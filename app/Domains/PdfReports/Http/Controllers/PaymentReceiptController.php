@@ -56,14 +56,20 @@ class PaymentReceiptController extends Controller
                 PaymentPurpose::DP => 'DP TERBAYAR (60%)',
                 PaymentPurpose::PELUNASAN => 'LUNAS (PELUNASAN)',
                 PaymentPurpose::LUNAS => 'LUNAS',
+                PaymentPurpose::REFUND => 'REFUND',
             };
         }
 
         // package name dan package variant
         $packageName = "{$booking->packageVariant->package->name} - {$booking->packageVariant->name}";
 
-        // Hitung total seluruh pembayaran yang berstatus Lunas
-        $totalPaid = $settledPayments->sum('amount');
+        // Hitung total bersih pembayaran (exclude refund)
+        $totalPaid = $settledPayments
+            ->where('payment_purpose', '!=', PaymentPurpose::REFUND)
+            ->sum('amount')
+            - $settledPayments
+            ->where('payment_purpose', PaymentPurpose::REFUND)
+            ->sum('amount');
 
         // Format daftar riwayat pembayaran untuk ditampilkan di PDF
         $paymentsList = $settledPayments->map(fn($p) => new Fluent([
@@ -72,7 +78,7 @@ class PaymentReceiptController extends Controller
                 PaymentPurpose::DP => 'Uang Muka (DP 60%)',
                 PaymentPurpose::PELUNASAN => 'Pelunasan (40%)',
                 PaymentPurpose::LUNAS => 'Lunas (100%)',
-                default => strtoupper($p->payment_purpose->value ?? $p->payment_purpose),
+                PaymentPurpose::REFUND => 'Pengembalian Dana (Refund)',
             },
             'method' => strtoupper($p->payment_type ?? 'MANUAL'),
             'amount' => Formatter::rupiah($p->amount),

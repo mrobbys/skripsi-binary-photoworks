@@ -5,8 +5,9 @@ namespace App\Domains\Booking\Http\Controllers\Frontdoor;
 use App\Domains\Booking\DTOs\BookingViewData;
 use App\Domains\Booking\DTOs\CheckoutData;
 use App\Domains\Booking\Http\Requests\CheckoutRequest;
-use App\Domains\Booking\Repositories\BookingRepository;
+use App\Domains\Booking\Services\SlotAvailabilityService;
 use App\Domains\Booking\Services\BookingService;
+use App\Domains\Booking\Models\Booking;
 use App\Domains\MasterData\Models\Addon;
 use App\Domains\MasterData\Models\Category;
 use App\Domains\MasterData\Models\Package;
@@ -27,7 +28,7 @@ class BookingController extends Controller
 {
     public function __construct(
         private readonly BookingService $bookingService,
-        private readonly BookingRepository $repository
+        private readonly SlotAvailabilityService $slotAvailabilityService
     ) {}
 
     /**
@@ -132,7 +133,7 @@ class BookingController extends Controller
             ->get(['start_time', 'end_time']);
 
         // cek apakah slot waktu sudah terisi
-        $occupiedSlots = $this->repository->getOccupiedSlotsByDate($date);
+        $occupiedSlots = $this->slotAvailabilityService->getOccupiedSlotsByDate($date);
         $slots = [];
 
         foreach ($schedules as $schedule) {
@@ -194,7 +195,9 @@ class BookingController extends Controller
      */
     public function success(string $bookingCode): View
     {
-        $booking = $this->repository->findByCode($bookingCode);
+        $booking = Booking::with(['user', 'packageVariant.package', 'background', 'addons', 'payments'])
+            ->where('booking_code', $bookingCode)
+            ->first();
         abort_if(! $booking || $booking->user_id !== Auth::id(), 404);
         $bookingData = BookingViewData::from($booking);
 
