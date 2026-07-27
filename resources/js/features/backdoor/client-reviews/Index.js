@@ -1,10 +1,12 @@
 import useDatatable from "@/lib/useDatatable";
 import { confirmModal, Toast } from "@/lib/sweetalert";
 import route from "@/lib/route";
-import axios from "@/lib/axiosInstance";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function Index(Alpine) {
-  const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.client-reviews.data"));
+  const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.client-reviews.data"), {
+    useHistory: true,
+  });
   Object.assign(table, methods);
 
   const stats = Alpine.reactive({
@@ -15,7 +17,7 @@ export default function Index(Alpine) {
   });
 
   const fetchStats = async () => {
-    const res = await axios.get(route("backdoor.client-reviews.stats"));
+    const res = await axiosInstance.get(route("backdoor.client-reviews.stats"));
     Object.assign(stats, res.data);
   };
 
@@ -30,7 +32,7 @@ export default function Index(Alpine) {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(route("backdoor.client-reviews.destroy", id));
+      await axiosInstance.delete(route("backdoor.client-reviews.destroy", id));
       Toast.fire({ icon: "success", title: "Ulasan berhasil dihapus." });
 
       table.reload();

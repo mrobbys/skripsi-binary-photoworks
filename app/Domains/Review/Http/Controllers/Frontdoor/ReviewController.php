@@ -77,24 +77,23 @@ class ReviewController extends Controller
 
         // Cek apakah user sudah memberikan ulasan
         if ($this->reviewService->userHasReview($userId)) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Anda sudah memberikan ulasan. Hapus ulasan lama Anda terlebih dahulu untuk membuat ulasan baru.',
-            ], 422);
+            return $this->errorResponse('Anda sudah memberikan ulasan. Hapus ulasan lama Anda terlebih dahulu untuk membuat ulasan baru.', 422);
         }
 
-        $review = Review::create(array_merge(
-            ReviewItemData::fromRequest($request),
-            ['user_id' => $userId],
-        ));
+        try {
+            $review = Review::create(array_merge(
+                ReviewItemData::fromRequest($request),
+                ['user_id' => $userId],
+            ));
 
-        $review->load('user');
+            $review->load('user');
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Ulasan Anda berhasil dikirim. Terima kasih!',
-            'data' => ReviewItemData::fromModel($review, $userId),
-        ], 201);
+            return $this->successResponse('Ulasan Anda berhasil dikirim. Terima kasih!', ReviewItemData::fromModel($review, $userId), 201);
+        } catch (\RuntimeException $e) {
+            return $this->errorResponse($e->getMessage(), 422);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Terjadi kesalahan server');
+        }
     }
 
     /**
@@ -105,17 +104,17 @@ class ReviewController extends Controller
     {
         // Cek apakah data review milik user yang sedang login
         if ($review->user_id !== Auth::id()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Anda tidak dapat menghapus ulasan milik orang lain.',
-            ], 403);
+            return $this->errorResponse('Anda tidak dapat menghapus ulasan milik orang lain.', 403);
         }
 
-        $review->delete();
+        try {
+            $review->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Ulasan berhasil dihapus.',
-        ]);
+            return $this->successResponse('Ulasan berhasil dihapus.');
+        } catch (\RuntimeException $e) {
+            return $this->errorResponse($e->getMessage(), 422);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Terjadi kesalahan server');
+        }
     }
 }

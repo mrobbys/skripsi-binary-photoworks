@@ -8,8 +8,11 @@ use App\Domains\Review\Services\ReviewService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
+#[Middleware('permission:review-client-view', only: ['index', 'data', 'stats'])]
+#[Middleware('permission:review-client-delete', only: ['destroy'])]
 class ReviewManagementController extends Controller
 {
     public function __construct(
@@ -57,20 +60,11 @@ class ReviewManagementController extends Controller
     {
         try {
             $review->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Ulasan berhasil dihapus.'
-            ]);
+            return $this->successResponse('Ulasan berhasil dihapus.');
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Terjadi kesalahan server.'
-            ], 500);
+            return $this->errorResponse('Terjadi kesalahan server');
         }
     }
 }
