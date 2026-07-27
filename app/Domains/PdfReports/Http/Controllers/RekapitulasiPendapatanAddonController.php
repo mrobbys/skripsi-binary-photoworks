@@ -6,15 +6,17 @@ use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class RekapitulasiPendapatanAddonController extends Controller
 {
+    use HasPdfMetadata;
+
     public function __invoke(DateRangeReportRequest $request)
     {
         $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -57,20 +59,10 @@ class RekapitulasiPendapatanAddonController extends Controller
 
         $grandTotalQty = number_format($rows->sum('raw_qty'), 0, ',', '.') . ' Item';
         $grandTotalPendapatan = Formatter::rupiah($rows->sum('raw_total'));
-
-        $printedBy = Auth::user()?->name ?? 'Administrator';
-        $printDate = Formatter::dateId(Carbon::now());
         $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
         return pdf()
-            ->view('pdfs.rekapitulasi-pendapatan-addon', compact(
-                'rows',
-                'grandTotalQty',
-                'grandTotalPendapatan',
-                'printedBy',
-                'printDate',
-                'filterText',
-            ))
+            ->view('pdfs.rekapitulasi-pendapatan-addon', $this->pdfData(compact('rows', 'grandTotalQty', 'grandTotalPendapatan', 'filterText')))
             ->format('a4')
             ->portrait()
             ->margins(10, 10, 10, 10)

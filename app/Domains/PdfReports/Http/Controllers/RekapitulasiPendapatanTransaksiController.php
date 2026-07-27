@@ -6,15 +6,17 @@ use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
 use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class RekapitulasiPendapatanTransaksiController extends Controller
 {
+    use HasPdfMetadata;
+
   public function __invoke(DateRangeReportRequest $request)
   {
     $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -24,7 +26,14 @@ class RekapitulasiPendapatanTransaksiController extends Controller
      * Ambil data payment yang statusnya SETTLEMENT
      * Dan tanggalnya antara start_date dan end_date (berdasarkan pay_date)
      */
-    $payments = Payment::with(['booking.user', 'booking.packageVariant.package', 'booking.addons'])
+    $payments = Payment::with([
+        'booking:id,booking_code,user_id,package_variant_id',
+        'booking.user:id,name',
+        'booking.packageVariant:id,package_id,name,price',
+        'booking.packageVariant.package:id,name',
+        'booking.addons:id,name,price',
+      ])
+      ->select(['id', 'booking_id', 'amount', 'pay_date', 'payment_purpose', 'status'])
       ->where('status', PaymentStatus::SETTLEMENT)
       ->whereNotNull('pay_date')
       ->whereBetween('pay_date', [$startDate, $endDate])
@@ -59,12 +68,10 @@ class RekapitulasiPendapatanTransaksiController extends Controller
     });
 
     $grandTotal = Formatter::rupiah($payments->sum('amount'));
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
     $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
     return pdf()
-      ->view('pdfs.rekapitulasi-pendapatan-transaksi', compact('rows', 'grandTotal', 'printedBy', 'printDate', 'filterText'))
+      ->view('pdfs.rekapitulasi-pendapatan-transaksi', $this->pdfData(compact('rows', 'grandTotal', 'filterText')))
       ->format('a4')
       ->landscape()
       ->margins(10, 10, 10, 10)

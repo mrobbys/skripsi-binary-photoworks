@@ -6,15 +6,17 @@ use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class RekapitulasiPemesananController extends Controller
 {
+    use HasPdfMetadata;
+
   public function __invoke(DateRangeReportRequest $request)
   {
     $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -52,8 +54,6 @@ class RekapitulasiPemesananController extends Controller
     });
 
     $totalReservasi = $bookings->count();
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
     $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
     $statusText = 'Semua Status';
@@ -65,14 +65,7 @@ class RekapitulasiPemesananController extends Controller
     }
 
     return pdf()
-      ->view('pdfs.rekapitulasi-pemesanan', compact(
-        'rows',
-        'totalReservasi',
-        'printedBy',
-        'printDate',
-        'filterText',
-        'statusText',
-      ))
+      ->view('pdfs.rekapitulasi-pemesanan', $this->pdfData(compact('rows', 'totalReservasi', 'filterText', 'statusText' )))
       ->format('a4')
       ->landscape()
       ->margins(10, 10, 10, 10)

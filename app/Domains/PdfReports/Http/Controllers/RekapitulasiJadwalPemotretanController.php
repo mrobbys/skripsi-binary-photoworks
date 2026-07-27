@@ -6,15 +6,17 @@ use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class RekapitulasiJadwalPemotretanController extends Controller
 {
+    use HasPdfMetadata;
+
   public function __invoke(DateRangeReportRequest $request)
   {
     $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -56,18 +58,10 @@ class RekapitulasiJadwalPemotretanController extends Controller
     });
 
     $totalJadwal = $bookings->count();
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
     $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
     return pdf()
-      ->view('pdfs.rekapitulasi-jadwal-pemotretan', compact(
-        'rows',
-        'totalJadwal',
-        'printedBy',
-        'printDate',
-        'filterText',
-      ))
+      ->view('pdfs.rekapitulasi-jadwal-pemotretan', $this->pdfData(compact('rows', 'totalJadwal', 'filterText' )))
       ->format('a4')
       ->portrait()
       ->margins(10, 10, 10, 10)

@@ -7,16 +7,17 @@ use App\Domains\Booking\Models\Booking;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Payment\Models\Payment;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class PendapatanTahunanController extends Controller
 {
+    use HasPdfMetadata;
+
     public function __invoke(Request $request)
     {
         $request->validate([
@@ -26,7 +27,8 @@ class PendapatanTahunanController extends Controller
         $tahun = (int) $request->input('tahun');
 
         // Ambil pembayaran SETTLEMENT pada tahun ini (berdasarkan pay_date) untuk Total Pendapatan
-        $payments = Payment::where('status', PaymentStatus::SETTLEMENT)
+        $payments = Payment::select(['id', 'amount', 'pay_date', 'created_at'])
+            ->where('status', PaymentStatus::SETTLEMENT)
             ->whereYear('pay_date', $tahun)
             ->get();
 
@@ -83,21 +85,10 @@ class PendapatanTahunanController extends Controller
             'total_sesi' => $row['total_sesi'] . ' Sesi',
             'total_pendapatan' => Formatter::rupiah($row['total_pendapatan']),
         ]));
-
-        $printedBy = Auth::user()?->name ?? 'Administrator';
-        $printDate = Formatter::dateId(Carbon::now());
         $filterText = "Tahun {$tahun}";
 
         return pdf()
-            ->view('pdfs.pendapatan-tahunan', compact(
-                'rows',
-                'tahun',
-                'totalSesiSemua',
-                'grandTotalPendapatan',
-                'printedBy',
-                'printDate',
-                'filterText',
-            ))
+            ->view('pdfs.pendapatan-tahunan', $this->pdfData(compact('rows', 'tahun', 'totalSesiSemua', 'grandTotalPendapatan', 'filterText' )))
             ->format('a4')
             ->portrait()
             ->margins(10, 10, 10, 10)

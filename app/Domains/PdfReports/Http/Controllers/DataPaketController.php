@@ -4,15 +4,16 @@ namespace App\Domains\PdfReports\Http\Controllers;
 
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class DataPaketController extends Controller
 {
+    use HasPdfMetadata;
+
   public function __invoke()
   {
     $variants = PackageVariant::with([
@@ -39,11 +40,8 @@ class DataPaketController extends Controller
       ]);
     });
 
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
-
     return pdf()
-      ->view('pdfs.data-paket', compact('rows', 'printedBy', 'printDate'))
+      ->view('pdfs.data-paket', $this->pdfData(compact('rows')))
       ->format('a4')
       ->landscape()
       ->margins(10, 10, 10, 10)

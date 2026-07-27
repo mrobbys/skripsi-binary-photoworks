@@ -5,8 +5,8 @@ namespace App\Domains\PdfReports\Http\Controllers;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\Payment\Enums\PaymentPurpose;
 use App\Domains\Payment\Enums\PaymentStatus;
-use App\Domains\Payment\Models\Payment;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 use App\Support\Formatter;
@@ -15,6 +15,8 @@ use function Spatie\LaravelPdf\Support\pdf;
 
 class PaymentReceiptController extends Controller
 {
+    use HasPdfMetadata;
+
     public function __invoke(Booking $booking)
     {
         $booking->load([
@@ -25,11 +27,13 @@ class PaymentReceiptController extends Controller
         ]);
 
         // bukti pembayaran berdasarkan pemilik booking / user
-        // TODO : sesuaikan lagi untuk pengkondisian, siapa saja yang memiliki hak akses
         $isOwned = Auth::id() === $booking->user_id;
-        $isSuperadmin = Auth::user()->hasRole('superadmin');
-        
-        if (!$isOwned && !$isSuperadmin) {
+        $isUser = Auth::user()->hasRole('user');
+        /**
+         * Jika bukti pembayaran bukan oleh pemilik booking dan role = user, maka abort
+         * Semua role (seperti superadmin/admin) bisa akses bukti pembayaran kecuali role = user
+         */
+        if ($isUser && !$isOwned) {
             abort(403, 'Anda tidak memiliki izin untuk mengakses bukti pembayaran ini.');
         }
 
@@ -108,7 +112,7 @@ class PaymentReceiptController extends Controller
         ]));
 
         return pdf()
-            ->view('pdfs.payment-receipt', compact('formattedData', 'formattedAddons', 'paymentsList'))
+            ->view('pdfs.payment-receipt', $this->pdfData(compact('formattedData', 'formattedAddons', 'paymentsList')))
             ->format('a4')
             ->name("payment-{$booking->booking_code}.pdf");
     }

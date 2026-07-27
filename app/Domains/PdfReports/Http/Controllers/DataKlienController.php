@@ -6,15 +6,17 @@ use App\Domains\PdfReports\Http\Requests\DateRangeReportRequest;
 use App\Domains\User\Enums\RoleType;
 use App\Domains\User\Models\User;
 use App\Http\Controllers\Controller;
+use App\Domains\PdfReports\Traits\HasPdfMetadata;
 use App\Support\Formatter;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Fluent;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
 class DataKlienController extends Controller
 {
+  use HasPdfMetadata;
+
   public function __invoke(DateRangeReportRequest $request)
   {
     $startDate = Carbon::parse($request->validated('start_date'))->startOfDay();
@@ -37,18 +39,10 @@ class DataKlienController extends Controller
     ]));
 
     $totalKlien = $users->count();
-    $printedBy = Auth::user()?->name ?? 'Administrator';
-    $printDate = Formatter::dateId(Carbon::now());
     $filterText = Formatter::dateId($startDate) . ' s/d ' . Formatter::dateId($endDate);
 
     return pdf()
-      ->view('pdfs.data-klien', compact(
-        'rows',
-        'totalKlien',
-        'printedBy',
-        'printDate',
-        'filterText',
-      ))
+      ->view('pdfs.data-klien', $this->pdfData(compact('rows', 'totalKlien', 'filterText')))
       ->format('a4')
       ->portrait()
       ->margins(10, 10, 10, 10)
