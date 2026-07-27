@@ -4,15 +4,12 @@ namespace App\Domains\User\Services;
 
 use App\Domains\User\DTOs\ChangePasswordData;
 use App\Domains\User\DTOs\ProfileData;
-use App\Domains\User\Repositories\UserRepository;
+use App\Domains\User\Models\User;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
 
 class ProfileService
 {
-  public function __construct(
-    private readonly UserRepository $repository,
-  ) {}
 
   /**
    * Update data diri user (name, email, phone).
@@ -21,7 +18,7 @@ class ProfileService
    */
   public function updateProfile(int $userId, ProfileData $data): void
   {
-    $user = $this->repository->findById($userId);
+    $user = User::findOrFail($userId);
 
     // isi data ke dalam model
     $user->fill($data->toArray());
@@ -31,7 +28,7 @@ class ProfileService
       throw new RuntimeException('Data profil tidak ada yang diubah.');
     }
 
-    $this->repository->updateById($userId, $data->toArray());
+    $user->save();
   }
 
   /**
@@ -42,14 +39,14 @@ class ProfileService
    */
   public function changePassword(int $userId, ChangePasswordData $data): void
   {
-    $user = $this->repository->findById($userId);
+    $user = User::findOrFail($userId);
 
     // cek apakah old_password sama dengan password sekarang di database
     if (! Hash::check($data->old_password, $user->password)) {
       throw new RuntimeException('Password lama tidak sesuai.');
     }
 
-    $this->repository->updateById($userId, [
+    $user->update([
       'password' => Hash::make($data->password),
     ]);
   }

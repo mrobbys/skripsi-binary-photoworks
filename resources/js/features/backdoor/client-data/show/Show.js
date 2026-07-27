@@ -4,7 +4,9 @@ import route from "@/lib/route";
 export default function Show(Alpine) {
   const getUserUuid = () => document.getElementById("show-root")?.dataset?.userUuid ?? "";
 
-  const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.client-data.bookings", getUserUuid()));
+  const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.client-data.bookings", getUserUuid()), {
+    useHistory: true,
+  });
 
   Object.assign(table, methods);
 

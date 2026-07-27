@@ -10,8 +10,10 @@ use App\Domains\User\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
+#[Middleware('permission:clientData-view')]
 class ClientDataController extends Controller
 {
   /**
@@ -42,13 +44,8 @@ class ClientDataController extends Controller
     $limit = max(1, min((int) $request->integer('limit', 10), 100));
 
     $query = User::role('user')
-      ->withCount(['bookings as bookings_count' => function ($q) {
-        $q->whereIn('status', [
-          BookingStatus::DP_PAID,
-          BookingStatus::SUCCESS,
-          BookingStatus::DONE,
-        ]);
-      }])
+      ->select(['id', 'uuid', 'name', 'email', 'phone', 'created_at'])
+      ->withCount('bookings as bookings_count')
       ->when($search, function ($q) use ($search) {
         $q->where(function ($inner) use ($search) {
           $inner->where('name', 'ilike', "%{$search}%")
@@ -61,10 +58,10 @@ class ClientDataController extends Controller
     $paginated = $query->paginate($limit);
 
     return response()->json([
-      'data'         => ClientDataIndexData::collect($paginated->items()),
+      'data' => ClientDataIndexData::collect($paginated->items()),
       'current_page' => $paginated->currentPage(),
-      'last_page'    => $paginated->lastPage(),
-      'total'        => $paginated->total(),
+      'last_page' => $paginated->lastPage(),
+      'total' => $paginated->total(),
     ]);
   }
 
@@ -82,9 +79,9 @@ class ClientDataController extends Controller
       'bookings as total_done' => fn($q) => $q->where('status', BookingStatus::DONE),
       'bookings as total_cancel' => fn($q) => $q->where('status', BookingStatus::CANCELLED),
     ]);
-    
+
     return view('backdoor.client-data.show', [
-      'client' => ClientDataShowData::from($user)
+      'client' => ClientDataShowData::fromModel($user)
     ]);
   }
 
@@ -99,7 +96,11 @@ class ClientDataController extends Controller
     $limit = max(1, min((int) $request->integer('limit', 10), 100));
 
     $query = $user->bookings()
-      ->with(['packageVariant.package'])
+      ->select(['id', 'user_id', 'package_variant_id', 'booking_code', 'booking_date', 'start_time', 'end_time', 'status', 'total_price'])
+      ->with([
+        'packageVariant:id,package_id,name',
+        'packageVariant.package:id,name'
+      ])
       ->when($search, function ($q) use ($search) {
         $q->where(function ($inner) use ($search) {
           $inner->where('booking_code', 'ilike', "%{$search}%")
@@ -113,10 +114,10 @@ class ClientDataController extends Controller
     $paginated = $query->paginate($limit);
 
     return response()->json([
-      'data'         => ClientBookingHistoryData::collect($paginated->items()),
+      'data' => ClientBookingHistoryData::collect($paginated->items()),
       'current_page' => $paginated->currentPage(),
-      'last_page'    => $paginated->lastPage(),
-      'total'        => $paginated->total(),
+      'last_page' => $paginated->lastPage(),
+      'total' => $paginated->total(),
     ]);
   }
 }
