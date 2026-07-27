@@ -4,7 +4,6 @@ namespace App\Domains\Booking\Services;
 
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
-use App\Domains\Booking\Repositories\BookingRepository;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Jobs\SendWhatsappNotificationJob;
 use App\Support\Formatter;
@@ -13,9 +12,6 @@ use RuntimeException;
 
 class CancelBookingService
 {
-  public function __construct(
-    private readonly BookingRepository $repository
-  ) {}
 
   /**
    * Cancel data booking
@@ -26,35 +22,45 @@ class CancelBookingService
    */
   public function execute(string $bookingCode, int $userId, bool $isAdmin = false): void
   {
-    $booking = $this->repository->findByCodeAndUser($bookingCode, $userId);
+    $booking = Booking::with(['user', 'packageVariant.package', 'payments'])
+      ->where('booking_code', $bookingCode)
+      ->where('user_id', $userId)
+      ->first();
 
     if (!$booking) {
       throw new RuntimeException('Booking tidak ditemukan.');
     }
 
-    if (!$isAdmin && $booking->status !== BookingStatus::PENDING) {
-      throw new RuntimeException('Booking ini tidak dapat dibatalkan.');
-    }
+    // Pengecekan status dan proses pembatalan wajib dibungkus transaction + lockForUpdate untuk menghindari race condition
+    DB::transaction(function () use ($booking, $isAdmin) {
+      $lockedBooking = Booking::where('id', $booking->id)->lockForUpdate()->first();
 
-    /**
-     * Update status di table booking menjadi CANCELLED
-     * Update semua status di table payment terkait menjadi CANCELLED
-     * Hal ini karena jika admin membatalkan, uang direfund / dikembalikan dan transaksi dianggap batal
-     */
-    DB::transaction(function () use ($booking) {
-      $booking->update(['status' => BookingStatus::CANCELLED]);
-      $booking->payments()->where('status', PaymentStatus::PENDING)->get()->each->update(['status' => PaymentStatus::CANCELLED]);
-      $booking->payments()->where('status', PaymentStatus::SETTLEMENT)->get()->each->update(['status' => PaymentStatus::REFUNDED]);
+      if (!$isAdmin && $lockedBooking->status !== BookingStatus::PENDING) {
+        throw new RuntimeException('Booking ini tidak dapat dibatalkan atau statusnya sudah berubah.');
+      }
+
+      // Update status di table booking menjadi CANCELLED
+      $lockedBooking->update(['status' => BookingStatus::CANCELLED]);
+
+      // Update semua status di table payment terkait
+      // Jika admin membatalkan, uang (SETTLEMENT) direfund dan transaksi dianggap batal
+      $lockedBooking->payments()->where('status', PaymentStatus::PENDING)->update(['status' => PaymentStatus::CANCELLED]);
+      $lockedBooking->payments()->where('status', PaymentStatus::SETTLEMENT)->update(['status' => PaymentStatus::REFUNDED]);
+
+      // Sinkronisasikan status ke objek memori untuk format pesan WA
+      $booking->status = BookingStatus::CANCELLED;
     });
 
     // Relasi harus di-load sebelum membangun pesan
     $booking->loadMissing(['user', 'packageVariant.package']);
 
-    // Kirim notifikasi WhatsApp
-    SendWhatsappNotificationJob::dispatch(
-      $booking->user->phone,
-      $this->buildMessage($booking, $isAdmin)
-    );
+    // Kirim notifikasi WhatsApp dengan proteksi null-pointer
+    if ($booking->user?->phone) {
+      SendWhatsappNotificationJob::dispatch(
+        $booking->user->phone,
+        $this->buildMessage($booking, $isAdmin)
+      );
+    }
   }
 
   /**
@@ -66,7 +72,7 @@ class CancelBookingService
     $user = $booking->user?->name;
     $package = $booking->packageVariant?->package?->name;
     $variant = $booking->packageVariant?->name;
-    
+
     $bookingDate = Formatter::dateId($booking->booking_date, 'l, d F Y');
     $sessionTime = Formatter::timeRange($booking->start_time, $booking->end_time);
 

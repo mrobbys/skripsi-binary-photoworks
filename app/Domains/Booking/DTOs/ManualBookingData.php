@@ -2,7 +2,7 @@
 
 namespace App\Domains\Booking\DTOs;
 
-use App\Domains\Booking\Http\Requests\StoreManualBookingRequest;
+use Illuminate\Foundation\Http\FormRequest;
 use Spatie\LaravelData\Data;
 
 class ManualBookingData extends Data
@@ -18,7 +18,7 @@ class ManualBookingData extends Data
     public readonly array $addons = [],
   ) {}
 
-  public static function fromRequest(StoreManualBookingRequest $request): self
+  public static function fromRequest(FormRequest $request): self
   {
     return new self(
       user_id: (int) $request->validated('user_id'),

@@ -5,7 +5,7 @@ namespace App\Domains\Booking\Services;
 use App\Domains\Booking\DTOs\BookingHistoryData;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
-use App\Domains\Booking\Repositories\BookingRepository;
+use App\Domains\Booking\Services\SlotAvailabilityService;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\User\Models\User;
 use Carbon\Carbon;
@@ -14,7 +14,7 @@ use RuntimeException;
 class DashboardService
 {
   public function __construct(
-    private readonly BookingRepository $repository,
+    private readonly SlotAvailabilityService $slotAvailabilityService,
     private readonly MidtransService $midtrans,
   ) {}
 
@@ -26,8 +26,27 @@ class DashboardService
    */
   public function getBookingHistory(int $userId, string $tab, int $limit = 5)
   {
-    return $this->repository->getPaginatedByUser($userId, $tab, $limit)
-      ->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
+    $query = Booking::with(['packageVariant.package', 'background', 'payments'])
+        ->where('user_id', $userId);
+
+    if ($tab === 'upcoming') {
+        $query->whereIn('status', [
+            BookingStatus::PENDING,
+            BookingStatus::DP_PAID,
+            BookingStatus::SUCCESS
+        ]);
+    } else {
+        $query->whereIn('status', [
+            BookingStatus::DONE,
+            BookingStatus::CANCELLED
+        ]);
+    }
+
+    $paginated = $query->orderBy('created_at', 'desc')
+        ->orderBy('start_time', 'desc')
+        ->paginate($limit);
+
+    return $paginated->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
   }
 
   /**
@@ -44,7 +63,10 @@ class DashboardService
    */
   public function getValidSnapToken(string $bookingCode, User $user): string
   {
-    $booking = $this->repository->findByCodeAndUser($bookingCode, $user->id);
+    $booking = Booking::with(['packageVariant.package', 'background', 'payments'])
+        ->where('booking_code', $bookingCode)
+        ->where('user_id', $user->id)
+        ->first();
 
     if (! $booking) {
       throw new RuntimeException('Booking tidak ditemukan.');
@@ -88,7 +110,10 @@ class DashboardService
   public function rescheduleBooking(string $bookingCode, int $userId, string $newDate, string $newStartTime): void
   {
     $maxRescheduleCount = 3;
-    $booking = $this->repository->findByCodeAndUser($bookingCode, $userId);
+    $booking = Booking::with(['packageVariant.package', 'background', 'payments'])
+        ->where('booking_code', $bookingCode)
+        ->where('user_id', $userId)
+        ->first();
 
     if (! $booking) {
       throw new RuntimeException('Booking tidak ditemukan.');
@@ -116,7 +141,7 @@ class DashboardService
     $newEndTime = Carbon::parse($newStartTime)->addMinutes($duration)->format('H:i');
 
     // Validasi slot baru tidak bentrok (kecuali dengan booking sendiri)
-    if ($this->repository->isSlotOccupiedExcluding($newDate, $newStartTime, $newEndTime, $booking->id)) {
+    if ($this->slotAvailabilityService->isSlotOccupiedExcluding($newDate, $newStartTime, $newEndTime, $booking->id)) {
       throw new RuntimeException('Slot waktu yang dipilih sudah terisi. Silakan pilih waktu lain.');
     }
 

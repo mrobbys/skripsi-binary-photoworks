@@ -28,8 +28,7 @@ class ManageBookingIndexData extends Data
 
     // sub label price (dp atau lunas)
     if ($booking->payment_scheme === PaymentScheme::DP) {
-      // dp 60%
-      $dpAmount = $booking->total_price * 0.6;
+      $dpAmount = $booking->total_price * PaymentScheme::DP_RATE;
       $paymentDetailLabel = "(DP: " . Formatter::rupiah($dpAmount) . ")";
     } else {
       $paymentDetailLabel = "(Lunas)";

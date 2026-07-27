@@ -7,7 +7,8 @@ use App\Domains\Booking\DTOs\CheckoutData;
 use App\Domains\Booking\Enums\BookingSource;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Enums\PaymentScheme;
-use App\Domains\Booking\Repositories\BookingRepository;
+use App\Domains\Booking\Models\Booking;
+use App\Domains\Booking\Services\SlotAvailabilityService;
 use App\Domains\MasterData\Models\Addon;
 use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\Payment\Enums\PaymentPurpose;
@@ -23,112 +24,112 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 
 class BookingService
 {
-    use CalculatesBookingTotal;
-    
-    public function __construct(
-        private readonly BookingRepository $repository,
-        private readonly BookingCodeGenerator $codeGenerator,
-        private readonly MidtransService $midtrans,
-    ) {}
+	use CalculatesBookingTotal;
 
-    /**
-     * Proses checkout
-     * @param User $user
-     * @param CheckoutData $data
-     */
-    public function processCheckout(User $user, CheckoutData $data): array
-    {
-        // kunci proses berdasarkan tanggal booking untuk mencegah race condition (double booking pada slot waktu yang sama)
-        $lock = Cache::lock("booking_checkout_{$data->booking_date}", 10);
+	public function __construct(
+		private readonly SlotAvailabilityService $slotAvailabilityService,
+		private readonly BookingCodeGenerator $codeGenerator,
+		private readonly MidtransService $midtrans,
+	) {}
 
-        try {
-            return $lock->block(5, function () use ($user, $data) {
-                return DB::transaction(function () use ($user, $data) {
-                    $variant = PackageVariant::with('package.category')->findOrFail($data->package_variant_id);
-                    $totalPrice = $this->calculateTotal($variant, $data->addons ?? []);
+	/**
+	 * Proses checkout
+	 * @param User $user
+	 * @param CheckoutData $data
+	 */
+	public function processCheckout(User $user, CheckoutData $data): array
+	{
+		// kunci proses berdasarkan tanggal booking untuk mencegah race condition (double booking pada slot waktu yang sama)
+		$lock = Cache::lock("booking_checkout_{$data->booking_date}", 10);
 
-                    $endTime = Carbon::parse($data->start_time)
-                        ->addMinutes($variant->duration)
-                        ->format('H:i');
+		try {
+			return $lock->block(5, function () use ($user, $data) {
+				return DB::transaction(function () use ($user, $data) {
+					$variant = PackageVariant::with('package.category')->findOrFail($data->package_variant_id);
+					$totalPrice = $this->calculateTotal($variant, $data->addons ?? []);
 
-                    // cek apakah slot waktu sudah terisi
-                    if ($this->repository->isSlotOccupied($data->booking_date, $data->start_time, $endTime)) {
-                        throw new \RuntimeException('Slot waktu sudah terisi. Silakan pilih jam lain.');
-                    }
+					$endTime = Carbon::parse($data->start_time)
+						->addMinutes($variant->duration)
+						->format('H:i');
 
-                    // generate booking code
-                    $bookingCode = $this->codeGenerator->generate(
-                        $variant->package->category->category_code,
-                        $variant->id,
-                        $data->booking_date,
-                    );
+					// cek apakah slot waktu sudah terisi
+					if ($this->slotAvailabilityService->isSlotOccupied($data->booking_date, $data->start_time, $endTime)) {
+						throw new \RuntimeException('Slot waktu sudah terisi. Silakan pilih jam lain.');
+					}
 
-                    // buat data booking
-                    $booking = $this->repository->create(new BookingData(
-                        user_id: $user->id,
-                        package_variant_id: $data->package_variant_id,
-                        background_id: $data->background_id,
-                        booking_code: $bookingCode,
-                        booking_date: $data->booking_date,
-                        start_time: $data->start_time,
-                        end_time: $endTime,
-                        total_price: $totalPrice,
-                        payment_scheme: $data->payment_scheme,
-                        notes: $data->notes,
-                        status: BookingStatus::PENDING,
-                        source: BookingSource::FRONTDOOR,
-                    ));
+					// generate booking code
+					$bookingCode = $this->codeGenerator->generate(
+						$variant->package->category->category_code,
+						$variant->id,
+						$data->booking_date,
+					);
 
-                    // Ambil semua model addon sekaligus
-                    if (!empty($data->addons)) {
-                        $addonIds = array_column($data->addons, 'addon_id');
-                        $addonsModels = Addon::whereIn('id', $addonIds)->get()->keyBy('id');
+					// buat data booking
+					$booking = Booking::create((new BookingData(
+						user_id: $user->id,
+						package_variant_id: $data->package_variant_id,
+						background_id: $data->background_id,
+						booking_code: $bookingCode,
+						booking_date: $data->booking_date,
+						start_time: $data->start_time,
+						end_time: $endTime,
+						total_price: $totalPrice,
+						payment_scheme: $data->payment_scheme,
+						notes: $data->notes,
+						status: BookingStatus::PENDING,
+						source: BookingSource::FRONTDOOR,
+					))->toArray());
 
-                        $syncData = [];
-                        foreach ($data->addons as $item) {
-                            $addon = $addonsModels->get($item['addon_id']);
-                            $syncData[$item['addon_id']] = [
-                                'price_at_purchase' => $addon ? $addon->price : 0,
-                                'quantity' => $item['quantity'] ?? 1,
-                            ];
-                        }
-                        $booking->addons()->sync($syncData);
-                    }
+					// Ambil semua model addon sekaligus
+					if (!empty($data->addons)) {
+						$addonIds = array_column($data->addons, 'addon_id');
+						$addonsModels = Addon::whereIn('id', $addonIds)->get()->keyBy('id');
 
-                    // hitung total yang harus dibayar
-                    // jika dp, cukup bayar 60% nya saja
-                    $grossAmount = $data->payment_scheme === PaymentScheme::DP
-                        ? (int) round($totalPrice * 0.60)
-                        : $totalPrice;
+						$syncData = [];
+						foreach ($data->addons as $item) {
+							$addon = $addonsModels->get($item['addon_id']);
+							$syncData[$item['addon_id']] = [
+								'price_at_purchase' => $addon ? $addon->price : 0,
+								'quantity' => $item['quantity'] ?? 1,
+							];
+						}
+						$booking->addons()->sync($syncData);
+					}
 
-                    $suffix = $data->payment_scheme === PaymentScheme::DP ? 'DP' : 'FULL';
-                    $randomString = Str::upper(Str::random(3));
-                    // generate order id untuk midtrans
-                    $orderId = "{$bookingCode}-{$suffix}-{$randomString}";
+					// hitung total yang harus dibayar
+					// jika dp, cukup bayar 60% nya saja
+					$grossAmount = $data->payment_scheme === PaymentScheme::DP
+						? (int) round($totalPrice * PaymentScheme::DP_RATE)
+						: $totalPrice;
 
-                    $snapToken = $this->midtrans->getSnapToken(
-                        orderId: $orderId,
-                        grossAmount: $grossAmount,
-                        user: $user,
-                        booking: $booking,
-                    );
+					$suffix = $data->payment_scheme === PaymentScheme::DP ? 'DP' : 'FULL';
+					$randomString = Str::upper(Str::random(3));
+					// generate order id untuk midtrans
+					$orderId = "{$bookingCode}-{$suffix}-{$randomString}";
 
-                    Payment::create([
-                        'booking_id' => $booking->id,
-                        'order_id' => $orderId,
-                        'payment_type' => null,
-                        'payment_purpose' => $data->payment_scheme === PaymentScheme::DP ? PaymentPurpose::DP : PaymentPurpose::LUNAS,
-                        'snap_token' => $snapToken,
-                        'snap_token_expiry' => Carbon::now()->addHour(),
-                        'amount' => $grossAmount,
-                        'status' => PaymentStatus::PENDING,
-                    ]);
+					$snapToken = $this->midtrans->getSnapToken(
+						orderId: $orderId,
+						grossAmount: $grossAmount,
+						user: $user,
+						booking: $booking,
+					);
 
-                    return ['booking_code' => $bookingCode, 'snap_token' => $snapToken];
-                });
-            });
-        } catch (LockTimeoutException $e) {
-            throw new \RuntimeException('Sistem sedang memproses pesanan di tanggal ini secara bersamaan, silakan coba lagi.');
-        }
-    }
+					Payment::create([
+						'booking_id' => $booking->id,
+						'order_id' => $orderId,
+						'payment_type' => null,
+						'payment_purpose' => $data->payment_scheme === PaymentScheme::DP ? PaymentPurpose::DP : PaymentPurpose::LUNAS,
+						'snap_token' => $snapToken,
+						'snap_token_expiry' => Carbon::now()->addHour(),
+						'amount' => $grossAmount,
+						'status' => PaymentStatus::PENDING,
+					]);
+
+					return ['booking_code' => $bookingCode, 'snap_token' => $snapToken];
+				});
+			});
+		} catch (LockTimeoutException $e) {
+			throw new \RuntimeException('Sistem sedang memproses pesanan di tanggal ini secara bersamaan, silakan coba lagi.');
+		}
+	}
 }
