@@ -21,9 +21,8 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'dashboard-admin-view']);
         
         // jadwal sesi
-        Permission::create(['name' => 'scheduleSession-view']);        
-        Permission::create(['name' => 'scheduleSession-update']);        
-        Permission::create(['name' => 'scheduleSession-calendar']);        
+        Permission::create(['name' => 'scheduleSession-view']);  
+        Permission::create(['name' => 'scheduleSession-calendar']);
 
         // manajemen pemesanan
         Permission::create(['name' => 'booking-management-view']);
