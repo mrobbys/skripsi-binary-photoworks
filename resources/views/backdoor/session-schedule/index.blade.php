@@ -1,9 +1,14 @@
 @php
+  use \Carbon\Carbon;
+  use \App\Support\Formatter;
+
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
-      ['label' => 'Jadwal Sesi', 'url' => ''],
+      ['label' => 'Jadwal Sesi', 'url' => '#'],
       ['label' => 'Daftar Jadwal', 'url' => ''],
   ];
+
+  $jadwal_hari_ini = Formatter::dateId(Carbon::now(), 'l, d F Y');
 @endphp
 
 <x-layouts.backdoor.index
@@ -24,7 +29,7 @@
         <x-backdoor.shared.page-header title="Daftar Jadwal Sesi" />
         <p class="mt-2 text-sm text-stone-500">
           Data jadwal hari ini:
-          <strong>{{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}</strong>
+          <strong>{{ $jadwal_hari_ini }}</strong>
         </p>
       </div>
 

@@ -10,6 +10,9 @@ Route::prefix('session-schedule')
     // halaman daftar jadwal
     Route::get('/list', [SessionScheduleController::class, 'index'])
       ->name('list');
+    // data untuk table
+    Route::get('/list/data', [SessionScheduleController::class, 'data'])
+      ->name('list.data');
     // halaman detail jadwal
     Route::get('/list/{booking:booking_code}/detail', [ManageBookingController::class, 'show'])
       ->name('list.show');

@@ -30,7 +30,7 @@
       {{-- daftar jadwal start --}}
       <x-layouts.backdoor.components.sidebar-collapse-link
         :href="route('backdoor.session-schedule.list')"
-        :active="request()->routeIs('backdoor.session-schedule.list.*')"
+        :active="request()->routeIs('backdoor.session-schedule.list*')"
         title='Daftar Jadwal'
       />
       {{-- daftar jadwal end --}}

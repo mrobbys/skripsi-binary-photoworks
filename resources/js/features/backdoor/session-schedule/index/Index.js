@@ -18,7 +18,8 @@ export default function Index(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, route("backdoor.session-schedule.list"), {
+  } = useDatatable(Alpine, route("backdoor.session-schedule.list.data"), {
+    useHistory: true,
     extraParams: () => ({
       date: state.dateFilter || undefined,
     }),
@@ -51,7 +52,9 @@ export default function Index(Alpine) {
       fetch();
       this.$nextTick(() => {
         datePickerInstance = flatpickr(this.$refs.dateFilterInput, {
-          dateFormat: "d M Y",
+          altInput: true,
+          altFormat: "d M Y",
+          dateFormat: "Y-m-d",
           disableMobile: true,
           onChange: (selectedDates, dateStr) => {
             setDateFilter(dateStr || "");

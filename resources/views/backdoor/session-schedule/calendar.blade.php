@@ -1,7 +1,7 @@
 @php
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
-      ['label' => 'Jadwal Sesi', 'url' => ''],
+      ['label' => 'Jadwal Sesi', 'url' => '#'],
       ['label' => 'Kalender Sesi', 'url' => ''],
   ];
 @endphp
