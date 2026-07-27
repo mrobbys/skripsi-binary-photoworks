@@ -2,7 +2,7 @@
 
 namespace App\Domains\Booking\DTOs;
 
-use App\Domains\Booking\Http\Requests\UpsellAddonRequest;
+use Illuminate\Foundation\Http\FormRequest;
 use Spatie\LaravelData\Data;
 
 class UpsellAddonData extends Data
@@ -12,7 +12,7 @@ class UpsellAddonData extends Data
     public readonly int $quantity,
   ) {}
 
-  public static function fromRequest(UpsellAddonRequest $request): self
+  public static function fromRequest(FormRequest $request): self
   {
     return new self(
       addon_id: (int) $request->validated('addon_id'),
