@@ -2,7 +2,9 @@ import useDatatable from "@/lib/useDatatable";
 import route from "@/lib/route";
 
 export default function ActivityLogs(Alpine) {
-  const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.system-settings.activity-logs.data"), { debounceMs: 400 });
+  const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.system-settings.activity-logs.data"), {
+    useHistory: true,
+  });
   Object.assign(table, methods);
 
   const modal = Alpine.reactive({

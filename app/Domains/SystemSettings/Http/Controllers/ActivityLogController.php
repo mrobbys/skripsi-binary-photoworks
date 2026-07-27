@@ -7,9 +7,11 @@ use App\Domains\User\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 
+#[Middleware('permission:activityLog-management-view', only: ['index', 'data'])]
 class ActivityLogController extends Controller
 {
   /**

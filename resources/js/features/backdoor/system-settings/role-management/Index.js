@@ -5,14 +5,14 @@ import axios from "@/lib/axiosInstance";
 
 export default function Index(Alpine) {
   const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.system-settings.roles.data"), {
-    debounceMs: 400,
+    useHistory: true,
   });
   Object.assign(table, methods);
 
   const deleteRole = async (id, name) => {
     const result = await confirmModal(
       `Hapus Role "${name}"?`,
-      "Role yang dihapus tidak dapat dikembalikan dan seluruh pengguna yang memiliki role ini akan kehilangan aksesnya.",
+      "Role yang dihapus tidak dapat dikembalikan.",
       "warning",
       "Ya, Hapus",
     );
