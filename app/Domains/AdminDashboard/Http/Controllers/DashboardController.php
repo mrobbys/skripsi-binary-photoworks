@@ -6,8 +6,10 @@ use App\Domains\AdminDashboard\Services\DashboardService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\View\View;
 
+#[Middleware('permission:dashboard-admin-view', only: ['index', 'analytics'])]
 class DashboardController extends Controller
 {
   public function __construct(
