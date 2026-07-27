@@ -63,5 +63,23 @@ export default function useBookingActions({ state, fetchBooking }) {
     }
   };
 
-  return { settle, submitGdrive };
+  const refund = async () => {
+    const confirmed = await confirmModal(
+      "Catat Refund?",
+      `Kelebihan bayar booking ${state.bookingCode} akan dicatat sebagai refund sebesar Rp ${Number(state.summary?.overpayment || 0).toLocaleString("id-ID")}.`,
+      "warning",
+      "Ya, Catat Refund",
+    );
+    if (!confirmed.isConfirmed) return;
+
+    try {
+      const res = await axiosInstance.post(route("backdoor.booking-management.refund", state.bookingCode));
+      Toast.fire({ icon: "success", title: res.data.message });
+      await fetchBooking();
+    } catch (err) {
+      Toast.fire({ icon: "error", title: err?.response?.data?.message ?? "Gagal mencatat refund." });
+    }
+  };
+
+  return { settle, submitGdrive, refund };
 }

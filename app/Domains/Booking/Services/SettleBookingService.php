@@ -21,61 +21,68 @@ class SettleBookingService
    */
   public function execute(Booking $booking): void
   {
-    if (!in_array($booking->status, [BookingStatus::DP_PAID, BookingStatus::SUCCESS])) {
-      throw new RuntimeException('Booking ini tidak dapat dilunasi.');
-    }
+    DB::transaction(function () use ($booking) {
+      // Re-fetch booking with lock to prevent race condition
+      $lockedBooking = Booking::where('id', $booking->id)->lockForUpdate()->first();
 
-    $payment = DB::transaction(function () use ($booking) {
-      // Hitung total yang sudah masuk
-      $totalPaid = $booking->payments()
+      if (! in_array($lockedBooking->status, [BookingStatus::DP_PAID, BookingStatus::SUCCESS])) {
+        throw new RuntimeException('Booking ini tidak dapat dilunasi atau sudah diproses.');
+      }
+
+      // Hitung total yang sudah masuk menggunakan data terbaru
+      $totalPaid = $lockedBooking->payments()
         ->where('status', PaymentStatus::SETTLEMENT)
         ->sum('amount');
 
-      $remaining = $booking->total_price - $totalPaid;
+      $remaining = $lockedBooking->total_price - $totalPaid;
 
       if ($remaining <= 0) {
         throw new RuntimeException('Tagihan booking ini sudah lunas sepenuhnya.');
       }
 
-      $payment = Payment::create([
-        'booking_id'      => $booking->id,
-        'order_id'        => $booking->booking_code . '-PLN',
-        'amount'          => $remaining,
-        'status'          => PaymentStatus::SETTLEMENT,
+      $orderId = $lockedBooking->booking_code . '-PLN';
+      if (Payment::where('order_id', $orderId)->exists()) {
+        $orderId = $lockedBooking->booking_code . '-PLN-' . now()->timestamp;
+      }
+
+      Payment::create([
+        'booking_id' => $lockedBooking->id,
+        'order_id' => $orderId,
+        'amount' => $remaining,
+        'status' => PaymentStatus::SETTLEMENT,
         'payment_purpose' => PaymentPurpose::PELUNASAN,
-        'payment_type'    => 'manual',
-        'pay_date'        => now(),
+        'payment_type' => 'manual',
+        'pay_date' => now(),
       ]);
 
-      // Update status booking
-      $booking->update(['status' => BookingStatus::SUCCESS]);
-      
-      return $payment;
-    });
+      // Update status booking di DB
+      $lockedBooking->update(['status' => BookingStatus::SUCCESS]);
 
-    $booking->loadMissing(['user', 'packageVariant.package']);
+      // Sinkronisasikan status ke object di memori agar notifikasi WA mendapat data terbaru
+      $booking->status = BookingStatus::SUCCESS;
+    });
 
     // Kirim notifikasi WhatsApp
     SendWhatsappNotificationJob::dispatch(
       $booking->user->phone,
-      $this->buildMessage($booking, $payment)
+      $this->buildMessage($booking)
     );
   }
 
   /**
    * Membangun template pesan WhatsApp untuk Kuitansi Pelunasan
    */
-  private function buildMessage(Booking $booking, Payment $payment): string
+  private function buildMessage(Booking $booking): string
   {
     $code = $booking->booking_code;
     $user = $booking->user?->name;
     $package = $booking->packageVariant?->package?->name;
     $variant = $booking->packageVariant?->name;
-    
+
     $bookingDate = Formatter::dateId($booking->booking_date, 'l, d F Y');
     $sessionTime = Formatter::timeRange($booking->start_time, $booking->end_time);
     $totalPrice = Formatter::rupiah($booking->total_price);
-    
+
     $dashboardUrl = route('frontdoor.dashboard.index');
     $receiptUrl = route('payments.receipt', ['booking' => $booking->booking_code]);
 

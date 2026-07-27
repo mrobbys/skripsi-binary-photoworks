@@ -2,7 +2,6 @@
 
 namespace App\Domains\Booking\Http\Requests;
 
-use App\Domains\Booking\DTOs\UpsellAddonData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpsellAddonRequest extends FormRequest
@@ -15,8 +14,16 @@ class UpsellAddonRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'addon_id' => ['required', 'integer', 'exists:addons,id'],
-      'quantity'  => ['required', 'integer', 'min:1'],
+      'addon_id' => [
+        'required',
+        'integer',
+        'exists:addons,id'
+      ],
+      'quantity' => [
+        'required',
+        'integer',
+        'min:1'
+      ],
     ];
   }
 
@@ -24,9 +31,9 @@ class UpsellAddonRequest extends FormRequest
   {
     return [
       'addon_id.required' => 'Layanan tambahan wajib dipilih.',
-      'addon_id.exists'   => 'Layanan tambahan tidak ditemukan.',
+      'addon_id.exists' => 'Layanan tambahan tidak ditemukan.',
       'quantity.required' => 'Kuantitas wajib diisi.',
-      'quantity.min'      => 'Kuantitas minimal 1.',
+      'quantity.min' => 'Kuantitas minimal 1.',
     ];
   }
 }

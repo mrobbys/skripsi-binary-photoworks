@@ -10,6 +10,7 @@ export default function useState(Alpine) {
     isGdriveLoading: false,
     sendWaNotificationGdrive: true,
 
+    summary: null,
     upsell: { addonId: null, quantity: 1, isLoading: false },
     allAddons: [],
   });
