@@ -26,13 +26,11 @@ class RoleSeeder extends Seeder
             'dashboard-admin-view',
 
             'scheduleSession-view',
-            'scheduleSession-update',
             'scheduleSession-calendar',
 
             'booking-management-view',
             'booking-management-create',
             'booking-management-update',
-            'booking-management-delete',
 
             'category-master-view',
             'category-master-create',

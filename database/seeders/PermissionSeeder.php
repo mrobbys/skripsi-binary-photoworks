@@ -28,7 +28,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'booking-management-view']);
         Permission::create(['name' => 'booking-management-create']);
         Permission::create(['name' => 'booking-management-update']);
-        Permission::create(['name' => 'booking-management-delete']);
 
         // data klien
         Permission::create(['name' => 'clientData-view']);

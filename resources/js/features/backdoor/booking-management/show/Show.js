@@ -10,9 +10,11 @@ export default function Show(Alpine) {
 
   const fetchBooking = async () => {
     try {
-      const res = await axiosInstance.get(route("backdoor.booking-management.show", state.bookingCode));
-      state.booking = res.data.data;
-      state.gdriveLink = res.data.data.gdrive_link ?? "";
+      const res = await axiosInstance.get(route("backdoor.booking-management.show-data", state.bookingCode));
+      const data = res.data.data;
+      state.booking = data.booking;
+      state.summary = data.summary;
+      state.gdriveLink = data.booking.gdrive_link ?? "";
     } catch (err) {
       console.error(err);
       Toast.fire({ icon: "error", title: "Gagal memuat data." });
@@ -28,7 +30,7 @@ export default function Show(Alpine) {
     fetchBooking();
   };
 
-  const { settle, submitGdrive } = useBookingActions({ state, fetchBooking });
+  const { settle, submitGdrive, refund } = useBookingActions({ state, fetchBooking });
   const { submitUpsell, onUpsellAddonChange, removeAddon } = useUpsellAddon({ state, fetchBooking });
 
   return {
@@ -37,6 +39,7 @@ export default function Show(Alpine) {
     mount,
     settle,
     submitGdrive,
+    refund,
     submitUpsell,
     onUpsellAddonChange,
     removeAddon,

@@ -205,7 +205,7 @@
                       <th class="px-5 py-2 text-right">Harga Satuan</th>
                       <th class="px-5 py-2 text-right">Subtotal</th>
                       <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
-                        <th class="px-5 py-2 text-right w-16">Aksi</th>
+                        <th class="w-16 px-5 py-2 text-right">Aksi</th>
                       </template>
                     </tr>
                   </thead>
@@ -233,12 +233,13 @@
                         ></td>
                         <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
                           <td class="px-5 py-3 text-right">
-                            <button 
+                            <button
                               type="button"
-                              x-on:click="removeAddon(addon.id)" 
+                              x-on:click="removeAddon(addon.id)"
                               x-bind:disabled="state.upsell.isLoading"
-                              class="text-red-500 hover:text-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Hapus Layanan">
+                              class="text-red-500 transition hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                              title="Hapus Layanan"
+                            >
                               <i class="ri-delete-bin-line"></i>
                             </button>
                           </td>
@@ -328,27 +329,66 @@
                   <span class="text-stone-500">Total Terbayar</span>
                   <span
                     class="font-semibold text-emerald-700"
-                    x-text="formatRupiah(state.booking?.payments?.filter(p => p.status === 'Settlement').reduce((sum, p) => sum + p.amount, 0) || 0)"
+                    x-text="formatRupiah(state.summary?.net_paid || 0)"
                   ></span>
                 </div>
                 <div class="flex justify-between border-t border-stone-300 pt-3 text-sm">
                   <span class="font-semibold text-stone-700">Sisa Tagihan</span>
                   <span
                     class="font-bold"
-                    x-bind:class="(state.booking?.total_price || 0) - (state.booking?.payments?.filter(p => p
-                        .status === 'Settlement').reduce((sum, p) => sum + p.amount, 0) || 0) <= 0 ? 'text-stone-500' :
-                        'text-red-600'"
-                    x-text="formatRupiah(Math.max(0, (state.booking?.total_price || 0) - (state.booking?.payments?.filter(p => p.status === 'Settlement').reduce((sum, p) => sum + p.amount, 0) || 0)))"
+                    x-bind:class="(state.summary?.net_paid || 0) >= (state.booking?.total_price || 0) ? 'text-stone-500' :
+                    'text-red-600'"
+                    x-text="formatRupiah(Math.max(0, (state.booking?.total_price || 0) - (state.summary?.net_paid || 0)))"
                   ></span>
                 </div>
 
-                <div class="mt-4 border-t border-stone-300 pt-4" x-show="state.bookingCode">
+                {{-- Indikator Kelebihan Bayar --}}
+                <template x-if="state.summary?.overpayment > 0">
+                  <div class="flex justify-between text-sm font-semibold text-amber-800">
+                    <span>Kelebihan Bayar</span>
+                    <span x-text="formatRupiah(state.summary.overpayment)"></span>
+                  </div>
+                </template>
+
+                {{-- Tombol Catat Refund --}}
+                <template x-if="state.summary?.has_overpayment && (state.summary?.total_refunded || 0) === 0">
+                  <button
+                    type="button"
+                    x-on:click="refund()"
+                    class="flex w-full items-center justify-center gap-2 border border-amber-400 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+                  >
+                    <i
+                      class="ri-refund-line text-lg"
+                      aria-hidden="true"
+                    ></i>
+                    <span>Catat Refund</span>
+                  </button>
+                </template>
+
+                {{-- Indikator sudah direfund --}}
+                <template x-if="state.summary?.has_overpayment && (state.summary?.total_refunded || 0) > 0">
+                  <div class="flex justify-between text-sm text-amber-700">
+                    <span>Sudah Dikembalikan</span>
+                    <span
+                      class="font-semibold"
+                      x-text="formatRupiah(state.summary.total_refunded)"
+                    ></span>
+                  </div>
+                </template>
+
+                <div
+                  class="mt-4 border-t border-stone-300 pt-4"
+                  x-show="state.bookingCode"
+                >
                   <a
                     :href="`/payments/${state.bookingCode}/receipt`"
                     target="_blank"
                     class="flex w-full items-center justify-center gap-2 border border-stone-300 bg-stone-50 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-100 hover:text-stone-900"
                   >
-                    <i class="ri-printer-line text-lg" aria-hidden="true"></i>
+                    <i
+                      class="ri-printer-line text-lg"
+                      aria-hidden="true"
+                    ></i>
                     <span>Cetak / Lihat Kuitansi</span>
                   </a>
                 </div>
@@ -373,7 +413,7 @@
                     <div class="space-y-1">
                       <p
                         class="text-xs font-bold uppercase tracking-wider"
-                        x-text="payment.payment_purpose"
+                        x-text="payment.payment_purpose === 'refund' ? 'Pengembalian Dana' : payment.payment_purpose"
                       ></p>
                       <p
                         class="font-mono text-xs"
@@ -393,17 +433,26 @@
                     <div class="text-right">
                       <p
                         class="font-bold"
-                        :class="payment.status === 'Settlement' ? 'text-emerald-700' : ''"
-                        x-text="formatRupiah(payment.amount)"
+                        :class="payment.payment_purpose === 'refund' ? 'text-amber-700' : (payment.status === 'Settlement' ?
+                            'text-emerald-700' : '')"
+                        x-text="payment.payment_purpose === 'refund' ? '- ' + formatRupiah(payment.amount) : formatRupiah(payment.amount)"
                       ></p>
                       <div class="mt-1">
+                        <template x-if="payment.payment_purpose === 'refund'">
+                          <x-shared.badge
+                            variant="warning"
+                            x-text="payment.status"
+                          />
+                        </template>
+                        <template x-if="payment.payment_purpose !== 'refund'">
+                          <x-shared.badge
+                            alpine="payment.status === 'Settlement'"
+                            variant="success"
+                            x-text="payment.status"
+                          />
+                        </template>
                         <x-shared.badge
-                          alpine="payment.status === 'Settlement'"
-                          variant="success"
-                          x-text="payment.status"
-                        />
-                        <x-shared.badge
-                          alpine="payment.status !== 'Settlement'"
+                          x-show="payment.status !== 'Settlement' && payment.payment_purpose !== 'refund'"
                           variant="secondary"
                           x-text="payment.status"
                         />
@@ -416,10 +465,12 @@
             {{-- riwayat pembayaran end --}}
 
             {{-- tombol lunas start --}}
-            <template x-if="
+            <template
+              x-if="
               (state.booking?.status === 'DP Terbayar' || state.booking?.status === 'Lunas') &&
-              (Number(state.booking?.total_price || 0) > (state.booking?.payments?.filter(p => p.status === 'Settlement').reduce((sum, p) => sum + Number(p.amount), 0) || 0))
-            ">
+              (Number(state.booking?.total_price || 0) > Number(state.summary?.net_paid || 0))
+            "
+            >
               <x-shared.button
                 type="button"
                 x-on:click="settle()"

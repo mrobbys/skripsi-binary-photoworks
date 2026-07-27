@@ -18,7 +18,8 @@ export default function Index(Alpine) {
     goToPage,
     reload,
     getPages,
-  } = useDatatable(Alpine, route("backdoor.booking-management.index"), {
+  } = useDatatable(Alpine, route("backdoor.booking-management.data"), {
+    useHistory: true,
     onSuccess: (res) => {
       if (res.total_revenue !== undefined) state.totalRevenue = res.total_revenue;
       if (res.count_success !== undefined) state.countSuccess = res.count_success;
