@@ -34,7 +34,8 @@ class ReviewController extends Controller
         $limit = max(1, min((int) $request->query('limit', 10), 100));
         $userId = Auth::id();
 
-        $query = Review::with('user');
+        $query = Review::select(['id', 'user_id', 'rating', 'comment', 'created_at'])
+            ->with('user:id,name');
 
         match ($sort) {
             ReviewSort::HIGHEST->value => $query->orderBy('rating', 'desc')->latest('created_at'),
@@ -86,7 +87,7 @@ class ReviewController extends Controller
                 ['user_id' => $userId],
             ));
 
-            $review->load('user');
+            $review->load('user:id,name');
 
             return $this->successResponse('Ulasan Anda berhasil dikirim. Terima kasih!', ReviewItemData::fromModel($review, $userId), 201);
         } catch (\RuntimeException $e) {

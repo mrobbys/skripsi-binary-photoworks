@@ -2,8 +2,8 @@
 
 namespace App\Domains\Review\DTOs;
 
-use App\Domains\Review\Http\Requests\StoreReviewRequest;
 use App\Domains\Review\Models\Review;
+use Illuminate\Foundation\Http\FormRequest;
 
 class ReviewItemData
 {
@@ -32,10 +32,7 @@ class ReviewItemData
         );
     }
 
-    /**
-     * Sanitize input dari StoreReviewRequest sebelum masuk ke database.
-     */
-    public static function fromRequest(StoreReviewRequest $request): array
+    public static function fromRequest(FormRequest $request): array
     {
         return [
             'rating' => (int) $request->validated('rating'),
