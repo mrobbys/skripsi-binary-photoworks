@@ -9,6 +9,7 @@ use App\Domains\Booking\Services\SlotAvailabilityService;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\User\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class DashboardService
@@ -26,25 +27,45 @@ class DashboardService
    */
   public function getBookingHistory(int $userId, string $tab, int $limit = 5)
   {
-    $query = Booking::with(['packageVariant.package', 'background', 'payments'])
-        ->where('user_id', $userId);
+    $query = Booking::select([
+      'id',
+      'user_id',
+      'package_variant_id',
+      'background_id',
+      'booking_code',
+      'booking_date',
+      'start_time',
+      'end_time',
+      'status',
+      'total_price',
+      'gdrive_link',
+      'reschedule_count',
+      'created_at',
+    ])
+      ->with([
+        'packageVariant:id,package_id,name,duration',
+        'packageVariant.package:id,name',
+        'background:id,name',
+        'payments:id,booking_id,status,snap_token_expiry',
+      ])
+      ->where('user_id', $userId);
 
     if ($tab === 'upcoming') {
-        $query->whereIn('status', [
-            BookingStatus::PENDING,
-            BookingStatus::DP_PAID,
-            BookingStatus::SUCCESS
-        ]);
+      $query->whereIn('status', [
+        BookingStatus::PENDING,
+        BookingStatus::DP_PAID,
+        BookingStatus::SUCCESS
+      ]);
     } else {
-        $query->whereIn('status', [
-            BookingStatus::DONE,
-            BookingStatus::CANCELLED
-        ]);
+      $query->whereIn('status', [
+        BookingStatus::DONE,
+        BookingStatus::CANCELLED
+      ]);
     }
 
     $paginated = $query->orderBy('created_at', 'desc')
-        ->orderBy('start_time', 'desc')
-        ->paginate($limit);
+      ->orderBy('start_time', 'desc')
+      ->paginate($limit);
 
     return $paginated->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
   }
@@ -63,32 +84,31 @@ class DashboardService
    */
   public function getValidSnapToken(string $bookingCode, User $user): string
   {
-    $booking = Booking::with(['packageVariant.package', 'background', 'payments'])
-        ->where('booking_code', $bookingCode)
-        ->where('user_id', $user->id)
-        ->first();
+    $booking = Booking::select(['id', 'booking_code', 'user_id', 'status'])
+      ->with('payments:id,booking_id,status,snap_token,snap_token_expiry')
+      ->where('booking_code', $bookingCode)
+      ->where('user_id', $user->id)
+      ->first();
 
     if (! $booking) {
       throw new RuntimeException('Booking tidak ditemukan.');
     }
 
-    // Pastikan status booking masih PENDING
     if ($booking->status !== BookingStatus::PENDING) {
       throw new RuntimeException('Booking ini tidak dapat dibayar (status bukan Menunggu).');
     }
 
-    // Ambil data payment dengan status pending
     $payment = $booking->payments->where('status', PaymentStatus::PENDING)->first();
 
-    // Jika data payment atau snap_token tidak ada -> tolak
     if (! $payment || ! $payment->snap_token) {
       throw new RuntimeException('Tagihan atau token pembayaran tidak ditemukan.');
     }
 
-    // Jika token expired -> Tolak dan ubah status jadi CANCELLED
     if ($payment->snap_token_expiry?->isPast()) {
-      $payment->update(['status' => PaymentStatus::CANCELLED]);
-      $booking->update(['status' => BookingStatus::CANCELLED]);
+      DB::transaction(function () use ($payment, $booking) {
+        $payment->update(['status' => PaymentStatus::CANCELLED]);
+        $booking->update(['status' => BookingStatus::CANCELLED]);
+      });
 
       throw new RuntimeException('Batas waktu pembayaran (1 Jam) telah habis. Reservasi otomatis dibatalkan.');
     }
@@ -110,10 +130,20 @@ class DashboardService
   public function rescheduleBooking(string $bookingCode, int $userId, string $newDate, string $newStartTime): void
   {
     $maxRescheduleCount = 3;
-    $booking = Booking::with(['packageVariant.package', 'background', 'payments'])
-        ->where('booking_code', $bookingCode)
-        ->where('user_id', $userId)
-        ->first();
+    $booking = Booking::select([
+      'id',
+      'booking_code',
+      'user_id',
+      'package_variant_id',
+      'status',
+      'reschedule_count',
+      'booking_date',
+      'start_time',
+    ])
+      ->with('packageVariant:id,duration')
+      ->where('booking_code', $bookingCode)
+      ->where('user_id', $userId)
+      ->first();
 
     if (! $booking) {
       throw new RuntimeException('Booking tidak ditemukan.');
@@ -124,35 +154,30 @@ class DashboardService
       throw new RuntimeException('Booking ini tidak dapat diubah jadwalnya.');
     }
 
-    // Cek apakah reschedule_count = 3, jika valid throw error
     if ($booking->reschedule_count >= $maxRescheduleCount) {
       throw new RuntimeException('Jadwal sudah melebihi batas reschedule (3 kali).');
     }
 
-    // Validasi H-1: harus > 24 jam sebelum jadwal awal
     $originalDateTime = $booking->booking_date->copy()->setTimeFrom($booking->start_time);
     if (! $originalDateTime->isAfter(Carbon::now()->addHours(24))) {
       throw new RuntimeException('Jadwal sudah terlalu dekat untuk diubah (batas H-1).');
     }
 
-    // Hitung end_time baru berdasarkan durasi variant
-    // Ambil durasi dari variant jika tidak ada maka default 30 menit
-    $duration   = $booking->packageVariant?->duration ?? 30;
+    $duration = $booking->packageVariant?->duration ?? 30;
     $newEndTime = Carbon::parse($newStartTime)->addMinutes($duration)->format('H:i');
 
-    // Validasi slot baru tidak bentrok (kecuali dengan booking sendiri)
     if ($this->slotAvailabilityService->isSlotOccupiedExcluding($newDate, $newStartTime, $newEndTime, $booking->id)) {
       throw new RuntimeException('Slot waktu yang dipilih sudah terisi. Silakan pilih waktu lain.');
     }
 
-    // Update jadwal
-    $booking->update([
-      'booking_date' => $newDate,
-      'start_time'   => $newStartTime,
-      'end_time'     => $newEndTime,
-    ]);
+    DB::transaction(function () use ($booking, $newDate, $newStartTime, $newEndTime) {
+      $booking->update([
+        'booking_date' => $newDate,
+        'start_time' => $newStartTime,
+        'end_time' => $newEndTime,
+      ]);
 
-    // Tambah reschedule_count, untuk membatasi reschedule maksimal
-    $booking->increment('reschedule_count');
+      $booking->increment('reschedule_count');
+    });
   }
 }

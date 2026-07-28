@@ -22,39 +22,38 @@ class CancelBookingService
    */
   public function execute(string $bookingCode, int $userId, bool $isAdmin = false): void
   {
-    $booking = Booking::with(['user', 'packageVariant.package', 'payments'])
+    $booking = Booking::select([
+        'id', 'booking_code', 'user_id', 'package_variant_id',
+        'booking_date', 'start_time', 'end_time', 'status',
+      ])
+      ->with([
+        'user:id,name,phone',
+        'packageVariant:id,name,package_id',
+        'packageVariant.package:id,name',
+      ])
       ->where('booking_code', $bookingCode)
       ->where('user_id', $userId)
       ->first();
 
-    if (!$booking) {
+    if (! $booking) {
       throw new RuntimeException('Booking tidak ditemukan.');
     }
 
-    // Pengecekan status dan proses pembatalan wajib dibungkus transaction + lockForUpdate untuk menghindari race condition
     DB::transaction(function () use ($booking, $isAdmin) {
       $lockedBooking = Booking::where('id', $booking->id)->lockForUpdate()->first();
 
-      if (!$isAdmin && $lockedBooking->status !== BookingStatus::PENDING) {
+      if (! $isAdmin && $lockedBooking->status !== BookingStatus::PENDING) {
         throw new RuntimeException('Booking ini tidak dapat dibatalkan atau statusnya sudah berubah.');
       }
 
-      // Update status di table booking menjadi CANCELLED
       $lockedBooking->update(['status' => BookingStatus::CANCELLED]);
 
-      // Update semua status di table payment terkait
-      // Jika admin membatalkan, uang (SETTLEMENT) direfund dan transaksi dianggap batal
       $lockedBooking->payments()->where('status', PaymentStatus::PENDING)->update(['status' => PaymentStatus::CANCELLED]);
       $lockedBooking->payments()->where('status', PaymentStatus::SETTLEMENT)->update(['status' => PaymentStatus::REFUNDED]);
 
-      // Sinkronisasikan status ke objek memori untuk format pesan WA
       $booking->status = BookingStatus::CANCELLED;
     });
 
-    // Relasi harus di-load sebelum membangun pesan
-    $booking->loadMissing(['user', 'packageVariant.package']);
-
-    // Kirim notifikasi WhatsApp dengan proteksi null-pointer
     if ($booking->user?->phone) {
       SendWhatsappNotificationJob::dispatch(
         $booking->user->phone,

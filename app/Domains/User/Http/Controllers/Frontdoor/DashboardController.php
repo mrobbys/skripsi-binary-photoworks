@@ -62,20 +62,13 @@ class DashboardController extends Controller
                 user: Auth::user(),
             );
 
-            return response()->json([
-                'success' => true,
+            return $this->successResponse('Snap token berhasil didapatkan.', extra: [
                 'snap_token' => $snapToken,
             ]);
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
-            ], 500);
+            return $this->errorResponse('Terjadi kesalahan. Silahkan coba lagi.');
         }
     }
 
@@ -95,20 +88,11 @@ class DashboardController extends Controller
                 userId: Auth::id(),
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Booking berhasil dibatalkan.',
-            ]);
+            return $this->successResponse('Booking berhasil dibatalkan.');
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
-            ], 500);
+            return $this->errorResponse('Terjadi kesalahan. Silahkan coba lagi.');
         }
     }
 
@@ -132,20 +116,11 @@ class DashboardController extends Controller
                 newStartTime: $request->new_time,
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Jadwal berhasil diubah.',
-            ]);
+            return $this->successResponse('Jadwal berhasil diubah.');
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
-            ], 500);
+            return $this->errorResponse('Terjadi kesalahan. Silahkan coba lagi.');
         }
     }
 }
