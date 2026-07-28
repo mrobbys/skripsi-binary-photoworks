@@ -39,6 +39,7 @@ class CancelBookingService
       throw new RuntimeException('Booking tidak ditemukan.');
     }
 
+    // Pengecekan status dan proses pembatalan wajib dibungkus transaction + lockForUpdate untuk menghindari race condition
     DB::transaction(function () use ($booking, $isAdmin) {
       $lockedBooking = Booking::where('id', $booking->id)->lockForUpdate()->first();
 
@@ -46,14 +47,19 @@ class CancelBookingService
         throw new RuntimeException('Booking ini tidak dapat dibatalkan atau statusnya sudah berubah.');
       }
 
+      // Update status booking menjadi CANCELLED
       $lockedBooking->update(['status' => BookingStatus::CANCELLED]);
 
+      // Update status payment terkait
+      // Jika admin membatalkan, uang (SETTLEMENT) direfund dan transaksi dianggap batal
       $lockedBooking->payments()->where('status', PaymentStatus::PENDING)->update(['status' => PaymentStatus::CANCELLED]);
       $lockedBooking->payments()->where('status', PaymentStatus::SETTLEMENT)->update(['status' => PaymentStatus::REFUNDED]);
 
+      // Sinkronisasikan status ke objek memori untuk format pesan WA
       $booking->status = BookingStatus::CANCELLED;
     });
 
+    // Kirim notifikasi WhatsApp dengan proteksi null-pointer
     if ($booking->user?->phone) {
       SendWhatsappNotificationJob::dispatch(
         $booking->user->phone,

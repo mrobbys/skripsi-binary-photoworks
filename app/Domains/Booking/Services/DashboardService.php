@@ -16,7 +16,6 @@ class DashboardService
 {
   public function __construct(
     private readonly SlotAvailabilityService $slotAvailabilityService,
-    private readonly MidtransService $midtrans,
   ) {}
 
   /**
@@ -94,16 +93,20 @@ class DashboardService
       throw new RuntimeException('Booking tidak ditemukan.');
     }
 
+    // Pastikan status booking masih PENDING (boleh bayar)
     if ($booking->status !== BookingStatus::PENDING) {
       throw new RuntimeException('Booking ini tidak dapat dibayar (status bukan Menunggu).');
     }
 
+    // Ambil data payment dengan status pending
     $payment = $booking->payments->where('status', PaymentStatus::PENDING)->first();
 
+    // Jika data payment atau snap_token tidak ada -> tolak
     if (! $payment || ! $payment->snap_token) {
       throw new RuntimeException('Tagihan atau token pembayaran tidak ditemukan.');
     }
 
+    // Jika token expired -> batalkan payment dan booking
     if ($payment->snap_token_expiry?->isPast()) {
       DB::transaction(function () use ($payment, $booking) {
         $payment->update(['status' => PaymentStatus::CANCELLED]);
@@ -154,22 +157,27 @@ class DashboardService
       throw new RuntimeException('Booking ini tidak dapat diubah jadwalnya.');
     }
 
+    // Cek apakah sudah mencapai batas maksimal reschedule (3 kali)
     if ($booking->reschedule_count >= $maxRescheduleCount) {
       throw new RuntimeException('Jadwal sudah melebihi batas reschedule (3 kali).');
     }
 
+    // Validasi H-1: harus > 24 jam sebelum jadwal awal
     $originalDateTime = $booking->booking_date->copy()->setTimeFrom($booking->start_time);
     if (! $originalDateTime->isAfter(Carbon::now()->addHours(24))) {
       throw new RuntimeException('Jadwal sudah terlalu dekat untuk diubah (batas H-1).');
     }
 
+    // Hitung end_time baru berdasarkan durasi variant, default 30 menit
     $duration = $booking->packageVariant?->duration ?? 30;
     $newEndTime = Carbon::parse($newStartTime)->addMinutes($duration)->format('H:i');
 
+    // Validasi slot baru tidak bentrok dengan booking lain (kecuali booking sendiri)
     if ($this->slotAvailabilityService->isSlotOccupiedExcluding($newDate, $newStartTime, $newEndTime, $booking->id)) {
       throw new RuntimeException('Slot waktu yang dipilih sudah terisi. Silakan pilih waktu lain.');
     }
 
+    // Update jadwal dan increment reschedule_count dalam transaction
     DB::transaction(function () use ($booking, $newDate, $newStartTime, $newEndTime) {
       $booking->update([
         'booking_date' => $newDate,
