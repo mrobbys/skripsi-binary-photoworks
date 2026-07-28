@@ -21,7 +21,7 @@
         <select x-ref="categorySelect" class="w-full">
           <option value="Semua">Semua Kategori</option>
           @foreach ($categories as $category)
-            @if ($category->packages->isNotEmpty())
+            @if ($category->packages_count > 0)
               <option value="{{ $category->name }}">{{ $category->name }}</option>
             @endif
           @endforeach
