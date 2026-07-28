@@ -44,13 +44,13 @@ class UpdateProfileRequest extends FormRequest
   {
     return [
       'name.required' => 'Nama lengkap harus diisi.',
-      'name.min'      => 'Nama lengkap minimal 3 karakter.',
-      'name.max'      => 'Nama lengkap maksimal 100 karakter.',
+      'name.min' => 'Nama lengkap minimal 3 karakter.',
+      'name.max' => 'Nama lengkap maksimal 100 karakter.',
 
       'email.required' => 'Email harus diisi.',
-      'email.email'    => 'Format email tidak valid.',
-      'email.unique'   => 'Email ini sudah digunakan oleh akun lain.',
-      'email.max'      => 'Email maksimal 255 karakter.',
+      'email.email' => 'Format email tidak valid.',
+      'email.unique' => 'Email ini sudah digunakan oleh akun lain.',
+      'email.max' => 'Email maksimal 255 karakter.',
 
       'phone.required' => 'Nomor telepon harus diisi.',
       'phone.min' => 'Nomor telepon minimal terdiri dari 10 karakter.',

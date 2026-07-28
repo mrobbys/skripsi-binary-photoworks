@@ -1,7 +1,7 @@
 import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 
-export default function useAppointments({ state }) {
+export default function useAppointments({ state, resetPage }) {
   /**
    * Ambil data booking dari backend berdasarkan tab dan halaman (page)
    * Parameter shouldScrollToTop menentukan apakah layar harus gulir ke atas saat fetchAppointments dipanggil
@@ -19,8 +19,6 @@ export default function useAppointments({ state }) {
 
       state.appointments = res.data.data;
 
-      // Update meta paginasi
-      state.currentPage = res.data.current_page;
       state.lastPage = res.data.last_page;
       state.total = res.data.total;
     } catch (err) {
@@ -41,7 +39,7 @@ export default function useAppointments({ state }) {
     state.activeTab = tab;
     state.selectedAppointment = null;
     state.appointments = [];
-    state.currentPage = 1;
+    resetPage();
 
     fetchAppointments(true);
   };

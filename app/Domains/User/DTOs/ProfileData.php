@@ -2,7 +2,7 @@
 
 namespace App\Domains\User\DTOs;
 
-use App\Domains\User\Http\Requests\UpdateProfileRequest;
+use Illuminate\Foundation\Http\FormRequest;
 use Spatie\LaravelData\Data;
 
 class ProfileData extends Data
@@ -13,7 +13,7 @@ class ProfileData extends Data
         public readonly string $phone,
     ) {}
 
-    public static function fromRequest(UpdateProfileRequest $request): self
+    public static function fromRequest(FormRequest $request): self
     {
         return new self(
             name: trim($request->validated('name')),

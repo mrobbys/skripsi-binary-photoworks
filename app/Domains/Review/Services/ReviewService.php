@@ -55,7 +55,10 @@ class ReviewService
      */
     public function getUserReview(int $userId): ?Review
     {
-        return Review::with('user:id,name')->where('user_id', $userId)->first();
+        return Review::select(['id', 'user_id', 'rating', 'comment', 'created_at'])
+            ->with('user:id,name')
+            ->where('user_id', $userId)
+            ->first();
     }
 
     /**

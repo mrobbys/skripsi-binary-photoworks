@@ -22,7 +22,10 @@
       {{-- header end --}}
 
       {{-- ringkasan rating start --}}
-      <div x-cloak class="mx-auto mb-12 max-w-3xl border border-stone-200 bg-stone-50/50 p-6 md:p-8">
+      <div
+        x-cloak
+        class="mx-auto mb-12 max-w-3xl border border-stone-200 bg-stone-50/50 p-6 md:p-8"
+      >
         <div class="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
 
           <div class="space-y-2 md:col-span-6 md:border-r md:border-stone-200 md:pr-8">
@@ -131,12 +134,15 @@
           </template>
         @endauth
 
-        <div x-cloak class="flex justify-end pt-2">
+        <div
+          x-cloak
+          class="flex justify-end pt-2"
+        >
           <div class="w-full sm:w-56">
             <select
               name="sort"
               x-data="choices({ searchEnabled: false, shouldSort: false })"
-              @change="state.sort = $el.value"
+              @change="onSortChange($el.value)"
               class="w-full border border-stone-300 bg-stone-50 px-3.5 py-2 text-sm text-stone-800 focus:border-stone-700 focus:outline-none"
             >
               @foreach (ReviewSort::cases() as $option)
