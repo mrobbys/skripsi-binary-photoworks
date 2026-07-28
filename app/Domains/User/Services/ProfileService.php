@@ -46,8 +46,6 @@ class ProfileService
       throw new RuntimeException('Password lama tidak sesuai.');
     }
 
-    $user->update([
-      'password' => Hash::make($data->password),
-    ]);
+    $user->update(['password' => ($data->password)]);
   }
 }

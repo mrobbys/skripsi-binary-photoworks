@@ -35,23 +35,14 @@ class ProfileController extends Controller
         try {
             $this->profileService->updateProfile(
                 userId: Auth::id(),
-                data: ProfileData::from($request),
+                data: ProfileData::fromRequest($request),
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Data profil berhasil diperbarui.',
-            ]);
+            return $this->successResponse('Data profil berhasil diperbarui.');
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
-            ], 500);
+            return $this->errorResponse('Terjadi kesalahan. Silahkan coba lagi.');
         }
     }
 
@@ -64,23 +55,14 @@ class ProfileController extends Controller
         try {
             $this->profileService->changePassword(
                 userId: Auth::id(),
-                data: ChangePasswordData::from($request),
+                data: ChangePasswordData::fromRequest($request),
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Password berhasil diubah.',
-            ]);
+            return $this->successResponse('Password berhasil diubah.');
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan. Silahkan coba lagi.',
-            ], 500);
+            return $this->errorResponse('Terjadi kesalahan. Silahkan coba lagi.');
         }
     }
 }

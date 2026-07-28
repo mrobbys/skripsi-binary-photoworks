@@ -45,8 +45,6 @@ export default function useChangePassword({ state }) {
       password: state.passwordForm.password,
       password_confirmation: state.passwordForm.password_confirmation,
     });
-
-    console.log(parsed);
     
     if (!parsed.success) {
       state.passwordErrors = z.flattenError(parsed.error).fieldErrors;
