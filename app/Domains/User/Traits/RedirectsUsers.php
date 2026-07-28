@@ -14,7 +14,7 @@ trait RedirectsUsers
     // Jika tidak, lempar ke halaman utama
     $routeName = $user->can('dashboard-admin-view')
       ? 'backdoor.dashboard.index'
-      : 'frontdoor.home';
+      : 'frontdoor.dashboard.index';
 
     return redirect()->intended(route($routeName));
   }
