@@ -15,6 +15,7 @@ class ReviewSeeder extends Seeder
 
     if ($users->isEmpty()) {
       $this->command->warn('Tidak ada user dengan role "user". Harap jalankan seeder user terlebih dahulu.');
+      return;
     }
 
     foreach ($users as $user) {

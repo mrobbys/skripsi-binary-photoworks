@@ -5,6 +5,7 @@ namespace App\Domains\Booking\DTOs;
 use App\Domains\Booking\Enums\PaymentScheme;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
+use App\Domains\Payment\Enums\PaymentStatus;
 use Spatie\LaravelData\Data;
 use App\Support\Formatter;
 
@@ -12,7 +13,7 @@ class BookingViewData extends Data
 {
   public function __construct(
     public readonly string $booking_code,
-    public readonly BookingStatus $status,
+    public readonly BookingStatus $booking_status,
     public readonly string $package_name,
     public readonly string $variant_name,
     public readonly string $background_name,
@@ -25,6 +26,7 @@ class BookingViewData extends Data
     public readonly string $formatted_dp_amount,
     public readonly string $formatted_remaining_amount,
     public readonly string $order_id,
+    public readonly PaymentStatus $payment_status,
     public readonly ?string $notes,
     public readonly ?string $gdrive_link
   ) {}
@@ -36,7 +38,7 @@ class BookingViewData extends Data
 
     return new self(
       booking_code: $booking->booking_code,
-      status: $booking->status,
+      booking_status: $booking->status,
       package_name: $booking->packageVariant?->package?->name ?? '-',
       variant_name: $booking->packageVariant?->name ?? '-',
       background_name: $booking->background?->name ?? 'Tanpa Background',
@@ -49,6 +51,7 @@ class BookingViewData extends Data
       formatted_dp_amount: Formatter::rupiah($dpAmount),
       formatted_remaining_amount: Formatter::rupiah($booking->total_price - $dpAmount),
       order_id: $payment?->order_id ?? '#',
+      payment_status: $payment?->status,
       notes: $booking->notes,
       gdrive_link: $booking->gdrive_link
     );

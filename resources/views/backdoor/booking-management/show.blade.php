@@ -280,7 +280,8 @@
                         };
                         setTimeout(() => updateChoices(), 50);
                         $watch('state.allAddons', updateChoices);
-                        $watch('state.booking?.addons', updateChoices, { deep: true });"
+                        $watch('state.booking?.addons', updateChoices, { deep: true });
+                        $watch('state.upsell.addonId', () => onUpsellAddonChange());"
                         x-modelable="value"
                         x-model="state.upsell.addonId"
                         x-on:change="onUpsellAddonChange()"
@@ -290,7 +291,8 @@
                     <div class="w-20">
                       <input
                         type="number"
-                        x-model.number="state.upsell.quantity"
+                        x-bind:value="(state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity) ? 1 : state.upsell.quantity"
+                        x-on:input="state.upsell.quantity = (state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity) ? 1 : Math.max(1, Number($event.target.value))"
                         x-bind:disabled="state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity"
                         min="1"
                         class="w-full border border-stone-300 px-3 py-2.5 text-center text-sm focus:border-stone-500 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400"

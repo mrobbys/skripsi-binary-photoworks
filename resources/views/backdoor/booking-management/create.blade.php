@@ -299,7 +299,8 @@
                       // Jalankan pertama kali saat di-mount
                       setTimeout(() => updateChoices(state.addons), 50);
                       // Pantau perubahan berikutnya
-                      $watch('state.addons', (newAddons) => updateChoices(newAddons), { deep: true });"
+                      $watch('state.addons', (newAddons) => updateChoices(newAddons), { deep: true });
+                      $watch('item.addon_id', () => onAddonChange(item));"
                       x-modelable="value"
                       x-model="item.addon_id"
                       x-on:change="onAddonChange(item)"
@@ -312,7 +313,8 @@
                   <div class="w-20">
                     <input
                       type="number"
-                      x-model.number="item.quantity"
+                      x-bind:value="isQtyDisabled(item) ? 1 : item.quantity"
+                      x-on:input="item.quantity = isQtyDisabled(item) ? 1 : Math.max(1, Number($event.target.value))"
                       x-bind:disabled="isQtyDisabled(item)"
                       min="1"
                       class="w-full border border-stone-300 bg-stone-50 px-3 py-2.5 text-center text-sm text-stone-900 focus:border-stone-500 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400"

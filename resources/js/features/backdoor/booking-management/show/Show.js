@@ -23,6 +23,15 @@ export default function Show(Alpine) {
     }
   };
 
+  Alpine.effect(() => {
+    if (state.upsell.addonId) {
+      const addon = state.allAddons.find((a) => a.id == state.upsell.addonId);
+      if (addon && !addon.has_quantity && state.upsell.quantity !== 1) {
+        state.upsell.quantity = 1;
+      }
+    }
+  });
+
   const mount = (bookingId, bookingCode, addons) => {
     state.bookingId = bookingId;
     state.bookingCode = bookingCode;

@@ -42,14 +42,20 @@ export default function useAddons({ state }) {
 
     if (isNaN(num) || num < 1) num = 1;
 
+    const addon = state.allAddons?.find((a) => a.id == id);
+    if (addon && !addon.has_quantity) num = 1;
+
     state.selectedAddons = { ...state.selectedAddons, [k]: num };
   };
 
   const buildAddonsPayload = () =>
-    Object.entries(state.selectedAddons).map(([id, qty]) => ({
-      addon_id: parseInt(id),
-      quantity: qty,
-    }));
+    Object.entries(state.selectedAddons).map(([id, qty]) => {
+      const addon = state.allAddons?.find((a) => a.id == id);
+      return {
+        addon_id: parseInt(id),
+        quantity: addon && !addon.has_quantity ? 1 : qty,
+      };
+    });
 
   return { toggleAddon, isAddonSelected, increment, decrement, getQty, setQty, buildAddonsPayload };
 }

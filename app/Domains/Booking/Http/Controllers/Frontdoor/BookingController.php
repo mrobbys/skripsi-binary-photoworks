@@ -144,7 +144,7 @@ class BookingController extends Controller
                 'packageVariant:id,name,package_id',
                 'packageVariant.package:id,name',
                 'background:id,name',
-                'payments:id,booking_id,amount,order_id',
+                'payments:id,booking_id,amount,order_id,status',
             ])
             ->first();
         abort_if(! $booking || $booking->user_id !== Auth::id(), 404);

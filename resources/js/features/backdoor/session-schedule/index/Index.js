@@ -50,6 +50,13 @@ export default function Index(Alpine) {
 
     init() {
       fetch();
+
+      this.$watch("table.isLoading", (isLoading) => {
+        if (datePickerInstance && datePickerInstance.altInput) {
+          datePickerInstance.altInput.disabled = isLoading;
+        }
+      });
+
       this.$nextTick(() => {
         datePickerInstance = flatpickr(this.$refs.dateFilterInput, {
           altInput: true,

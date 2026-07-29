@@ -43,10 +43,13 @@ export default function useCreateForm({ state }) {
   const onAddonChange = (item) => {
     const addonId = item.addon_id;
     const addon = state.allAddons.find((a) => a.id == addonId);
-    if (addon && !addon.has_quantity) item.quantity = 1;
+    if (addon && !addon.has_quantity) {
+      item.quantity = 1;
+    }
   };
 
   const isQtyDisabled = (item) => {
+    if (!item.addon_id) return false;
     const addon = state.allAddons.find((a) => a.id == item.addon_id);
     return addon ? !addon.has_quantity : false;
   };
@@ -78,7 +81,10 @@ export default function useCreateForm({ state }) {
       start_time: state.startTime,
       status: state.bookingStatus,
       send_wa_notification: state.sendWaNotification,
-      addons: state.addons.filter((a) => a.addon_id),
+      addons: state.addons.filter((a) => a.addon_id).map((item) => {
+          const addon = state.allAddons.find((a) => a.id == item.addon_id);
+          return { ...item, quantity: addon && !addon.has_quantity ? 1 : item.quantity };
+      }),
     };
 
     const parsed = formSchema.safeParse(payload);

@@ -10,11 +10,15 @@ export default function useUpsellAddon({ state, fetchBooking }) {
     }
     state.upsell.isLoading = true;
 
+    const addon = state.allAddons.find((a) => a.id == state.upsell.addonId);
+    const quantity = addon && !addon.has_quantity ? 1 : state.upsell.quantity;
+
     try {
       const res = await axiosInstance.post(route("backdoor.booking-management.addons.upsell", state.bookingCode), {
         addon_id: state.upsell.addonId,
-        quantity: state.upsell.quantity,
+        quantity,
       });
+      console.log(state)
       Toast.fire({ icon: "success", title: res.data.message });
       state.upsell.addonId = null;
       state.upsell.quantity = 1;
@@ -50,7 +54,7 @@ export default function useUpsellAddon({ state, fetchBooking }) {
 
   const onUpsellAddonChange = () => {
     const addon = state.allAddons.find((a) => a.id == state.upsell.addonId);
-    if (addon && !addon.has_quantity) state.upsell.quantity = 1;
+    if (addon && !addon.has_quantity) state.upsell = { ...state.upsell, quantity: 1 };
   };
 
   return { submitUpsell, onUpsellAddonChange, removeAddon };

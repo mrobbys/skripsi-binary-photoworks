@@ -16,11 +16,23 @@ export default function Create(Alpine) {
   });
 
   Alpine.effect(() => {
+    state.addons.forEach((item) => {
+      if (!item.addon_id) return;
+      const addon = state.allAddons.find((a) => a.id == item.addon_id);
+      if (addon && !addon.has_quantity && item.quantity !== 1) {
+        item.quantity = 1;
+      }
+    });
+  });
+
+  Alpine.effect(() => {
     const variant = state.variants.find((v) => v.id == state.variantId);
     const basePrice = variant ? variant.price : 0;
     const addonTotal = state.addons.reduce((sum, item) => {
       const addon = state.allAddons.find((a) => a.id == item.addon_id);
-      return sum + (addon ? addon.price * item.quantity : 0);
+      if (!addon) return sum;
+      const qty = addon.has_quantity ? (item.quantity || 1) : 1;
+      return sum + addon.price * qty;
     }, 0);
     state.totalPrice = basePrice + addonTotal;
   });
