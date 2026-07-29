@@ -1,5 +1,6 @@
 @php
   use App\Domains\Booking\Enums\BookingStatus;
+  use App\Domains\Payment\Enums\PaymentStatus;
   use App\Domains\Booking\Enums\PaymentScheme;
 @endphp
 
@@ -10,11 +11,11 @@
 
         {{-- icon centang start --}}
         <div class="mb-6 flex justify-center">
-          @if ($booking->status === BookingStatus::PENDING)
+          @if ($booking->booking_status === BookingStatus::PENDING)
             <div class="flex h-16 w-16 items-center justify-center border border-amber-600 text-amber-600">
               <i class="ri-time-line text-3xl"></i>
             </div>
-          @elseif ($booking->status === BookingStatus::CANCELLED)
+          @elseif ($booking->booking_status === BookingStatus::CANCELLED)
             <div class="flex h-16 w-16 items-center justify-center border border-red-600 text-red-600">
               <i class="ri-close-line text-3xl"></i>
             </div>
@@ -28,13 +29,13 @@
 
         {{-- header start --}}
         <div class="mb-10 space-y-3 text-center">
-          @if ($booking->status === BookingStatus::PENDING)
+          @if ($booking->booking_status === BookingStatus::PENDING)
             <h1 class="text-3xl font-bold tracking-tight text-amber-600">Menunggu Pembayaran</h1>
             <p class="font-light">Reservasi Anda telah dicatat. Kami sedang menunggu konfirmasi pembayaran dari sistem.
             </p>
             <p class="mt-2 text-sm italic text-stone-500">Jika Anda sudah membayar, harap tunggu beberapa saat dan
               refresh halaman ini.</p>
-          @elseif ($booking->status === BookingStatus::CANCELLED)
+          @elseif ($booking->booking_status === BookingStatus::CANCELLED)
             <h1 class="text-3xl font-bold tracking-tight text-red-600">Reservasi Dibatalkan</h1>
             <p class="font-light">Waktu pembayaran telah habis atau pembayaran dibatalkan.</p>
           @else
@@ -105,13 +106,13 @@
               </span>
             </div>
             <div>
-              @if ($booking->status === BookingStatus::PENDING)
+              @if ($booking->booking_status === BookingStatus::PENDING)
                 <span
                   class="inline-block select-none border border-amber-300 bg-amber-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-amber-700"
                 >
                   Menunggu Pembayaran
                 </span>
-              @elseif ($booking->status === BookingStatus::CANCELLED)
+              @elseif ($booking->booking_status === BookingStatus::CANCELLED)
                 <span
                   class="inline-block select-none border border-red-300 bg-red-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-red-700"
                 >
@@ -145,7 +146,7 @@
         </div>
         {{-- payment info end --}}
 
-        @if (!$booking->status === BookingStatus::PENDING)
+        @if ($booking->payment_status === PaymentStatus::SETTLEMENT)
           {{-- notification note start --}}
           <div class="my-6 flex items-start gap-3 pr-12 text-xs text-stone-500">
             <i class="ri-whatsapp-line shrink-0 text-base text-stone-500"></i>
@@ -166,7 +167,7 @@
           >
             Lihat Riwayat Pesanan
           </x-shared.button>
-          @if (!$booking->status === BookingStatus::PENDING)
+          @if ($booking->payment_status === PaymentStatus::SETTLEMENT)
             <x-shared.button
               as="a"
               href="{{ route('payments.receipt', $booking->booking_code) }}"

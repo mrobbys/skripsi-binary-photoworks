@@ -2,7 +2,6 @@
 
 namespace App\Domains\Booking\Services;
 
-use App\Domains\Booking\DTOs\BookingData;
 use App\Domains\Booking\DTOs\ManualBookingData;
 use App\Domains\Booking\Enums\BookingSource;
 use App\Domains\Booking\Enums\BookingStatus;
@@ -59,6 +58,11 @@ class CreateManualBookingService
                         ? Addon::whereIn('id', array_column($data->addons, 'addon_id'))->get()->keyBy('id')
                         : collect();
 
+                    $missingAddons = array_diff(array_column($data->addons, 'addon_id'), $addonModels->pluck('id')->all());
+                    if ($missingAddons) {
+                        throw new \InvalidArgumentException('Addon tidak ditemukan.');
+                    }
+
                     // Passing $addonModels agar trait tidak query ulang ke DB
                     $totalPrice = $this->calculateTotal($variant, $data->addons ?? [], $addonModels);
 
@@ -76,28 +80,29 @@ class CreateManualBookingService
                         $data->booking_date
                     );
 
-                    $booking = Booking::create((new BookingData(
-                        user_id: $data->user_id,
-                        package_variant_id: $data->package_variant_id,
-                        background_id: $data->background_id,
-                        booking_code: $bookingCode,
-                        booking_date: $data->booking_date,
-                        start_time: $data->start_time,
-                        end_time: $endTime,
-                        total_price: $totalPrice,
-                        payment_scheme: $paymentScheme,
-                        status: $status,
-                        source: BookingSource::MANUAL,
-                    ))->toArray());
+                    $booking = Booking::create([
+                        'user_id' => $data->user_id,
+                        'package_variant_id' => $data->package_variant_id,
+                        'background_id' => $data->background_id,
+                        'booking_code' => $bookingCode,
+                        'booking_date' => $data->booking_date,
+                        'start_time' => $data->start_time,
+                        'end_time' => $endTime,
+                        'total_price' => $totalPrice,
+                        'payment_scheme' => $paymentScheme,
+                        'status' => $status,
+                        'source' => BookingSource::MANUAL,
+                    ]);
 
                     // Reuse $addonModels yang sudah di-fetch di atas (Fix 3)
                     if (! empty($data->addons)) {
                         $syncData = [];
                         foreach ($data->addons as $item) {
                             $addon = $addonModels->get($item['addon_id']);
+                            $quantity = $addon && !$addon->has_quantity ? 1 : ($item['quantity'] ?? 1);
                             $syncData[$item['addon_id']] = [
                                 'price_at_purchase' => $addon ? $addon->price : 0,
-                                'quantity' => $item['quantity'] ?? 1,
+                                'quantity' => $quantity,
                             ];
                         }
                         $booking->addons()->sync($syncData);
@@ -109,7 +114,7 @@ class CreateManualBookingService
                             'order_id' => $booking->booking_code,
                             'payment_type' => 'manual',
                             'payment_purpose' => PaymentPurpose::DP,
-                            'amount' => $totalPrice * PaymentScheme::DP_RATE,
+                            'amount' => (int) round($totalPrice * PaymentScheme::DP_RATE),
                             'status' => PaymentStatus::SETTLEMENT,
                             'pay_date' => now(),
                         ]);
@@ -132,7 +137,7 @@ class CreateManualBookingService
             // Dispatch notifikasi WA di luar block database transaction agar jika gagal tidak rollback pesanan
             if ($data->send_wa_notification) {
                 // Relasi dipastikan terload untuk notifikasi
-                $bookingResult = Booking::with(['user', 'packageVariant.package', 'addons'])->find($bookingResult->id);
+                $bookingResult->load(['user', 'packageVariant.package', 'addons']);
                 SendWhatsappNotificationJob::dispatch(
                     $bookingResult->user->phone,
                     $this->buildWaMessage($bookingResult)

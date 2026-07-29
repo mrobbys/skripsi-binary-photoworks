@@ -17,8 +17,9 @@ class UpsellBookingAddonService
     public function execute(Booking $booking, UpsellAddonData $dto): Booking
     {
         $addon = Addon::findOrFail($dto->addon_id);
+        $quantity = $addon->has_quantity ? $dto->quantity : 1;
 
-        DB::transaction(function () use ($booking, $addon, $dto) {
+        DB::transaction(function () use ($booking, $addon, $dto, $quantity) {
             $lockedBooking = Booking::where('id', $booking->id)->lockForUpdate()->first();
 
             if (in_array($lockedBooking->status, [BookingStatus::CANCELLED, BookingStatus::DONE])) {
@@ -33,17 +34,17 @@ class UpsellBookingAddonService
 
             if ($existingPivot) {
                 $lockedBooking->addons()->updateExistingPivot($addon->id, [
-                    'quantity' => $existingPivot->pivot->quantity + $dto->quantity,
+                    'quantity' => $existingPivot->pivot->quantity + $quantity,
                 ]);
             } else {
                 $lockedBooking->addons()->attach($addon->id, [
-                    'quantity' => $dto->quantity,
+                    'quantity' => $quantity,
                     'price_at_purchase' => $priceToCharge,
                 ]);
             }
 
             // Update total_price booking
-            $addonSubtotal = $priceToCharge * $dto->quantity;
+            $addonSubtotal = $priceToCharge * $quantity;
             $lockedBooking->increment('total_price', $addonSubtotal);
 
             // Update status total_price di memory controller

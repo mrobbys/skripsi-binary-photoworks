@@ -198,16 +198,17 @@ class BookingService
 						'source' => BookingSource::FRONTDOOR,
 					]);
 
-					// sync addons pakai preloaded, bukan query ulang
-					if ($preloadedAddons) {
-						$syncData = [];
-						foreach ($data->addons as $item) {
-							$addon = $preloadedAddons->get($item['addon_id']);
-							$syncData[$item['addon_id']] = [
-								'price_at_purchase' => $addon ? $addon->price : 0,
-								'quantity' => $item['quantity'] ?? 1,
-							];
-						}
+// sync addons pakai preloaded, bukan query ulang
+                    if ($preloadedAddons) {
+                        $syncData = [];
+                        foreach ($data->addons as $item) {
+                            $addon = $preloadedAddons->get($item['addon_id']);
+                            $quantity = $addon && !$addon->has_quantity ? 1 : ($item['quantity'] ?? 1);
+                            $syncData[$item['addon_id']] = [
+                                'price_at_purchase' => $addon ? $addon->price : 0,
+                                'quantity' => $quantity,
+                            ];
+                        }
 						$booking->addons()->sync($syncData);
 					}
 
