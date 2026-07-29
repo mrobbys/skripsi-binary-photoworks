@@ -54,7 +54,7 @@
 
       {{-- table card --}}
       <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
-
+        
         <x-backdoor.table.header>
           <x-slot:left>
             <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
@@ -69,7 +69,6 @@
                   x-ref="dateFilterInput"
                   placeholder="Filter tanggal..."
                   readonly
-                  x-bind:disabled="table.isLoading"
                   class="w-full cursor-pointer border border-stone-300 bg-stone-50 py-2 pl-9 pr-9 text-sm text-stone-900 placeholder-stone-400 transition focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 sm:w-44"
                 />
                 <button
