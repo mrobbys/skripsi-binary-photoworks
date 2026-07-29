@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
   public function run(): void
   {
-    User::factory(5)
+    User::factory(50)
       ->create()
       ->each(function ($user) {
         $user->assignRole(RoleType::USER->value);

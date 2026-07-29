@@ -17,7 +17,7 @@ export default function Services(Alpine) {
   const fetchGrid = async () => {
     state.isLoading = true;
     try {
-      const response = await axiosInstance.get(route("frontdoor.services.index"), {
+      const response = await axiosInstance.get(route("frontdoor.services.api"), {
         params: {
           category: state.activeCategory,
           page: state.currentPage,

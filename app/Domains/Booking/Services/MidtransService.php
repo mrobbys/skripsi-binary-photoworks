@@ -2,7 +2,6 @@
 
 namespace App\Domains\Booking\Services;
 
-use App\Domains\Booking\Models\Booking;
 use App\Domains\User\Models\User;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Facades\Http;
@@ -15,13 +14,18 @@ class MidtransService
         #[Config('midtrans.base_url')] private string $baseUrl,
     ) {}
 
-    public function getSnapToken(string $orderId, int $grossAmount, User $user, Booking $booking): string
-    {
-        $packageName = $booking->packageVariant?->package?->name ?? '-';
-        $variantName = $booking->packageVariant?->name ?? '-';
+    public function getSnapToken(
+        string $orderId,
+        int $grossAmount,
+        User $user,
+        int $bookingId,
+        string $bookingCode,
+        string $packageName,
+        string $variantName
+    ): string {
         $itemName = trim("{$packageName} - {$variantName}");
         $itemName = Str::limit($itemName, 50, '...');
-        $itemId = (string) "Id Booking-{$booking->id}";
+        $itemId = (string) "Id Booking-{$bookingId}";
 
         $itemDetails = [
             [
@@ -44,7 +48,7 @@ class MidtransService
                 'phone' => $user->phone,
             ],
             'callbacks' => [
-                'finish' => route('frontdoor.booking.success', $orderId),
+                'finish' => route('frontdoor.booking.success', $bookingCode),
             ],
         ];
 
