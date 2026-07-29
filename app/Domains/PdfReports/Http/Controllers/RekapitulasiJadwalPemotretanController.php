@@ -40,7 +40,7 @@ class RekapitulasiJadwalPemotretanController extends Controller
         'background:id,name',
       ])
       ->whereBetween('booking_date', [$startDate->toDateString(), $endDate->toDateString()])
-      ->whereIn('status', [BookingStatus::DP_PAID, BookingStatus::SUCCESS])
+      ->whereIn('status', [BookingStatus::DP_PAID, BookingStatus::SUCCESS, BookingStatus::DONE])
       ->orderBy('booking_date', 'asc')
       ->orderBy('start_time', 'asc')
       ->get();
