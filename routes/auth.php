@@ -27,8 +27,6 @@ Route::middleware('guest')->group(function () {
   // auth with google | socialite
   Route::get('auth/google', [AuthGoogleController::class, 'redirectToGoogle'])
     ->name('auth.google');
-  Route::get('auth/google/callback', [AuthGoogleController::class, 'handleGoogleCallback'])
-    ->name('auth.google.callback');
 
   // forgot password
   Route::get('forgot-password', [ForgotPasswordController::class, 'index'])
@@ -53,6 +51,10 @@ Route::middleware('guest')->group(function () {
     ->middleware('throttle:5,300')
     ->name('reset.password.store');
 });
+
+// google auth callback tanpa middleware guest
+Route::get('auth/google/callback', [AuthGoogleController::class, 'handleGoogleCallback'])
+  ->name('auth.google.callback');
 
 // logout
 Route::post('auth/logout', [LogoutController::class, 'destroy'])
