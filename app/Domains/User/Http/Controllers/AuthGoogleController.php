@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use App\Domains\User\Traits\RedirectsUsers;
+use Illuminate\Support\Facades\Log;
 
 class AuthGoogleController extends Controller
 {
@@ -35,6 +36,7 @@ class AuthGoogleController extends Controller
     try {
       $googleUser = Socialite::driver('google')->user();
     } catch (\Exception $e) {
+      Log::error('Google Auth Error: ', ['error' => $e->getMessage()]);
       return redirect()->route('login')->withErrors([
         'email' => 'Gagal login dengan Google. Silahkan coba lagi.'
       ]);
