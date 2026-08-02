@@ -1,75 +1,176 @@
-<x-layouts.auth.index title='Daftar'>
+<x-layouts.auth.index
+  title='Daftar'
+  jsModule='auth/Register'
+>
   <x-slot:content>
-    <div>
-      <h1 class="text-center my-4 text-xl font-semibold">Form Register</h1>
+    <div
+      x-cloak
+      x-data="Register"
+      class="my-auto flex w-full max-w-5xl items-center justify-center gap-8"
+    >
 
-      <form method="POST" action="{{ route('register.store') }}" class="space-y-4">
-        @csrf
+      {{-- section left start --}}
+      <div class="flex w-full flex-col justify-between lg:w-1/2">
+        <div>
+          {{-- logo binary --}}
+          <x-auth.logo />
 
-        <div class="w-full">
-          <input type="text" name="name" id="name" autocomplete="off" placeholder="your name"
-            value="" required>
-          @error('name')
-            <div>
-              <small class="text-red-500">{{ $message }}</small>
-            </div>
-          @enderror
+          {{-- title & subtitle --}}
+          <x-auth.header
+            title="Daftar"
+            subtitle="Buat akun baru untuk mulai memesan."
+          />
+
+          {{-- form register start --}}
+          <form
+            method="POST"
+            action="{{ route('register.store') }}"
+            x-on:submit="submitForm($event)"
+            class="space-y-6"
+            novalidate
+          >
+            @csrf
+
+            {{-- input name start --}}
+            <x-shared.input.field
+              name="name"
+              label="NAMA LENGKAP"
+              :required="true"
+            >
+              <x-shared.input.text
+                name="name"
+                placeholder="Masukkan nama lengkap Anda"
+                x-model="state.form.name"
+                x-on:blur="validateField('name')"
+                x-on:input="validateField('name')"
+                value="{{ old('name') }}"
+                required
+              />
+            </x-shared.input.field>
+            {{-- input name end --}}
+
+            {{-- input email start --}}
+            <x-shared.input.field
+              name="email"
+              label="EMAIL"
+              :required="true"
+            >
+              <x-shared.input.text
+                type="email"
+                name="email"
+                placeholder="email@address.com"
+                x-model="state.form.email"
+                x-on:blur="validateField('email')"
+                x-on:input="validateField('email')"
+                value="{{ old('email') }}"
+                required
+              />
+            </x-shared.input.field>
+            {{-- input email end --}}
+
+            {{-- input phone start --}}
+            <x-shared.input.field
+              name="phone"
+              label="NOMOR TELEPON"
+              :required="true"
+            >
+              <x-shared.input.text
+                name="phone"
+                placeholder="62xxxxxxxxxxx"
+                x-model="state.form.phone"
+                x-on:blur="validateField('phone')"
+                x-on:input="validateField('phone')"
+                value="{{ old('phone') }}"
+                required
+              />
+            </x-shared.input.field>
+            {{-- input phone end --}}
+
+            {{-- input password start --}}
+            <x-shared.input.field
+              name="password"
+              label="PASSWORD"
+              :required="true"
+            >
+              <x-shared.input.password
+                name="password"
+                placeholder="Masukkan password Anda"
+                x-model="state.form.password"
+                x-on:blur="validateField('password')"
+                x-on:input="validateField('password')"
+                required
+              />
+              {{-- pesan validasi password dalam bentuk array/list --}}
+              <ul
+                x-cloak
+                x-show="state.passwordErrors.length > 0"
+                class="mt-1 space-y-0.5 text-xs text-red-600"
+              >
+                <template
+                  x-for="err in state.passwordErrors"
+                  :key="err"
+                >
+                  <li
+                    x-text="err"
+                    class="before:mr-1 before:content-['-']"
+                  ></li>
+                </template>
+              </ul>
+            </x-shared.input.field>
+            {{-- input password end --}}
+
+            {{-- input password_confirmation start --}}
+            <x-shared.input.field
+              name="password_confirmation"
+              label="KONFIRMASI PASSWORD"
+              :required="true"
+            >
+              <x-shared.input.password
+                name="password_confirmation"
+                placeholder="Masukkan ulang password Anda"
+                x-model="state.form.password_confirmation"
+                x-on:blur="validateField('password_confirmation')"
+                x-on:input="validateField('password_confirmation')"
+                required
+              />
+            </x-shared.input.field>
+            {{-- input password_confirmation end --}}
+
+            {{-- btn submit register start --}}
+            <x-shared.button
+              type="submit"
+              variant="primary"
+              class="w-full py-3"
+              xLoading="state.isLoading"
+              loadingText="Mendaftar..."
+              x-bind:disabled="state.isLoading || !state.isFormValid"
+            >
+              DAFTAR
+            </x-shared.button>
+            {{-- btn submit register end --}}
+          </form>
+          {{-- form register end --}}
+
+          {{-- divider --}}
+          <x-auth.divider />
+
+          {{-- google register button --}}
+          <x-auth.google-button text="Daftar dengan Google" />
         </div>
 
-        <div class="w-full">
-          <input type="tel" name="phone" id="phone" autocomplete="off" placeholder="your phone"
-            value="" required>
-          @error('phone')
-            <div>
-              <small class="text-red-500">{{ $message }}</small>
-            </div>
-          @enderror
-        </div>
+        {{-- footer login link --}}
+        <x-auth.footer
+          text="Sudah punya akun?"
+          linkText="Masuk"
+          :href="route('login')"
+        />
+      </div>
+      {{-- section left end --}}
 
-        <div class="w-full">
-          <input type="email" name="email" id="email" autocomplete="off" placeholder="your@email.com"
-            value="" required>
-          @error('email')
-            <div>
-              <small class="text-red-500">{{ $message }}</small>
-            </div>
-          @enderror
-        </div>
+      {{-- section right start --}}
+      <x-auth.hero />
+      {{-- section right end --}}
 
-        <div class="w-full">
-          <input type="password" name="password" id="password" autocomplete="off" placeholder="•••••••"
-            value="" required>
-          @error('password')
-            <div>
-              <small class="text-red-500">{{ $message }}</small>
-            </div>
-          @enderror
-        </div>
-
-        <div class="w-full">
-          <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="off"
-            placeholder="•••••••" value="" required>
-          @error('password_confirmation')
-            <div>
-              <small class="text-red-500">{{ $message }}</small>
-            </div>
-          @enderror
-        </div>
-
-        <button type="submit" class="bg-blue-500 text-stone-50 w-full py-3 px-4">
-          Daftar
-        </button>
-
-        {{-- register dengan google --}}
-        <a href="{{ route('auth.google') }}" class="bg-stone-400 text-stone-50 w-full py-3 px-4">
-          Daftar dengan Google
-        </a>
-
-        {{-- link to login page --}}
-        <a href="{{ route('login') }}" class="text-center block my-4 text-blue-500 underline">Sudah Punya Akun?
-          Login</a>
-      </form>
     </div>
   </x-slot:content>
-
-  </x-layouts.auth>
+</x-layouts.auth.index>
