@@ -83,18 +83,18 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Email harus diisi.',
-            'email.string' => 'Email harus berupa string.',
-            'email.max' => 'Email tidak boleh lebih dari 255 karakter.',
-            'email.email' => 'Format email tidak valid.',
-            'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
+            'email.required' => 'Email harus diisi',
+            'email.string' => 'Email harus berupa string',
+            'email.max' => 'Email tidak boleh lebih dari 255 karakter',
+            'email.email' => 'Format email tidak valid',
+            'email.rfc' => "Format email tidak sesuai standar RFC 5322",
 
-            'password.required' => 'Password harus diisi.',
-            'password.string' => 'Password harus berupa string.',
-            'password.min' => 'Password harus terdiri dari minimal 8 karakter.',
-            'password.max' => 'Password tidak boleh lebih dari 255 karakter.',
-            'password.mixed' => 'Password harus mengandung huruf besar dan kecil.',
-            'password.numbers' => 'Password harus mengandung angka.',
+            'password.required' => 'Password harus diisi',
+            'password.string' => 'Password harus berupa string',
+            'password.min' => 'Password harus terdiri dari minimal 8 karakter',
+            'password.max' => 'Password tidak boleh lebih dari 255 karakter',
+            'password.mixed' => 'Password harus mengandung huruf besar dan kecil',
+            'password.numbers' => 'Password harus mengandung angka',
         ];
     }
 }
