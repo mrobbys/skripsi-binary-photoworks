@@ -49,22 +49,22 @@ class ResetPasswordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'token.required' => 'Token reset tidak valid.',
+            'token.required' => 'Token reset tidak valid',
 
-            'email.required' => 'Email harus diisi.',
-            'email.string' => 'Email harus berupa string.',
-            'email.max' => 'Email maksimal terdiri dari 255 karakter.',
-            'email.email' => 'Format email tidak valid.',
-            'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
-            'email.unique' => 'Email sudah terdaftar.',
+            'email.required' => 'Email harus diisi',
+            'email.string' => 'Email harus berupa string',
+            'email.max' => 'Email maksimal terdiri dari 255 karakter',
+            'email.email' => 'Format email tidak valid',
+            'email.rfc' => "Format email tidak sesuai standar RFC 5322",
+            'email.unique' => 'Email sudah terdaftar',
 
-            'password.required' => 'Password harus diisi.',
-            'password.string' => 'Password harus berupa string.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'password.min' => 'Password minimal terdiri dari 8 karakter.',
-            'password.max' => 'Password maksimal terdiri dari 255 karakter.',
-            'password.mixed' => 'Password harus mengandung huruf besar dan kecil.',
-            'password.numbers' => 'Password harus mengandung angka.',
+            'password.required' => 'Password harus diisi',
+            'password.string' => 'Password harus berupa string',
+            'password.confirmed' => 'Konfirmasi password tidak cocok',
+            'password.min' => 'Password minimal terdiri dari 8 karakter',
+            'password.max' => 'Password maksimal terdiri dari 255 karakter',
+            'password.mixed' => 'Password harus mengandung huruf besar dan kecil',
+            'password.numbers' => 'Password harus mengandung angka',
         ];
     }
 }
