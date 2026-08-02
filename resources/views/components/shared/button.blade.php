@@ -43,7 +43,7 @@
 
   $variantClasses =
       [
-          'primary' => 'bg-stone-800 text-stone-50 hover:bg-stone-900 border border-transparent',
+          'primary' => 'bg-stone-600 text-stone-50 hover:bg-stone-700 border border-transparent',
           'secondary' => 'bg-stone-200 text-stone-800 hover:bg-stone-300 border border-transparent',
           'outline' => 'border border-stone-300 bg-stone-50 text-stone-800 hover:bg-stone-100',
           'ghost' => 'bg-transparent text-stone-700 hover:bg-stone-100 border border-transparent',
