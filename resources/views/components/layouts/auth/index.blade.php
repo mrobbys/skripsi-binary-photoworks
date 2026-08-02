@@ -31,8 +31,8 @@
   {{ $heads ?? '' }}
 </head>
 
-<body data-module="{{ $jsModule ?? '' }}">
-  <main class="h-dvh w-full mx-auto max-w-7xl flex items-center justify-center p-4">
+<body data-module="{{ $jsModule ?? '' }}" class="overflow-x-hidden">
+  <main class="min-h-dvh w-full mx-auto max-w-7xl flex items-center justify-center p-4 py-8">
     {{ $content ?? '' }}
   </main>
 
