@@ -1,14 +1,8 @@
 import { z } from "zod";
 import { getFieldError } from "@/lib/zodHelper";
+import { passwordRules } from "@/utils/passwordRules";
 
 export default function ResetPassword(Alpine) {
-  // Password rules terpisah agar bisa menghasilkan list error
-  const passwordRules = [
-    { test: (v) => v.length >= 8, msg: "Password minimal 8 karakter" },
-    { test: (v) => /[A-Z]/.test(v), msg: "Password harus mengandung huruf besar" },
-    { test: (v) => /[a-z]/.test(v), msg: "Password harus mengandung huruf kecil" },
-    { test: (v) => /[0-9]/.test(v), msg: "Password harus mengandung angka" },
-  ];
 
   const resetSchema = z
     .object({
@@ -30,9 +24,12 @@ export default function ResetPassword(Alpine) {
       }
     });
 
+  // ambil old input email
+  const oldEmailInput = document.querySelector('input[name="email"]');
+
   const state = Alpine.reactive({
     form: {
-      email: "",
+      email: oldEmailInput ? oldEmailInput.value : "",
       password: "",
       password_confirmation: "",
     },

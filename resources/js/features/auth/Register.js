@@ -1,14 +1,8 @@
 import { z } from 'zod';
 import { getFieldError } from '@/lib/zodHelper';
+import { passwordRules } from '@/utils/passwordRules';
 
 export default function Register(Alpine) {
-  // Password rules terpisah agar bisa menghasilkan list error
-  const passwordRules = [
-    { test: (v) => v.length >= 8, msg: 'Password minimal 8 karakter' },
-    { test: (v) => /[A-Z]/.test(v), msg: 'Password harus mengandung huruf besar' },
-    { test: (v) => /[a-z]/.test(v), msg: 'Password harus mengandung huruf kecil' },
-    { test: (v) => /[0-9]/.test(v), msg: 'Password harus mengandung angka' },
-  ];
 
   const registerSchema = z.object({
     name: z.string()
@@ -37,11 +31,16 @@ export default function Register(Alpine) {
     }
   });
 
+  // ambil old input
+  const oldNameInput = document.querySelector('input[name="name"]');
+  const oldEmailInput = document.querySelector('input[name="email"]');
+  const oldPhoneInput = document.querySelector('input[name="phone"]');
+
   const state = Alpine.reactive({
     form: {
-      name: '',
-      email: '',
-      phone: '',
+      name: oldNameInput ? oldNameInput.value : '',
+      email: oldEmailInput ? oldEmailInput.value : '',
+      phone: oldPhoneInput ? oldPhoneInput.value : '',
       password: '',
       password_confirmation: '',
     },
