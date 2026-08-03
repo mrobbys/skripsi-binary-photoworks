@@ -35,11 +35,11 @@ class ForgotPasswordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Email harus diisi.',
-            'email.string' => 'Email harus berupa string.',
-            'email.max' => 'Email tidak boleh lebih dari 255 karakter.',
-            'email.email' => 'Format email tidak valid.',
-            'email.rfc' => "Format email tidak sesuai standar RFC 5322.",
+            'email.required' => 'Email harus diisi',
+            'email.string' => 'Email harus berupa string',
+            'email.max' => 'Email tidak boleh lebih dari 255 karakter',
+            'email.email' => 'Format email tidak valid',
+            'email.rfc' => "Format email tidak sesuai standar RFC 5322",
         ];
     }
 }

@@ -72,7 +72,7 @@
               >
                 <tr>
                   <td style="padding: 14px 18px; font-size: 14px; color: #57534E; line-height: 1.5;">
-                    ⏱️ Tautan ini berlaku selama <strong style="color: #1C1917;">{{ $expiresIn }} menit</strong> demi
+                    Tautan ini berlaku selama <strong style="color: #1C1917;">{{ $expiresIn }} menit</strong> demi
                     keamanan akun Anda.
                   </td>
                 </tr>

@@ -1,45 +1,70 @@
-<x-layouts.auth.index title='Forgot Password'>
+<x-layouts.auth.index
+  title='Lupa Password'
+  jsModule='auth/ForgotPassword'
+>
   <x-slot:content>
-    <div>
-      <h1 class="text-center my-4 text-xl font-semibold">
-        Forgot Password
-      </h1>
+    <div
+      x-cloak
+      x-data="ForgotPassword"
+      class="my-auto w-full max-w-md space-y-8"
+    >
+      <x-auth.header
+        title="Lupa Password"
+        subtitle="Masukkan alamat email Anda. Kami akan mengirimkan tautan untuk mengatur ulang kata sandi."
+        :center="true"
+      />
 
       <form
         method="POST"
         action="{{ route('forgot.password.email') }}"
-        class="space-y-4">
+        x-on:submit="submitForm($event)"
+        class="space-y-6"
+        novalidate
+      >
         @csrf
-        <div class="w-full">
-          <input
+
+        {{-- input email start --}}
+        <x-shared.input.field
+          name="email"
+          label="EMAIL"
+          :required="true"
+        >
+          <x-shared.input.text
             type="email"
             name="email"
-            id="email"
-            autocomplete="off"
-            placeholder="your@email.com"
-            value="robby@gmail.com"
-            required>
-          @error('email')
-            <div>
-              <small class="text-red-500">{{ $message }}</small>
-            </div>
-          @enderror
-        </div>
+            placeholder="email@address.com"
+            x-model="state.form.email"
+            x-on:blur="validateField('email')"
+            x-on:input="validateField('email')"
+            value="{{ old('email') }}"
+            required
+          />
+        </x-shared.input.field>
+        {{-- input email end --}}
 
-        <button
+        {{-- btn submit start --}}
+        <x-shared.button
           type="submit"
-          class="bg-blue-500 text-stone-50 w-full py-3 px-4">
-          Kirim link reset password
-        </button>
+          variant="primary"
+          class="w-full py-3"
+          xLoading="state.isLoading"
+          loadingText="Mengirim..."
+          x-bind:disabled="state.isLoading || !state.isFormValid"
+        >
+          KIRIM TAUTAN RESET
+        </x-shared.button>
+        {{-- btn submit end --}}
+      </form>
 
-        {{-- link to login page --}}
+      <div class="border-t border-stone-200 pt-6 text-center">
         <a
           href="{{ route('login') }}"
-          class="text-center block my-4 text-blue-500 underline">
-          Kembali ke halaman Login
+          class="inline-flex items-center gap-1 text-sm text-stone-500 transition-colors hover:text-stone-900"
+        >
+          <i class="ri-arrow-left-line"></i>
+          Kembali ke halaman Masuk
         </a>
-      </form>
+      </div>
     </div>
   </x-slot:content>
-
-  </x-layouts.auth>
+</x-layouts.auth.index>

@@ -1,52 +1,88 @@
-/**
- * Logika interaktif halaman Login.
- *
- * File: resources/js/features/auth/Login.js
- * - State dikelola via Alpine.reactive() — mirip useState()
- * - Semua method adalah Arrow Function — tidak ada 'this'
- * - Auto-didaftarkan ke Alpine.data('Login') oleh app.js
- *
- * Penggunaan di Blade: <div x-data="Login">...</div>
- *
- * @param {import('alpinejs').Alpine} Alpine
- * @returns {object}
- */
+import { z } from 'zod';
+import { getFieldError } from '@/lib/zodHelper';
+
 export default function Login(Alpine) {
-  // ---------------------------------------------------------------------------
-  // State — terpusat, mirip useState() di React
-  // ---------------------------------------------------------------------------
-  const state = Alpine.reactive({
-    showPassword: false,
-    isLoading: false,
+  // schema validasi zod
+  const loginSchema = z.object({
+    email: z
+      .string()
+      .min(1, 'Email harus diisi')
+      .max(50, 'Email maksimal 50 karakter')
+      .email('Format email tidak valid'),
+    password: z
+      .string()
+      .min(1, 'Password harus diisi')
+      .min(8, 'Password harus terdiri dari minimal 8 karakter')
+      .max(50, 'Password maksimal 50 karakter')
+      .regex(/[A-Z]/, 'Password harus mengandung setidaknya satu huruf besar')
+      .regex(/[a-z]/, 'Password harus mengandung setidaknya satu huruf kecil')
+      .regex(/[0-9]/, 'Password harus mengandung setidaknya satu angka'),
+    remember: z.boolean().optional(),
   });
 
-  // ---------------------------------------------------------------------------
-  // Methods — arrow functions, tidak ada 'this'
-  // ---------------------------------------------------------------------------
+  // ambil old input
+  const oldEmailInput = document.querySelector('input[name="email"]');
 
-  /** Toggle visibilitas field password */
-  const togglePassword = () => {
-    state.showPassword = !state.showPassword;
+  // state
+  const state = Alpine.reactive({
+    form: {
+      email: oldEmailInput ? oldEmailInput.value : '',
+      password: '',
+      remember: false,
+    },
+    isLoading: false,
+    errors: {},
+    dismissedErrors: {},
+    isFormValid: false,
+  });
+
+  // cek form is valid
+  Alpine.effect(() => {
+    const allFilled = state.form.email && state.form.password;
+    const noErrors = !state.errors.email && !state.errors.password;
+    state.isFormValid = Boolean(allFilled && noErrors);
+  });
+
+  const validateField = (field) => {
+    state.dismissedErrors[field] = true;
+    const result = loginSchema.safeParse(state.form);
+
+    if (!result.success) {
+      state.errors[field] = getFieldError(result, field);
+    } else {
+      state.errors[field] = null;
+    }
   };
 
-  /**
-   * Menangani submit form untuk menunjukkan state loading.
-   * Karena ini form submit HTML biasa (non-AJAX), kita biarkan form submit secara normal
-   * setelah mengubah state isLoading menjadi true.
-   *
-   * @param {SubmitEvent} event
-   */
-  const submitForm = (event) => {
+  const validateForm = () => {
+    const result = loginSchema.safeParse(state.form);
+
+    if (!result.success) {
+      state.errors = {
+        email: getFieldError(result, 'email'),
+        password: getFieldError(result, 'password'),
+      };
+      return false;
+    }
+
+    state.errors = {};
+    return true;
+  };
+
+  const submitForm = (e) => {
+    const isValid = validateForm();
+
+    if (!isValid) {
+      e.preventDefault();
+      return;
+    }
+
     state.isLoading = true;
-    // Kita tidak memanggil event.preventDefault() agar form tetap ter-submit ke server Laravel
   };
 
-  // ---------------------------------------------------------------------------
-  // Return — plain object yang dikonsumsi Alpine di HTML
-  // ---------------------------------------------------------------------------
   return {
     state,
-    togglePassword,
+    validateField,
     submitForm,
   };
 }
