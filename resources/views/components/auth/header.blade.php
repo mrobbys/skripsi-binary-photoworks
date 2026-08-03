@@ -5,7 +5,7 @@
 ])
 
 <div class="mb-8 {{ $center ? 'text-center' : '' }}">
-  <h1 class="font-serif text-4xl font-normal tracking-tight text-stone-900">
+  <h1 class="font-serif text-4xl font-semibold tracking-tight text-stone-900">
     {{ $title }}
   </h1>
   @if($subtitle)
