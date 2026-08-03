@@ -27,10 +27,13 @@
               <h1 class="text-xl font-bold text-stone-900">Profil Saya</h1>
               <x-shared.button
                 type="button"
+                variant="outline"
+                value="Ganti Password"
                 x-on:click="openPasswordDrawer()"
-                class="w-auto px-4 py-1.5 text-sm font-bold bg-transparent text-stone-900 border-[1.5px] border-stone-900 hover:bg-stone-900 hover:text-stone-50 transition-colors">
-                <i class="ri-lock-password-line mr-1.5"></i>
-                Ganti Password
+              >
+                <x-slot:iconLeft>
+                  <i class="ri-lock-password-line"></i>
+                </x-slot:iconLeft>
               </x-shared.button>
             </div>
             {{-- header end --}}
@@ -84,10 +87,13 @@
               <div class="pt-2">
                 <x-shared.button
                   type="submit"
+                  variant="dark"
+                  value="Simpan Perubahan"
+                  xLoading="state.isUpdatingProfile"
+                  loadingText="Menyimpan..."
                   x-bind:disabled="state.isUpdatingProfile || !state.hasChanges"
-                  class="w-full bg-stone-800 text-stone-50 py-3 hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed">
-                  <span x-text="state.isUpdatingProfile ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
-                </x-shared.button>
+                  class="w-full"
+                />
               </div>
 
             </form>

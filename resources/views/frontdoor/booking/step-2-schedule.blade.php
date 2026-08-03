@@ -52,16 +52,26 @@
     {{-- section kanan end --}}
   </div>
 
-  <div class="my-8 flex flex-col sm:flex-row gap-12">
-    <x-shared.button size="lg" value="Kembali" x-on:click="prevStep()"
-      class="w-full border border-stone-300 bg-transparent text-stone-800 hover:bg-stone-50">
+  <div class="my-8 flex flex-col gap-12 sm:flex-row">
+    <x-shared.button
+      variant="outline"
+      size="lg"
+      value="Kembali"
+      x-on:click="prevStep()"
+      class="w-full"
+    >
       <x-slot:iconLeft>
         <i class="ri-arrow-left-line"></i>
       </x-slot:iconLeft>
     </x-shared.button>
-    <x-shared.button size="lg" value="Lanjutkan ke Layanan Tambahan"
-      class="w-full bg-stone-800 text-white hover:bg-stone-700"
-      x-bind:disabled="!state.selectedSlot" x-on:click="nextStep()">
+    <x-shared.button
+      variant="dark"
+      size="lg"
+      value="Lanjutkan ke Layanan Tambahan"
+      x-bind:disabled="!state.selectedSlot"
+      x-on:click="nextStep()"
+      class="w-full"
+    >
       <x-slot:iconRight>
         <i class="ri-arrow-right-line"></i>
       </x-slot:iconRight>

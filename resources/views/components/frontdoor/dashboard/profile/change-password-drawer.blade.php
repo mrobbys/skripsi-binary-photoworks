@@ -85,19 +85,19 @@
   <x-slot:footer>
     <x-shared.button
       type="button"
+      variant="ghost"
+      value="Batal"
       x-on:click="closePasswordDrawer()"
       x-bind:disabled="state.isChangingPassword"
-      class="cursor-pointer text-sm font-semibold text-stone-600 transition hover:text-stone-900 disabled:opacity-50"
-      value="Batal"
     />
     <x-shared.button
       type="submit"
-      x-bind:disabled="state.isChangingPassword || (!state.passwordForm.old_password || !state.passwordForm.password || !state
-          .passwordForm.password_confirmation)"
-      class="border border-stone-700 bg-stone-700 px-4 py-2 text-sm font-semibold tracking-wide text-stone-50 hover:bg-stone-800 disabled:pointer-events-none disabled:opacity-50"
-    >
-      <span x-text="state.isChangingPassword ? 'Menyimpan...' : 'Simpan Password'"></span>
-    </x-shared.button>
+      variant="dark"
+      value="Simpan Password"
+      xLoading="state.isChangingPassword"
+      loadingText="Menyimpan..."
+      x-bind:disabled="state.isChangingPassword || (!state.passwordForm.old_password || !state.passwordForm.password || !state.passwordForm.password_confirmation)"
+    />
   </x-slot:footer>
 
 </x-shared.drawer>

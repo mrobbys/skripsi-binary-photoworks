@@ -1,24 +1,27 @@
 {{-- 
   Digunakan pada file jadwal.blade.php / Dashboard User
 --}}
-<div x-cloak class="flex gap-3">
+<div
+  x-cloak
+  class="flex gap-3"
+>
   <x-shared.button
     value="Akan Datang"
-    size="sm"
-    class="px-5 border"
+    variant="custom"
     x-bind:disabled="state.isLoading"
     x-on:click="switchTab('upcoming')"
     x-bind:class="state.activeTab === 'upcoming' ?
-        'bg-stone-500 text-stone-50 border-stone-500' :
-        'bg-transparent border-stone-300 text-stone-600 hover:bg-stone-50'" />
+        'bg-stone-800 text-stone-50 border border-transparent' :
+        'border border-stone-300 bg-stone-50 text-stone-800 hover:bg-stone-100'"
+  />
 
   <x-shared.button
     value="Selesai"
-    size="sm"
-    class="px-5 border"
+    variant="custom"
     x-bind:disabled="state.isLoading"
     x-on:click="switchTab('past')"
     x-bind:class="state.activeTab === 'past' ?
-        'bg-stone-500 text-stone-50 border-stone-500' :
-        'bg-transparent border-stone-300 text-stone-600 hover:bg-stone-50'" />
+        'bg-stone-800 text-stone-50 border border-transparent' :
+        'border border-stone-300 bg-stone-50 text-stone-800 hover:bg-stone-100'"
+  />
 </div>

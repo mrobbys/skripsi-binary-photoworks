@@ -32,22 +32,23 @@
   {{ $heads ?? '' }}
 </head>
 
-<body data-module="{{ $jsModule ?? '' }}" class="overflow-x-hidden">
+<body
+  data-module="{{ $jsModule ?? '' }}"
+  class="overflow-x-hidden"
+>
 
   <x-layouts.frontdoor.components.navbar>
     <x-layouts.frontdoor.components.brand-logo />
     <x-layouts.frontdoor.components.desktop-menu />
     {{-- login button for desktop start --}}
-    <div class="hidden sm:block">
-      <x-layouts.frontdoor.components.auth-button class="font-semibold tracking-wide px-6" />
-    </div>
+    <x-layouts.frontdoor.components.auth-button />
     {{-- login button for desktop end --}}
 
     <x-layouts.frontdoor.components.mobile-menu-button />
     <x-layouts.frontdoor.components.mobile-menu />
   </x-layouts.frontdoor.components.navbar>
 
-  <main class="min-h-dvh w-full mx-auto max-w-7xl py-4 px-6">
+  <main class="mx-auto min-h-dvh w-full max-w-7xl px-6 py-4">
     {{ $content ?? '' }}
   </main>
 
