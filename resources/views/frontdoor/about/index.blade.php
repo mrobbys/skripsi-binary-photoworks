@@ -1,8 +1,11 @@
-<x-layouts.frontdoor.index title="About Us">
+<x-layouts.frontdoor.index title="Tentang Kami">
   <x-slot:content>
-    <div class="py-12 text-center">
-      <h1 class="text-3xl font-bold font-serif text-stone-850">About Us</h1>
-      <p class="mt-4 text-stone-600">Hello World! Halaman About Us.</p>
-    </div>
+      {{-- section 1 start --}}
+      <x-frontdoor.about.story-section />
+      {{-- section 1 end --}}
+
+      {{-- section 2 start --}}
+      <x-frontdoor.about.team-section :teams="$teams" />
+      {{-- section 2 end --}}
   </x-slot:content>
 </x-layouts.frontdoor.index>
