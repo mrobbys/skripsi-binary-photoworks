@@ -6,7 +6,7 @@
     <div
       x-cloak
       x-data="Register"
-      class="my-auto flex w-full max-w-5xl items-center justify-center gap-8"
+      class="my-auto flex w-full max-w-5xl items-start justify-center gap-8"
     >
 
       {{-- section left start --}}
