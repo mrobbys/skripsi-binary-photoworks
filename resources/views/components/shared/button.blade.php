@@ -48,6 +48,7 @@
           'outline' => 'border border-stone-300 bg-stone-50 text-stone-800 hover:bg-stone-100',
           'ghost' => 'bg-transparent text-stone-700 hover:bg-stone-100 border border-transparent',
           'danger' => 'bg-red-700 text-red-50 hover:bg-red-800 border border-transparent',
+          'dark' => 'bg-stone-900 text-stone-50 hover:bg-stone-950 border border-transparent',
           'custom' => '',
       ][$variant] ?? '';
 @endphp
