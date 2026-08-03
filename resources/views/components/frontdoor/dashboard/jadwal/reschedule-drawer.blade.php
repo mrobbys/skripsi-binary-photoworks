@@ -90,15 +90,13 @@
           <template x-for="slot in state.rescheduleSlots" :key="slot.start_time">
             <x-shared.button
               type="button"
-              size="custom"
+              variant="custom"
               x-on:click="selectRescheduleSlot(slot)"
-              x-bind:class="{
-                  'border-stone-500 bg-stone-100 text-stone-900': state.selectedRescheduleSlot?.start_time === slot
-                      .start_time,
-                  'border-stone-200 bg-stone-50 text-stone-600 hover:border-stone-300': state.selectedRescheduleSlot
-                      ?.start_time !== slot.start_time,
-              }"
-              class="w-full border py-3 text-sm">
+              x-bind:class="state.selectedRescheduleSlot?.start_time === slot.start_time ?
+                  'border-stone-800 bg-stone-100 font-semibold text-stone-900' :
+                  'border-stone-200 bg-stone-50 text-stone-600 hover:border-stone-300'"
+              class="w-full border py-3 text-sm"
+            >
               <span x-text="slot.start_time"></span>
             </x-shared.button>
           </template>
@@ -113,16 +111,19 @@
   <x-slot:footer>
     <x-shared.button
       type="button"
+      variant="ghost"
+      value="Batal"
       x-on:click="closeRescheduleDrawer()"
       x-bind:disabled="state.isRescheduling"
-      class="text-stone-600 hover:text-stone-900 transition font-semibold text-sm cursor-pointer disabled:opacity-50"
-      value="Batal" />
+    />
     <x-shared.button
       type="submit"
+      variant="dark"
+      value="Konfirmasi Ubah Jadwal"
+      xLoading="state.isRescheduling"
+      loadingText="Menyimpan..."
       x-bind:disabled="!state.selectedRescheduleSlot || state.isRescheduling"
-      class="bg-stone-700 text-stone-50 px-4 py-2 border border-stone-700 hover:bg-stone-800 font-semibold text-sm tracking-wide disabled:opacity-50 disabled:pointer-events-none">
-      <span x-text="state.isRescheduling ? 'Menyimpan...' : 'Konfirmasi Ubah Jadwal'"></span>
-    </x-shared.button>
+    />
   </x-slot:footer>
   {{-- footer end --}}
 

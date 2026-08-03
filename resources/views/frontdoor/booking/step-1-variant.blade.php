@@ -76,20 +76,31 @@
     <div class="pt-2">
       {{-- tombol lanjut reservasi ke jadwal start --}}
       <template x-if="!state.selectedVariant?.is_whatsapp_only">
-        <x-shared.button size="lg" value="Lanjutkan ke Jadwal Sesi"
-          class="w-full bg-stone-800 text-white hover:bg-stone-700"
-          x-bind:disabled="!state.selectedVariantId || !state.selectedBackgroundId" x-on:click="nextStep()">
-        </x-shared.button>
+        <x-shared.button
+          variant="dark"
+          size="lg"
+          value="Lanjutkan ke Jadwal Sesi"
+          x-bind:disabled="!state.selectedVariantId || !state.selectedBackgroundId"
+          x-on:click="nextStep()"
+          class="w-full"
+        />
       </template>
       {{-- tombol lanjut reservasi ke jadwal end --}}
 
       {{-- button paket variant wa only start --}}
       <template x-if="state.selectedVariant?.is_whatsapp_only">
-        <x-shared.button as="a" target="_blank" size="lg" value="Reservasi via WhatsApp"
-          class="w-full bg-stone-800 text-white hover:bg-stone-700" x-bind:disabled="!state.selectedVariantId"
+        <x-shared.button
+          as="a"
+          target="_blank"
+          variant="dark"
+          size="lg"
+          value="Reservasi via WhatsApp"
+          x-bind:disabled="!state.selectedVariantId"
           x-bind:href="state.selectedVariant ?
               `https://wa.me/6281234567890?text=${encodeURIComponent('Halo Admin, saya ingin reservasi paket ' + state.packageName + ' - ' + state.selectedVariant.name)}` :
-              '#'">
+              '#'"
+          class="w-full"
+        >
           <x-slot:iconLeft>
             <i class="ri-whatsapp-line text-lg"></i>
           </x-slot:iconLeft>
@@ -97,7 +108,7 @@
       </template>
       {{-- button paket variant wa only end --}}
 
-      <p class="text-center text-stone-500 text-sm mt-4">Silakan pilih paket <span
+      <p class="mt-4 text-center text-sm text-stone-500">Silakan pilih paket <span
           x-show="!state.selectedVariant?.is_whatsapp_only">dan background </span>untuk melanjutkan</p>
     </div>
   </div>

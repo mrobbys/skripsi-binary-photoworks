@@ -10,7 +10,9 @@
     <x-shared.button
       as="a"
       href="{{ route('frontdoor.services.index') }}"
-      class="w-full bg-stone-500 text-stone-50 hover:bg-stone-600"
-      value="Mulai Sesi Baru" />
+      variant="dark"
+      value="Mulai Sesi Baru"
+      class="w-full"
+    />
   </div>
 </div>

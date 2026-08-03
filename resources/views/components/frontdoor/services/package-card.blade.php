@@ -18,10 +18,13 @@
         x-text="package.min_price_formatted"></span>
     </p>
     <div class="mt-auto">
-      <x-shared.button as="a" x-bind:href="`{{ route('frontdoor.booking.flow', ':slug') }}`.replace(':slug', package.slug)"
-        class="w-full text-center py-2.5 font-semibold bg-stone-600 hover:bg-stone-700 text-stone-50">
-        Pilih Layanan
-      </x-shared.button>
+      <x-shared.button
+        as="a"
+        x-bind:href="`{{ route('frontdoor.booking.flow', ':slug') }}`.replace(':slug', package.slug)"
+        variant="primary"
+        value="Pilih Layanan"
+        class="w-full text-center"
+      />
     </div>
   </div>
 </div>

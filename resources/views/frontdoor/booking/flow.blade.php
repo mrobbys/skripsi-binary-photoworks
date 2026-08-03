@@ -19,12 +19,16 @@
       x-cloak>
       {{-- kembali ke katalog start --}}
       <div class="w-fit h-fit whitespace-nowrap">
-        <x-shared.button as="a" href="{{ route('frontdoor.services.index') }}"
-          class="mb-8 group text-stone-500 hover:bg-stone-100 hover:text-stone-800">
+        <x-shared.button
+          as="a"
+          href="{{ route('frontdoor.services.index') }}"
+          variant="ghost"
+          value="Kembali ke Katalog"
+          class="mb-8 group"
+        >
           <x-slot:iconLeft>
-            <i class="ri-arrow-left-line group-hover:-translate-x-1 transition-transform"></i>
+            <i class="ri-arrow-left-line transition-transform group-hover:-translate-x-1"></i>
           </x-slot:iconLeft>
-          Kembali ke Katalog
         </x-shared.button>
       </div>
       {{-- kembali ke katalog end --}}

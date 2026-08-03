@@ -41,7 +41,7 @@
                 <div class="mx-3 h-2.5 flex-1 overflow-hidden bg-stone-200">
                   <div
                     class="h-full bg-stone-600 transition-all duration-500"
-                    :style="`width: ${state.stats.breakdown_percentage[star] ?? 0}%`"
+                    x-bind:style="`width: ${state.stats.breakdown_percentage[star] ?? 0}%`"
                   ></div>
                 </div>
                 <span
@@ -76,13 +76,13 @@
 
             @auth
               <div>
-                <button
+                <x-shared.button
+                  as="button"
                   type="button"
-                  @click="state.openModal = true"
-                  class="border border-stone-600 bg-stone-700 px-6 py-3 text-xs font-bold uppercase tracking-wider text-stone-50 transition hover:bg-stone-800 focus:outline-none"
-                >
-                  Tulis Ulasan
-                </button>
+                  x-on:click="state.openModal = true"
+                  variant="primary"
+                  value="Tulis Ulasan"
+                />
               </div>
             @endauth
           </div>
@@ -101,7 +101,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-widest text-stone-500">Ulasan Anda</span>
                 <button
                   type="button"
-                  @click="deleteReview(state.userReview.id)"
+                  x-on:click="deleteReview(state.userReview.id)"
                   class="text-stone-400 transition hover:text-red-600 focus:outline-none"
                   title="Hapus ulasan"
                 >
@@ -117,7 +117,7 @@
                   x-for="n in 5"
                   :key="n"
                 >
-                  <i :class="n <= state.userReview.rating ? 'ri-star-fill' : 'ri-star-line text-stone-300'"></i>
+                  <i x-bind:class="n <= state.userReview.rating ? 'ri-star-fill' : 'ri-star-line text-stone-300'"></i>
                 </template>
               </div>
 
@@ -142,7 +142,7 @@
             <select
               name="sort"
               x-data="choices({ searchEnabled: false, shouldSort: false })"
-              @change="onSortChange($el.value)"
+              x-on:change="onSortChange($el.value)"
               class="w-full border border-stone-300 bg-stone-50 px-3.5 py-2 text-sm text-stone-800 focus:border-stone-700 focus:outline-none"
             >
               @foreach (ReviewSort::cases() as $option)
@@ -184,7 +184,7 @@
                         x-for="n in 5"
                         :key="n"
                       >
-                        <i :class="n <= review.rating ? 'ri-star-fill' : 'ri-star-line text-stone-300'"></i>
+                        <i x-bind:class="n <= review.rating ? 'ri-star-fill' : 'ri-star-line text-stone-300'"></i>
                       </template>
                     </div>
                   </div>
@@ -221,12 +221,12 @@
           x-transition:leave="transition ease-in duration-150"
           x-transition:leave-start="opacity-100"
           x-transition:leave-end="opacity-0"
-          @keydown.escape.window="resetForm()"
+          x-on:keydown.escape.window="resetForm()"
           class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4 backdrop-blur-[2px]"
         >
           {{-- Modal Box Container --}}
           <div
-            @click.outside="resetForm()"
+            x-on:click.outside="resetForm()"
             class="w-full max-w-lg rounded-none border border-stone-300 bg-stone-50 p-6 md:p-8"
           >
             <div class="mb-4">
@@ -238,7 +238,7 @@
             </div>
 
             <form
-              @submit.prevent="submitReview()"
+              x-on:submit.prevent="submitReview()"
               class="space-y-6"
             >
               {{-- Star Rating Interactive Input --}}
@@ -248,7 +248,7 @@
                 </label>
                 <div
                   class="flex items-center gap-2 text-2xl text-stone-700"
-                  @mouseleave="clearHover()"
+                  x-on:mouseleave="clearHover()"
                 >
                   <template
                     x-for="n in 5"
@@ -256,12 +256,12 @@
                   >
                     <button
                       type="button"
-                      @mouseenter="setHover(n)"
-                      @click="setRating(n)"
+                      x-on:mouseenter="setHover(n)"
+                      x-on:click="setRating(n)"
                       class="transform transition-transform hover:scale-110 focus:outline-none"
                     >
                       <i
-                        :class="(state.hoverRating ? state.hoverRating >= n : state.rating >= n) ?
+                        x-bind:class="(state.hoverRating ? state.hoverRating >= n : state.rating >= n) ?
                         'ri-star-fill text-stone-700' :
                         'ri-star-line text-stone-300'"></i>
                     </button>
@@ -276,7 +276,7 @@
                 </label>
                 <textarea
                   x-model="state.comment"
-                  :maxlength="state.maxComment"
+                  x-bind:maxlength="state.maxComment"
                   rows="4"
                   placeholder="Tuliskan detail ulasan atau masukan Anda di sini..."
                   class="w-full resize-none rounded-none border border-stone-300 bg-white p-3.5 text-sm text-stone-900 placeholder-stone-400 transition focus:border-stone-700 focus:outline-none"
@@ -288,20 +288,22 @@
 
               {{-- Modal Actions --}}
               <div class="flex items-center justify-end gap-3 pt-2">
-                <button
+                <x-shared.button
+                  as="button"
                   type="button"
-                  @click="resetForm()"
-                  class="rounded-none border border-stone-300 bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-700 transition hover:bg-stone-100 focus:outline-none"
-                >
-                  Batal
-                </button>
-                <button
+                  variant="outline"
+                  value="Batal"
+                  x-on:click="resetForm()"
+                />
+                <x-shared.button
+                  as="button"
                   type="submit"
-                  :disabled="!state.rating || !state.comment.trim() || state.isSubmitting"
-                  class="rounded-none border border-stone-700 bg-stone-700 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-50 transition hover:bg-stone-800 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span x-text="state.isSubmitting ? 'Mengirim...' : 'Kirim Ulasan'"></span>
-                </button>
+                  variant="primary"
+                  value="Kirim Ulasan"
+                  xLoading="state.isSubmitting"
+                  loadingText="Mengirim..."
+                  x-bind:disabled="!state.rating || !state.comment.trim() || state.isSubmitting"
+                />
               </div>
             </form>
           </div>

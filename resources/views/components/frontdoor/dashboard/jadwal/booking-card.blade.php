@@ -44,13 +44,15 @@
       
       {{-- btn bayar start --}}
       <x-shared.button
+        variant="dark"
+        value="Bayar Sekarang"
+        xLoading="state.isProcessingPayment === appointment.booking_code"
+        loadingText="Memproses..."
         x-show="appointment.can_pay"
         x-on:click.stop="triggerRepay(appointment.booking_code)"
         x-bind:disabled="state.isProcessingPayment === appointment.booking_code"
-        class="w-auto shrink-0 px-4 py-1.5 text-xs font-bold bg-transparent text-stone-900 border-[1.5px] border-stone-900 hover:bg-stone-900 hover:text-stone-50 transition-colors">
-        <span x-show="state.isProcessingPayment !== appointment.booking_code">Bayar Sekarang</span>
-        <span x-show="state.isProcessingPayment === appointment.booking_code">Memproses...</span>
-      </x-shared.button>
+        class="w-auto shrink-0"
+      />
       {{-- btn bayar end --}}
 
       {{-- icon expand start --}}
@@ -118,54 +120,65 @@
       </div>
 
       {{-- action footer start --}}
-      <div class="flex flex-col-reverse lg:flex-row items-center gap-3 w-full pt-5">
+      <div class="flex flex-col-reverse items-center gap-3 w-full pt-5 lg:flex-row">
 
         {{-- section kiri start --}}
-        <div class="w-full lg:w-auto lg:mr-auto">
+        <div class="w-full lg:mr-auto lg:w-auto">
           {{-- btn batal start --}}
           <x-shared.button
+            variant="ghost"
+  
+            value="Batalkan Reservasi"
+            xLoading="state.isCancelling === appointment.booking_code"
+            loadingText="Membatalkan..."
             x-show="appointment.can_cancel"
             x-on:click="triggerCancel(appointment.booking_code)"
             x-bind:disabled="state.isCancelling === appointment.booking_code"
-            class="w-full lg:w-auto py-2.5 px-4 text-sm font-medium border border-stone-200 text-stone-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors">
-            <span x-show="state.isCancelling !== appointment.booking_code">Batalkan Reservasi</span>
-            <span x-show="state.isCancelling === appointment.booking_code">Membatalkan...</span>
-          </x-shared.button>
+            class="w-full text-stone-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600 lg:w-auto"
+          />
           {{-- btn batal end --}}
         </div>
-        {{-- section kiri start --}}
+        {{-- section kiri end --}}
 
         {{-- section kanan start --}}
-        <div class="w-full lg:w-auto flex flex-col-reverse lg:flex-row gap-3">
+        <div class="flex w-full flex-col-reverse gap-3 lg:w-auto lg:flex-row">
           {{-- link cetak kuitansi start --}}
           <x-shared.button
             as="a"
+            variant="outline"
+  
+            value="Unduh Kuitansi"
             x-show="appointment.receipt_url"
             x-bind:href="appointment.receipt_url"
-            target="_blank" rel="noopener noreferrer"
-            class="w-full lg:w-auto py-2.5 px-4 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors text-center">
-            Unduh Kuitansi
-          </x-shared.button>
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full text-center lg:w-auto"
+          />
           {{-- link cetak kuitansi end --}}
 
           {{-- link hasil foto start --}}
           <x-shared.button
             as="a"
+            variant="dark"
+  
+            value="Hasil Foto"
             x-show="appointment.gdrive_link && appointment.status === 'Selesai'"
             x-bind:href="appointment.gdrive_link"
-            target="_blank" rel="noopener noreferrer"
-            class="w-full lg:w-auto py-2.5 px-4 text-sm font-medium border border-stone-800 bg-stone-800 text-stone-50 hover:bg-stone-900 transition-colors text-center">
-            Hasil Foto
-          </x-shared.button>
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full text-center lg:w-auto"
+          />
           {{-- link hasil foto end --}}
 
           {{-- btn reschedule start --}}
           <x-shared.button
+            variant="outline"
+  
+            value="Ubah Jadwal"
             x-show="appointment.can_reschedule"
             x-on:click="openRescheduleDrawer(appointment)"
-            class="w-full lg:w-auto py-2.5 px-4 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors">
-            Ubah Jadwal
-          </x-shared.button>
+            class="w-full lg:w-auto"
+          />
           {{-- btn reschedule end --}}
         </div>
         {{-- section kanan end --}}

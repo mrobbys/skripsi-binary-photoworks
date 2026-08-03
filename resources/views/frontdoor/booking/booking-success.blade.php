@@ -162,21 +162,19 @@
           <x-shared.button
             as="a"
             href="{{ route('frontdoor.dashboard.index') }}"
-            size="custom"
-            class="font-semibold! w-full border border-stone-300 bg-transparent px-6 py-3 text-sm text-stone-500 transition-colors duration-150 hover:bg-stone-200"
-          >
-            Lihat Riwayat Pesanan
-          </x-shared.button>
+            variant="outline"
+            value="Lihat Riwayat Pesanan"
+            class="w-full text-center"
+          />
           @if ($booking->payment_status === PaymentStatus::SETTLEMENT)
             <x-shared.button
               as="a"
               href="{{ route('payments.receipt', $booking->booking_code) }}"
               target="_blank"
-              size="custom"
-              class="font-semibold! w-full border border-stone-500 bg-stone-500 px-6 py-3 text-sm text-stone-50 transition-colors duration-150 hover:bg-stone-600"
-            >
-              Unduh Bukti Reservasi (PDF)
-            </x-shared.button>
+              variant="dark"
+              value="Unduh Bukti Reservasi (PDF)"
+              class="w-full text-center"
+            />
           @endif
         </div>
         {{-- action buttons end --}}
