@@ -17,5 +17,6 @@ require __DIR__ . '/review.php';
 Route::get('/faq', [FaqController::class, 'index'])->name('frontdoor.faq');
 
 Route::get('/contact-us', [ContactUsController::class, 'index'])->name('frontdoor.contact-us');
+Route::post('/contact-us', [ContactUsController::class, 'store'])->name('contact.store');
 
 require __DIR__ . '/dashboard.php';
