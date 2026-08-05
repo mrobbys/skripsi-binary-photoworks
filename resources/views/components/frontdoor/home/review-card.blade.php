@@ -14,7 +14,7 @@
     {{-- star rating end --}}
 
     {{-- komentar start --}}
-    <p class="text-sm italic leading-relaxed text-stone-500">
+    <p class="text-sm sm:text-base italic leading-relaxed text-stone-500">
       "{{ $review->comment }}"
     </p>
     {{-- komentar end --}}

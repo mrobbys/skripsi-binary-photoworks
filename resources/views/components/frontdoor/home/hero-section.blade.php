@@ -7,7 +7,7 @@
         Abadikan Momen Berharga Anda
       </h1>
 
-      <p class="max-w-lg text-lg leading-relaxed text-stone-600">
+      <p class="max-w-lg text-sm sm:text-base lg:text-lg leading-relaxed text-stone-600">
         Studio fotografi profesional untuk mengabadikan setiap detail cerita Anda.
       </p>
 
