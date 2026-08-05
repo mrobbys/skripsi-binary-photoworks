@@ -8,5 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('booking:cancel-expired')->everyMinute();
-Schedule::command('booking:send-reminders')->dailyAt('09:00');
+// TODO: hapus komen jika ingin diaktifkan
+// Schedule::command('booking:cancel-expired')->everyMinute();
+// Schedule::command('booking:send-reminders')->dailyAt('09:00');
