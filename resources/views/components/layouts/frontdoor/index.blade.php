@@ -41,16 +41,22 @@
     <x-layouts.frontdoor.components.brand-logo />
     <x-layouts.frontdoor.components.desktop-menu />
     {{-- login button for desktop start --}}
-    <x-layouts.frontdoor.components.auth-button />
+    <div class="hidden lg:block">
+      <x-layouts.frontdoor.components.auth-button />
+    </div>
     {{-- login button for desktop end --}}
 
     <x-layouts.frontdoor.components.mobile-menu-button />
     <x-layouts.frontdoor.components.mobile-menu />
   </x-layouts.frontdoor.components.navbar>
 
-  <main class="mx-auto min-h-dvh w-full max-w-7xl px-6 py-4">
+  <main class="mx-auto min-h-dvh w-full max-w-7xl p-6">
     {{ $content ?? '' }}
   </main>
+
+  {{-- footer start --}}
+  <x-layouts.frontdoor.components.footer />
+  {{-- footer end --}}
 
   {{-- trigger alert dan toast berdasarkan session  --}}
   <x-scripts.alert-toast />
