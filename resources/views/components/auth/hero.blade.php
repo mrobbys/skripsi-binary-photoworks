@@ -1,5 +1,5 @@
 @props([
-  'image' => asset('assets/images/auth-hero.png'),
+  'image' => asset('assets/images/auth-hero.webp'),
   'alt' => 'Binary Photoworks Hero',
 ])
 

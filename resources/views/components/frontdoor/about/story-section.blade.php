@@ -7,7 +7,7 @@
     {{-- studio image start --}}
     <div class="overflow-hidden">
       <img
-        src="{{ asset('assets/images/about-studio.png') }}"
+        src="{{ asset('assets/images/about-studio.webp') }}"
         alt="Studio foto Binary Photoworks — ruang pemotretan dengan lighting profesional"
         class="h-full w-full object-cover"
         loading="lazy"
