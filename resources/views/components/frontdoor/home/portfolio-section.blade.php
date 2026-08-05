@@ -5,7 +5,7 @@
     </h2>
   </div>
 
-  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
 
     <div class="flex flex-col gap-6">
       <div class="relative overflow-hidden bg-stone-100">

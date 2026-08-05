@@ -9,7 +9,7 @@
     </h2>
   </div>
 
-  <div class="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-10">
+  <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:gap-10">
     @forelse ($packages as $package)
       <x-frontdoor.home.service-card :package="$package" />
     @empty
