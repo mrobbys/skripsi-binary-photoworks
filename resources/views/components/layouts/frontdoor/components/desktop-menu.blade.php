@@ -1,5 +1,5 @@
 {{-- Menu Desktop --}}
-<ul class="hidden items-center gap-8 sm:flex">
+<ul class="hidden items-center gap-8 lg:flex">
   {{-- home start --}}
   <x-layouts.frontdoor.components.nav-link
     :href="route('frontdoor.home')"
