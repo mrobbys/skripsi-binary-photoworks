@@ -43,12 +43,13 @@
 
   $variantClasses =
       [
-          'primary' => 'bg-stone-600 text-stone-50 hover:bg-stone-700 border border-transparent',
-          'secondary' => 'bg-stone-200 text-stone-800 hover:bg-stone-300 border border-transparent',
-          'outline' => 'border border-stone-300 bg-stone-50 text-stone-800 hover:bg-stone-100',
-          'ghost' => 'bg-transparent text-stone-700 hover:bg-stone-100 border border-transparent',
-          'danger' => 'bg-red-700 text-red-50 hover:bg-red-800 border border-transparent',
-          'dark' => 'bg-stone-900 text-stone-50 hover:bg-stone-950 border border-transparent',
+          'primary' =>
+              'bg-stone-600 text-stone-50 hover:bg-stone-700 border border-transparent disabled:hover:bg-stone-600',
+          'secondary' => 'bg-stone-200 text-stone-800 hover:bg-stone-300 border border-transparent disabled:hover:bg-stone-200',
+          'outline' => 'border border-stone-300 bg-stone-50 text-stone-800 hover:bg-stone-100 disabled:hover:bg-stone-50',
+          'ghost' => 'bg-transparent text-stone-700 hover:bg-stone-100 border border-transparent disabled:hover:bg-transparent',
+          'danger' => 'bg-red-700 text-red-50 hover:bg-red-800 border border-transparent disabled:hover:bg-red-700',
+          'dark' => 'bg-stone-900 text-stone-50 hover:bg-stone-950 border border-transparent disabled:hover:bg-stone-900',
           'custom' => '',
       ][$variant] ?? '';
 @endphp
