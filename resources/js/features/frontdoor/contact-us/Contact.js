@@ -13,6 +13,7 @@ export default function Contact(Alpine) {
 
   const state = Alpine.reactive({
     form: {
+      website_url: "", // honeypot
       nama: oldNamaInput ? oldNamaInput.value : "",
       email: oldEmailInput ? oldEmailInput.value : "",
       subjek: oldSubjekInput ? oldSubjekInput.value : "",
@@ -21,20 +22,24 @@ export default function Contact(Alpine) {
     isLoading: false,
     errors: {},
     dismissedErrors: {},
+    isFormValid: false,
   });
 
   const schema = z.object({
-    nama: z.string().min(1, "Nama lengkap wajib diisi.").max(100, "Maksimal 100 karakter."),
-    email: z
-      .string()
-      .min(1, "Email wajib diisi.")
-      .email("Format email tidak valid.")
-      .max(150, "Maksimal 150 karakter."),
-    subjek: z.string().min(1, "Subjek wajib diisi.").max(150, "Maksimal 150 karakter."),
-    pesan: z.string().min(1, "Pesan wajib diisi.").max(2000, "Maksimal 2000 karakter."),
+    nama: z.string().min(1, "Nama lengkap wajib diisi").max(100, "Maksimal 100 karakter"),
+    email: z.string().min(1, "Email wajib diisi").email("Format email tidak valid").max(150, "Maksimal 150 karakter"),
+    subjek: z.string().min(1, "Subjek wajib diisi").max(150, "Maksimal 150 karakter"),
+    pesan: z.string().min(1, "Pesan wajib diisi").max(2000, "Maksimal 2000 karakter"),
   });
 
-  // Validasi individual per field (dipanggil saat onInput)
+  // cek form is valid
+  Alpine.effect(() => {
+    const allFilled = state.form.nama && state.form.email && state.form.subjek && state.form.pesan;
+    const noErrors = !state.errors.nama && !state.errors.email && !state.errors.subjek && !state.errors.pesan;
+    state.isFormValid = Boolean(allFilled && noErrors);
+  });
+
+  // Validasi individual per field
   const validateField = (field) => {
     state.dismissedErrors[field] = true;
     const result = schema.safeParse(state.form);
@@ -76,6 +81,7 @@ export default function Contact(Alpine) {
   };
 
   const resetForm = () => {
+    state.form.website_url = "";
     state.form.nama = "";
     state.form.email = "";
     state.form.subjek = "";
