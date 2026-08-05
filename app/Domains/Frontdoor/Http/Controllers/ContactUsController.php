@@ -7,6 +7,7 @@ use App\Mail\ContactMessageMail;
 use Illuminate\Http\JsonResponse;
 use App\Domains\Frontdoor\Http\Requests\ContactUsStoreRequest;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ContactUsController extends Controller
 {
@@ -20,7 +21,7 @@ class ContactUsController extends Controller
         $validated = $request->validated();
 
         try {
-            Mail::to('mhmmdrobby48@gmail.com')->queue(
+            Mail::to(config('studio.email'))->queue(
                 new ContactMessageMail(
                     senderName: $validated['nama'],
                     senderEmail: $validated['email'],
@@ -29,10 +30,12 @@ class ContactUsController extends Controller
                 )
             );
 
-            return $this->successResponse('Pesan Anda berhasil dikirim! Kami akan segera menghubungi Anda.');
+            return $this->successResponse('Pesan Anda berhasil dikirim!');
         } catch (\RuntimeException $e) {
-            return $this->errorResponse('Terjadi kesalahan saat mengirim email. Silakan coba lagi.', 500);
+            Log::error('ContactUs Error: ' . $e->getMessage(), ['exception' => $e]);
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
+            Log::error('ContactUs Error: ' . $e->getMessage(), ['exception' => $e]);
             return $this->errorResponse('Terjadi kesalahan saat mengirim email. Silakan coba lagi.', 500);
         }
     }

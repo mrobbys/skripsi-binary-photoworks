@@ -110,15 +110,6 @@
               </div>
               {{-- message content end --}}
 
-              {{-- reply hint start --}}
-              <div style="border-top: 1px solid #E7E5E4; padding-top: 20px; margin-top: 28px;">
-                <p style="margin: 0; font-size: 12px; color: #A8A29E; line-height: 1.5;">
-                  Catatan: Anda dapat langsung mengklik &ldquo;Balas&rdquo; (Reply) pada email ini untuk merespons
-                  pengirim secara langsung ke <strong style="color: #78716C;">{{ $senderEmail }}</strong>.
-                </p>
-              </div>
-              {{-- reply hint end --}}
-
             </td>
           </tr>
           {{-- body content end --}}
