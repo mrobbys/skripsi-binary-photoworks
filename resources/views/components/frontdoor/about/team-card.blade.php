@@ -1,13 +1,13 @@
 @props(['team'])
 
-<article class="w-full min-w-65 border border-stone-200 bg-stone-50 sm:w-[calc(33.333%-1rem)]">
+<article class="min-w-65 w-full border border-stone-200 bg-stone-50 sm:w-[calc(33.333%-1rem)]">
 
   {{-- Foto anggota tim --}}
   <div class="overflow-hidden">
     <img
       src="{{ asset($team['image']) }}"
       alt="Foto {{ $team['name'] }}, {{ $team['role'] }} di Binary Photoworks"
-      class="aspect-4/5 w-full object-cover grayscale transition-all duration-500 hover:grayscale-0"
+      class="aspect-4/5 w-full object-cover grayscale transition-transform duration-500 hover:scale-105"
       loading="lazy"
     />
   </div>
