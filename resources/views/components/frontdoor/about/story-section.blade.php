@@ -1,6 +1,5 @@
 <section
   aria-labelledby="story-heading"
-  class="py-16"
 >
   <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
 

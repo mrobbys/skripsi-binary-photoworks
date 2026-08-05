@@ -2,7 +2,7 @@
 
 <section
   aria-labelledby="team-heading"
-  class="border-t border-stone-200 py-16"
+  class="py-16"
 >
 
   <h2

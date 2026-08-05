@@ -13,27 +13,27 @@ class AboutController extends Controller
             [
                 'name' => 'John Doe',
                 'role' => 'Fotografer',
-                'image' => 'assets/images/team-1.png',
+                'image' => 'assets/images/team-1.webp',
             ],
             [
                 'name' => 'John Doe',
                 'role' => 'Fotografer',
-                'image' => 'assets/images/team-2.png',
+                'image' => 'assets/images/team-2.webp',
             ],
             [
                 'name' => 'John Doe',
                 'role' => 'Fotografer',
-                'image' => 'assets/images/team-3.png',
+                'image' => 'assets/images/team-3.webp',
             ],
             [
                 'name' => 'John Doe',
                 'role' => 'Fotografer',
-                'image' => 'assets/images/team-4.png',
+                'image' => 'assets/images/team-4.webp',
             ],
             [
                 'name' => 'John Doe',
                 'role' => 'Fotografer',
-                'image' => 'assets/images/team-5.png',
+                'image' => 'assets/images/team-5.webp',
             ],
         ];
 
