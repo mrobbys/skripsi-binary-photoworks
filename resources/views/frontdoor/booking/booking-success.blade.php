@@ -4,24 +4,24 @@
   use App\Domains\Booking\Enums\PaymentScheme;
 @endphp
 
-<x-layouts.frontdoor.index title="Reservasi Berhasil — Binary Photoworks">
+<x-layouts.frontdoor.index title="Reservasi Berhasil">
   <x-slot:content>
-    <div class="flex min-h-dvh items-center justify-center px-6 py-12">
-      <div class="flex w-full max-w-2xl flex-col items-stretch border border-stone-300 p-12">
+    <div class="flex min-h-dvh items-center justify-center py-12">
+      <div class="flex w-full max-w-2xl flex-col items-stretch border border-stone-300 p-6 sm:p-8 md:p-12">
 
         {{-- icon centang start --}}
         <div class="mb-6 flex justify-center">
           @if ($booking->booking_status === BookingStatus::PENDING)
             <div class="flex h-16 w-16 items-center justify-center border border-amber-600 text-amber-600">
-              <i class="ri-time-line text-3xl"></i>
+              <i class="ri-time-line text-3xl" aria-hidden="true"></i>
             </div>
           @elseif ($booking->booking_status === BookingStatus::CANCELLED)
             <div class="flex h-16 w-16 items-center justify-center border border-red-600 text-red-600">
-              <i class="ri-close-line text-3xl"></i>
+              <i class="ri-close-line text-3xl" aria-hidden="true"></i>
             </div>
           @else
             <div class="flex h-16 w-16 items-center justify-center border border-stone-900">
-              <i class="ri-check-line text-3xl"></i>
+              <i class="ri-check-line text-3xl" aria-hidden="true"></i>
             </div>
           @endif
         </div>
@@ -51,57 +51,50 @@
 
         {{-- data section start --}}
         <div class="space-y-6 text-sm">
-          <div class="flex items-start justify-between">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <span class="text-xs font-semibold uppercase tracking-widest text-stone-500">Kode Booking</span>
-            <span class="font-mono text-base font-bold text-stone-900">{{ $booking->booking_code }}</span>
+            <span class="font-mono text-base font-bold text-stone-900 sm:text-right">{{ $booking->booking_code }}</span>
           </div>
 
-          <div class="flex items-start justify-between">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <span class="text-xs font-semibold uppercase tracking-widest text-stone-500">Paket</span>
-            <span class="max-w-[320px] text-right font-medium text-stone-900">
-              {{ $booking->package_name }} -
-              {{ $booking->variant_name }}
+            <span class="font-medium text-stone-900 sm:max-w-[320px] sm:text-right">
+              {{ $booking->package_name }} - {{ $booking->variant_name }}
             </span>
           </div>
 
-          <div class="flex items-start justify-between">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <span class="text-xs font-semibold uppercase tracking-widest text-stone-500">Background</span>
-            <span class="font-medium text-stone-900">{{ $booking->background_name }}</span>
+            <span class="font-medium text-stone-900 sm:text-right">{{ $booking->background_name }}</span>
           </div>
 
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span class="text-xs font-semibold uppercase tracking-widest text-stone-500">Waktu</span>
-            <div class="space-y-1 text-right font-medium">
-              <p>
-                {{ $booking->formatted_date }}
-              </p>
-              <p>
-                ({{ $booking->formatted_time }})
-              </p>
+            <div class="font-medium sm:space-y-1 sm:text-right">
+              <p>{{ $booking->formatted_date }}</p>
+              <p class="text-stone-600 sm:text-stone-900">({{ $booking->formatted_time }})</p>
             </div>
           </div>
 
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span class="text-xs font-semibold uppercase tracking-widest text-stone-500">Pelanggan</span>
-            <div class="space-y-1 text-right">
+            <div class="sm:space-y-1 sm:text-right">
               <p class="font-medium">{{ $booking->customer_name }}</p>
-              <p class="text-xs text-stone-500">
-                ({{ $booking->customer_phone }})</p>
+              <p class="text-xs text-stone-500">({{ $booking->customer_phone }})</p>
             </div>
           </div>
         </div>
         {{-- data section end --}}
 
         <!-- Divider line -->
-        <div class="mb-8 mt-8 border-t border-stone-300"></div>
+        <div class="mb-8 mt-8 border border-stone-300"></div>
 
         {{-- payment info start --}}
         <div class="space-y-4">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <span class="mb-1 block text-xs font-bold uppercase tracking-widest text-stone-500">Total
-                Pembayaran</span>
-              <span class="font-serif text-2xl font-bold text-stone-900">
+              <span class="mb-1 block text-xs font-bold uppercase tracking-widest text-stone-500">Total Pembayaran</span>
+              <span class="font-serif text-3xl font-bold text-stone-900">
                 {{ $booking->formatted_total_price }}
               </span>
             </div>
@@ -149,7 +142,7 @@
         @if ($booking->payment_status === PaymentStatus::SETTLEMENT)
           {{-- notification note start --}}
           <div class="my-6 flex items-start gap-3 pr-12 text-xs text-stone-500">
-            <i class="ri-whatsapp-line shrink-0 text-base text-stone-500"></i>
+            <i class="ri-whatsapp-line shrink-0 text-base text-stone-500" aria-hidden="true"></i>
             <p class="leading-relaxed">
               Detail reservasi dan bukti pembayaran telah otomatis dikirimkan ke nomor WhatsApp Anda.
             </p>
@@ -158,13 +151,13 @@
         @endif
 
         {{-- action buttons start --}}
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="flex flex-col sm:flex-row gap-4 mt-4">
           <x-shared.button
             as="a"
             href="{{ route('frontdoor.dashboard.index') }}"
             variant="outline"
             value="Lihat Riwayat Pesanan"
-            class="w-full text-center"
+            class="w-full sm:flex-1 text-center"
           />
           @if ($booking->payment_status === PaymentStatus::SETTLEMENT)
             <x-shared.button
@@ -173,7 +166,7 @@
               target="_blank"
               variant="dark"
               value="Unduh Bukti Reservasi (PDF)"
-              class="w-full text-center"
+              class="w-full sm:flex-1 text-center"
             />
           @endif
         </div>
