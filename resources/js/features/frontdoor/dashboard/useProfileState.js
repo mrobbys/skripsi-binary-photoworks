@@ -8,12 +8,15 @@ export default function useProfileState(Alpine) {
 
     // update profil
     isUpdatingProfile: false,
-    profileErrors: {},
+
+    // diperlukan untuk x-shared.input.error
+    errors: {},
+    dismissedErrors: {},
 
     // ganti password
     isPasswordDrawerOpen: false,
     isChangingPassword: false,
-    passwordErrors: {},
+    passwordErrors: [],
     passwordForm: {
       old_password: "",
       password: "",

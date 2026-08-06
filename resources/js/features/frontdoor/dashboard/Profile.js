@@ -5,14 +5,16 @@ import useProfileState from "./useProfileState.js";
 export default function Profile(Alpine) {
   const state = useProfileState(Alpine);
 
-  const { submitUpdateProfile } = useUpdateProfile({ state });
-  const { openPasswordDrawer, closePasswordDrawer, submitChangePassword } = useChangePassword({ state });
+  const { submitUpdateProfile, validateField: validateProfileField } = useUpdateProfile({ state });
+  const { openPasswordDrawer, closePasswordDrawer, submitChangePassword, validateField: validatePasswordField } = useChangePassword({ state });
 
   return {
     state,
     submitUpdateProfile,
+    validateProfileField,
     openPasswordDrawer,
     closePasswordDrawer,
     submitChangePassword,
+    validatePasswordField,
   };
 }

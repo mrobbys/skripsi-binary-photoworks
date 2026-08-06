@@ -2,6 +2,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import { getFieldError } from "@/lib/zodHelper";
 
 const profileSchema = z.object({
   name: z.string().trim().min(3, "Nama minimal 3 karakter.").max(255, "Maksimal 255 karakter."),
@@ -15,12 +16,27 @@ const profileSchema = z.object({
 });
 
 export default function useUpdateProfile({ state }) {
+  const validateField = (field) => {
+    state.dismissedErrors[field] = true;
+    const result = profileSchema.safeParse({
+      name: state.name,
+      email: state.email,
+      phone: state.phone,
+    });
+    
+    if (!result.success) {
+      state.errors[field] = getFieldError(result, field);
+    } else {
+      state.errors[field] = null;
+    }
+  };
+
   const submitUpdateProfile = async () => {
     // Cegah submit jika data profile tidak berubah
     if (!state.hasChanges) return;
 
     state.isUpdatingProfile = true;
-    state.profileErrors = {};
+    state.errors = {};
 
     // Validasi zod
     const parsed = profileSchema.safeParse({
@@ -30,7 +46,7 @@ export default function useUpdateProfile({ state }) {
     });
 
     if (!parsed.success) {
-      state.profileErrors = z.flattenError(parsed.error).fieldErrors;
+      state.errors = z.flattenError(parsed.error).fieldErrors;
       state.isUpdatingProfile = false;
       return;
     }
@@ -47,16 +63,16 @@ export default function useUpdateProfile({ state }) {
       // Sinkronisasi data asli agar tombol simpan dinonaktifkan
       state.originalData = { ...parsed.data };
     } catch (err) {
-      if (err.response?.status === 422) {
-        state.profileErrors = err.response.data.errors;
-        return;
+      if (err?.response?.status === 422) {
+        state.errors = err.response.data.errors;
+        Toast.fire({ icon: "error", title: err?.response?.data?.message ?? "Gagal memperbarui profil." });
+      } else {
+        Toast.fire({ icon: "error", title: "Gagal memperbarui profil. Silakan coba lagi." });
       }
-      const msg = err?.response?.data?.message || err.message;
-      Toast.fire({ icon: "error", title: msg || "Terjadi kesalahan." });
     } finally {
       state.isUpdatingProfile = false;
     }
   };
 
-  return { submitUpdateProfile };
+  return { submitUpdateProfile, validateField };
 }
