@@ -3,7 +3,15 @@ import route from "@/lib/route";
 import axiosInstance from "@/lib/axiosInstance";
 
 export default function useReviewActions({ state, resetPage }) {
-  const fetchReviews = async () => {
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const fetchReviews = async (options = {}) => {
+    const { scrollToTop: shouldScroll = false } = options;
     state.isLoading = true;
 
     try {
@@ -18,6 +26,10 @@ export default function useReviewActions({ state, resetPage }) {
       state.lastPage = result.last_page;
       state.total = result.total;
       state.stats = result.stats;
+
+      if (shouldScroll) {
+        scrollToTop();
+      }
     } catch (err) {
       console.error("Gagal memuat ulasan:", err);
       Toast.fire({ icon: "error", title: "Gagal memuat ulasan." });
@@ -30,7 +42,7 @@ export default function useReviewActions({ state, resetPage }) {
   const onSortChange = (value) => {
     state.sort = value;
     resetPage();
-    fetchReviews();
+    fetchReviews({ scrollToTop: true });
   };
 
   // delete data review
@@ -51,7 +63,7 @@ export default function useReviewActions({ state, resetPage }) {
       Toast.fire({ icon: "success", title: res.data.message });
       await fetchReviews();
     } catch (err) {
-      if(err.response?.status === 422) {
+      if (err.response?.status === 422) {
         Toast.fire({ icon: "error", title: err?.response?.data?.message ?? "Gagal menghapus ulasan." });
       }
       Toast.fire({ icon: "error", title: "Gagal menghapus ulasan." });
