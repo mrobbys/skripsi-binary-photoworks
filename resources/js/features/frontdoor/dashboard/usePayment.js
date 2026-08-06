@@ -30,6 +30,7 @@ export default function usePayment({ state, fetchAppointments }) {
       window.snap.pay(snapToken, {
         onSuccess: () => {
           Toast.fire({ icon: "success", title: "Pembayaran berhasil!" });
+          state.isProcessingPayment = null;
           state.selectedAppointment = null;
           fetchAppointments();
         },
@@ -49,10 +50,13 @@ export default function usePayment({ state, fetchAppointments }) {
         },
       });
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Terjadi kesalahan.";
-      Toast.fire({ icon: "error", title: msg });
+      if (err?.response?.status === 422) {
+        Toast.fire({ icon: "error", title: err.response.data.message ?? "Data tidak valid." });
+      } else {
+        Toast.fire({ icon: "error", title: "Gagal mendapatkan token pembayaran. Silakan coba lagi." });
+      }
       state.isProcessingPayment = null;
-      console.error(msg);
+      console.error(err);
     }
   };
 

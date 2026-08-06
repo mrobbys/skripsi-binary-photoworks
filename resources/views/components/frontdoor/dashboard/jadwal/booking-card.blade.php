@@ -13,7 +13,7 @@
     <div class="sm:w-1/4">
       <p class="font-medium text-stone-900 text-sm" x-text="appointment.formatted_date"></p>
       <p class="text-stone-400 text-xs mt-1 flex items-center gap-1">
-        <i class="ri-time-line"></i>
+        <i class="ri-time-line" aria-hidden="true"></i>
         <span x-text="appointment.formatted_time"></span>
       </p>
     </div>
@@ -55,10 +55,22 @@
       />
       {{-- btn bayar end --}}
 
-      {{-- icon expand start --}}
-      <i class="ri-arrow-down-s-line text-xl text-stone-400 transition-transform duration-300"
-        x-bind:class="state.selectedAppointment?.booking_code === appointment.booking_code ? 'rotate-180 text-stone-900' : ''"></i>
-      {{-- icon expand end --}}
+      {{-- btn expand start --}}
+      <button
+        type="button"
+        class="shrink-0 p-1 focus-visible:outline-2 focus-visible:outline-stone-900"
+        x-bind:aria-expanded="state.selectedAppointment?.booking_code === appointment.booking_code"
+        x-bind:aria-controls="'detail-' + appointment.booking_code"
+        x-bind:aria-label="'Lihat detail booking ' + appointment.booking_code"
+        x-on:click.stop="state.selectedAppointment?.booking_code === appointment.booking_code ? clearDetail() : showDetail(appointment)"
+      >
+        <i
+          class="ri-arrow-down-s-line text-xl text-stone-400 transition-transform duration-300"
+          x-bind:class="state.selectedAppointment?.booking_code === appointment.booking_code ? 'rotate-180 text-stone-900' : ''"
+          aria-hidden="true"
+        ></i>
+      </button>
+      {{-- btn expand end --}}
 
     </div>
     {{-- action end --}}
@@ -68,6 +80,7 @@
 
   {{-- expanded detail card start --}}
   <div
+    x-bind:id="'detail-' + appointment.booking_code"
     x-show="state.selectedAppointment?.booking_code === appointment.booking_code"
     x-collapse>
 

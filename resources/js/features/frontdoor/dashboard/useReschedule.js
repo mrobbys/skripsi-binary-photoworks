@@ -5,9 +5,14 @@ import { initBaseFlatpickr, formatIdDate } from "@/lib/calendarHelper";
 
 export default function useReschedule({ state, fetchAppointments, clearDetail }) {
   let _fp = null;
+  let _closeTimeout = null;
   
   // buka drawer form reschedule dan simpan appointment target
   const openRescheduleDrawer = (appointment) => {
+    if (_closeTimeout) {
+      clearTimeout(_closeTimeout);
+      _closeTimeout = null;
+    }
     state.rescheduleTarget = appointment;
     state.selectedRescheduleDate = null;
     state.selectedRescheduleSlot = null;
@@ -18,7 +23,8 @@ export default function useReschedule({ state, fetchAppointments, clearDetail })
   // reset state reschedule
   const closeRescheduleDrawer = () => {
     state.isRescheduleOpen = false;
-    setTimeout(() => {
+    _closeTimeout = setTimeout(() => {
+      _closeTimeout = null;
       state.rescheduleTarget = null;
       state.selectedRescheduleDate = null;
       state.selectedRescheduleSlot = null;
@@ -124,14 +130,17 @@ export default function useReschedule({ state, fetchAppointments, clearDetail })
 
       Toast.fire({ icon: "success", title: "Jadwal berhasil diubah!" });
 
+      clearDetail();
       closeRescheduleDrawer();
       await fetchAppointments();
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message;
-      Toast.fire({ icon: "error", title: msg || "Terjadi kesalahan." });
+      if (err?.response?.status === 422) {
+        Toast.fire({ icon: "error", title: err.response.data.message ?? "Data tidak valid." });
+      } else {
+        Toast.fire({ icon: "error", title: "Gagal mengubah jadwal. Silakan coba lagi." });
+      }
     } finally {
       state.isRescheduling = false;
-      clearDetail();
     }
   };
 

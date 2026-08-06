@@ -15,7 +15,7 @@
         class="w-full justify-start"
       >
         <x-slot:iconLeft>
-          <i class="ri-calendar-event-line text-xl"></i>
+          <i class="ri-calendar-event-line text-xl" aria-hidden="true"></i>
         </x-slot:iconLeft>
       </x-shared.button>
 
@@ -27,7 +27,7 @@
         class="w-full justify-start"
       >
         <x-slot:iconLeft>
-          <i class="ri-user-line text-xl"></i>
+          <i class="ri-user-line text-xl" aria-hidden="true"></i>
         </x-slot:iconLeft>
       </x-shared.button>
 
@@ -53,7 +53,7 @@
           class="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
         >
           <x-slot:iconLeft>
-            <i class="ri-logout-box-r-line text-xl"></i>
+            <i class="ri-logout-box-r-line text-xl" aria-hidden="true"></i>
           </x-slot:iconLeft>
         </x-shared.button>
       </form>

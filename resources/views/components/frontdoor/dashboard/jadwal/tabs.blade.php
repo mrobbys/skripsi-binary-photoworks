@@ -3,11 +3,15 @@
 --}}
 <div
   x-cloak
+  role="tablist"
+  aria-label="Filter jadwal"
   class="flex gap-3"
 >
   <x-shared.button
     value="Akan Datang"
     variant="custom"
+    role="tab"
+    x-bind:aria-selected="state.activeTab === 'upcoming'"
     x-bind:disabled="state.isLoading"
     x-on:click="switchTab('upcoming')"
     x-bind:class="state.activeTab === 'upcoming' ?
@@ -18,6 +22,8 @@
   <x-shared.button
     value="Selesai"
     variant="custom"
+    role="tab"
+    x-bind:aria-selected="state.activeTab === 'past'"
     x-bind:disabled="state.isLoading"
     x-on:click="switchTab('past')"
     x-bind:class="state.activeTab === 'past' ?

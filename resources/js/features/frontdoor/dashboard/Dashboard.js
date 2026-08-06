@@ -9,10 +9,9 @@ import useReschedule from "./useReschedule.js";
 export default function Dashboard(Alpine) {
   const state = useDashboardState(Alpine);
 
-  const fetchWithScroll = () => fetchAppointments(true);
   const { nextPage, prevPage, goToPage, resetPage, getPages } = useFrontdoorPagination({
     state,
-    onPageChange: fetchWithScroll,
+    onPageChange: () => fetchAppointments(true),
   });
   const { fetchAppointments, switchTab } = useAppointments({ state, resetPage });
   const { showDetail, clearDetail, hasDetail } = useDetail({ state });

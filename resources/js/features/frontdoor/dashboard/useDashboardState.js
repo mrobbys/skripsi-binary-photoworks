@@ -14,6 +14,13 @@ export default function useDashboardState(Alpine) {
     // apakah sedang memproses pembatalan
     isCancelling: null,
 
+    // hari aktif studio (diisi dari blade via x-init)
+    activeDays: [],
+    // pagination — dikelola oleh useFrontdoorPagination
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
+
     // apakah drawer reschedule terbuka
     isRescheduleOpen: false,
     // booking yang sedang dalam proses reschedule
@@ -28,5 +35,7 @@ export default function useDashboardState(Alpine) {
     isFetchingRescheduleSlots: false,
     // sedang submit reschedule ke server
     isRescheduling: false,
+    // label tanggal reschedule yang diformat (diisi oleh useReschedule)
+    formattedDate: null,
   });
 }
