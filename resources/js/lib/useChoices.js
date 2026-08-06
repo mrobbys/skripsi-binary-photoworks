@@ -1,3 +1,6 @@
+import Choices from "choices.js";
+import "choices.js/public/assets/styles/choices.css";
+
 export default function useChoices(options = {}) {
   let choicesInstance = null;
 
@@ -5,7 +8,7 @@ export default function useChoices(options = {}) {
     value: null,
 
     init() {
-      choicesInstance = new window.Choices(this.$el, {
+      choicesInstance = new Choices(this.$el, {
         searchEnabled: true,
         shouldSort: false,
         itemSelectText: "",
