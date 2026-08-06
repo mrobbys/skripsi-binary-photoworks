@@ -1,18 +1,20 @@
-import Choices from "choices.js";
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
 import axiosInstance from "@/lib/axiosInstance";
 import useFrontdoorPagination from "@/lib/useFrontdoorPagination";
+import useChoices from "@/lib/useChoices";
 
 export default function Services(Alpine) {
+  Alpine.data("serviceChoices", useChoices);
+
   const state = Alpine.reactive({
     activeCategory: "Semua",
     isLoading: false,
     data: [],
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
   });
-
-  let _choices = null;
-  let _selectRef = null;
 
   const fetchGrid = async () => {
     state.isLoading = true;
@@ -39,17 +41,20 @@ export default function Services(Alpine) {
   };
 
   const scrollToTop = () => {
-    _selectRef?.parentElement?.scrollIntoView({
+    const target = document.getElementById("servicesTop");
+    if (!target) return;
+    
+    window.scrollTo({
+      top: 0,
       behavior: "smooth",
-      block: "start",
     });
   };
 
   const withScroll =
     (fn) =>
     async (...args) => {
-      await fn(...args);
       scrollToTop();
+      await fn(...args);
     };
 
   const { goToPage, prevPage, nextPage, resetPage, getPages } = useFrontdoorPagination({
@@ -57,33 +62,20 @@ export default function Services(Alpine) {
     onPageChange: withScroll(fetchGrid),
   });
 
-  const initServices = (selectRef) => {
-    _selectRef = selectRef;
-
-    _choices = new Choices(selectRef, {
-      searchEnabled: false,
-      shouldSort: false,
-      itemSelectText: "",
-    });
-
-    selectRef.addEventListener("change", async (e) => {
-      state.activeCategory = e.target.value;
-      resetPage();
-      await fetchGrid();
-    });
-
+  const init = () => {
     fetchGrid();
   };
 
-  const destroyServices = () => {
-    _choices?.destroy();
-    _choices = null;
+  const onCategoryChange = (e) => {
+    state.activeCategory = e.target.value;
+    resetPage();
+    fetchGrid();
   };
 
   return {
     state,
-    initServices,
-    destroyServices,
+    init,
+    onCategoryChange,
     nextPage,
     prevPage,
     goToPage,

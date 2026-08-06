@@ -1,23 +1,26 @@
-<div class="border border-stone-200 bg-stone-50 flex flex-col h-full animate-pulse">
+<div
+  aria-hidden="true"
+  class="flex h-full animate-pulse flex-col border border-stone-200 bg-stone-50"
+>
   {{-- Image Skeleton --}}
   <div class="h-80 w-full p-6">
-    <div class="bg-stone-200 h-full w-full"></div>
+    <div class="h-full w-full bg-stone-200"></div>
   </div>
 
   {{-- Content Skeleton --}}
-  <div class="p-6 flex flex-col flex-1">
+  <div class="flex flex-1 flex-col p-6">
     {{-- Category --}}
-    <div class="h-3 bg-stone-200 w-1/4 mb-3"></div>
+    <div class="mb-3 h-3 w-1/4 bg-stone-200"></div>
 
     {{-- Title --}}
-    <div class="h-7 bg-stone-200 w-3/4 mb-2"></div>
+    <div class="mb-2 h-7 w-3/4 bg-stone-200"></div>
 
     {{-- Price --}}
-    <div class="h-4 bg-stone-200 w-1/2 mb-5"></div>
+    <div class="mb-5 h-4 w-1/2 bg-stone-200"></div>
 
     {{-- Button --}}
     <div class="mt-auto">
-      <div class="h-10 bg-stone-200 w-full"></div>
+      <div class="h-10 w-full bg-stone-200"></div>
     </div>
   </div>
 </div>
