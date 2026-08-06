@@ -3,6 +3,24 @@
   jsModule="frontdoor/dashboard/Dashboard">
 
   <x-slot:heads>
+    <style>
+      /* Paksa wadah utama dan internal kalender untuk merespons 100% */
+      .flatpickr-calendar,
+      .flatpickr-innerContainer,
+      .flatpickr-rContainer,
+      .flatpickr-days,
+      .dayContainer {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: unset !important;
+      }
+      /* Pastikan setiap kotak tanggal terbagi rata 1/7 bagian */
+      .flatpickr-day {
+          max-width: 14.28% !important;
+          width: auto !important;
+      }
+    </style>
+    
     {{-- midtrans --}}
     <script type="text/javascript" src="{{ config('midtrans.snap_js_url') }}"
       data-client-key="{{ config('midtrans.client_key') }}"></script>
