@@ -1,5 +1,5 @@
 <div x-cloak x-show="!state.isLoading && state.appointments.length === 0"
-  class="py-8 flex flex-col items-center justify-center ">
+  class="py-8 flex flex-col items-center justify-center">
 
   <p class="text-stone-900 font-medium mb-2">Tidak ada jadwal</p>
   <p class="text-sm text-stone-500 mb-8 text-center">

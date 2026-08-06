@@ -39,7 +39,7 @@
 
   {{-- calendar flatpick start --}}
   <div class="mb-6">
-    <p class="text-sm font-semibold text-stone-900 mb-4">Pilih Tanggal Baru</p>
+    <h3 class="text-sm font-semibold text-stone-900 mb-4">Pilih Tanggal Baru</h3>
     <div class="flex justify-center">
       <input
         type="text"
@@ -58,22 +58,22 @@
 
   {{-- slot waktu start --}}
   <div id="slot-waktu-area">
-    <p class="text-sm font-semibold text-stone-900 mb-4">
+    <h3 class="text-sm font-semibold text-stone-900 mb-4">
       <template x-if="state.selectedRescheduleDate">
         <span x-text="'Pilih Waktu — ' + state.formattedDate"></span>
       </template>
       <template x-if="!state.selectedRescheduleDate">
         <span class="text-stone-500 font-normal text-sm flex items-center gap-2">
-          <i class="ri-calendar-event-line text-stone-400"></i>
+          <i class="ri-calendar-event-line text-stone-400" aria-hidden="true"></i>
           Pilih tanggal terlebih dahulu.
         </span>
       </template>
-    </p>
+    </h3>
 
     {{-- lading slot start --}}
     <template x-if="state.isFetchingRescheduleSlots">
       <div class="flex items-center gap-2 text-stone-500 text-sm py-4">
-        <i class="ri-loader-4-line animate-spin"></i>
+        <i class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
         <span>Memuat slot tersedia...</span>
       </div>
     </template>

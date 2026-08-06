@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
+import { Toast } from "@/lib/sweetalert";
 
 export default function useAppointments({ state, resetPage }) {
   /**
@@ -23,6 +24,7 @@ export default function useAppointments({ state, resetPage }) {
       state.total = res.data.total;
     } catch (err) {
       console.error("Gagal memuat riwayat booking:", err);
+      Toast.fire({ icon: "error", title: "Gagal memuat data jadwal." });
     } finally {
       state.isLoading = false;
 
@@ -34,14 +36,14 @@ export default function useAppointments({ state, resetPage }) {
   };
 
   // Ganti tab aktif, reset ke halaman 1, lalu fetch ulang
-  const switchTab = (tab) => {
+  const switchTab = async (tab) => {
     if (state.activeTab === tab) return;
     state.activeTab = tab;
     state.selectedAppointment = null;
     state.appointments = [];
     resetPage();
 
-    fetchAppointments(true);
+    await fetchAppointments(true);
   };
 
   return {

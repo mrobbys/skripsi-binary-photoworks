@@ -4,7 +4,7 @@
 
   <x-slot:content>
     <div
-      class="w-full py-12"
+      class="w-full"
       x-data="Profile"
       x-init="const initialData = {
           name: {{ Js::from(Auth::user()->name) }},
@@ -15,7 +15,7 @@
       state.originalData = initialData;"
       x-cloak>
 
-      <div class="mx-auto flex flex-col md:flex-row gap-8">
+      <div class="mx-auto max-w-6xl w-full flex flex-col md:flex-row gap-8">
 
         <x-frontdoor.dashboard.sidebar />
 
@@ -32,7 +32,7 @@
                 x-on:click="openPasswordDrawer()"
               >
                 <x-slot:iconLeft>
-                  <i class="ri-lock-password-line"></i>
+                  <i class="ri-lock-password-line" aria-hidden="true"></i>
                 </x-slot:iconLeft>
               </x-shared.button>
             </div>
@@ -44,43 +44,42 @@
             <form class="space-y-5 max-w-lg" x-on:submit.prevent="submitUpdateProfile()">
 
               {{-- name start --}}
-              <div>
-                <label for="name" class="block text-sm font-medium text-stone-700 uppercase mb-2">
-                  Nama Lengkap <span class="text-red-500">*</span>
-                </label>
-                <input type="text" id="name" x-model="state.name" autocomplete="off"
-                  class="w-full border border-stone-200 px-4 py-2.5 focus:outline-none focus:border-stone-700 focus:ring-1 focus:ring-stone-700 transition-colors">
-                <template x-if="state.profileErrors.name">
-                  <p class="mt-1.5 text-sm text-red-600" x-text="state.profileErrors.name[0]"></p>
-                </template>
-              </div>
+              <x-shared.input.field name="name" label="Nama Lengkap" :required="true">
+                <x-shared.input.text
+                  name="name"
+                  x-model="state.name"
+                  x-on:input="validateProfileField('name')"
+                  x-on:blur="validateProfileField('name')"
+                  autocomplete="off"
+                />
+              </x-shared.input.field>
               {{-- name end --}}
 
               {{-- email start --}}
-              <div>
-                <label for="email" class="block text-sm font-medium text-stone-700 uppercase mb-2">
-                  Email <span class="text-red-500">*</span>
-                </label>
-                <input type="email" id="email" x-model="state.email" autocomplete="off"
-                  class="w-full border border-stone-200 px-4 py-2.5 focus:outline-none focus:border-stone-700 focus:ring-1 focus:ring-stone-700 transition-colors">
-                <template x-if="state.profileErrors.email">
-                  <p class="mt-1.5 text-sm text-red-600" x-text="state.profileErrors.email[0]"></p>
-                </template>
-              </div>
+              <x-shared.input.field name="email" label="Email" :required="true">
+                <x-shared.input.text
+                  type="email"
+                  name="email"
+                  x-model="state.email"
+                  x-on:input="validateProfileField('email')"
+                  x-on:blur="validateProfileField('email')"
+                  autocomplete="off"
+                />
+              </x-shared.input.field>
               {{-- email end --}}
 
               {{-- phone start --}}
-              <div>
-                <label for="phone" class="block text-sm font-medium text-stone-700 uppercase mb-2">
-                  No Telepon (WhatsApp) <span class="text-red-500">*</span>
-                </label>
-                <input type="text" id="phone" x-model="state.phone" inputmode="numeric"
-                  autocomplete="off" placeholder="6281243212341"
-                  class="w-full border border-stone-200 px-4 py-2.5 focus:outline-none focus:border-stone-700 focus:ring-1 focus:ring-stone-700 transition-colors">
-                <template x-if="state.profileErrors.phone">
-                  <p class="mt-1.5 text-sm text-red-600" x-text="state.profileErrors.phone[0]"></p>
-                </template>
-              </div>
+              <x-shared.input.field name="phone" label="No Telepon (WhatsApp)" :required="true">
+                <x-shared.input.text
+                  name="phone"
+                  x-model="state.phone"
+                  x-on:input="validateProfileField('phone')"
+                  x-on:blur="validateProfileField('phone')"
+                  inputmode="numeric"
+                  placeholder="6281243212341"
+                  autocomplete="off"
+                />
+              </x-shared.input.field>
               {{-- phone end --}}
 
               {{-- tombol simpan --}}

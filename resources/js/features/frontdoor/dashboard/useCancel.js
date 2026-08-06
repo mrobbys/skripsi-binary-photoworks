@@ -29,8 +29,11 @@ export default function useCancel({ state, fetchAppointments, clearDetail }) {
 
       await fetchAppointments();
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message;
-      Toast.fire({ icon: "error", title: msg || "Terjadi kesalahan." });
+      if (err?.response?.status === 422) {
+        Toast.fire({ icon: "error", title: err.response.data.message ?? "Data tidak valid." });
+      } else {
+        Toast.fire({ icon: "error", title: "Gagal membatalkan reservasi. Silakan coba lagi." });
+      }
     } finally {
       state.isCancelling = null;
       clearDetail();

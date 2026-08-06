@@ -9,12 +9,12 @@
   </x-slot:heads>
 
   <x-slot:content>
-    <div class="w-full py-12"
+    <div class="w-full"
       x-data="Dashboard"
       x-init="state.activeDays = {{ Js::from($activeDays) }}"
       x-cloak>
 
-      <div class="mx-auto flex flex-col md:flex-row gap-8">
+      <div class="mx-auto max-w-7xl w-full flex flex-col md:flex-row gap-8">
 
         {{-- sidebar nav start --}}
         <x-frontdoor.dashboard.sidebar />
@@ -22,7 +22,7 @@
 
         {{-- main content start --}}
         <div class="w-full">
-          <section class="border border-stone-300 pt-6 px-6 space-y-6">
+          <section class="border border-stone-300 py-6 px-6 space-y-6">
             <h1 class="text-xl font-bold text-stone-900">Jadwal Sesi Foto Anda</h1>
 
             {{-- tab filter start --}}
@@ -31,11 +31,11 @@
 
             {{-- loading skeleton start --}}
             <div x-show="state.isLoading" class="space-y-4">
-              <template x-for="i in 3">
+              <template x-for="i in 5">
                 <x-skeleton.history-booking-card />
               </template>
             </div>
-            {{-- loading skeleton start --}}
+            {{-- loading skeleton end --}}
 
             {{-- empty element start --}}
             <x-frontdoor.dashboard.jadwal.empty-element />
