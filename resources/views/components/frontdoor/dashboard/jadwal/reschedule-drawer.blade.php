@@ -25,46 +25,56 @@
   openState="state.isRescheduleOpen"
   closeAction="closeRescheduleDrawer()"
   title="Ubah Jadwal"
-  maxWidth="max-w-lg"
   ariaLabelledBy="reschedule-drawer-title"
-  formAction="submitReschedule()">
+  formAction="submitReschedule()"
+>
 
-  {{-- Info Jadwal Lama (Versi Compact) --}}
+  {{-- info jadwal lama start --}}
   <div
-    class="mb-6 py-2.5 px-3 bg-stone-100 border-l-2 border-stone-400 flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm">
-    <span class="text-stone-500 font-medium text-xs uppercase tracking-wide">Jadwal Saat Ini:</span>
-    <span class="font-semibold text-stone-900"
-      x-text="state.rescheduleTarget?.formatted_date + ' ■ ' + state.rescheduleTarget?.formatted_time"></span>
+    class="mb-6 flex flex-col border-l-2 border-stone-400 bg-stone-100 px-3 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between"
+  >
+    <span class="text-xs font-medium uppercase tracking-wide text-stone-500">Jadwal Saat Ini:</span>
+    <span
+      class="font-semibold text-stone-900"
+      x-text="state.rescheduleTarget?.formatted_date + ' ■ ' + state.rescheduleTarget?.formatted_time"
+    ></span>
   </div>
+  {{-- info jadwal lama end --}}
 
   {{-- calendar flatpick start --}}
   <div class="mb-6">
-    <h3 class="text-sm font-semibold text-stone-900 mb-4">Pilih Tanggal Baru</h3>
-    <div class="flex justify-center">
-      <input
-        type="text"
-        class="hidden"
-        x-ref="rescheduleCalendarInput"
-        x-init="$watch('state.isRescheduleOpen', (val) => {
-            if (val) {
-                $nextTick(() => initRescheduleCalendar($refs.rescheduleCalendarInput));
-            }
-        })">
+    <h3 class="mb-4 text-sm font-semibold text-stone-900">Pilih Tanggal Baru</h3>
+    <div class="flex w-full max-w-xs justify-center">
+      <div class="w-full">
+        <input
+          type="text"
+          class="hidden"
+          x-ref="rescheduleCalendarInput"
+          x-init="$watch('state.isRescheduleOpen', (val) => {
+              if (val) {
+                  $nextTick(() => initRescheduleCalendar($refs.rescheduleCalendarInput));
+              }
+          })"
+        >
+      </div>
     </div>
   </div>
   {{-- calendar flatpick end --}}
 
-  <div class="h-px bg-stone-200 mb-6"></div>
+  <div class="mb-6 h-px bg-stone-200"></div>
 
   {{-- slot waktu start --}}
   <div id="slot-waktu-area">
-    <h3 class="text-sm font-semibold text-stone-900 mb-4">
+    <h3 class="mb-4 text-sm font-semibold text-stone-900">
       <template x-if="state.selectedRescheduleDate">
         <span x-text="'Pilih Waktu — ' + state.formattedDate"></span>
       </template>
       <template x-if="!state.selectedRescheduleDate">
-        <span class="text-stone-500 font-normal text-sm flex items-center gap-2">
-          <i class="ri-calendar-event-line text-stone-400" aria-hidden="true"></i>
+        <span class="flex items-center gap-2 text-sm font-normal text-stone-500">
+          <i
+            class="ri-calendar-event-line text-stone-400"
+            aria-hidden="true"
+          ></i>
           Pilih tanggal terlebih dahulu.
         </span>
       </template>
@@ -72,8 +82,11 @@
 
     {{-- lading slot start --}}
     <template x-if="state.isFetchingRescheduleSlots">
-      <div class="flex items-center gap-2 text-stone-500 text-sm py-4">
-        <i class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
+      <div class="flex items-center gap-2 py-4 text-sm text-stone-500">
+        <i
+          class="ri-loader-4-line animate-spin"
+          aria-hidden="true"
+        ></i>
         <span>Memuat slot tersedia...</span>
       </div>
     </template>
@@ -83,11 +96,14 @@
     <template x-if="state.selectedRescheduleDate && !state.isFetchingRescheduleSlots">
       <div>
         <template x-if="state.rescheduleSlots.length === 0">
-          <p class="text-sm text-stone-400 py-4">Tidak ada slot tersedia pada tanggal ini.</p>
+          <p class="py-4 text-sm text-stone-400">Tidak ada slot tersedia pada tanggal ini.</p>
         </template>
 
         <div class="grid grid-cols-2 gap-3">
-          <template x-for="slot in state.rescheduleSlots" :key="slot.start_time">
+          <template
+            x-for="slot in state.rescheduleSlots"
+            :key="slot.start_time"
+          >
             <x-shared.button
               type="button"
               variant="custom"
