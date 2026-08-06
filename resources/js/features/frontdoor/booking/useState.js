@@ -2,6 +2,7 @@ export default function useState(Alpine) {
   return Alpine.reactive({
     // Wizard
     currentStep: 1,
+    packageName: null,
 
     // Step 1
     allVariants: [],
@@ -12,6 +13,7 @@ export default function useState(Alpine) {
     // Step 2
     activeDays: [],
     selectedDate: null,
+    formattedDate: null,
     availableSlots: [],
     selectedSlot: null,
     isFetchingSlots: false,

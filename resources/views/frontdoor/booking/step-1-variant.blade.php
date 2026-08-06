@@ -64,7 +64,7 @@
       x-if="state.selectedVariantId && !state.selectedVariant?.is_whatsapp_only && state.allBackgrounds && state.allBackgrounds.length > 0">
       <div>
         <h3 class="text-sm font-semibold uppercase tracking-widest text-stone-900 mb-4">Pilih Background</h3>
-        <div class="flex flex-wrap gap-4">
+        <div class="flex items-center gap-4 overflow-x-auto p-3 snap-x snap-mandatory scrollbar-none">
           <template x-for="bg in state.allBackgrounds" :key="bg.id">
             <x-frontdoor.booking.background-thumb />
           </template>
@@ -102,7 +102,7 @@
           class="w-full"
         >
           <x-slot:iconLeft>
-            <i class="ri-whatsapp-line text-lg"></i>
+            <i class="ri-whatsapp-line text-lg" aria-hidden="true"></i>
           </x-slot:iconLeft>
         </x-shared.button>
       </template>

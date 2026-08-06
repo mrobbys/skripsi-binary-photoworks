@@ -7,9 +7,6 @@ let _fp = null;
 
 export default function useCalendar({ state }) {
   const initCalendar = (calendarRef) => {
-    state.selectedDate = null;
-    state.formattedDate = "";
-    state.availableSlots = [];
 
     _fp = initBaseFlatpickr(calendarRef, {
       minDate: "today",
@@ -38,6 +35,7 @@ export default function useCalendar({ state }) {
     }
   };
 
+  // ambil slot waktu berdasarkan tanggal terpilih
   const fetchSlots = async (dateStr) => {
     state.isFetchingSlots = true;
 
@@ -54,9 +52,10 @@ export default function useCalendar({ state }) {
         },
       });
       state.availableSlots = res.data?.slots ?? [];
-    } catch {
+    } catch (err){
       Toast.fire({ icon: "error", title: "Gagal memuat jadwal tersedia." });
       state.availableSlots = [];
+      console.error(err);
     } finally {
       state.isFetchingSlots = false;
       if (_fp?.calendarContainer) {

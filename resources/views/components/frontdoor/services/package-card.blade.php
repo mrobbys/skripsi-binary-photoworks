@@ -1,21 +1,37 @@
 <div
-  class="border border-stone-200 bg-stone-50 flex flex-col h-full hover:border-stone-300 transition-all duration-300">
+  class="flex h-full flex-col border border-stone-200 bg-stone-50 transition-colors duration-300 hover:border-stone-400"
+>
   <div class="h-80 overflow-hidden p-6">
-    <img x-bind:src="package.image_url || 'https://placehold.co/600x800?text=No+Image'"
+    <img
+      x-bind:src="package.image_url || 'https://placehold.co/600x800?text=No+Image'"
       x-bind:alt="package.name"
-      class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-in-out">
+      loading="lazy"
+      class="h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
+    >
   </div>
-  <div class="px-6 pb-6 flex flex-col flex-1">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-[11px] font-semibold text-stone-500 uppercase tracking-widest"
-        x-text="package.category_name">
+  <div class="flex flex-1 flex-col px-6 pb-6">
+    <div class="mb-2 flex items-center justify-between">
+      <span
+        class="text-[11px] font-semibold uppercase tracking-widest text-stone-500"
+        x-text="package.category_name"
+      >
       </span>
-      <x-shared.badge value="WA Only" variant="neutral" icon="ri-whatsapp-line" alpine="package.is_whatsapp_only" />
+      <x-shared.badge
+        value="WA Only"
+        variant="neutral"
+        icon="ri-whatsapp-line"
+        alpine="package.is_whatsapp_only"
+      />
     </div>
-    <h3 class="text-2xl font-serif font-bold text-stone-900 mb-1" x-text="package.name"></h3>
-    <p class="text-sm text-stone-500 mb-4">
-      Mulai dari <span class="font-semibold text-stone-900"
-        x-text="package.min_price_formatted"></span>
+    <h3
+      class="mb-1 font-serif text-2xl font-bold text-stone-900"
+      x-text="package.name"
+    ></h3>
+    <p class="mb-4 text-sm text-stone-500">
+      Mulai dari <span
+        class="font-semibold text-stone-900"
+        x-text="package.min_price_formatted"
+      ></span>
     </p>
     <div class="mt-auto">
       <x-shared.button

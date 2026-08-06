@@ -31,7 +31,7 @@
 
 @php
   $baseClasses =
-      'inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 font-semibold focus:outline-none disabled:cursor-not-allowed disabled:opacity-50';
+      'inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
 
   $sizeClasses =
       [

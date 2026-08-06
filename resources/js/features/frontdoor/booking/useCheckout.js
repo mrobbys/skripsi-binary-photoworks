@@ -35,10 +35,21 @@ export default function useCheckout({ state, buildAddonsPayload }) {
         onClose: () => finishCheckout("warning", "Pembayaran dibatalkan. Slot masih tersimpan."),
       });
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Terjadi kesalahan.";
-      Toast.fire({ icon: "error", title: msg });
+      if (err.response?.status === 422) {
+        Toast.fire({
+          icon: "error",
+          title:
+            err?.response?.data?.message ??
+            "Terjadi kesalahan koneksi atau server bermasalah. Silakan coba beberapa saat lagi.",
+        });
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "Terjadi kesalahan koneksi atau server bermasalah. Silakan coba beberapa saat lagi.",
+        });
+      }
+      console.error(err);
       state.isProcessing = false;
-      console.error(msg);
     }
   };
 
