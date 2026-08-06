@@ -1,7 +1,7 @@
 <div>
-  <h1 class="mb-8 font-serif text-3xl font-normal tracking-tight text-stone-900">
+  <h2 class="mb-8 font-serif text-3xl font-normal tracking-tight text-stone-900">
     Form Kontak
-  </h1>
+  </h2>
 
   <form
     x-on:submit.prevent="submit"
@@ -10,8 +10,17 @@
     @csrf
 
     {{-- honeypot anti-bot start --}}
-    <div class="opacity-0 absolute -z-10" aria-hidden="true">
-      <input type="text" name="website_url" tabindex="-1" autocomplete="off" x-model="state.form.website_url">
+    <div
+      class="absolute -z-10 opacity-0"
+      aria-hidden="true"
+    >
+      <input
+        type="text"
+        name="website_url"
+        tabindex="-1"
+        autocomplete="off"
+        x-model="state.form.website_url"
+      >
     </div>
     {{-- honeypot anti-bot end --}}
 

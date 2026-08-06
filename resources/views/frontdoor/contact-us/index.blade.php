@@ -1,5 +1,5 @@
 <x-layouts.frontdoor.index
-  title="Hubungi Kami — Binary Photoworks"
+  title="Hubungi Kami"
   jsModule="frontdoor/contact-us/Contact"
 >
   <x-slot:content>
@@ -10,8 +10,8 @@
       {{-- section maps end --}}
 
       {{-- section kontak start --}}
-      <section class="py-12 lg:py-16">
-        <div class="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
+      <section class="py-16">
+        <div class="grid grid-cols-1 items-start gap-12 md:grid-cols-2 md:gap-16">
 
           {{-- form kontak start --}}
           <x-frontdoor.contact-us.form />
@@ -23,7 +23,7 @@
               Informasi Kontak
             </h2>
 
-            <div class="space-y-4">
+            <ul role="list" class="space-y-4">
 
               {{-- lokasi kami start --}}
               <x-frontdoor.contact-us.info-card
@@ -66,7 +66,7 @@
               </x-frontdoor.contact-us.info-card>
               {{-- email resmi end --}}
 
-            </div>
+            </ul>
           </div>
           {{-- informasi kontak end --}}
 
