@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto px-6">
+<div class="max-w-5xl mx-auto">
   {{-- Header --}}
   <div class="text-center mb-12">
     <h2 class="text-3xl font-bold font-heading text-stone-900 mb-2">Pilih Tanggal & Waktu</h2>
@@ -21,7 +21,7 @@
         </template>
         <template x-if="!state.selectedDate">
           <span class="text-stone-500 font-normal text-sm flex items-center gap-2">
-            <i class="ri-calendar-event-line text-stone-400"></i>
+            <i class="ri-calendar-event-line text-stone-400" aria-hidden="true"></i>
             Pilih tanggal terlebih dahulu.
           </span>
         </template>
@@ -30,7 +30,7 @@
       <div class="min-h-[220px]">
         <template x-if="state.isFetchingSlots">
           <div class="flex items-center gap-2 text-stone-500 text-sm py-4">
-            <i class="ri-loader-4-line animate-spin"></i>
+            <i class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
             <span>Memuat slot tersedia...</span>
           </div>
         </template>
@@ -52,16 +52,16 @@
     {{-- section kanan end --}}
   </div>
 
-  <div class="my-8 flex flex-col gap-12 sm:flex-row">
+  <div class="my-8 flex flex-col gap-4 sm:flex-row sm:gap-6">
     <x-shared.button
       variant="outline"
       size="lg"
       value="Kembali"
       x-on:click="prevStep()"
-      class="w-full"
+      class="w-full sm:flex-1"
     >
       <x-slot:iconLeft>
-        <i class="ri-arrow-left-line"></i>
+        <i class="ri-arrow-left-line" aria-hidden="true"></i>
       </x-slot:iconLeft>
     </x-shared.button>
     <x-shared.button
@@ -70,10 +70,10 @@
       value="Lanjutkan ke Layanan Tambahan"
       x-bind:disabled="!state.selectedSlot"
       x-on:click="nextStep()"
-      class="w-full"
+      class="w-full sm:flex-1"
     >
       <x-slot:iconRight>
-        <i class="ri-arrow-right-line"></i>
+        <i class="ri-arrow-right-line" aria-hidden="true"></i>
       </x-slot:iconRight>
     </x-shared.button>
   </div>

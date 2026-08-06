@@ -27,7 +27,7 @@
           class="mb-8 group"
         >
           <x-slot:iconLeft>
-            <i class="ri-arrow-left-line transition-transform group-hover:-translate-x-1"></i>
+            <i class="ri-arrow-left-line transition-transform group-hover:-translate-x-1" aria-hidden="true"></i>
           </x-slot:iconLeft>
         </x-shared.button>
       </div>

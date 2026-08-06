@@ -3,6 +3,8 @@
 <div role="button" tabindex="0" class="block border cursor-pointer transition-colors relative"
   x-data="{ open: false }"
   x-on:close-all-features.window="open = false"
+  x-on:keydown.enter.prevent="$el.click()"
+  x-on:keydown.space.prevent="$el.click()"
   x-bind:class="state.selectedVariantId === {{ $variant->id }} ?
       'border-stone-300 bg-stone-100' :
       'border-stone-200 bg-white hover:border-stone-300'"
@@ -40,7 +42,7 @@
               class="text-xs font-semibold text-stone-500 hover:text-stone-900 transition mt-3 cursor-pointer inline-flex items-center gap-1 group">
               <span x-text="open ? 'Sembunyikan' : 'Lihat {{ $variant->features->count() - 3 }} fasilitas lainnya'"
                 class="group-hover:underline"></span>
-              <i class="ri-arrow-down-s-line transition-transform" x-bind:class="open ? 'rotate-180' : ''"></i>
+              <i class="ri-arrow-down-s-line transition-transform" x-bind:class="open ? 'rotate-180' : ''" aria-hidden="true"></i>
             </button>
           @endif
         </div>
@@ -50,7 +52,7 @@
       <div class="shrink-0 size-7 border-2 flex items-center justify-center transition-colors mt-0.5"
         x-bind:class="state.selectedVariantId === {{ $variant->id }} ? 'border-stone-900 bg-stone-900' : 'border-stone-200 bg-white'">
         <i class="ri-check-line text-white text-lg leading-none"
-          x-show="state.selectedVariantId === {{ $variant->id }}" x-cloak></i>
+          x-show="state.selectedVariantId === {{ $variant->id }}" x-cloak aria-hidden="true"></i>
       </div>
       {{-- icon check end --}}
     </div>

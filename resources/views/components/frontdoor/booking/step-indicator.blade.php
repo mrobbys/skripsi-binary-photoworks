@@ -12,7 +12,7 @@
               ({{ $num }} < state.currentStep ?
                   'border-stone-500 bg-stone-100 text-stone-500' :
                   'border-stone-200 bg-white text-stone-400')">
-          <template x-if="{{ $num }} < state.currentStep"><i class="ri-check-line text-xs"></i></template>
+          <template x-if="{{ $num }} < state.currentStep"><i class="ri-check-line text-xs" aria-hidden="true"></i></template>
           <template x-if="{{ $num }} >= state.currentStep"><span>{{ $num }}</span></template>
         </div>
         <span class="text-sm font-medium hidden sm:block">{{ $label }}</span>
