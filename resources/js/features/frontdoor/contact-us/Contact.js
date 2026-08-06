@@ -73,7 +73,11 @@ export default function Contact(Alpine) {
       resetForm();
     } catch (error) {
       if (error.response?.status === 422) {
-        state.errors = error.response.data.errors;
+        state.errors = error.response.data.errors ?? {};
+        Toast.fire({ icon: "error", title: error?.response?.data?.message ?? "Gagal mengirim pesan." });
+      } else {
+        Toast.fire({ icon: "error", title: "Gagal mengirim pesan." });
+        console.log(error);
       }
     } finally {
       state.isLoading = false;

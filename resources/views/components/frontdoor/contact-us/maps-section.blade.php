@@ -1,6 +1,5 @@
 <section
   aria-label="Lokasi studio Binary Photoworks"
-  class="py-12 pb-0"
 >
   <div class="overflow-hidden border border-stone-200">
     <iframe
