@@ -13,7 +13,7 @@ export default function Index(Alpine) {
 
   const { goToPage, prevPage, nextPage, resetPage, getPages } = useFrontdoorPagination({
     state,
-    onPageChange: () => actions.fetchReviews(),
+    onPageChange: () => actions.fetchReviews({ scrollToTop: true }),
   });
 
   const form = useReviewForm({
