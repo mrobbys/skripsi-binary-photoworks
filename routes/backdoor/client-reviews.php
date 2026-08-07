@@ -8,7 +8,7 @@ Route::prefix('client-reviews')
     ->group(function () {
         // halaman index
         Route::get('/', [ReviewManagementController::class, 'index'])
-            ->name('index');
+        ->name('index');
         // JSON data untuk table
         Route::get('/data', [ReviewManagementController::class, 'data'])
             ->name('data');

@@ -19,9 +19,8 @@
 
       <x-backdoor.shared.page-header title="Ulasan Klien" />
 
-      {{-- Stats Cards --}}
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-
+      {{-- stats start --}}
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         <x-backdoor.shared.stats-card
           label="Rata-rata Rating"
           x-text="stats.average_rating + ' / 5'"
@@ -44,11 +43,11 @@
           x-text="stats.disappointing_reviews"
           suffix="Ulasan"
         />
-
       </div>
+      {{-- stats end --}}
 
-      {{-- Table Card --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      {{-- table start --}}
+      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-4 sm:p-6">
 
         <x-backdoor.table.header>
           <x-slot:left>
@@ -92,18 +91,14 @@
                 ></span>
               </x-backdoor.table.cell>
 
-              <x-backdoor.table.cell class="max-w-xs">
+              {{-- Komentar --}}
+              <x-backdoor.table.cell class="max-w-50 md:max-w-xs">
                 <span
-                  class="block max-w-xs cursor-help truncate text-sm text-stone-700"
+                  class="block w-full cursor-help truncate text-sm text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
+                  tabindex="0"
+                  aria-label="Komentar lengkap"
                   x-text="review.comment"
-                  x-init="$nextTick(() => {
-                      window.tippy($el, {
-                          content: review.comment,
-                          trigger: 'mouseenter click',
-                          placement: 'top',
-                          maxWidth: 320,
-                      });
-                  })"
+                  x-tooltip="review.comment"
                 ></span>
               </x-backdoor.table.cell>
 
@@ -129,6 +124,7 @@
         <x-backdoor.table.pagination />
 
       </div>
+      {{-- table end --}}
 
     </div>
   </x-slot:content>
