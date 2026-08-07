@@ -1,3 +1,4 @@
+import { tableActionDropdown } from "@/lib/tippy";
 import useDatatable from "@/lib/useDatatable";
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
@@ -6,6 +7,7 @@ import useForm from "./useForm";
 import useActions from "./useActions";
 
 export default function Index(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
   const state = useState(Alpine);
 
   const {

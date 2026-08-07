@@ -1,3 +1,4 @@
+import { tableActionDropdown } from "@/lib/tippy";
 import route from "@/lib/route";
 import useDatatable from "@/lib/useDatatable";
 import usePackageForm from "./usePackageForm";
@@ -7,6 +8,7 @@ import { Toast } from "@/lib/sweetalert";
 import formatRupiah from "@/utils/formatRupiah";
 
 export default function Package(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
   const state = useState(Alpine);
 
   const {

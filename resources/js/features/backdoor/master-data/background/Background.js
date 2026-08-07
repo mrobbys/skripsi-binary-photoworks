@@ -1,3 +1,4 @@
+import { tableActionDropdown, tooltipDirective } from "@/lib/tippy";
 import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import useBackgroundForm from "./useBackgroundForm";
@@ -5,6 +6,8 @@ import useBackgroundActions from "./useBackgroundActions";
 import route from "@/lib/route";
 
 export default function Background(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
+  tooltipDirective(Alpine);
   const state = useState(Alpine);
 
   const {

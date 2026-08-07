@@ -1,3 +1,4 @@
+import { tableActionDropdown } from "@/lib/tippy";
 import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import useBookingActions from "./useBookingActions";
@@ -7,6 +8,7 @@ import formatRupiah from "@/utils/formatRupiah";
 import formatDate from "@/utils/formatDate";
 
 export default function Index(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
   const state = useState(Alpine);
 
   const {
