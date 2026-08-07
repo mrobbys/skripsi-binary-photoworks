@@ -33,22 +33,10 @@
           <li class="flex items-center gap-1">
             <a
               href="{{ $item['url'] ?? '#' }}"
-              class="hover:text-stone-900 focus-visible:outline focus-visible:outline-stone-950">
+              class="hover:text-stone-900 focus-visible:outline-2 focus-visible:outline-stone-950 focus-visible:outline-offset-2">
               {{ $item['label'] ?? '' }}
             </a>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              fill="none"
-              stroke-width="2"
-              class="size-4"
-              aria-hidden="true">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-            </svg>
+            <i class="ri-arrow-right-s-line text-base text-stone-400" aria-hidden="true"></i>
           </li>
           {{-- jika item terakhir, maka tampilkan list saja --}}
         @else

@@ -20,7 +20,7 @@
   <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider whitespace-nowrap">
     {{ $label }}
   </div>
-  <div class="text-2xl font-heading font-bold text-stone-900 whitespace-nowrap">
+  <div class="text-xl sm:text-2xl font-heading font-bold text-stone-900 whitespace-nowrap">
     @if ($attributes->has('x-text'))
       <span x-text="{{ $attributes->get('x-text') }}"></span>
     @else

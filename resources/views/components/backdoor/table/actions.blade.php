@@ -6,42 +6,19 @@
   *   * `slot` : Elemen tombol / link aksi yang dimasukkan di dalam dropdown (misal: Edit, Hapus).
 --}}
 
-<td {{ $attributes->merge(['class' => 'px-6 py-4']) }} x-data="{
-    tippyInstance: null,
-    closeDropdown() {
-        if (this.tippyInstance) this.tippyInstance.hide();
-    },
-    init() {
-        // Pastikan DOM sudah siap
-        this.$nextTick(() => {
-
-            this.tippyInstance = tippy(this.$refs.btn, {
-                content: this.$refs.dropdown,
-                interactive: true,
-                trigger: 'click',
-                placement: 'bottom-end',
-                appendTo: 'parent',
-                popperOptions: {
-                    strategy: 'fixed',
-                },
-                arrow: false,
-                theme: 'custom',
-                offset: [0, 5],
-                // agar ketika diklik di dalam dropdown (misal tombol hapus), tippy tertutup
-                onClickOutside: (instance) => instance.hide(),
-            });
-        });
-    }
-}">
+<td {{ $attributes->merge(['class' => 'px-3 py-3 md:px-6 md:py-4']) }} x-data="tableActionDropdown">
   <button
     x-ref="btn"
-    class="text-stone-500 hover:text-stone-900 p-1 transition">
-    <i class="ri-more-2-fill text-xl"></i>
+    type="button"
+    aria-label="Aksi baris"
+    aria-haspopup="true"
+    class="text-stone-500 hover:text-stone-900 p-1 transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-400">
+    <i class="ri-more-2-fill text-xl" aria-hidden="true"></i>
   </button>
 
   {{-- Wadah konten dropdown yang akan diambil oleh Tippy --}}
   <div x-ref="dropdown">
-    <div class="w-32 bg-stone-50 border border-stone-300 py-1 shadow-md">
+    <div class="w-36 bg-stone-50 border border-stone-400 py-1">
       {{ $slot }}
     </div>
   </div>

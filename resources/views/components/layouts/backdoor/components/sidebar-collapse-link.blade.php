@@ -22,7 +22,8 @@
 <li>
   <a
     href="{{ $href }}"
-    class="flex items-center px-8 py-2 text-sm font-medium transition-colors {{ $isActive ? 'text-stone-50 bg-stone-600' : 'text-stone-300 hover:bg-stone-600/30 hover:text-stone-50' }}">
+    @if($isActive) aria-current="page" @endif
+    class="flex items-center px-8 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 {{ $isActive ? 'text-stone-50 bg-stone-600' : 'text-stone-300 hover:bg-stone-600/30 hover:text-stone-50' }}">
     {{ $title }}
   </a>
 </li>

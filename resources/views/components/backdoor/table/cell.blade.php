@@ -13,7 +13,7 @@
     'value' => null,
 ])
 
-<td {{ $attributes->merge(['class' => 'px-6 py-4']) }}>
+<td {{ $attributes->merge(['class' => 'p-3 md:px-6 md:py-4']) }}>
   @if (!$attributes->has('x-text'))
     {{ $value ?? $slot }}
   @endif
