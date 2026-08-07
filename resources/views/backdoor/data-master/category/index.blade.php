@@ -38,7 +38,7 @@
       {{-- stats card end --}}
 
       {{-- table card start --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
 
         {{-- table header start --}}
         <x-backdoor.table.header>

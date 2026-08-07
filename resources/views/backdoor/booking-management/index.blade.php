@@ -42,7 +42,7 @@
       {{-- stats section end --}}
 
       {{-- table card start --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
 
         {{-- table header start --}}
         <x-backdoor.table.header>
@@ -109,7 +109,7 @@
                     x-text="booking.package_name ?? ''"
                   ></span>
                   <span
-                    class="text-stone-500 text-xs"
+                    class="text-xs text-stone-500"
                     x-text="booking.variant_name ?? ''"
                   ></span>
                 </div>
@@ -186,8 +186,6 @@
         {{-- table container end --}}
 
         <x-backdoor.table.pagination />
-
-
 
       </div>
       {{-- table card end --}}

@@ -97,8 +97,9 @@
               {{-- Deskripsi start --}}
               <x-backdoor.table.cell>
                 <span
-                  x-on:mouseenter="if (!$el._tippy && item.description) window.tippy($el, { content: item.description, showOnCreate: true, placement: 'top' })"
-                  class="text-sm text-stone-600 line-clamp-2 max-w-xs cursor-help"
+                  x-tooltip="item.description"
+                  x-bind:class="item.description ? 'cursor-help' : ''"
+                  class="text-sm text-stone-600 line-clamp-2 max-w-xs"
                   x-text="item.description || '—'"></span>
               </x-backdoor.table.cell>
               {{-- Deskripsi end --}}

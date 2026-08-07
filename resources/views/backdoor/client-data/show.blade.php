@@ -105,7 +105,7 @@
       </div>
 
       {{-- Tabel Riwayat Booking --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
         <div class="mb-4">
           <h3 class="text-base font-semibold text-stone-800">Riwayat Booking</h3>
           <p class="mt-0.5 text-sm text-stone-500">Semua data pemesanan yang pernah dilakukan oleh klien ini.</p>

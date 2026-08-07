@@ -21,7 +21,7 @@
       <x-backdoor.shared.page-header title="Manajemen Role" />
 
       {{-- Table Card --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
 
         <x-backdoor.table.header>
           <x-slot:left>

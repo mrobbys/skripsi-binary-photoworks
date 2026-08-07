@@ -1,6 +1,6 @@
 @php
-  use \Carbon\Carbon;
-  use \App\Support\Formatter;
+  use Carbon\Carbon;
+  use App\Support\Formatter;
 
   $breadcrumbs = [
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
@@ -53,8 +53,8 @@
       </div>
 
       {{-- table card --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
-        
+      <div class="relative overflow-visible border border-stone-200 p-4">
+
         <x-backdoor.table.header>
           <x-slot:left>
             <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
@@ -91,7 +91,7 @@
               as="a"
               href="{{ route('session-schedule.daily-report') }}"
               target="_blank"
-              class="border border-stone-700 bg-stone-700 text-stone-50 hover:bg-stone-800 text-sm font-semibold tracking-wide"
+              class="border border-stone-700 bg-stone-700 text-sm font-semibold tracking-wide text-stone-50 hover:bg-stone-800"
             >
               <x-slot:iconLeft>
                 <i class="ri-printer-line leading-none"></i>
