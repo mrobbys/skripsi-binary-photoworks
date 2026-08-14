@@ -42,12 +42,16 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
   // AbortController untuk membatalkan request sebelumnya (cegah race condition)
   let abortController = null;
 
-  const fetch = async ({ showLoading = true } = {}) => {
+  const fetch = async ({ showLoading = true, scrollToTop = false } = {}) => {
     // Batalkan request yang sedang berjalan
     if (abortController) {
       abortController.abort();
     }
     abortController = new AbortController();
+
+    if (scrollToTop) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
     if (showLoading) state.isLoading = true;
     state.error = null;
@@ -106,14 +110,14 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
   const nextPage = () => {
     if (state.pagination.current_page < state.pagination.last_page) {
       state.pagination.current_page++;
-      fetch();
+      fetch({ scrollToTop: true });
     }
   };
 
   const prevPage = () => {
     if (state.pagination.current_page > 1) {
       state.pagination.current_page--;
-      fetch();
+      fetch({ scrollToTop: true });
     }
   };
 
@@ -122,7 +126,7 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
     const targetPage = parseInt(page, 10);
     if (targetPage >= 1 && targetPage <= state.pagination.last_page) {
       state.pagination.current_page = targetPage;
-      fetch();
+      fetch({ scrollToTop: true });
     }
   };
 
@@ -130,7 +134,7 @@ export default function useDatatable(Alpine, fetchUrl, options = {}) {
 
   const getPages = () => {
     const { current_page: current, last_page: last } = state.pagination;
-    
+
     // Jika total halaman sedikit, tampilkan semuanya
     if (last <= 7) {
       return Array.from({ length: last }, (_, i) => i + 1);
