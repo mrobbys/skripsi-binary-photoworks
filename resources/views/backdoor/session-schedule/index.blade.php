@@ -58,7 +58,7 @@
         <x-backdoor.table.header>
           <x-slot:left>
             <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-              <x-backdoor.table.search placeholder="Cari nama klien, email, no. HP, kode booking, atau paket..." />
+              <x-backdoor.table.search placeholder="Cari nama klien, booking..." />
 
               <div class="relative">
                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">

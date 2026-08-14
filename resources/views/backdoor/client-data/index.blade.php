@@ -42,7 +42,7 @@
         {{-- Table Header (search only, no right-side button) --}}
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama, email, atau nomor HP..." />
+            <x-backdoor.table.search placeholder="Cari nama, email, no. HP..." />
           </x-slot:left>
         </x-backdoor.table.header>
 

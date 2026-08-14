@@ -25,7 +25,7 @@
 
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama, email, nomor hp..." />
+            <x-backdoor.table.search placeholder="Cari nama, email, no. HP..." />
           </x-slot:left>
           <x-slot:right>
             <x-backdoor.table.add-button

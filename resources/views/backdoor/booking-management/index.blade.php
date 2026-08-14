@@ -47,7 +47,7 @@
         {{-- table header start --}}
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari kode booking, nama, email, atau nomor klien..." />
+            <x-backdoor.table.search placeholder="Cari kode booking, nama..." />
           </x-slot:left>
 
           <x-slot:right>

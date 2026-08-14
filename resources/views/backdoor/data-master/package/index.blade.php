@@ -49,7 +49,7 @@
         {{-- table header start --}}
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama paket atau kategori..." />
+            <x-backdoor.table.search placeholder="Cari nama paket, kategori..." />
           </x-slot:left>
 
           <x-slot:right>

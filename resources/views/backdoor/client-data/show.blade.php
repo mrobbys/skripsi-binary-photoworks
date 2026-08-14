@@ -113,7 +113,7 @@
 
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari kode booking atau nama paket..." />
+            <x-backdoor.table.search placeholder="Cari kode booking, paket..." />
           </x-slot:left>
         </x-backdoor.table.header>
 
