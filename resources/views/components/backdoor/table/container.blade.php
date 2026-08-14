@@ -11,28 +11,50 @@
   }
 @endphp
 
-<div class="overflow-x-auto bg-stone-50 border border-stone-200 min-h-[180px]">
-  <table class="w-full text-left border-collapse">
-    <thead class="bg-stone-100 border-b border-stone-200">
+<div
+  class="min-h-45 overflow-x-auto border border-stone-200 bg-stone-50"
+  role="region"
+  aria-label="Tabel Data"
+>
+  <table class="w-full border-collapse text-left">
+    <thead class="border-b border-stone-200 bg-stone-100">
       <tr>
         @foreach ($headers as $header)
-          <th class="px-6 py-3.5 text-xs font-semibold text-stone-600 uppercase tracking-wider">{{ $header }}</th>
+          <th
+            scope="col"
+            class="p-3 text-xs font-semibold uppercase tracking-wider text-stone-600 md:px-6 md:py-4"
+          >{{ $header }}</th>
         @endforeach
       </tr>
     </thead>
-    <tbody class="divide-y divide-stone-200 text-sm" x-init="autoAnimate($el)">
+    <tbody class="divide-y divide-stone-200 text-sm">
       {{-- state loading start --}}
-      <tr x-show="table.isLoading" x-cloak>
-        <td colspan="{{ count($headers) }}" class="px-6 py-14 text-center text-stone-500">
-          <i class="ri-loader-2-line animate-spin inline-block text-xl mr-2 align-middle"></i>
+      <tr
+        x-show="table.isLoading"
+        x-cloak
+      >
+        <td
+          colspan="{{ count($headers) }}"
+          class="px-6 py-14 text-center text-stone-500"
+        >
+          <i
+            class="ri-loader-2-line mr-2 inline-block animate-spin align-middle text-xl"
+            aria-hidden="true"
+          ></i>
           <span class="align-middle">Memuat data...</span>
         </td>
       </tr>
       {{-- state loading end --}}
 
       {{-- empty state start --}}
-      <tr x-show="!table.isLoading && table.data.length === 0" x-cloak>
-        <td colspan="{{ count($headers) }}" class="px-6 py-12 text-center text-stone-500">
+      <tr
+        x-show="!table.isLoading && table.data.length === 0"
+        x-cloak
+      >
+        <td
+          colspan="{{ count($headers) }}"
+          class="px-6 py-12 text-center text-stone-500"
+        >
           Tidak ada data ditemukan.
         </td>
       </tr>

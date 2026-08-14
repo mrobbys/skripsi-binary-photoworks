@@ -15,6 +15,6 @@
     class="sr-only peer"
     {{ $attributes->except('class') }}>
   <div
-    class="w-12 h-6 bg-stone-200 border border-stone-300  peer-focus:outline-none transition-colors peer-checked:bg-stone-700 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-stone-300 after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6 peer-disabled:opacity-40 peer-disabled:cursor-not-allowed">
+    class="w-12 h-6 bg-stone-200 border border-stone-300  peer-focus:outline-none transition-colors peer-checked:bg-stone-700 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:border-stone-300 after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6 peer-disabled:opacity-40 peer-disabled:cursor-not-allowed">
   </div>
 </label>

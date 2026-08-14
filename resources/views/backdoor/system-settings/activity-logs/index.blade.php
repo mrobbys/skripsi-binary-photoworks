@@ -21,11 +21,11 @@
       <x-backdoor.shared.page-header title="Activity Logs" />
 
       {{-- Table Card --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
 
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari aktivitas atau nama pelaku..." />
+            <x-backdoor.table.search placeholder="Cari aktivitas, user..." />
           </x-slot:left>
         </x-backdoor.table.header>
 

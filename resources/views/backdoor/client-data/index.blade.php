@@ -37,12 +37,12 @@
       {{-- Stats Cards End --}}
 
       {{-- Table Card --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
 
         {{-- Table Header (search only, no right-side button) --}}
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama, email, atau nomor HP..." />
+            <x-backdoor.table.search placeholder="Cari nama, email, no. HP..." />
           </x-slot:left>
         </x-backdoor.table.header>
 

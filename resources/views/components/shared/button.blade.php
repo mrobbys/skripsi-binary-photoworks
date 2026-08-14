@@ -50,6 +50,7 @@
           'ghost' => 'bg-transparent text-stone-700 hover:bg-stone-100 border border-transparent disabled:hover:bg-transparent',
           'danger' => 'bg-red-700 text-red-50 hover:bg-red-800 border border-transparent disabled:hover:bg-red-700',
           'dark' => 'bg-stone-900 text-stone-50 hover:bg-stone-950 border border-transparent disabled:hover:bg-stone-900',
+          'charcoal' => 'bg-stone-700 text-stone-50 hover:bg-stone-800 border border-stone-700 disabled:hover:bg-stone-700',
           'custom' => '',
       ][$variant] ?? '';
 @endphp

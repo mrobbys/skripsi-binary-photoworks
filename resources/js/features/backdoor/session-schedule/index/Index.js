@@ -1,3 +1,4 @@
+import { tableActionDropdown } from "@/lib/tippy";
 import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import route from "@/lib/route";
@@ -5,6 +6,7 @@ import { Toast } from "@/lib/sweetalert";
 import flatpickr from "flatpickr";
 
 export default function Index(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
   const state = useState(Alpine);
 
   let datePickerInstance = null;

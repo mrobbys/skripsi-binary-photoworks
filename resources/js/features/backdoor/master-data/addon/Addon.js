@@ -1,3 +1,4 @@
+import { tableActionDropdown, tooltipDirective } from "@/lib/tippy";
 import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import useAddonForm from "./useAddonForm";
@@ -7,6 +8,8 @@ import { Toast } from "@/lib/sweetalert";
 import formatRupiah from "@/utils/formatRupiah";
 
 export default function Addon(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
+  tooltipDirective(Alpine);
   const state = useState(Alpine);
 
   const {

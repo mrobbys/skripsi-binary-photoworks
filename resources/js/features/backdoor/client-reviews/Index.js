@@ -2,10 +2,11 @@ import useDatatable from "@/lib/useDatatable";
 import { confirmModal, Toast } from "@/lib/sweetalert";
 import route from "@/lib/route";
 import axiosInstance from "@/lib/axiosInstance";
-import tooltipDirective from "@/lib/tippy";
+import { tooltipDirective, tableActionDropdown } from "@/lib/tippy";
 
 export default function Index(Alpine) {
   Alpine.plugin(tooltipDirective);
+  Alpine.data("tableActionDropdown", tableActionDropdown);
   
   const { state: table, ...methods } = useDatatable(Alpine, route("backdoor.client-reviews.data"), {
     useHistory: true,

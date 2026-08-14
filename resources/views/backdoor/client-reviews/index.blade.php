@@ -51,7 +51,7 @@
 
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama klien atau nilai rating..." />
+            <x-backdoor.table.search placeholder="Cari nama klien, rating..." />
           </x-slot:left>
         </x-backdoor.table.header>
 

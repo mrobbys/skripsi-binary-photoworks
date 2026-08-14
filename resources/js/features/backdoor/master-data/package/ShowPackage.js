@@ -1,3 +1,4 @@
+import { tableActionDropdown } from "@/lib/tippy";
 import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import useDatatable from "@/lib/useDatatable";
@@ -9,6 +10,7 @@ import useState from "./useState";
 import usePackageForm from "./usePackageForm";
 
 export default function ShowPackage(Alpine) {
+  Alpine.data("tableActionDropdown", tableActionDropdown);
   const state = useState(Alpine);
 
   state.packageSlug = null;

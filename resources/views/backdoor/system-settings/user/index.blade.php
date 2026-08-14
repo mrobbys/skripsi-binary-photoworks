@@ -21,11 +21,11 @@
       <x-backdoor.shared.page-header title="Manajemen User" />
 
       {{-- Table Card --}}
-      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
+      <div class="relative overflow-visible border border-stone-200 p-4">
 
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama, email, nomor hp..." />
+            <x-backdoor.table.search placeholder="Cari nama, email, no. HP..." />
           </x-slot:left>
           <x-slot:right>
             <x-backdoor.table.add-button
@@ -209,9 +209,9 @@
                   // Sync Choices.js saat state.form.role berubah (mode edit)
                   $watch('state.form.role', (val) => {
                       if (val) {
-                        choices.setChoiceByValue(val);
+                          choices.setChoiceByValue(val);
                       } else {
-                        choices.setChoiceByValue('');
+                          choices.setChoiceByValue('');
                       }
                   });
               })"

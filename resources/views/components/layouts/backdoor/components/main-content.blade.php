@@ -5,9 +5,9 @@
 
 <main
   id="main-content"
-  class="focus:outline-hidden p-8"
+  class="focus:outline-hidden p-4 sm:p-6 lg:p-8"
   tabindex="-1">
-  <div class="overflow-y-auto pb-20">
+  <div class="pb-20">
     {{ $slot }}
   </div>
 </main>
