@@ -4,8 +4,13 @@ import useUpsellAddon from "./useUpsellAddon";
 import route from "@/lib/route";
 import axiosInstance from "@/lib/axiosInstance";
 import { Toast } from "@/lib/sweetalert";
+import useChoices from "@/lib/useChoices";
 
 export default function Show(Alpine) {
+  if (Alpine) {
+    Alpine.data("choices", useChoices);
+  }
+
   const state = useState(Alpine);
 
   const fetchBooking = async () => {
@@ -17,7 +22,7 @@ export default function Show(Alpine) {
       state.gdriveLink = data.booking.gdrive_link ?? "";
     } catch (err) {
       console.error(err);
-      Toast.fire({ icon: "error", title: "Gagal memuat data." });
+      Toast.fire({ icon: "error", title: "Gagal memuat data" });
     } finally {
       state.isPageLoading = false;
     }

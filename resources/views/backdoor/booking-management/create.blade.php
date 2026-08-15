@@ -175,14 +175,7 @@
                 <input
                   type="text"
                   x-model="state.bookingDate"
-                  x-init="flatpickr($el, {
-                      dateFormat: 'Y-m-d',
-                      minDate: 'today',
-                      onChange: (selectedDates, dateStr) => {
-                          state.bookingDate = dateStr;
-                          loadTimeSlots();
-                      }
-                  })"
+                  x-init="initDatePicker($el)"
                   placeholder="--- Pilih tanggal ---"
                   readonly
                   class="w-full cursor-pointer border border-stone-300 bg-stone-50 px-3 py-3 text-sm text-stone-900 placeholder-stone-400 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500"

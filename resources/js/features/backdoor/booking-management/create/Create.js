@@ -1,7 +1,14 @@
 import useState from "./useState";
 import useCreateForm from "./useCreateForm";
+import useChoices from "@/lib/useChoices";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 export default function Create(Alpine) {
+  if (Alpine) {
+    Alpine.data("choices", useChoices);
+  }
+
   const state = useState(Alpine);
   const formActions = useCreateForm({ state });
 
@@ -37,10 +44,21 @@ export default function Create(Alpine) {
     state.totalPrice = basePrice + addonTotal;
   });
 
+  const initDatePicker = (el) => {
+    flatpickr(el, {
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      onChange: (selectedDates, dateStr) => {
+        state.bookingDate = dateStr;
+        formActions.loadTimeSlots();
+      },
+    });
+  };
+
   function init(packages, addons) {
     state.allPackages = packages;
     state.allAddons = addons;
   }
 
-  return { state, init, ...formActions };
+  return { state, init, initDatePicker, ...formActions };
 }

@@ -3,8 +3,13 @@ import axiosInstance from "@/lib/axiosInstance";
 import { Toast } from "@/lib/sweetalert";
 import useState from "./useState";
 import useDashboardCharts from "./useDashboardCharts";
+import useChoices from "@/lib/useChoices";
 
 export default function Dashboard(Alpine) {
+  if (Alpine) {
+    Alpine.data("choices", useChoices);
+  }
+
   const state = useState(Alpine);
   const { charts, hasChartData, renderBookingTrendChart, renderRevenueTrendChart, renderPackageChart, renderAddonChart } =
     useDashboardCharts();
@@ -58,7 +63,7 @@ export default function Dashboard(Alpine) {
       state.chartData.addon = data.addon_proportion;
     } catch (err) {
       console.error(err);
-      Toast.fire({ icon: "error", title: "Gagal memuat data." });
+      Toast.fire({ icon: "error", title: "Gagal memuat data" });
     } finally {
       state.isLoadingCharts = false;
     }
