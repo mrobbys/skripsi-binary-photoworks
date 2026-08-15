@@ -24,19 +24,12 @@
     >
 
       {{-- header start --}}
-      <div class="space-y-6 pb-6">
-        <a
-          href="{{ route('backdoor.booking-management.index') }}"
-          class="inline-flex cursor-pointer items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-stone-500 transition hover:text-stone-950 md:text-xs"
-        >
-          <i
-            class="ri-arrow-left-line"
-            aria-hidden="true"
-          ></i>
-          <span>Kembali Ke Manajemen Pemesanan</span>
-        </a>
-        <x-backdoor.shared.page-header title="Tambah Booking Manual" />
-      </div>
+      <x-backdoor.shared.page-header-back
+        :href="route('backdoor.booking-management.index')"
+        title="Tambah Booking Manual"
+        backLabel="Kembali Ke Manajemen Pemesanan"
+        class="pb-6"
+      />
       {{-- header end --}}
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

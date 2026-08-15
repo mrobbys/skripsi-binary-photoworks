@@ -12,15 +12,12 @@
   <x-slot:content>
     <div class="w-full space-y-6" x-data="ShowPackage" x-init="initData('{{ $package->slug }}')">
       {{-- title section start --}}
-      <div class="space-y-6">
-        <a href="{{ route('backdoor.data-master.package.index') }}"
-          class="inline-flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-stone-500 hover:text-stone-950 uppercase transition cursor-pointer">
-          <i class="ri-arrow-left-line" aria-hidden="true"></i>
-          <span>Kembali Ke Kelola Paket & Varian</span>
-        </a>
-        <x-backdoor.shared.page-header>Detail Paket: <span
-            x-text="state.packageInfo?.name"></span></x-backdoor.shared.page-header>
-      </div>
+      <x-backdoor.shared.page-header-back
+        :href="route('backdoor.data-master.package.index')"
+        backLabel="Kembali Ke Kelola Paket & Varian"
+      >
+        Detail Paket: <span x-text="state.packageInfo?.name"></span>
+      </x-backdoor.shared.page-header-back>
       {{-- title section end --}}
 
       {{-- info paket start --}}

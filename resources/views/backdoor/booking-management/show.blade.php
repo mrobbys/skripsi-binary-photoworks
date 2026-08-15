@@ -40,59 +40,50 @@
       >
 
         {{-- header start --}}
-        <div class="flex items-start justify-between">
-          <div class="space-y-6 pb-6">
-            <a
-              href="{{ $backUrl }}"
-              class="inline-flex cursor-pointer items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-stone-500 transition hover:text-stone-950 md:text-xs"
-            >
-              <i
-                class="ri-arrow-left-line"
-                aria-hidden="true"
-              ></i>
-              <span>Kembali Ke {{ $backLabel }}</span>
-            </a>
-            <div class="flex flex-col gap-2">
-              <div class="flex flex-wrap items-center gap-4">
-                <h1
-                  class="text-3xl font-bold tracking-tight text-stone-900"
-                  x-text="state.bookingCode"
-                ></h1>
-                <x-shared.badge
-                  alpine="state.booking?.status === 'Lunas' || state.booking?.status === 'Selesai'"
-                  variant="lime"
-                  size="sm"
-                  x-text="state.booking?.status"
-                />
-                <x-shared.badge
-                  alpine="state.booking?.status === 'DP Terbayar'"
-                  variant="secondary"
-                  size="sm"
-                  x-text="state.booking?.status"
-                />
-                <x-shared.badge
-                  alpine="state.booking?.status === 'Menunggu'"
-                  variant="warning"
-                  size="sm"
-                  x-text="state.booking?.status"
-                />
-                <x-shared.badge
-                  alpine="state.booking?.status === 'Batal'"
-                  variant="danger"
-                  size="sm"
-                  x-text="state.booking?.status"
-                />
-              </div>
-              <div class="flex items-center gap-2 text-sm font-medium text-stone-500">
-                <span>Detail Booking</span>
-                <span class="text-stone-300">&bull;</span>
-                <span
-                  x-text="state.booking?.created_at ? 'Dibuat pada ' + new Date(state.booking.created_at).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}).replace(/\./g, ':') + ' WITA' : '...'"
-                ></span>
-              </div>
+        <x-backdoor.shared.page-header-back
+          :href="$backUrl"
+          :backLabel="'Kembali Ke ' . $backLabel"
+          class="pb-6"
+        >
+          <span x-text="state.bookingCode"></span>
+
+          <x-slot:badge>
+            <x-shared.badge
+              alpine="state.booking?.status === 'Lunas' || state.booking?.status === 'Selesai'"
+              variant="lime"
+              size="sm"
+              x-text="state.booking?.status"
+            />
+            <x-shared.badge
+              alpine="state.booking?.status === 'DP Terbayar'"
+              variant="secondary"
+              size="sm"
+              x-text="state.booking?.status"
+            />
+            <x-shared.badge
+              alpine="state.booking?.status === 'Menunggu'"
+              variant="warning"
+              size="sm"
+              x-text="state.booking?.status"
+            />
+            <x-shared.badge
+              alpine="state.booking?.status === 'Batal'"
+              variant="danger"
+              size="sm"
+              x-text="state.booking?.status"
+            />
+          </x-slot:badge>
+
+          <x-slot:subcontent>
+            <div class="flex items-center gap-2 text-sm font-medium text-stone-500">
+              <span>Detail Booking</span>
+              <span class="text-stone-300">&bull;</span>
+              <span
+                x-text="state.booking?.created_at ? 'Dibuat pada ' + new Date(state.booking.created_at).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}).replace(/\./g, ':') + ' WITA' : '...'"
+              ></span>
             </div>
-          </div>
-        </div>
+          </x-slot:subcontent>
+        </x-backdoor.shared.page-header-back>
         {{-- header end --}}
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

@@ -20,18 +20,12 @@
     >
 
       {{-- Header + Back --}}
-      <div class="flex items-center gap-4">
-        <a
-          href="{{ route('backdoor.system-settings.roles.index') }}"
-          class="flex h-8 w-8 items-center justify-center border border-stone-300 text-stone-500 transition hover:bg-stone-200"
-        >
-          <i class="ri-arrow-left-line text-base"></i>
-        </a>
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-stone-900">Tambah Role Baru</h1>
-          <p class="text-sm text-stone-500">Buat role dengan kumpulan permission yang dikonfigurasi.</p>
-        </div>
-      </div>
+      <x-backdoor.shared.page-header-back
+        :href="route('backdoor.system-settings.roles.index')"
+        title="Tambah Role Baru"
+        subtitle="Buat role dengan kumpulan permission yang dikonfigurasi."
+        backLabel="Kembali Ke Manajemen Role"
+      />
 
       {{-- Form Body --}}
       <div class="space-y-6">
