@@ -21,6 +21,8 @@ export default function useState(Alpine) {
       features: [""],
     },
     errors: {},
+    dismissedErrors: {},
+    isFormValid: false,
 
     pendingImageFile: null,
 

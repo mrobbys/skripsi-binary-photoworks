@@ -13,7 +13,7 @@ export default function usePackageActions({ state, table }) {
       Toast.fire({ icon: "success", title: "Status paket berhasil diperbarui" });
     } catch (error) {
       checkbox.checked = originalChecked;
-      Toast.fire({ icon: "error", title: error.response?.data?.message ?? "Terjadi kesalahan server." });
+      Toast.fire({ icon: "error", title: error.response?.data?.message ?? "Terjadi kesalahan server" });
     } finally {
       state.isLoading = false;
     }
@@ -22,7 +22,7 @@ export default function usePackageActions({ state, table }) {
   const destroyPackage = async (pkg) => {
     const result = await confirmModal(
       "Hapus Paket?",
-      `Paket "${pkg.name}" beserta seluruh variannya akan dihapus secara permanen.`,
+      `Paket "${pkg.name}" beserta seluruh variannya akan dihapus secara permanen`,
       "warning",
       "Ya, Hapus",
     );
@@ -36,7 +36,7 @@ export default function usePackageActions({ state, table }) {
       Modal.fire({
         icon: "error",
         title: "Gagal menghapus paket",
-        text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        text: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       state.isLoading = false;
