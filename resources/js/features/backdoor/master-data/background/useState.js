@@ -17,6 +17,8 @@ export default function useState(Alpine) {
       is_active: true,
     },
     errors: {},
+    dismissedErrors: {},
+    isFormValid: false,
 
     // FilePond — file yang dipilih user sebelum disubmit
     pendingImageFile: null,
