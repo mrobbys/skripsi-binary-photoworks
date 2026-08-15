@@ -5,8 +5,8 @@ import { getFieldError } from "@/lib/zodHelper";
 import axiosInstance from "@/lib/axiosInstance";
 
 const categorySchema = z.object({
-  category_code: z.string().min(1, "Kode kategori wajib diisi.").max(3, "Maksimal 3 karakter."),
-  name: z.string().min(1, "Nama kategori wajib diisi.").max(100, "Maksimal 100 karakter."),
+  category_code: z.string().min(1, "Kode kategori wajib diisi").max(3, "Maksimal 3 karakter"),
+  name: z.string().min(1, "Nama kategori wajib diisi").max(100, "Maksimal 100 karakter"),
   is_active: z.boolean(),
 });
 

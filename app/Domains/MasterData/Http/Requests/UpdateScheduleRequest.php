@@ -33,14 +33,14 @@ class UpdateScheduleRequest extends FormRequest
   public function messages(): array
   {
     return [
-      'start_time.required' => 'Jam buka wajib diisi.',
-      'start_time.date_format' => 'Format jam buka tidak valid (HH:MM).',
+      'start_time.required' => 'Jam buka wajib diisi',
+      'start_time.date_format' => 'Format jam buka tidak valid (HH:MM)',
 
-      'end_time.required' => 'Jam tutup wajib diisi.',
-      'end_time.date_format' => 'Format jam tutup tidak valid (HH:MM).',
-      'end_time.after' => 'Jam tutup harus lebih besar dari jam buka.',
+      'end_time.required' => 'Jam tutup wajib diisi',
+      'end_time.date_format' => 'Format jam tutup tidak valid (HH:MM)',
+      'end_time.after' => 'Jam tutup harus lebih besar dari jam buka',
 
-      'is_active.required' => 'Status aktif wajib diisi.',
+      'is_active.required' => 'Status aktif wajib diisi',
     ];
   }
 }

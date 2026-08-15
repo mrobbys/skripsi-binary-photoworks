@@ -42,18 +42,18 @@ class StoreBackgroundRequest extends FormRequest
 	public function messages(): array
 	{
 		return [
-			'name.required' => 'Nama background wajib diisi.',
-			'name.max' => 'Nama background maksimal 50 karakter.',
-			'name.unique' => 'Nama background sudah terdaftar.',
+			'name.required' => 'Nama background wajib diisi',
+			'name.max' => 'Nama background maksimal 50 karakter',
+			'name.unique' => 'Nama background sudah terdaftar',
 
-			'description.max' => 'Deskripsi maksimal 255 karakter.',
+			'description.max' => 'Deskripsi maksimal 255 karakter',
 
-			'is_active.required' => 'Status aktif wajib diisi.',
+			'is_active.required' => 'Status aktif wajib diisi',
 
-			'image.required' => 'Gambar background wajib diunggah.',
-			'image.image' => 'File harus berupa gambar.',
-			'image.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP.',
-			'image.max' => 'Ukuran gambar maksimal 2 MB.',
+			'image.required' => 'Gambar background wajib diunggah',
+			'image.image' => 'File harus berupa gambar',
+			'image.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP',
+			'image.max' => 'Ukuran gambar maksimal 2 MB',
 		];
 	}
 }

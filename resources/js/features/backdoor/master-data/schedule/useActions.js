@@ -5,11 +5,11 @@ import axiosInstance from "@/lib/axiosInstance";
 
 const scheduleTimeSchema = z
   .object({
-    start_time: z.string().regex(/^\d{2}:\d{2}$/, "Format jam tidak valid."),
-    end_time: z.string().regex(/^\d{2}:\d{2}$/, "Format jam tidak valid."),
+    start_time: z.string().regex(/^\d{2}:\d{2}$/, "Format jam tidak valid"),
+    end_time: z.string().regex(/^\d{2}:\d{2}$/, "Format jam tidak valid"),
   })
   .refine((data) => data.end_time > data.start_time, {
-    message: "Jam tutup harus lebih besar dari jam buka.",
+    message: "Jam tutup harus lebih besar dari jam buka",
     path: ["end_time"],
   });
 

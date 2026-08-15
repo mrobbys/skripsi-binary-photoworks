@@ -60,22 +60,22 @@ class UpdatePackageRequest extends FormRequest
 	public function messages(): array
 	{
 		return [
-			'category_id.required' => 'Kategori wajib dipilih.',
-			'category_id.exists' => 'Kategori tidak ditemukan.',
+			'category_id.required' => 'Kategori wajib dipilih',
+			'category_id.exists' => 'Kategori tidak ditemukan',
 
-			'name.required' => 'Nama paket wajib diisi.',
-			'name.min' => 'Nama paket minimal 3 karakter.',
-			'name.unique' => 'Nama paket sudah terdaftar.',
+			'name.required' => 'Nama paket wajib diisi',
+			'name.min' => 'Nama paket minimal 3 karakter',
+			'name.unique' => 'Nama paket sudah terdaftar',
 
-			'description.required' => 'Deskripsi wajib diisi.',
-			'description.max' => 'Deskripsi maksimal 500 karakter.',
+			'description.required' => 'Deskripsi wajib diisi',
+			'description.max' => 'Deskripsi maksimal 500 karakter',
 
-			'image.file' => 'Gambar harus berupa file.',
-			'image.image' => 'File harus berupa gambar.',
-			'image.mimes' => 'Format gambar harus jpeg, jpg, png, webp.',
-			'image.max' => 'Ukuran gambar maksimal 2MB.',
+			'image.file' => 'Gambar harus berupa file',
+			'image.image' => 'File harus berupa gambar',
+			'image.mimes' => 'Format gambar harus jpeg, jpg, png, webp',
+			'image.max' => 'Ukuran gambar maksimal 2MB',
 
-			'is_active.required' => 'Status aktif wajib diisi.',
+			'is_active.required' => 'Status aktif wajib diisi',
 		];
 	}
 }

@@ -4,9 +4,9 @@ import { z } from "zod";
 import axiosInstance from "@/lib/axiosInstance";
 
 const packageSchema = z.object({
-  category_id: z.union([z.string().min(1, "Kategori wajib dipilih."), z.number().min(1, "Kategori wajib dipilih.")]),
-  name: z.string().min(3, "Nama paket minimal 3 karakter.").max(100, "Maksimal 100 karakter."),
-  description: z.string().min(3, "Deskripsi minimal 3 karakter.").max(500, "Deskripsi maksimal 500 karakter."),
+  category_id: z.union([z.string().min(1, "Kategori wajib dipilih"), z.number().min(1, "Kategori wajib dipilih")]),
+  name: z.string().min(3, "Nama paket minimal 3 karakter").max(100, "Maksimal 100 karakter"),
+  description: z.string().min(3, "Deskripsi minimal 3 karakter").max(500, "Deskripsi maksimal 500 karakter"),
   is_active: z.boolean(),
   features: z.array(z.string()).optional(),
 });

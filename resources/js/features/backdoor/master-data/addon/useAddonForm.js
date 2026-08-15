@@ -4,11 +4,11 @@ import { z } from "zod";
 import axiosInstance from "@/lib/axiosInstance";
 
 const addonSchema = z.object({
-  name: z.string().min(1, "Nama add-on wajib diisi.").max(100, "Nama add-on maksimal 100 karakter."),
+  name: z.string().min(1, "Nama add-on wajib diisi").max(100, "Nama add-on maksimal 100 karakter"),
   price: z
     .union([z.string(), z.number()])
-    .refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 0, "Harga harus berupa angka dan tidak boleh negatif."),
-  description: z.string().min(1, "Deskripsi wajib diisi.").max(255, "Deskripsi maksimal 255 karakter."),
+    .refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 0, "Harga harus berupa angka dan tidak boleh negatif"),
+  description: z.string().min(1, "Deskripsi wajib diisi").max(255, "Deskripsi maksimal 255 karakter"),
   has_quantity: z.boolean(),
   is_active: z.boolean(),
 });

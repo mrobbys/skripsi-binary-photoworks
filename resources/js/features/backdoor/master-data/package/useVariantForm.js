@@ -4,15 +4,15 @@ import { z } from "zod";
 import axiosInstance from "@/lib/axiosInstance";
 
 const variantSchema = z.object({
-  name: z.string().min(3, "Nama varian minimal 3 karakter.").max(100, "Maksimal 100 karakter."),
+  name: z.string().min(3, "Nama varian minimal 3 karakter").max(100, "Maksimal 100 karakter"),
   price: z
     .union([z.string(), z.number()])
     .transform((v) => Number(v))
-    .refine((v) => v >= 1, "Harga minimal Rp 1."),
+    .refine((v) => v >= 1, "Harga minimal Rp 1"),
   duration: z
     .union([z.string(), z.number()])
     .transform((v) => Number(v))
-    .refine((v) => v >= 1, "Durasi minimal 1 menit."),
+    .refine((v) => v >= 1, "Durasi minimal 1 menit"),
   is_whatsapp_only: z.boolean(),
   is_active: z.boolean(),
   features: z.array(z.string()).optional(),

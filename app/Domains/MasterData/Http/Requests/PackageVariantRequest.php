@@ -52,16 +52,16 @@ class PackageVariantRequest extends FormRequest
 	public function messages(): array
 	{
 		return [
-			'name.required' => 'Nama varian wajib diisi.',
-			'name.min' => 'Nama varian minimal 3 karakter.',
+			'name.required' => 'Nama varian wajib diisi',
+			'name.min' => 'Nama varian minimal 3 karakter',
 
-			'price.required' => 'Harga wajib diisi.',
-			'price.integer' => 'Harga harus berupa angka bulat.',
-			'price.min' => 'Harga minimal Rp 1.',
+			'price.required' => 'Harga wajib diisi',
+			'price.integer' => 'Harga harus berupa angka bulat',
+			'price.min' => 'Harga minimal Rp 1',
 
-			'duration.required' => 'Durasi wajib diisi.',
-			'duration.integer' => 'Durasi harus berupa angka bulat (menit).',
-			'duration.min' => 'Durasi minimal 1 menit.',
+			'duration.required' => 'Durasi wajib diisi',
+			'duration.integer' => 'Durasi harus berupa angka bulat (menit)',
+			'duration.min' => 'Durasi minimal 1 menit',
 		];
 	}
 }

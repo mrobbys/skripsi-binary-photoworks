@@ -41,16 +41,16 @@ class StoreCategoryRequest extends FormRequest
   public function messages(): array
   {
     return [
-      'category_code.required' => 'Kode kategori wajib diisi.',
-      'category_code.max' => 'Kode kategori maksimal 3 karakter.',
-      'category_code.unique' => 'Kode kategori sudah terdaftar.',
+      'category_code.required' => 'Kode kategori wajib diisi',
+      'category_code.max' => 'Kode kategori maksimal 3 karakter',
+      'category_code.unique' => 'Kode kategori sudah terdaftar',
 
-      'name.required' => 'Nama kategori wajib diisi.',
-      'name.max' => 'Nama kategori maksimal 100 karakter.',
-      'name.unique' => 'Nama kategori sudah terdaftar.',
+      'name.required' => 'Nama kategori wajib diisi',
+      'name.max' => 'Nama kategori maksimal 100 karakter',
+      'name.unique' => 'Nama kategori sudah terdaftar',
       
-      'is_active.required' => 'Status aktif wajib diisi.',
-      'is_active.boolean' => 'Status aktif harus berupa boolean.',
+      'is_active.required' => 'Status aktif wajib diisi',
+      'is_active.boolean' => 'Status aktif harus berupa boolean',
     ];
   }
 }

@@ -4,8 +4,8 @@ import { z } from "zod";
 import axiosInstance from "@/lib/axiosInstance";
 
 const backgroundSchema = z.object({
-  name: z.string().min(1, "Nama background wajib diisi.").max(50, "Nama background maksimal 50 karakter."),
-  description: z.string().max(255, "Deskripsi maksimal 255 karakter.").nullable().optional(),
+  name: z.string().min(1, "Nama background wajib diisi").max(50, "Nama background maksimal 50 karakter"),
+  description: z.string().max(255, "Deskripsi maksimal 255 karakter").nullable().optional(),
   is_active: z.boolean(),
 });
 
