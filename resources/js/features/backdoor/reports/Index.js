@@ -1,8 +1,13 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { Toast } from "@/lib/sweetalert";
+import useChoices from "@/lib/useChoices";
 
-export default function Index() {
+export default function Index(Alpine) {
+  if (Alpine) {
+    Alpine.data("choices", useChoices);
+  }
+
   let fpInstances = [];
 
   const flatpickrConfig = {
@@ -94,7 +99,7 @@ export default function Index() {
         if (hasInputs && btnSubmitForm.disabled) {
           Toast.fire({
             icon: "error",
-            title: "Silahkan pilih tanggal terlebih dahulu.",
+            title: "Silahkan pilih tanggal terlebih dahulu",
           });
           return;
         }

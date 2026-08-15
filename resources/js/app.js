@@ -7,33 +7,17 @@ import persist from "@alpinejs/persist";
 import Swal from "sweetalert2";
 import { Toast, Modal, confirmModal } from "./lib/sweetalert";
 import "remixicon/fonts/remixicon.css";
-import dayjs from "dayjs";
-import currency from "currency.js";
-import autoAnimate from "@formkit/auto-animate";
-import Choices from "choices.js";
-import "choices.js/public/assets/styles/choices.css";
-import flatpickr from "flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
 
-import useChoices from "./lib/useChoices";
-
-window.currency = currency;
-window.dayjs = dayjs;
 window.Swal = Swal;
 window.Modal = Modal;
 window.Toast = Toast;
 window.confirmModal = confirmModal;
-window.autoAnimate = autoAnimate;
-window.Choices = Choices;
-window.flatpickr = flatpickr;
 
 Alpine.plugin(collapse);
 Alpine.plugin(focus);
 Alpine.plugin(intersect);
 Alpine.plugin(mask);
 Alpine.plugin(persist);
-
-Alpine.data("choices", useChoices);
 
 window.Alpine = Alpine;
 
