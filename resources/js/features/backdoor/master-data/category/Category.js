@@ -36,7 +36,7 @@ export default function Category(Alpine) {
     fetch();
   };
 
-  const { openDrawer, closeDrawer, editCategory, submitCategory } = useForm({ state, table });
+  const { openDrawer, closeDrawer, editCategory, validateField, submitCategory } = useForm({ Alpine, state, table });
   const { toggleCategoryStatus, destroyCategory } = useActions({ state, table });
 
   return {
@@ -45,6 +45,7 @@ export default function Category(Alpine) {
     init,
     openDrawer,
     closeDrawer,
+    validateField,
     submitCategory,
     toggleCategoryStatus,
     editCategory,
