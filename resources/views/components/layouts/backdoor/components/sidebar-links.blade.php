@@ -9,7 +9,7 @@
 <nav
   x-cloak
   aria-label="Navigasi Menu Utama"
-  class="min-h-0 flex-1 overflow-y-auto"
+  class="no-scrollbar min-h-0 flex-1 overflow-y-auto"
 >
   <ul class="flex flex-col gap-2 pb-6">
 
