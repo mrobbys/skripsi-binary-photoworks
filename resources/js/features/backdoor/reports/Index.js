@@ -38,10 +38,8 @@ export default function Index() {
 
         if (startDateInput && endDateInput) {
           btnSubmitForm.disabled = !startDateInput.value || !endDateInput.value;
-          btnSubmitForm.focus();
         } else if (singleDateInput) {
           btnSubmitForm.disabled = !singleDateInput.value;
-          btnSubmitForm.focus();
         }
       };
 
