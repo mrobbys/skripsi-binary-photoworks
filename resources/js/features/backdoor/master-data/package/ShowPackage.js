@@ -2,18 +2,24 @@ import { tableActionDropdown } from "@/lib/tippy";
 import axiosInstance from "@/lib/axiosInstance";
 import route from "@/lib/route";
 import useDatatable from "@/lib/useDatatable";
+import useChoices from "@/lib/useChoices";
 import useVariantForm from "./useVariantForm";
 import useVariantActions from "./useVariantActions";
 import { Toast } from "@/lib/sweetalert";
 import formatRupiah from "@/utils/formatRupiah";
-import useState from "./useState";
+import usePackageState from "./usePackageState";
+import useVariantState from "./useVariantState";
 import usePackageForm from "./usePackageForm";
 
 export default function ShowPackage(Alpine) {
   Alpine.data("tableActionDropdown", tableActionDropdown);
-  const state = useState(Alpine);
-
-  state.packageSlug = null;
+  Alpine.data("packageChoices", useChoices);
+  const state = Alpine.reactive({
+    isLoading: false,
+    packageSlug: null,
+    ...usePackageState(),
+    ...useVariantState(),
+  });
 
   const {
     state: table,
@@ -24,15 +30,15 @@ export default function ShowPackage(Alpine) {
     reload,
     getPages,
   } = useDatatable(Alpine, () => route("backdoor.data-master.package.variants.index", state.packageSlug ?? ""), {
-    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data varian." }),
+    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data varian" }),
   });
 
   Object.assign(table, { fetch, nextPage, prevPage, goToPage, reload, getPages });
 
   const initData = async function (slug) {
     state.packageSlug = slug;
-    fetch(); // Load variant table
-    await fetchPackageInfo(); // Load package details
+    fetch();
+    await fetchPackageInfo();
   };
 
   const fetchPackageInfo = async () => {
@@ -45,13 +51,23 @@ export default function ShowPackage(Alpine) {
     }
   };
 
-  const { openEditDrawer, closeDrawer, addFeature, removeFeature, submitPackage } = usePackageForm({
-    state,
-    table,
-  });
+  const { openEditDrawer, closeDrawer, addFeature, removeFeature, submitPackage, validateField, initFilePond } =
+    usePackageForm({
+      Alpine,
+      state,
+      table,
+    });
 
-  const { openVariantDrawer, closeVariantDrawer, editVariant, addVariantFeature, removeVariantFeature, submitVariant } =
-    useVariantForm({ state, table });
+  const {
+    openVariantDrawer,
+    closeVariantDrawer,
+    editVariant,
+    addVariantFeature,
+    removeVariantFeature,
+    onPriceInput,
+    validateVariantField,
+    submitVariant,
+  } = useVariantForm({ Alpine, state, table });
 
   const { toggleVariantStatus, destroyVariant } = useVariantActions({ state, table });
 
@@ -66,6 +82,8 @@ export default function ShowPackage(Alpine) {
     addFeature,
     removeFeature,
     submitPackage,
+    validateField,
+    initFilePond,
 
     // Variant Drawer
     openVariantDrawer,
@@ -73,6 +91,8 @@ export default function ShowPackage(Alpine) {
     editVariant,
     addVariantFeature,
     removeVariantFeature,
+    onPriceInput,
+    validateVariantField,
     submitVariant,
 
     // Variant Actions

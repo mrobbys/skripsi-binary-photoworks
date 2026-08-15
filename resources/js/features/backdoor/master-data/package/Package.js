@@ -4,14 +4,17 @@ import useDatatable from "@/lib/useDatatable";
 import useChoices from "@/lib/useChoices";
 import usePackageForm from "./usePackageForm";
 import usePackageActions from "./usePackageActions";
-import useState from "./useState";
+import usePackageState from "./usePackageState";
 import { Toast } from "@/lib/sweetalert";
 import formatRupiah from "@/utils/formatRupiah";
 
 export default function Package(Alpine) {
   Alpine.data("tableActionDropdown", tableActionDropdown);
   Alpine.data("packageChoices", useChoices);
-  const state = useState(Alpine);
+  const state = Alpine.reactive({
+    isLoading: false,
+    ...usePackageState(),
+  });
 
   const {
     state: table,
