@@ -21,18 +21,12 @@
     >
 
       {{-- Header + Back --}}
-      <div class="flex items-center gap-4">
-        <a
-          href="{{ route('backdoor.system-settings.roles.index') }}"
-          class="flex h-8 w-8 items-center justify-center border border-stone-300 text-stone-500 transition hover:bg-stone-200"
-        >
-          <i class="ri-arrow-left-line text-base"></i>
-        </a>
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-stone-900">Edit Role: {{ $role->name }}</h1>
-          <p class="text-sm text-stone-500">Perbarui nama dan konfigurasi permission role ini.</p>
-        </div>
-      </div>
+      <x-backdoor.shared.page-header-back
+        :href="route('backdoor.system-settings.roles.index')"
+        title="Edit Role: {{ $role->name }}"
+        subtitle="Perbarui nama dan konfigurasi permission role ini."
+        backLabel="Kembali Ke Manajemen Role"
+      />
 
       {{-- Form Body (struktur panel vertikal) --}}
       <div class="space-y-6">

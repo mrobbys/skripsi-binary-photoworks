@@ -15,18 +15,12 @@
     <div class="w-full space-y-6">
 
       {{-- Header + Back Button --}}
-      <div class="flex items-center gap-4">
-        <a
-          href="{{ route('backdoor.system-settings.roles.index') }}"
-          class="flex h-8 w-8 items-center justify-center border border-stone-300 text-stone-500 transition hover:bg-stone-200"
-        >
-          <i class="ri-arrow-left-line text-base"></i>
-        </a>
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-stone-900">{{ $role->name }}</h1>
-          <p class="text-sm text-stone-500">{{ $role->permissions->count() }} izin terdaftar</p>
-        </div>
-      </div>
+      <x-backdoor.shared.page-header-back
+        :href="route('backdoor.system-settings.roles.index')"
+        title="{{ $role->name }}"
+        subtitle="{{ $role->permissions->count() }} izin terdaftar"
+        backLabel="Kembali Ke Manajemen Role"
+      />
 
       {{-- Permission Badges per Domain Group --}}
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
