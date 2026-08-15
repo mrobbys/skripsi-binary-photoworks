@@ -27,14 +27,15 @@ export default function Addon(Alpine) {
       if (res.total_addons !== undefined) state.totalAddons = res.total_addons;
       if (res.total_active_addons !== undefined) state.totalActiveAddons = res.total_active_addons;
     },
-    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data add-on." }),
+    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data add-on" }),
   });
 
   Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });
 
   const init = () => fetch();
 
-  const { openDrawer, openEditDrawer, closeDrawer, submitAddon } = useAddonForm({
+  const { openDrawer, openEditDrawer, closeDrawer, submitAddon, validateField } = useAddonForm({
+    Alpine,
     state,
     table,
   });
@@ -51,6 +52,7 @@ export default function Addon(Alpine) {
     openEditDrawer,
     closeDrawer,
     submitAddon,
+    validateField,
 
     // Actions
     toggleAddonStatus,

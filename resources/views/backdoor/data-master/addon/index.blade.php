@@ -9,32 +9,39 @@
 <x-layouts.backdoor.index
   title="Kelola Layanan Tambahan"
   :breadcrumbs="$breadcrumbs"
-  jsModule="backdoor/master-data/addon/Addon">
+  jsModule="backdoor/master-data/addon/Addon"
+>
 
   <x-slot:content>
     <div
       x-data="Addon"
-      class="w-full space-y-6">
+      x-cloak
+      class="w-full space-y-6"
+    >
 
-      {{-- Page Header --}}
+      {{-- page header start --}}
       <x-backdoor.shared.page-header title="Layanan Tambahan (Add-ons)" />
+      {{-- page header end --}}
 
-      {{-- Stats Card --}}
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {{-- stats card start --}}
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <x-backdoor.shared.stats-card
           label="Total Add-Ons"
           x-text="state.totalAddons"
-          suffix="Item" />
+          suffix="Item"
+        />
         <x-backdoor.shared.stats-card
           label="Total Add-Ons Aktif"
           x-text="state.totalActiveAddons"
-          suffix="Item" />
+          suffix="Item"
+        />
       </div>
+      {{-- stats card end --}}
 
-      {{-- Table Card --}}
-      <div class="bg-stone-50 border border-stone-200 p-6 relative overflow-visible">
+      {{-- table card start --}}
+      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
 
-        {{-- Table Header (Search + Add Button) --}}
+        {{-- table header start --}}
         <x-backdoor.table.header>
           <x-slot:left>
             <x-backdoor.table.search placeholder="Cari nama add-on..." />
@@ -43,91 +50,117 @@
           <x-slot:right>
             <x-backdoor.table.add-button
               x-on:click="openDrawer()"
-              text="Tambah Add-On" />
+              text="Tambah Add-On"
+            />
           </x-slot:right>
         </x-backdoor.table.header>
+        {{-- table header end --}}
 
-        {{-- Table --}}
+        {{-- table container start --}}
         <x-backdoor.table.container headers="No,Nama Add-On,Harga,Tipe Input,Deskripsi,Status,Aksi">
           <template
             x-for="(item, index) in table.data"
-            x-bind:key="item.id">
+            x-bind:key="item.id"
+          >
             <tr
-              class="hover:bg-stone-100 border-b border-stone-200 transition"
+              class="border-b border-stone-200 transition hover:bg-stone-100"
               x-show="!table.isLoading"
-              x-cloak>
+              x-cloak
+            >
 
-              {{-- No --}}
+              {{-- no start --}}
               <x-backdoor.table.cell
                 class="text-stone-600"
-                x-text="(table.pagination.current_page - 1) * table.pagination.per_page + index + 1" />
+                x-text="(table.pagination.current_page - 1) * table.pagination.per_page + index + 1"
+              />
+              {{-- no end --}}
 
-              {{-- Nama Add-On --}}
+              {{-- nama addon start --}}
               <x-backdoor.table.cell
                 class="font-semibold text-stone-900"
-                x-text="item.name" />
+                x-text="item.name"
+              />
+              {{-- nama addon end --}}
 
-              {{-- Harga --}}
+              {{-- harga start --}}
               <x-backdoor.table.cell
-                class="text-stone-700 whitespace-nowrap"
-                x-text="formatRupiah(item.price)" />
+                class="whitespace-nowrap text-stone-700 font-mono text-xs font-semibold"
+                x-text="formatRupiah(item.price)"
+              />
+              {{-- harga end --}}
 
-              {{-- Tipe Input --}}
+              {{-- tipe input start --}}
               <x-backdoor.table.cell>
                 <span
                   x-tooltip="item.has_quantity ? 'Counter: Klien dapat menambah/mengurangi jumlah item (contoh: Tambahan Orang)' : 'Checkbox: Klien hanya bisa memilih Ya/Tidak (jumlah tetap 1)'"
                   x-bind:class="item.has_quantity ?
                       'bg-stone-800 text-stone-50 border border-stone-800 cursor-help' :
                       'bg-stone-100 text-stone-600 border border-stone-200 cursor-help'"
-                  class="flex flex-col items-center text-center text-xs font-semibold px-2.5 py-1 leading-tight">
+                  class="flex flex-col items-center px-2.5 py-1 text-center text-xs font-semibold leading-tight"
+                >
                   <span x-text="item.has_quantity ? 'Counter' : 'Checkbox'"></span>
-                  <span class="text-[10px] opacity-75 font-medium"
-                    x-text="item.has_quantity ? '(Multi)' : '(Single)'"></span>
+                  <span
+                    class="text-[10px] font-medium opacity-75"
+                    x-text="item.has_quantity ? '(Multi)' : '(Single)'"
+                  ></span>
                 </span>
               </x-backdoor.table.cell>
+              {{-- tipe input end --}}
 
-              {{-- Deskripsi --}}
+              {{-- deskripsi start --}}
               <x-backdoor.table.cell>
                 <span
                   x-tooltip="item.description"
                   x-bind:class="item.description ? 'cursor-help' : ''"
-                  class="text-sm text-stone-600 line-clamp-2 max-w-xs"
-                  x-text="item.description || '—'">
+                  class="line-clamp-2 max-w-xs text-sm text-stone-600"
+                  x-text="item.description || '—'"
+                >
                 </span>
               </x-backdoor.table.cell>
+              {{-- deskripsi end --}}
 
-              {{-- Status Toggle --}}
+              {{-- status toggle start --}}
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
                   x-bind:disabled="state.isLoading"
-                  x-on:change="toggleAddonStatus(item.id, item.is_active)" />
+                  x-bind:aria-label="'Status aktif ' + item.name"
+                  x-on:change="toggleAddonStatus(item.id)"
+                />
               </x-backdoor.table.cell>
+              {{-- status toggle end --}}
 
-              {{-- Aksi --}}
+              {{-- aksi start --}}
               <x-backdoor.table.actions>
                 <x-backdoor.table.action-item
                   color="text-yellow-600"
                   x-on:click="closeDropdown(); openEditDrawer(item)"
-                  text="Edit" />
+                  text="Edit"
+                />
                 <x-backdoor.table.action-item
                   color="text-red-600"
                   x-bind:disabled="state.isLoading"
                   x-on:click="closeDropdown(); destroyAddon(item.id, item.name)"
-                  text="Hapus" />
+                  text="Hapus"
+                />
               </x-backdoor.table.actions>
+              {{-- aksi end --}}
 
             </tr>
           </template>
         </x-backdoor.table.container>
+        {{-- table container end --}}
 
-        {{-- Pagination --}}
+        {{-- pagination start --}}
         <x-backdoor.table.pagination />
+        {{-- pagination end --}}
 
       </div>
+      {{-- table card end --}}
 
-      {{-- Drawer Form --}}
+      {{-- drawer form start --}}
       <x-backdoor.data-master.addon.addon-drawer-form />
+      {{-- drawer form end --}}
 
     </div>
   </x-slot:content>

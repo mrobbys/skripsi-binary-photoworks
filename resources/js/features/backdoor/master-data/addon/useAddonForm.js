@@ -1,6 +1,7 @@
 import route from "@/lib/route";
-import { Modal, Toast } from "@/lib/sweetalert";
+import { Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import { getFieldError } from "@/lib/zodHelper";
 import axiosInstance from "@/lib/axiosInstance";
 
 const addonSchema = z.object({
@@ -13,7 +14,26 @@ const addonSchema = z.object({
   is_active: z.boolean(),
 });
 
-export default function useAddonForm({ state, table }) {
+export default function useAddonForm({ Alpine, state, table }) {
+  Alpine.effect(() => {
+    const allFilled = Boolean(
+      state.form.name &&
+      state.form.price !== "" &&
+      state.form.price !== null &&
+      state.form.description &&
+      state.form.has_quantity !== undefined &&
+      state.form.is_active !== undefined
+    );
+    const noErrors =
+      !state.errors.name &&
+      !state.errors.price &&
+      !state.errors.description &&
+      !state.errors.has_quantity &&
+      !state.errors.is_active;
+
+    state.isFormValid = Boolean(allFilled && noErrors);
+  });
+
   const resetForm = () => {
     state.isEdit = false;
     state.addonId = null;
@@ -23,6 +43,7 @@ export default function useAddonForm({ state, table }) {
     state.form.has_quantity = false;
     state.form.is_active = true;
     state.errors = {};
+    state.dismissedErrors = {};
   };
 
   const openDrawer = () => {
@@ -37,8 +58,8 @@ export default function useAddonForm({ state, table }) {
     state.form.name = addon.name;
     state.form.price = addon.price;
     state.form.description = addon.description ?? "";
-    state.form.has_quantity = addon.has_quantity;
-    state.form.is_active = addon.is_active;
+    state.form.has_quantity = Boolean(addon.has_quantity);
+    state.form.is_active = Boolean(addon.is_active);
     state.isDrawerOpen = true;
   };
 
@@ -47,19 +68,26 @@ export default function useAddonForm({ state, table }) {
     setTimeout(() => resetForm(), 500);
   };
 
-  const submitAddon = async () => {
-    state.isLoading = true;
-    state.errors = {};
+  const validateField = (field) => {
+    state.dismissedErrors[field] = true;
+    const result = addonSchema.safeParse(state.form);
+    state.errors[field] = result.success ? null : getFieldError(result, field);
+  };
 
-    // Validasi sisi klien dengan Zod
-    const validation = addonSchema.safeParse(state.form);
-    if (!validation.success) {
-      validation.error.issues.forEach((issue) => {
-        if (!state.errors[issue.path[0]]) state.errors[issue.path[0]] = issue.message;
-      });
-      state.isLoading = false;
+  const submitAddon = async () => {
+    const result = addonSchema.safeParse(state.form);
+    if (!result.success) {
+      state.errors = {
+        name: getFieldError(result, "name"),
+        price: getFieldError(result, "price"),
+        description: getFieldError(result, "description"),
+        has_quantity: getFieldError(result, "has_quantity"),
+        is_active: getFieldError(result, "is_active"),
+      };
       return;
     }
+
+    state.isLoading = true;
 
     const payload = {
       name: state.form.name.trim(),
@@ -83,19 +111,18 @@ export default function useAddonForm({ state, table }) {
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
       if (error.response?.status === 422) {
-        const errs = error.response.data.errors;
-        for (const key in errs) state.errors[key] = errs[key][0];
+        state.errors = error.response.data.errors ?? {};
       } else {
-        Modal.fire({
+        Toast.fire({
           icon: "error",
-          title: "Gagal menyimpan add-on",
-          text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+          title: "Terjadi kesalahan pada server. Silahkan coba beberapa saat lagi",
         });
+        console.error(error);
       }
     } finally {
       state.isLoading = false;
     }
   };
 
-  return { openDrawer, openEditDrawer, closeDrawer, submitAddon };
+  return { openDrawer, openEditDrawer, closeDrawer, submitAddon, validateField };
 }
