@@ -27,7 +27,7 @@ export default function useActions({ state, table }) {
     const result = scheduleTimeSchema.safeParse({ start_time: newStartTime, end_time: newEndTime });
 
     if (!result.success) {
-      const message = result.error.issues[0]?.message ?? "Format waktu tidak valid.";
+      const message = result.error.issues[0]?.message ?? "Format waktu tidak valid";
       Toast.fire({ icon: "error", title: message });
 
       // Rollback Flatpickr UI ke nilai lama
@@ -60,7 +60,7 @@ export default function useActions({ state, table }) {
         if (endEl && endEl._flatpickr) endEl._flatpickr.setDate(response.data.data.end_time, false);
       }
 
-      Toast.fire({ icon: "success", title: "Jadwal berhasil disimpan." });
+      Toast.fire({ icon: "success", title: "Jadwal berhasil disimpan" });
     } catch (error) {
       item.start_time = oldStartTime;
       item.end_time = oldEndTime;
@@ -72,11 +72,11 @@ export default function useActions({ state, table }) {
 
       if (error.response?.status === 422) {
         const firstError = Object.values(error.response.data.errors)[0]?.[0];
-        Toast.fire({ icon: "error", title: firstError ?? "Validasi gagal." });
+        Toast.fire({ icon: "error", title: firstError ?? "Validasi gagal" });
       } else {
         Toast.fire({
           icon: "error",
-          title: error.response?.data?.message ?? "Terjadi kesalahan server.",
+          title: error.response?.data?.message ?? "Terjadi kesalahan server",
         });
       }
     } finally {
@@ -86,9 +86,6 @@ export default function useActions({ state, table }) {
     }
   };
 
-  /**
-   * Toggle status aktif dengan optimistic update.
-   */
   const toggleScheduleStatus = async (scheduleId) => {
     state.savingIds = new Set([...state.savingIds, scheduleId]);
 
@@ -99,7 +96,7 @@ export default function useActions({ state, table }) {
     } catch (error) {
       Toast.fire({
         icon: "error",
-        title: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        title: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       const next = new Set(state.savingIds);
