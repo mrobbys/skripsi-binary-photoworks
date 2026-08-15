@@ -1,11 +1,19 @@
 @props(['name', 'label' => 'TANGGAL', 'placeholder' => 'DD-MM-YYYY', 'value' => null])
 
+@php
+  $inputId = $attributes->get('id') ?? $name . '_' . \Illuminate\Support\Str::random(6);
+@endphp
+
 <div>
-  <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+  <label
+    for="{{ $inputId }}"
+    class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-700"
+  >
     {{ $label }}
   </label>
   <div class="relative">
     <input
+      id="{{ $inputId }}"
       type="text"
       name="{{ $name }}"
       value="{{ $value }}"
