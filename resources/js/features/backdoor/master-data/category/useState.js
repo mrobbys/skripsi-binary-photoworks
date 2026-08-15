@@ -12,5 +12,7 @@ export default function useState(Alpine) {
       is_active: true,
     },
     errors: {},
+    dismissedErrors: {},
+    isFormValid: false,
   });
 }

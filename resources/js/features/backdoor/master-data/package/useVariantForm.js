@@ -1,24 +1,39 @@
 import route from "@/lib/route";
-import { Modal, Toast } from "@/lib/sweetalert";
+import { Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import { getFieldError } from "@/lib/zodHelper";
 import axiosInstance from "@/lib/axiosInstance";
 
 const variantSchema = z.object({
-  name: z.string().min(3, "Nama varian minimal 3 karakter.").max(100, "Maksimal 100 karakter."),
+  name: z.string().min(3, "Nama varian minimal 3 karakter").max(100, "Maksimal 100 karakter"),
   price: z
     .union([z.string(), z.number()])
     .transform((v) => Number(v))
-    .refine((v) => v >= 1, "Harga minimal Rp 1."),
+    .refine((v) => v >= 1, "Harga minimal Rp 1"),
   duration: z
     .union([z.string(), z.number()])
     .transform((v) => Number(v))
-    .refine((v) => v >= 1, "Durasi minimal 1 menit."),
+    .refine((v) => v >= 1, "Durasi minimal 1 menit"),
   is_whatsapp_only: z.boolean(),
   is_active: z.boolean(),
   features: z.array(z.string()).optional(),
 });
 
-export default function useVariantForm({ state, table }) {
+export default function useVariantForm({ Alpine, state, table }) {
+  Alpine.effect(() => {
+    const allFilled = Boolean(
+      state.variantForm.name &&
+      state.variantForm.price &&
+      state.variantForm.duration
+    );
+    const noErrors =
+      !state.variantErrors.name &&
+      !state.variantErrors.price &&
+      !state.variantErrors.duration;
+
+    state.isVariantFormValid = Boolean(allFilled && noErrors);
+  });
+
   const resetVariantForm = () => {
     state.isVariantEdit = false;
     state.variantId = null;
@@ -29,6 +44,7 @@ export default function useVariantForm({ state, table }) {
     state.variantForm.is_active = true;
     state.variantForm.features = ["", ""];
     state.variantErrors = {};
+    state.dismissedVariantErrors = {};
   };
 
   const openVariantDrawer = (packageSlug) => {
@@ -36,6 +52,7 @@ export default function useVariantForm({ state, table }) {
     state.currentPackageSlug = packageSlug;
     state.isVariantDrawerOpen = true;
   };
+
   const closeVariantDrawer = () => {
     state.isVariantDrawerOpen = false;
     setTimeout(() => resetVariantForm(), 500);
@@ -46,13 +63,14 @@ export default function useVariantForm({ state, table }) {
     state.isVariantEdit = true;
     state.variantId = variant?.id;
     state.currentPackageSlug = packageSlug;
-    state.variantForm.name = variant?.name;
-    state.variantForm.price = variant?.price;
-    state.variantForm.duration = variant?.duration;
-    state.variantForm.is_whatsapp_only = variant?.is_whatsapp_only;
-    state.variantForm.is_active = variant?.is_active;
-    state.variantForm.features = variant?.features?.map((f) => (typeof f === "string" ? f : f.description)) ?? [""];
-    if (state.variantForm.features.length === 0) state.variantForm.features.push("");
+    state.variantForm.name = variant?.name ?? "";
+    state.variantForm.price = variant?.price ?? "";
+    state.variantForm.duration = variant?.duration ?? "";
+    state.variantForm.is_whatsapp_only = Boolean(variant?.is_whatsapp_only);
+    state.variantForm.is_active = Boolean(variant?.is_active ?? true);
+    state.variantForm.features =
+      variant?.features?.map((f) => (typeof f === "string" ? f : f.description)) ?? ["", ""];
+    if (state.variantForm.features.length === 0) state.variantForm.features = ["", ""];
     state.isVariantDrawerOpen = true;
   };
 
@@ -62,18 +80,35 @@ export default function useVariantForm({ state, table }) {
     if (state.variantForm.features.length === 0) state.variantForm.features.push("");
   };
 
+  const onPriceInput = (event) => {
+    let val = parseInt(event.target.value.replace(/\D/g, ""), 10) || 0;
+    if (val > 100000000) val = 100000000;
+    state.variantForm.price = val || "";
+    event.target.value = val ? new Intl.NumberFormat("id-ID").format(val) : "";
+    validateVariantField("price");
+  };
+
+  const validateVariantField = (field) => {
+    state.dismissedVariantErrors[field] = true;
+    const filteredFeatures = state.variantForm.features.filter((f) => f.trim() !== "");
+    const result = variantSchema.safeParse({ ...state.variantForm, features: filteredFeatures });
+    state.variantErrors[field] = result.success ? null : getFieldError(result, field);
+  };
+
   const submitVariant = async () => {
-    state.isLoading = true;
-    state.variantErrors = {};
     const filteredFeatures = state.variantForm.features.filter((f) => f.trim() !== "");
     const validation = variantSchema.safeParse({ ...state.variantForm, features: filteredFeatures });
+
     if (!validation.success) {
-      validation.error.issues.forEach((issue) => {
-        if (!state.variantErrors[issue.path[0]]) state.variantErrors[issue.path[0]] = issue.message;
-      });
-      state.isLoading = false;
+      state.variantErrors = {
+        name: getFieldError(validation, "name"),
+        price: getFieldError(validation, "price"),
+        duration: getFieldError(validation, "duration"),
+      };
       return;
     }
+
+    state.isLoading = true;
     const payload = validation.data;
     const url = state.isVariantEdit
       ? route("backdoor.data-master.package.variants.update", {
@@ -82,6 +117,7 @@ export default function useVariantForm({ state, table }) {
         })
       : route("backdoor.data-master.package.variants.store", state.currentPackageSlug);
     const method = state.isVariantEdit ? "put" : "post";
+
     try {
       const response = await axiosInstance[method](url, payload);
       closeVariantDrawer();
@@ -89,14 +125,13 @@ export default function useVariantForm({ state, table }) {
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
       if (error.response?.status === 422) {
-        const errs = error.response.data.errors;
-        for (const key in errs) state.variantErrors[key] = errs[key][0];
+        state.variantErrors = error.response.data.errors ?? {};
       } else {
-        Modal.fire({
+        Toast.fire({
           icon: "error",
-          title: "Gagal menyimpan varian",
-          text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+          title: "Terjadi kesalahan pada server. Silahkan coba beberapa saat lagi",
         });
+        console.error(error);
       }
     } finally {
       state.isLoading = false;
@@ -109,6 +144,8 @@ export default function useVariantForm({ state, table }) {
     editVariant,
     addVariantFeature,
     removeVariantFeature,
+    onPriceInput,
+    validateVariantField,
     submitVariant,
   };
 }

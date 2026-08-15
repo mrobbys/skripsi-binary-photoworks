@@ -15,7 +15,7 @@ export default function useVariantActions({ state, table }) {
       Toast.fire({ icon: "success", title: response.data.message });
     } catch (error) {
       checkbox.checked = originalChecked;
-      Toast.fire({ icon: "error", title: error.response?.data?.message ?? "Terjadi kesalahan server." });
+      Toast.fire({ icon: "error", title: error.response?.data?.message ?? "Terjadi kesalahan server" });
     } finally {
       state.isLoading = false;
     }
@@ -24,7 +24,7 @@ export default function useVariantActions({ state, table }) {
   const destroyVariant = async (packageSlug, variantId, variantName) => {
     const result = await confirmModal(
       "Hapus Varian?",
-      `Varian "${variantName}" akan dihapus secara permanen.`,
+      `Varian "${variantName}" akan dihapus secara permanen`,
       "warning",
       "Ya, Hapus",
     );
@@ -40,7 +40,7 @@ export default function useVariantActions({ state, table }) {
       Modal.fire({
         icon: "error",
         title: "Gagal menghapus varian",
-        text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        text: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       state.isLoading = false;

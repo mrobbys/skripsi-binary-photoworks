@@ -45,15 +45,15 @@ class UpdateBackgroundRequest extends FormRequest
 	public function messages(): array
 	{
 		return [
-			'name.required' => 'Nama background wajib diisi.',
-			'name.max' => 'Nama background maksimal 50 karakter.',
-			'name.unique' => 'Nama background sudah terdaftar.',
+			'name.required' => 'Nama background wajib diisi',
+			'name.max' => 'Nama background maksimal 50 karakter',
+			'name.unique' => 'Nama background sudah terdaftar',
 
-			'description.max' => 'Deskripsi maksimal 255 karakter.',
+			'description.max' => 'Deskripsi maksimal 255 karakter',
 
-			'image.image' => 'File harus berupa gambar.',
-			'image.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP.',
-			'image.max' => 'Ukuran gambar maksimal 2 MB.',
+			'image.image' => 'File harus berupa gambar',
+			'image.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP',
+			'image.max' => 'Ukuran gambar maksimal 2 MB',
 		];
 	}
 }

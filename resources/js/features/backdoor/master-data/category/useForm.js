@@ -1,15 +1,22 @@
 import route from "@/lib/route";
-import { Modal, Toast } from "@/lib/sweetalert";
+import { Toast } from "@/lib/sweetalert";
 import { z } from "zod";
+import { getFieldError } from "@/lib/zodHelper";
 import axiosInstance from "@/lib/axiosInstance";
 
 const categorySchema = z.object({
-  category_code: z.string().min(1, "Kode kategori wajib diisi.").max(3, "Maksimal 3 karakter."),
-  name: z.string().min(1, "Nama kategori wajib diisi.").max(100, "Maksimal 100 karakter."),
+  category_code: z.string().min(1, "Kode kategori wajib diisi").max(3, "Maksimal 3 karakter"),
+  name: z.string().min(1, "Nama kategori wajib diisi").max(100, "Maksimal 100 karakter"),
   is_active: z.boolean(),
 });
 
-export default function useForm({ state, table }) {
+export default function useForm({ Alpine, state, table }) {
+  Alpine.effect(() => {
+    const allFilled = Boolean(state.form.category_code && state.form.name);
+    const noErrors = !state.errors.category_code && !state.errors.name;
+    state.isFormValid = Boolean(allFilled && noErrors);
+  });
+
   const resetForm = () => {
     state.isEdit = false;
     state.categoryId = null;
@@ -17,6 +24,7 @@ export default function useForm({ state, table }) {
     state.form.name = "";
     state.form.is_active = true;
     state.errors = {};
+    state.dismissedErrors = {};
   };
 
   const openDrawer = () => {
@@ -26,7 +34,7 @@ export default function useForm({ state, table }) {
 
   const closeDrawer = () => {
     state.isDrawerOpen = false;
-    resetForm();
+    setTimeout(() => resetForm(), 500);
   };
 
   const editCategory = (category) => {
@@ -39,21 +47,29 @@ export default function useForm({ state, table }) {
     state.isDrawerOpen = true;
   };
 
-  const submitCategory = async () => {
-    state.isLoading = true;
-    state.errors = {};
+  // Validasi individual per-field
+  const validateField = (field) => {
+    state.dismissedErrors[field] = true;
+    const result = categorySchema.safeParse(state.form);
+    if (!result.success) {
+      state.errors[field] = getFieldError(result, field);
+    } else {
+      state.errors[field] = null;
+    }
+  };
 
-    // validasi zod
-    const validation = categorySchema.safeParse(state.form);
-    if (!validation.success) {
-      validation.error.issues.forEach((issue) => {
-        if (!state.errors[issue.path[0]]) {
-          state.errors[issue.path[0]] = issue.message;
-        }
-      });
-      state.isLoading = false;
+  const submitCategory = async () => {
+    // Validasi seluruh schema sebelum request
+    const result = categorySchema.safeParse(state.form);
+    if (!result.success) {
+      state.errors = {
+        category_code: getFieldError(result, "category_code"),
+        name: getFieldError(result, "name"),
+      };
       return;
     }
+
+    state.isLoading = true;
 
     const url = state.isEdit
       ? route("backdoor.data-master.category.update", state.categoryId)
@@ -63,7 +79,6 @@ export default function useForm({ state, table }) {
     try {
       const response = await axiosInstance[method](url, state.form);
       closeDrawer();
-
       table.reload();
 
       Toast.fire({
@@ -72,16 +87,13 @@ export default function useForm({ state, table }) {
       });
     } catch (error) {
       if (error.response?.status === 422) {
-        const errs = error.response.data.errors;
-        for (const key in errs) {
-          state.errors[key] = errs[key][0];
-        }
+        state.errors = error.response.data.errors ?? {};
       } else {
-        Modal.fire({
+        Toast.fire({
           icon: "error",
-          title: "Gagal menyimpan kategori",
-          text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+          title: "Terjadi kesalahan pada server. Silahkan coba beberapa saat lagi.",
         });
+        console.error(error);
       }
     } finally {
       state.isLoading = false;
@@ -92,6 +104,7 @@ export default function useForm({ state, table }) {
     openDrawer,
     closeDrawer,
     editCategory,
+    validateField,
     submitCategory,
   };
 }

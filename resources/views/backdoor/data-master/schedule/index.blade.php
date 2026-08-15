@@ -9,92 +9,91 @@
 <x-layouts.backdoor.index
   title="Jadwal Operasional Studio"
   :breadcrumbs="$breadcrumbs"
-  jsModule="backdoor/master-data/schedule/Schedule">
+  jsModule="backdoor/master-data/schedule/Schedule"
+>
 
   <x-slot:content>
     <div
       x-data="Schedule"
-      class="w-full space-y-6">
+      x-cloak
+      class="w-full space-y-6"
+    >
 
-      {{-- Page Header --}}
+      {{-- page header start --}}
       <x-backdoor.shared.page-header title="Jadwal Operasional Studio" />
+      {{-- page header end --}}
 
-      {{-- Table Card --}}
-      <div class="bg-stone-50 border border-stone-200 p-6">
+      {{-- table card start --}}
+      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
 
-        {{-- Table Container --}}
+        {{-- table container start --}}
         <x-backdoor.table.container headers="Hari,Jam Buka,Jam Tutup,Status">
           <template
             x-for="(item, index) in table.data"
-            x-bind:key="item.id">
+            x-bind:key="item.id"
+          >
             <tr
-              class="hover:bg-stone-100 border-b border-stone-200 transition"
+              class="border-b border-stone-200 transition hover:bg-stone-100"
               x-bind:class="state.savingIds.has(item.id) ? 'opacity-60' : ''"
               x-show="!table.isLoading"
-              x-cloak>
+              x-cloak
+            >
 
-              {{-- Hari --}}
-              <x-backdoor.table.cell class="font-semibold text-stone-900" x-text="item.day_label" />
+              {{-- hari start --}}
+              <x-backdoor.table.cell
+                class="font-semibold text-stone-900"
+                x-text="item.day_label"
+              />
+              {{-- hari end --}}
 
-              {{-- Jam Buka (Flatpickr) --}}
+              {{-- jam buka start --}}
               <x-backdoor.table.cell>
                 <input
                   type="text"
                   x-bind:id="'start-time-' + item.id"
                   x-bind:value="item.start_time"
                   x-bind:disabled="state.savingIds.has(item.id)"
-                  x-init="window.flatpickr($el, {
-                      enableTime: true,
-                      noCalendar: true,
-                      dateFormat: 'H:i',
-                      time_24hr: true,
-                      defaultDate: item.start_time,
-                      static: true,
-                      onClose(selectedDates, dateStr) {
-                          if (dateStr && dateStr !== item.start_time) {
-                              saveScheduleTime(item.id, dateStr, item.end_time);
-                          }
-                      }
-                  });"
-                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-stone-900 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:opacity-50 disabled:cursor-not-allowed" />
+                  x-bind:aria-label="'Jam buka ' + item.day_label"
+                  placeholder="00:00"
+                  x-init="initTimePicker($el, item, 'start_time')"
+                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
               </x-backdoor.table.cell>
+              {{-- jam buka end --}}
 
-              {{-- Jam Tutup (Flatpickr) --}}
+              {{-- jam tutup start --}}
               <x-backdoor.table.cell>
                 <input
                   type="text"
                   x-bind:id="'end-time-' + item.id"
                   x-bind:value="item.end_time"
                   x-bind:disabled="state.savingIds.has(item.id)"
-                  x-init="window.flatpickr($el, {
-                      enableTime: true,
-                      noCalendar: true,
-                      dateFormat: 'H:i',
-                      time_24hr: true,
-                      defaultDate: item.end_time,
-                      static: true,
-                      onClose(selectedDates, dateStr) {
-                          if (dateStr && dateStr !== item.end_time) {
-                              saveScheduleTime(item.id, item.start_time, dateStr);
-                          }
-                      }
-                  });"
-                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-stone-900 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:opacity-50 disabled:cursor-not-allowed" />
+                  x-bind:aria-label="'Jam tutup ' + item.day_label"
+                  placeholder="00:00"
+                  x-init="initTimePicker($el, item, 'end_time')"
+                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
               </x-backdoor.table.cell>
+              {{-- jam tutup end --}}
 
-              {{-- Status Toggle --}}
+              {{-- status toggle start --}}
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
                   x-bind:disabled="state.savingIds.has(item.id)"
-                  x-on:change="toggleScheduleStatus(item.id, item.is_active)" />
+                  x-bind:aria-label="'Status aktif ' + item.day_label"
+                  x-on:change="toggleScheduleStatus(item.id)"
+                />
               </x-backdoor.table.cell>
+              {{-- status toggle end --}}
 
             </tr>
           </template>
         </x-backdoor.table.container>
+        {{-- table container end --}}
 
       </div>
+      {{-- table card end --}}
 
     </div>
   </x-slot:content>

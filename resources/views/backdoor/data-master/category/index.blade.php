@@ -15,6 +15,7 @@
   <x-slot:content>
     <div
       x-data="Category"
+      x-cloak
       class="w-full space-y-6"
     >
       {{-- title section start --}}
@@ -22,7 +23,7 @@
       {{-- title section end --}}
 
       {{-- stats card start --}}
-      <div class="grid grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <x-backdoor.shared.stats-card
           label="Total Kategori"
           x-text="state.totalCategory"
@@ -43,7 +44,7 @@
         {{-- table header start --}}
         <x-backdoor.table.header>
           <x-slot:left>
-            <x-backdoor.table.search placeholder="Cari nama kategori..." />
+            <x-backdoor.table.search placeholder="Cari kode, nama kategori..." />
           </x-slot:left>
 
           <x-slot:right>
@@ -82,7 +83,7 @@
 
               {{-- Nama Kategori start --}}
               <x-backdoor.table.cell
-                class="font-semibold text-stone-900"
+                class="font-semibold text-stone-900 min-w-32"
                 x-text="item.name"
               />
               {{-- Nama Kategori end --}}

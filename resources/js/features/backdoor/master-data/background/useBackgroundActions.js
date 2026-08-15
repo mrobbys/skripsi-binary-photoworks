@@ -13,7 +13,7 @@ export default function useBackgroundActions({ state, table }) {
     } catch (error) {
       Toast.fire({
         icon: "error",
-        title: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        title: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       state.isLoading = false;
@@ -23,7 +23,7 @@ export default function useBackgroundActions({ state, table }) {
   const destroyBackground = async (id, name) => {
     const result = await confirmModal(
       "Hapus Background?",
-      `Background "${name}" beserta gambarnya akan dihapus permanen dari storage.`,
+      `Background "${name}" beserta gambarnya akan dihapus permanen dari storage`,
       "warning",
       "Ya, Hapus",
     );
@@ -40,7 +40,7 @@ export default function useBackgroundActions({ state, table }) {
       Modal.fire({
         icon: "error",
         title: "Gagal menghapus background",
-        text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        text: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       state.isLoading = false;

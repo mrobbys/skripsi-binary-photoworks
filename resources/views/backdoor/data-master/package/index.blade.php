@@ -9,42 +9,50 @@
 <x-layouts.backdoor.index
   title="Kelola Paket & Varian"
   :breadcrumbs="$breadcrumbs"
-  jsModule="backdoor/master-data/package/Package">
+  jsModule="backdoor/master-data/package/Package"
+>
 
   <x-slot:content>
     <div
       x-data="Package"
-      class="w-full space-y-6">
+      x-cloak
+      class="w-full space-y-6"
+    >
 
-      {{-- title section start --}}
+      {{-- page header start --}}
       <x-backdoor.shared.page-header title="Kelola Paket & Varian" />
-      {{-- title section end --}}
+      {{-- page header end --}}
 
-      <div class="grid grid-cols-4 gap-6">
+      {{-- stats card start --}}
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {{-- stats total paket start --}}
         <x-backdoor.shared.stats-card
           label="Total Paket"
           x-text="state.totalPackages"
-          suffix="Paket" />
+          suffix="Paket"
+        />
         {{-- stats total paket end --}}
 
         {{-- stats total paket aktif start --}}
         <x-backdoor.shared.stats-card
           label="Total Paket Aktif"
           x-text="state.totalActivePackages"
-          suffix="Paket" />
+          suffix="Paket"
+        />
         {{-- stats total paket aktif end --}}
 
         {{-- stats total varian aktif start --}}
         <x-backdoor.shared.stats-card
           label="Total Varian Aktif"
           x-text="state.totalActiveVariants"
-          suffix="Varian" />
+          suffix="Varian"
+        />
         {{-- stats total varian aktif end --}}
       </div>
+      {{-- stats card end --}}
 
-      {{-- table start --}}
-      <div class="bg-stone-50 border border-stone-200 p-6 relative overflow-visible">
+      {{-- table card start --}}
+      <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
 
         {{-- table header start --}}
         <x-backdoor.table.header>
@@ -55,80 +63,97 @@
           <x-slot:right>
             <x-backdoor.table.add-button
               x-on:click="openDrawer()"
-              text="Tambah Paket" />
+              text="Tambah Paket"
+            />
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No, Nama Paket & Kategori, Jumlah Varian, Rentang Harga, Status, Aksi">
+        <x-backdoor.table.container headers="No,Nama Paket & Kategori,Jumlah Varian,Rentang Harga,Status,Aksi">
           <template
             x-for="(item, index) in table.data"
-            x-bind:key="item.slug">
+            x-bind:key="item.slug"
+          >
             <tr
-              class="hover:bg-stone-100 border-b border-stone-200 transition"
+              class="border-b border-stone-200 transition hover:bg-stone-100"
               x-show="!table.isLoading"
-              x-cloak>
+              x-cloak
+            >
 
-              {{-- No start --}}
+              {{-- no start --}}
               <x-backdoor.table.cell
                 class="text-stone-600"
-                x-text="(table.pagination.current_page - 1) * table.pagination.per_page + index + 1" />
-              {{-- No end --}}
+                x-text="(table.pagination.current_page - 1) * table.pagination.per_page + index + 1"
+              />
+              {{-- no end --}}
 
-              {{-- Nama Paket & Kategori start --}}
+              {{-- nama paket & kategori start --}}
               <x-backdoor.table.cell>
                 <div class="flex flex-col gap-0.5">
-                  <span class="font-bold text-stone-900" x-text="item.name"></span>
-                  <span class="text-[10px] uppercase tracking-wider text-stone-500 font-medium">
+                  <span
+                    class="font-bold text-stone-900"
+                    x-text="item.name"
+                  ></span>
+                  <span class="font-medium text-[10px] uppercase tracking-wider text-stone-500">
                     CATEGORY: <span x-text="item.category.name"></span>
                   </span>
                 </div>
               </x-backdoor.table.cell>
-              {{-- Nama Paket & Kategori end --}}
+              {{-- nama paket & kategori end --}}
 
-              {{-- Jumlah Varian start --}}
-              <x-backdoor.table.cell
-                class="font-semibold text-stone-900">
+              {{-- jumlah varian start --}}
+              <x-backdoor.table.cell class="font-semibold text-stone-900">
                 <span x-text="item.variants_count"></span>
                 <span>Varian</span>
               </x-backdoor.table.cell>
-              {{-- Jumlah Varian end --}}
+              {{-- jumlah varian end --}}
 
-              {{-- Rentang Harga start --}}
-              <x-backdoor.table.cell
-                class="font-semibold text-stone-900">
-                <span class="whitespace-nowrap" x-text="formatRupiah(item.price_min)"></span>
+              {{-- rentang harga start --}}
+              <x-backdoor.table.cell class="font-semibold text-stone-900 font-mono text-xs">
+                <span
+                  class="whitespace-nowrap"
+                  x-text="formatRupiah(item.price_min)"
+                ></span>
                 <span>-</span>
-                <span class="whitespace-nowrap" x-text="formatRupiah(item.price_max)"></span>
+                <span
+                  class="whitespace-nowrap"
+                  x-text="formatRupiah(item.price_max)"
+                ></span>
               </x-backdoor.table.cell>
-              {{-- Rentag Harga end --}}
+              {{-- rentang harga end --}}
 
-              {{-- Status toggle start --}}
+              {{-- status toggle start --}}
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
                   x-bind:disabled="state.isLoading"
-                  x-on:change="togglePackageStatus(item.slug, $event)" />
+                  x-bind:aria-label="'Status aktif ' + item.name"
+                  x-on:change="togglePackageStatus(item.slug, $event)"
+                />
               </x-backdoor.table.cell>
-              {{-- Status toggle end --}}
+              {{-- status toggle end --}}
 
-              {{-- Aksi start --}}
+              {{-- aksi start --}}
               <x-backdoor.table.actions>
                 <x-backdoor.table.action-item
                   color="text-blue-600"
                   x-bind:href="`{{ route('backdoor.data-master.package.show', ':slug') }}`.replace(':slug', item.slug)"
-                  text="Detail" />
+                  text="Detail"
+                />
                 <x-backdoor.table.action-item
                   color="text-yellow-600"
                   x-on:click="closeDropdown(); openEditDrawer(item)"
-                  text="Edit" />
+                  text="Edit"
+                />
                 <x-backdoor.table.action-item
                   color="text-red-600"
+                  x-bind:disabled="state.isLoading"
                   x-on:click="closeDropdown(); destroyPackage(item)"
-                  text="Hapus" />
+                  text="Hapus"
+                />
               </x-backdoor.table.actions>
-              {{-- Aksi end --}}
+              {{-- aksi end --}}
 
             </tr>
           </template>
@@ -140,11 +165,11 @@
         {{-- pagination end --}}
 
       </div>
-      {{-- table end --}}
+      {{-- table card end --}}
 
-      {{-- drawer form ( create / update ) start --}}
+      {{-- drawer form start --}}
       <x-backdoor.data-master.package.package-drawer-form :categories="$categories" />
-      {{-- drawer form ( create / update ) end --}}
+      {{-- drawer form end --}}
 
     </div>
   </x-slot:content>

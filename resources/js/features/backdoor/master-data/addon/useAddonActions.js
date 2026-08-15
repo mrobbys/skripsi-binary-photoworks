@@ -13,7 +13,7 @@ export default function useAddonActions({ state, table }) {
     } catch (error) {
       Toast.fire({
         icon: "error",
-        title: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        title: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       state.isLoading = false;
@@ -23,7 +23,7 @@ export default function useAddonActions({ state, table }) {
   const destroyAddon = async (id, name) => {
     const result = await confirmModal(
       "Hapus Add-On?",
-      `Add-on "${name}" akan dihapus secara permanen.`,
+      `Add-on "${name}" akan dihapus secara permanen`,
       "warning",
       "Ya, Hapus",
     );
@@ -40,7 +40,7 @@ export default function useAddonActions({ state, table }) {
       Modal.fire({
         icon: "error",
         title: "Gagal menghapus add-on",
-        text: error.response?.data?.message ?? "Terjadi kesalahan server.",
+        text: error.response?.data?.message ?? "Terjadi kesalahan server",
       });
     } finally {
       state.isLoading = false;

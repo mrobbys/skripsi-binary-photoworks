@@ -6,6 +6,7 @@
   *   - openState      : Alpine expression — kondisi buka/tutup
   *   - closeAction    : Alpine expression — fungsi menutup drawer
   *   - title          : string — judul header
+  *   - titleExpression: string — Alpine expression untuk judul dinamis (opsional)
   *   - maxWidth       : string — Tailwind class lebar max panel (default: max-w-lg)
   *   - ariaLabelledBy : string — ID untuk aria-labelledby
   *   - formAction     : Submit Form
@@ -19,6 +20,7 @@
     'openState' => 'false',
     'closeAction' => '',
     'title' => 'Drawer',
+    'titleExpression' => null,
     'maxWidth' => 'max-w-lg',
     'ariaLabelledBy' => 'drawer-title',
     'formAction' => null,
@@ -67,8 +69,14 @@
             <div class="p-4 border-b-2 border-stone-300 bg-stone-200 flex justify-between items-center shrink-0">
               <h2
                 class="text-xl font-bold text-stone-900"
-                id="{{ $ariaLabelledBy }}">
-                {{ $title }}
+                id="{{ $ariaLabelledBy }}"
+                @if($titleExpression) x-text="{{ $titleExpression }}" @endif
+              >
+                @if(isset($headerTitle))
+                  {{ $headerTitle }}
+                @else
+                  {{ $title }}
+                @endif
               </h2>
               <button
                 x-on:click="{{ $closeAction }}"

@@ -1,15 +1,20 @@
 import { tableActionDropdown } from "@/lib/tippy";
 import route from "@/lib/route";
 import useDatatable from "@/lib/useDatatable";
+import useChoices from "@/lib/useChoices";
 import usePackageForm from "./usePackageForm";
 import usePackageActions from "./usePackageActions";
-import useState from "./useState";
+import usePackageState from "./usePackageState";
 import { Toast } from "@/lib/sweetalert";
 import formatRupiah from "@/utils/formatRupiah";
 
 export default function Package(Alpine) {
   Alpine.data("tableActionDropdown", tableActionDropdown);
-  const state = useState(Alpine);
+  Alpine.data("packageChoices", useChoices);
+  const state = Alpine.reactive({
+    isLoading: false,
+    ...usePackageState(),
+  });
 
   const {
     state: table,
@@ -27,16 +32,24 @@ export default function Package(Alpine) {
       if (res.total_active_packages !== undefined) state.totalActivePackages = res.total_active_packages;
       if (res.total_active_variants !== undefined) state.totalActiveVariants = res.total_active_variants;
     },
-    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data tabel." }),
+    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data paket" }),
   });
 
   Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });
 
-  const init = function () {
-    fetch();
-  };
+  const init = () => fetch();
 
-  const { openDrawer, closeDrawer, openEditDrawer, addFeature, removeFeature, submitPackage } = usePackageForm({
+  const {
+    openDrawer,
+    closeDrawer,
+    openEditDrawer,
+    addFeature,
+    removeFeature,
+    submitPackage,
+    validateField,
+    initFilePond,
+  } = usePackageForm({
+    Alpine,
     state,
     table,
   });
@@ -53,6 +66,8 @@ export default function Package(Alpine) {
     addFeature,
     removeFeature,
     submitPackage,
+    validateField,
+    initFilePond,
     togglePackageStatus,
     destroyPackage,
     formatRupiah,
