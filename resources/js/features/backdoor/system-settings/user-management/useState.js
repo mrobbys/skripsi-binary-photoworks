@@ -3,6 +3,7 @@ export default function useState(Alpine) {
     isDrawerOpen: false,
     isEdit: false,
     isLoading: false,
+    isFormValid: false,
     userId: null,
 
     form: {
@@ -13,5 +14,6 @@ export default function useState(Alpine) {
     },
 
     errors: {},
+    dismissedErrors: {},
   });
 }
