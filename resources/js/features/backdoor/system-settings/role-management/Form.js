@@ -13,7 +13,7 @@ const scrollToTop = () => {
 };
 
 const schema = z.object({
-  name: z.string().min(1, "Nama role wajib diisi.").max(50, "Nama role maksimal 50 karakter."),
+  name: z.string().min(1, "Nama role wajib diisi").max(50, "Nama role maksimal 50 karakter"),
 });
 
 export default function Form(Alpine) {
@@ -53,6 +53,7 @@ export default function Form(Alpine) {
 
     async submit(mode, roleId = null) {
       this.errors = {};
+      this.name = this.name.trim().toLowerCase();
 
       const parsed = schema.safeParse({
         name: this.name,
@@ -90,9 +91,12 @@ export default function Form(Alpine) {
           Object.keys(serverErrors).forEach((key) => {
             this.errors[key] = serverErrors[key][0];
           });
+          if (error.response.data.message && Object.keys(serverErrors).length === 0) {
+            Toast.fire({ icon: "error", title: error.response.data.message });
+          }
           scrollToTop();
         } else {
-          const msg = error.response?.data?.message ?? "Terjadi kesalahan server.";
+          const msg = error.response?.data?.message ?? "Terjadi kesalahan server";
           Toast.fire({ icon: "error", title: msg });
         }
       } finally {

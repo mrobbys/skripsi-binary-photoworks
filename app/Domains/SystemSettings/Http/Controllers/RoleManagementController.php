@@ -2,6 +2,7 @@
 
 namespace App\Domains\SystemSettings\Http\Controllers;
 
+use App\Domains\SystemSettings\DTOs\RoleData;
 use App\Domains\SystemSettings\DTOs\RoleRowData;
 use App\Domains\SystemSettings\Http\Requests\StoreRoleRequest;
 use App\Domains\SystemSettings\Http\Requests\UpdateRoleRequest;
@@ -28,7 +29,7 @@ class RoleManagementController extends Controller
 	 */
 	private function abortIfSuperadmin(Role $role, string $action): void
 	{
-		abort_if(strtolower($role->name) === 'superadmin', 403, "Role Superadmin tidak dapat {$action}.");
+		abort_if(strtolower($role->name) === 'superadmin', 403, "Role Superadmin tidak dapat {$action}");
 	}
 
 	public function index(): View
@@ -60,12 +61,10 @@ class RoleManagementController extends Controller
 
 	public function store(StoreRoleRequest $request): JsonResponse
 	{
-		$validated = $request->validated();
-
 		try {
-			$role = $this->service->store($validated['name'], $validated['permissions'] ?? []);
+			$role = $this->service->store(RoleData::fromRequest($request));
 
-			return $this->successResponse("Role \"{$role->name}\" berhasil dibuat.", null, 201, [
+			return $this->successResponse("Role \"{$role->name}\" berhasil dibuat", null, 201, [
 				'redirect' => route('backdoor.system-settings.roles.index'),
 			]);
 		} catch (\RuntimeException $e) {
@@ -104,12 +103,10 @@ class RoleManagementController extends Controller
 	{
 		$this->abortIfSuperadmin($role, 'dimodifikasi');
 
-		$validated = $request->validated();
-
 		try {
-			$this->service->update($role, $validated['name'], $validated['permissions'] ?? []);
+			$this->service->update($role, RoleData::fromRequest($request));
 
-			return $this->successResponse("Role \"{$role->name}\" berhasil diperbarui.", null, 200, [
+			return $this->successResponse("Role \"{$role->name}\" berhasil diperbarui", null, 200, [
 				'redirect' => route('backdoor.system-settings.roles.index'),
 			]);
 		} catch (\RuntimeException $e) {
@@ -126,7 +123,7 @@ class RoleManagementController extends Controller
 		try {
 			$this->service->destroy($role);
 
-			return $this->successResponse("Role \"{$role->name}\" berhasil dihapus.");
+			return $this->successResponse("Role \"{$role->name}\" berhasil dihapus");
 		} catch (\RuntimeException $e) {
 			return $this->errorResponse($e->getMessage(), 422);
 		} catch (\Exception $e) {

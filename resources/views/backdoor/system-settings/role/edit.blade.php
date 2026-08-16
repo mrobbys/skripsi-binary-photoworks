@@ -3,7 +3,7 @@
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Pengaturan Sistem', 'url' => '#'],
       ['label' => 'Manajemen Role', 'url' => route('backdoor.system-settings.roles.index')],
-      ['label' => 'Edit: ' . $role->name, 'url' => ''],
+      ['label' => 'Edit Role' , 'url' => ''],
   ];
 @endphp
 
@@ -46,6 +46,7 @@
             <input
               type="text"
               x-model="name"
+              x-on:input="name = $event.target.value.toLowerCase()"
               class="w-full border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-stone-500"
               :class="{ 'border-red-400 focus:border-red-400': errors.name }"
             />

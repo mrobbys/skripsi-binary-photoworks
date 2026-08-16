@@ -35,11 +35,11 @@ class UpdateRoleRequest extends FormRequest
   public function messages(): array
   {
     return [
-      'name.required' => 'Nama role wajib diisi.',
-      'name.string' => 'Nama role harus berupa string.',
-      'name.max' => 'Nama role maksimal 50 karakter.',
-      'name.unique' => 'Nama role sudah digunakan.',
-      'permissions.*.exists' => 'Permission tidak valid.',
+      'name.required' => 'Nama role wajib diisi',
+      'name.string' => 'Nama role harus berupa string',
+      'name.max' => 'Nama role maksimal 50 karakter',
+      'name.unique' => 'Nama role sudah digunakan',
+      'permissions.*.exists' => 'Permission tidak valid',
     ];
   }
 }
