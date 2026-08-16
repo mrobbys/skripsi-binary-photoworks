@@ -19,21 +19,28 @@ export default function ActivityLogs(Alpine) {
 
   const closeDetail = () => {
     modal.isOpen = false;
-    modal.properties = null;
+    setTimeout(() => modal.properties = null, 500);
   };
 
   const formatProperties = (properties) => {
-    if (!properties) return "Tidak ada data perubahan.";
+    if (!properties) return "Tidak ada data perubahan";
+    if (typeof properties === "string") {
+      try {
+        return JSON.stringify(JSON.parse(properties), null, 2);
+      } catch {
+        return properties;
+      }
+    }
     return JSON.stringify(properties, null, 2);
   };
 
   const badgeClass = (description) => {
     const map = {
-      created: "text-lime-700 bg-lime-100",
-      updated: "text-yellow-700 bg-yellow-100",
-      deleted: "text-red-700 bg-red-100",
+      created: "text-lime-800 bg-lime-100",
+      updated: "text-yellow-800 bg-yellow-100",
+      deleted: "text-red-800 bg-red-100",
     };
-    return map[description] ?? "text-stone-600 bg-stone-200";
+    return map[description] ?? "text-stone-700 bg-stone-200";
   };
 
   return {
