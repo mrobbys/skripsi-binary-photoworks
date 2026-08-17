@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Toast } from "@/lib/sweetalert";
 import route from "@/lib/route";
 import axios from "@/lib/axiosInstance";
+import { getFieldError } from "@/lib/zodHelper";
 
 const scrollToTop = () => {
   const container = document.querySelector("[x-data='Form']");
@@ -12,96 +13,112 @@ const scrollToTop = () => {
   }
 };
 
-const schema = z.object({
+const roleSchema = z.object({
   name: z.string().min(1, "Nama role wajib diisi").max(50, "Nama role maksimal 50 karakter"),
 });
 
 export default function Form(Alpine) {
-  return {
-    name: "",
-    permissions: [],
+  const state = Alpine.reactive({
+    form: {
+      name: "",
+      permissions: [],
+    },
     errors: {},
+    dismissedErrors: {},
+    isFormValid: false,
     isLoading: false,
+  });
 
-    setInitialData(data) {
-      this.name = data.name ?? "";
-      this.permissions = data.permissions ?? [];
-    },
+  Alpine.effect(() => {
+    const isNameFilled = Boolean(state.form.name);
+    const noErrors = !state.errors.name;
+    state.isFormValid = Boolean(isNameFilled && noErrors);
+  });
 
-    togglePermission(permName) {
-      const idx = this.permissions.indexOf(permName);
-      if (idx === -1) {
-        this.permissions.push(permName);
-      } else {
-        this.permissions.splice(idx, 1);
+  const setInitialData = (data) => {
+    state.form.name = data.name ?? "";
+    state.form.permissions = data.permissions ?? [];
+    state.errors = {};
+    state.dismissedErrors = {};
+  };
+
+  const togglePermission = (permName) => {
+    const idx = state.form.permissions.indexOf(permName);
+    if (idx === -1) {
+      state.form.permissions.push(permName);
+    } else {
+      state.form.permissions.splice(idx, 1);
+    }
+  };
+
+  const isChecked = (permName) => {
+    return state.form.permissions.includes(permName);
+  };
+
+  const selectAll = (permNames) => {
+    permNames.forEach((name) => {
+      if (!state.form.permissions.includes(name)) {
+        state.form.permissions.push(name);
       }
-    },
+    });
+  };
 
-    isChecked(permName) {
-      return this.permissions.includes(permName);
-    },
+  const deselectAll = (permNames) => {
+    state.form.permissions = state.form.permissions.filter((p) => !permNames.includes(p));
+  };
 
-    selectAll(permNames) {
-      permNames.forEach((name) => {
-        if (!this.permissions.includes(name)) this.permissions.push(name);
+  const validateField = (field) => {
+    state.dismissedErrors[field] = true;
+    const result = roleSchema.safeParse(state.form);
+    state.errors[field] = result.success ? null : getFieldError(result, field);
+  };
+
+  const submit = async (mode, roleId = null) => {
+    const result = roleSchema.safeParse(state.form);
+    if (!result.success) {
+      state.errors = {
+        name: getFieldError(result, "name"),
+      };
+      scrollToTop();
+      return;
+    }
+
+    state.isLoading = true;
+
+    const url =
+      mode === "edit"
+        ? route("backdoor.system-settings.roles.update", roleId)
+        : route("backdoor.system-settings.roles.store");
+    const method = mode === "edit" ? "put" : "post";
+
+    try {
+      const res = await axios[method](url, {
+        name: state.form.name.trim().toLowerCase(),
+        permissions: state.form.permissions,
       });
-    },
 
-    deselectAll(permNames) {
-      this.permissions = this.permissions.filter((p) => !permNames.includes(p));
-    },
-
-    async submit(mode, roleId = null) {
-      this.errors = {};
-      this.name = this.name.trim().toLowerCase();
-
-      const parsed = schema.safeParse({
-        name: this.name,
-        permissions: this.permissions,
-      });
-
-      if (!parsed.success) {
-        parsed.error.issues.forEach((issue) => {
-          const key = issue.path[0];
-          if (!this.errors[key]) this.errors[key] = issue.message;
-        });
+      Toast.fire({ icon: "success", title: res.data.message });
+      window.location.href = res.data.redirect;
+    } catch (error) {
+      if (error.response?.status === 422) {
+        state.errors = error.response.data.errors ?? {};
         scrollToTop();
-        return;
+      } else {
+        Toast.fire({ icon: "error", title: "Terjadi kesalahan server" });
       }
+    } finally {
+      state.isLoading = false;
+    }
+  };
 
-      this.isLoading = true;
-
-      try {
-        const url =
-          mode === "edit"
-            ? route("backdoor.system-settings.roles.update", roleId)
-            : route("backdoor.system-settings.roles.store");
-        const method = mode === "edit" ? "put" : "post";
-
-        const res = await axios[method](url, {
-          name: this.name,
-          permissions: this.permissions,
-        });
-
-        Toast.fire({ icon: "success", title: res.data.message });
-        window.location.href = res.data.redirect;
-      } catch (error) {
-        if (error.response?.status === 422) {
-          const serverErrors = error.response.data.errors ?? {};
-          Object.keys(serverErrors).forEach((key) => {
-            this.errors[key] = serverErrors[key][0];
-          });
-          if (error.response.data.message && Object.keys(serverErrors).length === 0) {
-            Toast.fire({ icon: "error", title: error.response.data.message });
-          }
-          scrollToTop();
-        } else {
-          const msg = error.response?.data?.message ?? "Terjadi kesalahan server";
-          Toast.fire({ icon: "error", title: msg });
-        }
-      } finally {
-        this.isLoading = false;
-      }
-    },
+  return {
+    state,
+    setInitialData,
+    togglePermission,
+    isChecked,
+    selectAll,
+    deselectAll,
+    validateField,
+    submit,
   };
 }
