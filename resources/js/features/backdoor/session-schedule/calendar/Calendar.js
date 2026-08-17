@@ -1,4 +1,4 @@
-import { Calendar } from "fullcalendar";
+import { Calendar as FullCalendar } from "fullcalendar";
 import themePlugin from "fullcalendar/themes/classic";
 import dayGridPlugin from "fullcalendar/daygrid";
 import timeGridPlugin from "fullcalendar/timegrid";
@@ -11,12 +11,11 @@ import "fullcalendar/skeleton.css";
 import "fullcalendar/themes/classic/theme.css";
 import "fullcalendar/themes/classic/palette.css";
 
-export default function CalendarPage() {
-
+export default function Calendar() {
   let calendarInstance = null;
 
   const calendarSession = (refs) => {
-    calendarInstance = new Calendar(refs, {
+    calendarInstance = new FullCalendar(refs, {
       plugins: [themePlugin, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
       locale: idLocale,
       headerToolbar: {

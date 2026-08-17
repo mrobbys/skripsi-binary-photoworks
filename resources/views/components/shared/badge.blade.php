@@ -7,7 +7,7 @@
 ])
 
 @php
-  $baseClasses = 'inline-flex items-center gap-1 font-bold uppercase tracking-wider select-none';
+  $baseClasses = 'inline-flex items-center gap-1 font-bold uppercase tracking-wider select-none whitespace-nowrap';
 
   $sizeClasses = [
       'xs' => 'px-2 py-0.5 text-[10px]',

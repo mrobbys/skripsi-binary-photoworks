@@ -20,18 +20,19 @@
       class="w-full space-y-6"
     >
 
-      {{-- page header --}}
+      {{-- header section start --}}
       <x-backdoor.shared.page-header title="Kalender Sesi" />
+      {{-- header section end --}}
 
-      {{-- calendar card --}}
-      <div class="border border-stone-200 bg-stone-50 p-6 max-w-6xl mx-auto">
+      {{-- calendar card start --}}
+      <div class="border border-stone-200 bg-stone-50 p-6">
 
         <div
           x-ref="calendarEl"
           id="fc-calendar"
         ></div>
 
-        {{-- legend  start --}}
+        {{-- legend start --}}
         <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-stone-300 pt-4">
 
           {{-- sesi dikonfirmasi start --}}

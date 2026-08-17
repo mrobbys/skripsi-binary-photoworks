@@ -1,12 +1,12 @@
-import { tableActionDropdown } from "@/lib/tippy";
 import useDatatable from "@/lib/useDatatable";
 import useState from "./useState";
 import route from "@/lib/route";
 import { Toast } from "@/lib/sweetalert";
 import flatpickr from "flatpickr";
+import { Indonesian } from "flatpickr/dist/l10n/id.js";
+import "flatpickr/dist/flatpickr.min.css";
 
 export default function Index(Alpine) {
-  Alpine.data("tableActionDropdown", tableActionDropdown);
   const state = useState(Alpine);
 
   let datePickerInstance = null;
@@ -30,7 +30,7 @@ export default function Index(Alpine) {
       if (res.done_today !== undefined) state.doneToday = res.done_today;
       if (res.upcoming_total !== undefined) state.upcomingTotal = res.upcoming_total;
     },
-    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data jadwal." }),
+    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data jadwal" }),
   });
 
   Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });
@@ -61,6 +61,7 @@ export default function Index(Alpine) {
 
       this.$nextTick(() => {
         datePickerInstance = flatpickr(this.$refs.dateFilterInput, {
+          locale: Indonesian,
           altInput: true,
           altFormat: "d M Y",
           dateFormat: "Y-m-d",

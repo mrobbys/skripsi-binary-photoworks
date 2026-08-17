@@ -24,7 +24,7 @@
       class="w-full space-y-6"
     >
 
-      {{-- page header + tanggal hari ini --}}
+      {{-- header section start --}}
       <div class="flex flex-col gap-1">
         <x-backdoor.shared.page-header title="Daftar Jadwal Sesi" />
         <p class="mt-2 text-sm text-stone-500">
@@ -32,8 +32,9 @@
           <strong>{{ $jadwal_hari_ini }}</strong>
         </p>
       </div>
+      {{-- header section end --}}
 
-      {{-- stats section --}}
+      {{-- stats section start --}}
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <x-backdoor.shared.stats-card
           label="Total Sesi Foto Hari Ini"
@@ -51,15 +52,18 @@
           suffix="Sesi"
         />
       </div>
+      {{-- stats section end --}}
 
-      {{-- table card --}}
+      {{-- table card start --}}
       <div class="relative overflow-visible border border-stone-200 p-4">
 
+        {{-- table header start --}}
         <x-backdoor.table.header>
           <x-slot:left>
             <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <x-backdoor.table.search placeholder="Cari nama klien, booking..." />
 
+              {{-- date filter input start --}}
               <div class="relative">
                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
                   <i class="ri-calendar-line text-sm"></i>
@@ -77,30 +81,37 @@
                   x-on:click="clearDateFilter()"
                   x-bind:disabled="!state.dateFilter || table.isLoading"
                   type="button"
+                  aria-label="Hapus filter tanggal"
                   class="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 transition hover:text-stone-600"
                 >
                   <i class="ri-close-line text-lg"></i>
                 </button>
               </div>
+              {{-- date filter input end --}}
 
             </div>
           </x-slot:left>
 
           <x-slot:right>
+            {{-- cetak jadwal button start --}}
             <x-shared.button
               as="a"
-              href="{{ route('session-schedule.daily-report') }}"
+              :href="route('session-schedule.daily-report')"
               target="_blank"
-              class="border border-stone-700 bg-stone-700 text-sm font-semibold tracking-wide text-stone-50 hover:bg-stone-800"
+              variant="charcoal"
+              size="md"
+              value="Cetak Jadwal Hari Ini"
             >
               <x-slot:iconLeft>
                 <i class="ri-printer-line leading-none"></i>
               </x-slot:iconLeft>
-              <span>Cetak Jadwal Hari Ini</span>
             </x-shared.button>
+            {{-- cetak jadwal button end --}}
           </x-slot:right>
         </x-backdoor.table.header>
+        {{-- table header end --}}
 
+        {{-- table container start --}}
         <x-backdoor.table.container headers="No,Waktu Sesi,Nama Klien,Paket Foto,Background,Status Sesi,Aksi">
           <template
             x-for="(schedule, index) in table.data"
@@ -113,16 +124,16 @@
             >
 
               <x-backdoor.table.cell
-                class="text-stone-600"
+                class="text-xs text-stone-600"
                 x-text="index + 1 + ((table.pagination.current_page - 1) * table.pagination.per_page)"
               />
 
               <x-backdoor.table.cell class="text-sm">
                 <p
-                  class="font-medium text-stone-900"
+                  class="font-medium text-stone-900 whitespace-nowrap"
                   x-text="schedule.formatted_date"
                 ></p>
-                <p class="mt-1 flex items-center gap-1 text-xs text-stone-500">
+                <p class="mt-1 flex items-center gap-1 text-xs text-stone-500 whitespace-nowrap">
                   <i class="ri-time-line"></i>
                   <span x-text="schedule.formatted_time"></span>
                 </p>
@@ -158,7 +169,6 @@
               />
 
               <x-backdoor.table.cell>
-
                 <x-shared.badge
                   alpine="schedule.session_status === 'MENDATANG'"
                   size="sm"
@@ -197,21 +207,23 @@
                 />
               </x-backdoor.table.cell>
 
-              <x-backdoor.table.actions>
-                {{-- lihat detail booking start --}}
-                <x-backdoor.table.action-item
-                  x-on:click="closeDropdown()"
-                  x-bind:href="`{{ route('backdoor.session-schedule.list.show', ':booking_code') }}`
-                  .replace(':booking_code', schedule.booking_code)"
-                  color="text-blue-600"
-                  text="Lihat Detail"
+              {{-- aksi btn detail start --}}
+              <x-backdoor.table.cell>
+                <x-shared.button
+                  as="a"
+                  x-bind:href="`{{ route('backdoor.session-schedule.list.show', ':booking_code') }}`.replace(':booking_code', schedule.booking_code)"
+                  variant="outline"
+                  size="sm"
+                  value="Lihat Detail"
+                  class="whitespace-nowrap"
                 />
-                {{-- lihat detail booking end --}}
-              </x-backdoor.table.actions>
+              </x-backdoor.table.cell>
+              {{-- aksi btn detail end --}}
 
             </tr>
           </template>
         </x-backdoor.table.container>
+        {{-- table container end --}}
 
         <x-backdoor.table.pagination />
 
