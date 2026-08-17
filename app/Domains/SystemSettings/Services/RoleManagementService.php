@@ -2,6 +2,7 @@
 
 namespace App\Domains\SystemSettings\Services;
 
+use App\Domains\SystemSettings\DTOs\RoleData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -39,18 +40,17 @@ class RoleManagementService
 
 	/**
 	 * Simpan role baru beserta permission
-	 * @param string $name
-	 * @param array $permissions
+	 * @param RoleData $data
 	 */
-	public function store(string $name, array $permissions): Role
+	public function store(RoleData $data): Role
 	{
-		return DB::transaction(function () use ($name, $permissions) {
-			$role = Role::create(['name' => $name]);
-			$role->syncPermissions($permissions);
+		return DB::transaction(function () use ($data) {
+			$role = Role::create(['name' => $data->name]);
+			$role->syncPermissions($data->permissions);
 
 			$this->logActivity($role, 'created', [], [
 				'name' => $role->name,
-				'permissions' => $permissions,
+				'permissions' => $data->permissions,
 			]);
 
 			return $role;
@@ -60,24 +60,23 @@ class RoleManagementService
 	/**
 	 * Update role beserta permission
 	 * @param Role $role
-	 * @param string $name
-	 * @param array $permissions
+	 * @param RoleData $data
 	 */
-	public function update(Role $role, string $name, array $permissions): Role
+	public function update(Role $role, RoleData $data): Role
 	{
-		return DB::transaction(function () use ($role, $name, $permissions) {
+		return DB::transaction(function () use ($role, $data) {
 			$oldName = $role->name;
 			$oldPermissions = $role->permissions->pluck('name')->toArray();
 
-			$role->update(['name' => $name]);
-			$role->syncPermissions($permissions);
+			$role->update(['name' => $data->name]);
+			$role->syncPermissions($data->permissions);
 
 			$this->logActivity($role, 'updated', [
 				'name' => $oldName,
 				'permissions' => $oldPermissions,
 			], [
 				'name' => $role->name,
-				'permissions' => $permissions,
+				'permissions' => $data->permissions,
 			]);
 
 			return $role;
@@ -95,7 +94,7 @@ class RoleManagementService
 
 		DB::transaction(function () use ($role, $name, $permissions) {
 			if ($role->users()->exists()) {
-				throw new \RuntimeException('Role tidak dapat dihapus karena masih memiliki pengguna terkait.');
+				throw new \RuntimeException('Role tidak dapat dihapus karena masih memiliki pengguna terkait');
 			}
 
 			$role->delete();

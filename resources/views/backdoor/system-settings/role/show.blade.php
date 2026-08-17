@@ -14,21 +14,28 @@
   <x-slot:content>
     <div class="w-full space-y-6">
 
-      {{-- Header + Back Button --}}
+      {{-- header section start --}}
       <x-backdoor.shared.page-header-back
         :href="route('backdoor.system-settings.roles.index')"
         title="{{ $role->name }}"
         subtitle="{{ $role->permissions->count() }} izin terdaftar"
         backLabel="Kembali Ke Manajemen Role"
       />
+      {{-- header section end --}}
 
-      {{-- Permission Badges per Domain Group --}}
+      {{-- permission matrix start --}}
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         @forelse ($groupedPermissions as $group => $permissions)
+          {{-- card group start --}}
           <div class="border border-stone-300 bg-stone-100 p-5">
-            <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-500">
-              {{ ucfirst($group) }}
-            </h2>
+            <div class="mb-3 flex items-center justify-between">
+              <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-600">
+                {{ ucfirst($group) }}
+              </h2>
+              <span class="text-xs font-medium text-stone-400">
+                {{ $permissions->count() }} izin
+              </span>
+            </div>
             <div class="flex flex-wrap gap-2">
               @foreach ($permissions as $permission)
                 <span class="border border-stone-300 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-700">
@@ -37,12 +44,16 @@
               @endforeach
             </div>
           </div>
+          {{-- card group end --}}
         @empty
-          <div class="border border-stone-200 bg-stone-50 p-5">
-            <p class="text-sm text-stone-500">Role ini belum memiliki izin apapun.</p>
+          {{-- empty state start --}}
+          <div class="col-span-full border border-stone-200 bg-stone-50 p-6 text-center">
+            <p class="text-sm text-stone-500">Role ini belum memiliki izin apapun</p>
           </div>
+          {{-- empty state end --}}
         @endforelse
       </div>
+      {{-- permission matrix end --}}
 
     </div>
   </x-slot:content>

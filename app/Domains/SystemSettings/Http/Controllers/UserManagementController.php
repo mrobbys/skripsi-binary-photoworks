@@ -72,7 +72,7 @@ class UserManagementController extends Controller
     try {
       $user = $this->service->store(UserData::fromRequest($request));
 
-      return $this->successResponse("User \"{$user->name}\" berhasil ditambahkan.", null, 201);
+      return $this->successResponse("User \"{$user->name}\" berhasil ditambahkan", null, 201);
     } catch (\RuntimeException $e) {
       return $this->errorResponse($e->getMessage(), 422);
     } catch (\Exception $e) {
@@ -92,7 +92,7 @@ class UserManagementController extends Controller
     try {
       $this->service->update($user, UserData::fromRequest($request));
 
-      return $this->successResponse("Data user \"{$user->name}\" berhasil diperbarui.");
+      return $this->successResponse("Data user \"{$user->name}\" berhasil diperbarui");
     } catch (\RuntimeException $e) {
       return $this->errorResponse($e->getMessage(), 422);
     } catch (\Exception $e) {
@@ -107,12 +107,12 @@ class UserManagementController extends Controller
   public function destroy(User $user): JsonResponse
   {
     $this->abortIfSuperadmin($user, 'menghapus');
-    abort_if($user->id === Auth::id(), 403, 'Tidak dapat menghapus akun Anda sendiri.');
+    abort_if($user->id === Auth::id(), 403, 'Tidak dapat menghapus akun Anda sendiri');
 
     try {
       $this->service->destroy($user);
 
-      return $this->successResponse("User \"{$user->name}\" berhasil dihapus.");
+      return $this->successResponse("User \"{$user->name}\" berhasil dihapus");
     } catch (\RuntimeException $e) {
       return $this->errorResponse($e->getMessage(), 422);
     } catch (\Exception $e) {
@@ -131,7 +131,7 @@ class UserManagementController extends Controller
     try {
       $this->service->resetPassword($user);
 
-      return $this->successResponse("Password \"{$user->name}\" berhasil direset ke Password123.");
+      return $this->successResponse("Password \"{$user->name}\" berhasil direset ke Password123");
     } catch (\RuntimeException $e) {
       return $this->errorResponse($e->getMessage(), 422);
     } catch (\Exception $e) {
