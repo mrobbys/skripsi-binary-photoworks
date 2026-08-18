@@ -39,7 +39,7 @@
         x-cloak
       >
 
-        {{-- header start --}}
+        {{-- header section start --}}
         <x-backdoor.shared.page-header-back
           :href="$backUrl"
           :backLabel="'Kembali Ke ' . $backLabel"
@@ -75,464 +75,71 @@
           </x-slot:badge>
 
           <x-slot:subcontent>
-            <div class="flex items-center gap-2 text-sm font-medium text-stone-500">
-              <span>Detail Booking</span>
-              <span class="text-stone-300">&bull;</span>
-              <span
+            <span class="mt-2 sm:mt-0 text-sm"
                 x-text="state.booking?.created_at ? 'Dibuat pada ' + new Date(state.booking.created_at).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}).replace(/\./g, ':') + ' WITA' : '...'"
               ></span>
-            </div>
           </x-slot:subcontent>
         </x-backdoor.shared.page-header-back>
-        {{-- header end --}}
+        {{-- header section end --}}
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {{-- kolom kiri: informasi sesi & add-ons start --}}
           <div class="space-y-5 lg:col-span-2">
-
             {{-- informasi klien start --}}
-            <div class="border border-stone-300">
-              <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Informasi Klien</h2>
-              </div>
-              <div class="grid grid-cols-1 gap-4 p-5 text-sm md:grid-cols-2">
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Nama Lengkap</p>
-                  <p
-                    class="font-medium text-stone-900"
-                    x-text="state.booking?.user?.name || '-'"
-                  ></p>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Nomor WhatsApp</p>
-                  <p
-                    class="font-medium text-stone-900"
-                    x-text="state.booking?.user?.phone || '-'"
-                  ></p>
-                </div>
-                <div class="md:col-span-2">
-                  <p class="mb-1 text-xs text-stone-500">Email</p>
-                  <p
-                    class="font-medium text-stone-900"
-                    x-text="state.booking?.user?.email || '-'"
-                  ></p>
-                </div>
-              </div>
-            </div>
+            <x-backdoor.booking-management.show.client-info />
             {{-- informasi klien end --}}
 
-            {{-- detail sesi pemotretan start --}}
-            <div class="border border-stone-300">
-              <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Detail Sesi Pemotretan</h2>
-              </div>
-              <div class="grid grid-cols-1 gap-6 p-5 text-sm md:grid-cols-2">
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Pilihan Paket</p>
-                  <p
-                    class="font-medium text-stone-900"
-                    x-text="(state.booking?.package_variant?.package?.name || '') + ' — ' + (state.booking?.package_variant?.name || '')"
-                  ></p>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Background</p>
-                  <p
-                    class="font-medium text-stone-900"
-                    x-text="state.booking?.background?.name || '-'"
-                  ></p>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Jadwal Sesi</p>
-                  <p
-                    class="font-medium text-stone-900"
-                    x-text="state.booking?.booking_date ? new Date(state.booking?.booking_date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-'"
-                  ></p>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Waktu</p>
-                  <p class="font-medium text-stone-900"><span x-text="state.booking?.start_time"></span> - <span
-                      x-text="state.booking?.end_time"
-                    ></span> WITA</p>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Sumber Booking</p>
-                  <p
-                    class="font-medium capitalize text-stone-900"
-                    x-text="state.booking?.source || '-'"
-                  ></p>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-stone-500">Jumlah Reschedule</p>
-                  <p class="font-medium text-stone-900">
-                    <span x-text="state.booking?.reschedule_count || 0"></span> Kali
-                  </p>
-                </div>
-                <div class="mt-2 border-t border-stone-300 pt-4 md:col-span-2">
-                  <p class="mb-1 text-xs text-stone-500">Catatan Tambahan</p>
-                  <p
-                    class="italic text-stone-700"
-                    x-text="state.booking?.notes || 'Tidak ada catatan.'"
-                  ></p>
-                </div>
-              </div>
-            </div>
-            {{-- detail sesi pemotretan end --}}
+            {{-- detail sesi start --}}
+            <x-backdoor.booking-management.show.session-details />
+            {{-- detail sesi end --}}
 
-            {{-- addons start --}}
-            <div class="border border-stone-300">
-              <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Layanan Tambahan</h2>
-              </div>
-
-              <template x-if="!state.booking?.addons?.length">
-                <p class="px-5 py-4 text-xs italic text-stone-400">Tidak ada layanan tambahan.</p>
-              </template>
-
-              <template x-if="state.booking?.addons?.length">
-                <table class="w-full text-sm">
-                  <thead class="border-b border-stone-300">
-                    <tr>
-                      <th class="px-5 py-2 text-left">Layanan</th>
-                      <th class="px-5 py-2 text-center">Qty</th>
-                      <th class="px-5 py-2 text-right">Harga Satuan</th>
-                      <th class="px-5 py-2 text-right">Subtotal</th>
-                      <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
-                        <th class="w-16 px-5 py-2 text-right">Aksi</th>
-                      </template>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-stone-300">
-                    <template
-                      x-for="addon in state.booking?.addons"
-                      :key="addon.id"
-                    >
-                      <tr>
-                        <td
-                          class="px-5 py-3 text-stone-700"
-                          x-text="addon.name"
-                        ></td>
-                        <td
-                          class="px-5 py-3 text-center text-stone-600"
-                          x-text="addon.pivot.quantity"
-                        ></td>
-                        <td
-                          class="px-5 py-3 text-right text-stone-600"
-                          x-text="formatRupiah(addon.pivot.price_at_purchase)"
-                        ></td>
-                        <td
-                          class="px-5 py-3 text-right font-semibold text-stone-800"
-                          x-text="formatRupiah(addon.pivot.quantity * addon.pivot.price_at_purchase)"
-                        ></td>
-                        <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
-                          <td class="px-5 py-3 text-right">
-                            <button
-                              type="button"
-                              x-on:click="removeAddon(addon.id)"
-                              x-bind:disabled="state.upsell.isLoading"
-                              class="text-red-500 transition hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                              title="Hapus Layanan"
-                            >
-                              <i class="ri-delete-bin-line"></i>
-                            </button>
-                          </td>
-                        </template>
-                      </tr>
-                    </template>
-                  </tbody>
-                </table>
-              </template>
-
-              {{-- Inline Form Upsell --}}
-              <template x-if="state.booking?.status !== 'Batal' && state.booking?.status !== 'Selesai'">
-                <div class="border-t border-stone-300 bg-stone-100 px-5 py-4">
-                  <div class="mb-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700">Tambahkan Add-on Baru</h3>
-                    <p class="text-xs text-stone-500">Pilih item add-on yang ingin dimasukkan ke dalam pesanan ini.</p>
-                  </div>
-                  <div class="flex gap-3">
-                    <div class="flex-1">
-                      <select
-                        x-data="choices({ placeholder: true, placeholderValue: '--- Pilih Layanan ---' })"
-                        x-init="const updateChoices = () => {
-                            if (!$el._choices) return;
-                            const currentAddons = state.booking?.addons || [];
-                            const mapped = state.allAddons
-                                .filter(a => {
-                                    if (!a.has_quantity) {
-                                        return !currentAddons.some(booked => String(booked.id) === String(a.id));
-                                    }
-                                    return true;
-                                })
-                                .map(a => ({
-                                    value: String(a.id),
-                                    label: a.name + ' — ' + formatRupiah(a.price)
-                                }));
-                            $el._choices.clearStore();
-                            $el._choices.setChoices([{ value: '', label: '--- Pilih Layanan ---', placeholder: true }, ...mapped], 'value', 'label', true);
-                        };
-                        setTimeout(() => updateChoices(), 50);
-                        $watch('state.allAddons', updateChoices);
-                        $watch('state.booking?.addons', updateChoices, { deep: true });
-                        $watch('state.upsell.addonId', () => onUpsellAddonChange());"
-                        x-modelable="value"
-                        x-model="state.upsell.addonId"
-                        x-on:change="onUpsellAddonChange()"
-                      >
-                      </select>
-                    </div>
-                    <div class="w-20">
-                      <input
-                        type="number"
-                        x-bind:value="(state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity) ? 1 : state.upsell.quantity"
-                        x-on:input="state.upsell.quantity = (state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity) ? 1 : Math.max(1, Number($event.target.value))"
-                        x-bind:disabled="state.upsell.addonId && !state.allAddons.find(a => a.id == state.upsell.addonId)?.has_quantity"
-                        min="1"
-                        class="w-full border border-stone-300 px-3 py-2.5 text-center text-sm focus:border-stone-500 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400"
-                      >
-                    </div>
-                    <button
-                      type="button"
-                      x-on:click="submitUpsell()"
-                      x-bind:disabled="state.upsell.isLoading || !state.upsell.addonId"
-                      class="bg-stone-800 px-4 py-2 text-xs font-bold text-stone-50"
-                    >
-                      <span x-text="state.upsell.isLoading ? 'Menambahkan...' : '+ Tambah'"></span>
-                    </button>
-                  </div>
-                </div>
-              </template>
-            </div>
-            {{-- addons end --}}
+            {{-- layanan tambahan start --}}
+            <x-backdoor.booking-management.show.addon-items />
+            {{-- layanan tambahan end --}}
           </div>
+          {{-- kolom kiri: informasi sesi & add-ons end --}}
 
+          {{-- kolom kanan: keuangan, riwayat, & gdrive start --}}
           <div class="space-y-4">
-            {{-- ringkasan keuangan start --}}
-            <div class="border border-stone-300">
-              <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Ringkasan Pembayaran</h2>
-              </div>
-              <div class="space-y-3 p-5">
-                <div class="flex justify-between text-sm">
-                  <span class="text-stone-500">Total Tagihan</span>
-                  <span
-                    class="font-semibold"
-                    x-text="formatRupiah(state.booking?.total_price || 0)"
-                  ></span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-stone-500">Total Terbayar</span>
-                  <span
-                    class="font-semibold text-emerald-700"
-                    x-text="formatRupiah(state.summary?.net_paid || 0)"
-                  ></span>
-                </div>
-                <div class="flex justify-between border-t border-stone-300 pt-3 text-sm">
-                  <span class="font-semibold text-stone-700">Sisa Tagihan</span>
-                  <span
-                    class="font-bold"
-                    x-bind:class="(state.summary?.net_paid || 0) >= (state.booking?.total_price || 0) ? 'text-stone-500' :
-                    'text-red-600'"
-                    x-text="formatRupiah(Math.max(0, (state.booking?.total_price || 0) - (state.summary?.net_paid || 0)))"
-                  ></span>
-                </div>
+            {{-- ringkasan pembayaran start --}}
+            <x-backdoor.booking-management.show.financial-summary />
+            {{-- ringkasan pembayaran end --}}
 
-                {{-- Indikator Kelebihan Bayar --}}
-                <template x-if="state.summary?.overpayment > 0">
-                  <div class="flex justify-between text-sm font-semibold text-amber-800">
-                    <span>Kelebihan Bayar</span>
-                    <span x-text="formatRupiah(state.summary.overpayment)"></span>
-                  </div>
-                </template>
+            {{-- riwayat transaksi start --}}
+            <x-backdoor.booking-management.show.payment-history />
+            {{-- riwayat transaksi end --}}
 
-                {{-- Tombol Catat Refund --}}
-                <template x-if="state.summary?.has_overpayment && (state.summary?.total_refunded || 0) === 0">
-                  <button
-                    type="button"
-                    x-on:click="refund()"
-                    class="flex w-full items-center justify-center gap-2 border border-amber-400 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
-                  >
-                    <i
-                      class="ri-refund-line text-lg"
-                      aria-hidden="true"
-                    ></i>
-                    <span>Catat Refund</span>
-                  </button>
-                </template>
-
-                {{-- Indikator sudah direfund --}}
-                <template x-if="state.summary?.has_overpayment && (state.summary?.total_refunded || 0) > 0">
-                  <div class="flex justify-between text-sm text-amber-700">
-                    <span>Sudah Dikembalikan</span>
-                    <span
-                      class="font-semibold"
-                      x-text="formatRupiah(state.summary.total_refunded)"
-                    ></span>
-                  </div>
-                </template>
-
-                <div
-                  class="mt-4 border-t border-stone-300 pt-4"
-                  x-show="state.bookingCode"
-                >
-                  <a
-                    :href="`/payments/${state.bookingCode}/receipt`"
-                    target="_blank"
-                    class="flex w-full items-center justify-center gap-2 border border-stone-300 bg-stone-50 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-100 hover:text-stone-900"
-                  >
-                    <i
-                      class="ri-printer-line text-lg"
-                      aria-hidden="true"
-                    ></i>
-                    <span>Cetak / Lihat Kuitansi</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-            {{-- ringkasan keuangan end --}}
-
-            {{-- riwayat pembayaran start --}}
-            <div class="border border-stone-300">
-              <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Riwayat Transaksi</h2>
-              </div>
-              <div class="divide-y divide-stone-300">
-                <template x-if="!state.booking?.payments?.length">
-                  <p class="p-5 text-xs italic text-stone-400">Belum ada transaksi.</p>
-                </template>
-                <template
-                  x-for="payment in state.booking?.payments"
-                  :key="payment.id"
-                >
-                  <div class="flex items-start justify-between p-5 text-sm">
-                    <div class="space-y-1">
-                      <p
-                        class="text-xs font-bold uppercase tracking-wider"
-                        x-text="payment.payment_purpose === 'refund' ? 'Pengembalian Dana' : payment.payment_purpose"
-                      ></p>
-                      <p
-                        class="font-mono text-xs"
-                        x-text="'#' + payment.order_id"
-                      ></p>
-                      <p
-                        class="text-xs capitalize"
-                        x-text="(payment.payment_type || 'Unknown') + (payment.payment_type === 'manual' ? ' (Admin)' : ' (Midtrans)')"
-                      ></p>
-                      <template x-if="payment.pay_date">
-                        <p
-                          class="text-xs"
-                          x-text="'Dibayar: ' + new Date(payment.pay_date).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}) + ' WITA'"
-                        ></p>
-                      </template>
-                    </div>
-                    <div class="text-right">
-                      <p
-                        class="font-bold"
-                        :class="payment.payment_purpose === 'refund' ? 'text-amber-700' : (payment.status === 'Settlement' ?
-                            'text-emerald-700' : '')"
-                        x-text="payment.payment_purpose === 'refund' ? '- ' + formatRupiah(payment.amount) : formatRupiah(payment.amount)"
-                      ></p>
-                      <div class="mt-1">
-                        <template x-if="payment.payment_purpose === 'refund'">
-                          <x-shared.badge
-                            variant="warning"
-                            x-text="payment.status"
-                          />
-                        </template>
-                        <template x-if="payment.payment_purpose !== 'refund'">
-                          <x-shared.badge
-                            alpine="payment.status === 'Settlement'"
-                            variant="success"
-                            x-text="payment.status"
-                          />
-                        </template>
-                        <x-shared.badge
-                          x-show="payment.status !== 'Settlement' && payment.payment_purpose !== 'refund'"
-                          variant="secondary"
-                          x-text="payment.status"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </div>
-            {{-- riwayat pembayaran end --}}
-
-            {{-- tombol lunas start --}}
+            {{-- tombol tandai lunas start --}}
             <template
               x-if="
-              (state.booking?.status === 'DP Terbayar' || state.booking?.status === 'Lunas') &&
-              (Number(state.booking?.total_price || 0) > Number(state.summary?.net_paid || 0))
-            "
+                (state.booking?.status === 'DP Terbayar' || state.booking?.status === 'Lunas') &&
+                (Number(state.booking?.total_price || 0) > Number(state.summary?.net_paid || 0))
+              "
             >
               <x-shared.button
                 type="button"
                 x-on:click="settle()"
-                class="w-full bg-lime-600 text-stone-50 hover:bg-lime-700"
+                variant="charcoal"
+                size="md"
+                class="w-full"
+                value="Tandai Lunas"
               >
                 <x-slot:iconLeft>
-                  <i class="ri-checkbox-circle-line"></i>
+                  <i class="ri-checkbox-circle-line leading-none" aria-hidden="true"></i>
                 </x-slot:iconLeft>
-                Tandai Lunas
               </x-shared.button>
             </template>
-            {{-- tombol lunas end --}}
+            {{-- tombol tandai lunas end --}}
 
-            {{-- form gdrive start --}}
-            <div class="border border-stone-300">
-              <div class="border-b border-stone-300 bg-stone-100 px-5 py-3">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-stone-700">Link Google Drive</h2>
-              </div>
-              <form
-                class="space-y-4 p-5"
-                x-on:submit.prevent="submitGdrive()"
-              >
-                <div>
-                  <input
-                    type="url"
-                    x-model="state.gdriveLink"
-                    placeholder="https://drive.google.com/..."
-                    x-bind:disabled="state.isGdriveLoading || ['Menunggu', 'DP Terbayar', 'Batal'].includes(state.booking?.status)"
-                    class="w-full border border-stone-300 bg-transparent px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  <small
-                    class="block text-red-600"
-                    x-text="state.gdriveErrors.gdriveLink"
-                    x-show="state.gdriveErrors.gdriveLink"
-                  >
-                  </small>
-                </div>
-                <label class="flex cursor-pointer items-start gap-2">
-                  <input
-                    type="checkbox"
-                    x-model="state.sendWaNotificationGdrive"
-                    class="mt-1 h-4 w-4 cursor-pointer border-stone-300 text-stone-800 focus:ring-stone-500"
-                  >
-                  <div class="flex flex-col">
-                    <span class="text-sm font-semibold text-stone-900">Kirim Notifikasi WhatsApp</span>
-                    <span class="text-xs text-stone-500">Kirim Link Google Drive ke Klien.</span>
-                  </div>
-                </label>
-                <x-shared.button
-                  type="submit"
-                  x-bind:disabled="state.isGdriveLoading || !state.gdriveLink || (state.booking?.gdrive_link === state.gdriveLink) || [
-                      'Menunggu', 'DP Terbayar', 'Batal'
-                  ].includes(state
-                      .booking
-                      ?.status)"
-                  class="w-full bg-stone-800 text-stone-50"
-                >
-                  <span x-text="state.isGdriveLoading ? 'Menyimpan Link...' : 'Simpan Link'">
-                  </span>
-                </x-shared.button>
-              </form>
-            </div>
-            {{-- form gdrive end --}}
+            {{-- form link google drive start --}}
+            <x-backdoor.booking-management.show.gdrive-form />
+            {{-- form link google drive end --}}
           </div>
+          {{-- kolom kanan: keuangan, riwayat, & gdrive end --}}
         </div>
 
       </div>
 
     </div>
-
   </x-slot:content>
 </x-layouts.backdoor.index>
