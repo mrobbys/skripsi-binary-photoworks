@@ -1,4 +1,6 @@
 import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+
 export const formatIdDate = (dateStr) => {
   if (!dateStr) return "";
   // Pecah YYYY-MM-DD untuk menghindari Timezone Bug (Mundur 1 hari)

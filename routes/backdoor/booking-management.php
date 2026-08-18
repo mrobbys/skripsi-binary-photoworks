@@ -1,6 +1,7 @@
 <?php
 
 use App\Domains\Booking\Http\Controllers\Backdoor\ManageBookingController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('booking-management')
     ->name('booking-management.')
