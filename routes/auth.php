@@ -14,14 +14,14 @@ Route::middleware('guest')->group(function () {
   Route::get('login', [LoginController::class, 'index'])
     ->name('login');
   Route::post('auth/login', [LoginController::class, 'store'])
-    ->middleware('throttle:5,300')
+    ->middleware('throttle:5,1')
     ->name('login.store');
 
   // register routes
   Route::get('register', [RegisterController::class, 'index'])
     ->name('register');
   Route::post('auth/register', [RegisterController::class, 'store'])
-    ->middleware('throttle:5,300')
+    ->middleware('throttle:5,1')
     ->name('register.store');
 
   // auth with google | socialite
@@ -32,7 +32,7 @@ Route::middleware('guest')->group(function () {
   Route::get('forgot-password', [ForgotPasswordController::class, 'index'])
     ->name('forgot.password.index');
   Route::post('auth/forgot-password', [ForgotPasswordController::class, 'store'])
-    ->middleware('throttle:5,300')
+    ->middleware('throttle:5,1')
     ->name('forgot.password.email');
 
   // halaman check email
@@ -41,14 +41,14 @@ Route::middleware('guest')->group(function () {
 
   // resend email link reset password
   Route::post('auth/forgot-password/resend', [ForgotPasswordController::class, 'resend'])
-    ->middleware('throttle:5,300')
+    ->middleware('throttle:5,1')
     ->name('forgot.password.resend');
 
   // reset password
   Route::get('reset-password/{token}', [ResetPasswordController::class, 'index'])
     ->name('reset.password.index');
   Route::post('auth/reset-password', [ResetPasswordController::class, 'store'])
-    ->middleware('throttle:5,300')
+    ->middleware('throttle:5,1')
     ->name('reset.password.store');
 });
 

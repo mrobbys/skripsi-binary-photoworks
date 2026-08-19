@@ -17,6 +17,6 @@ require __DIR__ . '/review.php';
 Route::get('/faq', [FaqController::class, 'index'])->name('frontdoor.faq');
 
 Route::get('/contact-us', [ContactUsController::class, 'index'])->name('frontdoor.contact-us');
-Route::post('/contact-us', [ContactUsController::class, 'store'])->name('contact.store')->middleware('throttle:3,1');
+Route::post('/contact-us', [ContactUsController::class, 'store'])->name('contact.store')->middleware('throttle:5,1');
 
 require __DIR__ . '/dashboard.php';
