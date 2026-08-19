@@ -4,7 +4,7 @@
 --}}
 
 <header
-  class="sticky top-0 z-10 flex items-center justify-between border-b border-stone-300 bg-stone-50 py-3 px-4 sm:py-4 sm:px-6">
+  class="sticky top-0 z-20 flex items-center justify-between border-b border-stone-300 bg-stone-50 py-3 px-4 sm:py-4 sm:px-6">
   <div class="flex items-center gap-4">
     {{-- Tombol Toggle Sidebar --}}
     <button

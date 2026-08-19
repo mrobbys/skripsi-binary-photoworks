@@ -27,7 +27,7 @@
 ])
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full">
 
 <head>
   {{-- meta tag dan favicon --}}
@@ -39,10 +39,10 @@
 
 <body
   data-module="{{ $jsModule ?? '' }}"
-  class="overflow-x-hidden">
+  class="h-full overflow-hidden">
   <div
     x-data="{ sidebarIsOpen: window.innerWidth >= 768, isHoverOpened: false }"
-    class="relative flex w-full flex-col md:flex-row">
+    class="relative flex h-dvh w-full flex-col md:flex-row overflow-hidden">
     {{-- screen reader skip link start --}}
     <x-layouts.backdoor.components.skip-link />
     {{-- screen reader skip link end --}}
