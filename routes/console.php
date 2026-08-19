@@ -9,5 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // TODO: hapus komen jika ingin diaktifkan
-// Schedule::command('booking:cancel-expired')->everyMinute();
-// Schedule::command('booking:send-reminders')->dailyAt('09:00');
+Schedule::command('booking:cancel-expired')->everyMinute();
+Schedule::command('booking:send-reminders')->dailyAt('09:00');

@@ -13,7 +13,6 @@
   http-equiv="X-UA-Compatible"
   content="ie=edge">
 
-{{-- TODO: buat logic ketika mode dark pakai yang 'binary-logo-white.png', jika tidak pakai 'binary-logo-black.png' --}}
 <link
   rel="icon"
   href="{{ asset('assets/binary-logo/binary-logo-white.png') }}"
