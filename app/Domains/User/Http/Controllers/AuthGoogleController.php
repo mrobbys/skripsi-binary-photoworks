@@ -23,7 +23,7 @@ class AuthGoogleController extends Controller
    */
   public function redirectToGoogle(): RedirectResponse
   {
-    return Socialite::driver('google')->redirect();
+    return Socialite::driver('google')->stateless()->redirect();
   }
 
   /**
@@ -34,7 +34,7 @@ class AuthGoogleController extends Controller
   public function handleGoogleCallback(): RedirectResponse
   {
     try {
-      $googleUser = Socialite::driver('google')->user();
+      $googleUser = Socialite::driver('google')->stateless()->user();
     } catch (\Exception $e) {
       Log::error('Google Auth Error: ', ['error' => $e->getMessage()]);
       return redirect()->route('login')->withErrors([
