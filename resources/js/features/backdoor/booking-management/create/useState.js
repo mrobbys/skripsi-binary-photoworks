@@ -12,6 +12,8 @@ export default function useState(Alpine) {
     variants: [],
     timeSlots: [],
     totalPrice: 0,
+    dpAmount: 0,
+    remainingAmount: 0,
 
     isLoading: false,
     isTimeSlotsLoading: false,

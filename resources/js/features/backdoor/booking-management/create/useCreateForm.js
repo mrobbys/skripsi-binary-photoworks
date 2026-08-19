@@ -4,45 +4,60 @@ import axiosInstance from "@/lib/axiosInstance";
 import { z } from "zod";
 
 const formSchema = z.object({
-  user_id: z.any().refine((val) => val, "Klien wajib dipilih."),
-  package_id: z.any().refine((val) => val, "Paket utama wajib dipilih."),
-  package_variant_id: z.any().refine((val) => val, "Varian wajib dipilih."),
-  background_id: z.any().refine((val) => val, "Background wajib dipilih."),
-  booking_date: z.any().refine((val) => val, "Tanggal sesi wajib diisi."),
-  start_time: z.any().refine((val) => val, "Slot waktu wajib dipilih."),
-  status: z.any().refine((val) => val, "Status booking wajib dipilih."),
+  user_id: z.any().refine((val) => val, "Klien wajib dipilih"),
+  package_id: z.any().refine((val) => val, "Paket utama wajib dipilih"),
+  package_variant_id: z.any().refine((val) => val, "Varian wajib dipilih"),
+  background_id: z.any().refine((val) => val, "Background wajib dipilih"),
+  booking_date: z.any().refine((val) => val, "Tanggal sesi wajib diisi"),
+  start_time: z.any().refine((val) => val, "Slot waktu wajib dipilih"),
+  status: z.any().refine((val) => val, "Status awal booking wajib dipilih"),
 });
 
 export default function useCreateForm({ state }) {
+  const findAddon = (id) => {
+    return state.allAddons.find((a) => String(a.id) === String(id));
+  };
+
   const loadTimeSlots = async () => {
     if (!state.bookingDate) return;
 
-    const selectedVariant = state.variants.find(v => String(v.id) === String(state.variantId));
+    const selectedVariant = state.variants.find((v) => String(v.id) === String(state.variantId));
     if (!selectedVariant) return;
 
     state.isTimeSlotsLoading = true;
     try {
       const res = await axiosInstance.get(route("frontdoor.booking.api.slots"), {
-          params: {
-              date: state.bookingDate,
-              duration: selectedVariant.duration || selectedVariant.duration_minutes
+        params: {
+          date: state.bookingDate,
+          duration: selectedVariant.duration || selectedVariant.duration_minutes,
         },
       });
-      state.timeSlots = Array.isArray(res.data.slots) ? res.data.slots : [];
+      state.timeSlots = Array.isArray(res.data?.slots) ? res.data.slots : [];
       state.startTime = "";
-    } catch {
-      Toast.fire({ icon: "error", title: "Gagal memuat slot waktu." });
+    } catch (err) {
+      if (err.response?.status === 422) {
+        Toast.fire({
+          icon: "error",
+          title: err.response?.data?.message || "Data tidak valid untuk memuat slot waktu",
+        });
+      } else {
+        Toast.fire({ icon: "error", title: "Gagal memuat slot waktu sesi" });
+      }
     } finally {
       state.isTimeSlotsLoading = false;
     }
   };
 
-  const addAddonRow = () => state.addons.push({ id: Date.now() + Math.random(), addon_id: null, quantity: 1 });
-  const removeAddonRow = (index) => state.addons.splice(index, 1);
+  const addAddonRow = () => {
+    state.addons.push({ id: crypto.randomUUID(), addon_id: null, quantity: 1 });
+  };
+
+  const removeAddonRow = (index) => {
+    state.addons.splice(index, 1);
+  };
 
   const onAddonChange = (item) => {
-    const addonId = item.addon_id;
-    const addon = state.allAddons.find((a) => a.id == addonId);
+    const addon = findAddon(item.addon_id);
     if (addon && !addon.has_quantity) {
       item.quantity = 1;
     }
@@ -50,24 +65,24 @@ export default function useCreateForm({ state }) {
 
   const isQtyDisabled = (item) => {
     if (!item.addon_id) return false;
-    const addon = state.allAddons.find((a) => a.id == item.addon_id);
+    const addon = findAddon(item.addon_id);
     return addon ? !addon.has_quantity : false;
   };
 
-    const hasValue = (value) => {
-        return value !== null && value !== undefined && String(value).trim() !== "";
-    }
+  const hasValue = (value) => {
+    return value !== null && value !== undefined && String(value).trim() !== "";
+  };
 
-    const isSubmitDisabled = () =>
-      state.isLoading ||
-      state.isTimeSlotsLoading ||
-      !hasValue(state.userId) ||
-      !hasValue(state.packageId) ||
-      !hasValue(state.variantId) ||
-      !hasValue(state.backgroundId) ||
-      !hasValue(state.bookingDate) ||
-      !hasValue(state.startTime) ||
-      !hasValue(state.bookingStatus);
+  const isSubmitDisabled = () =>
+    state.isLoading ||
+    state.isTimeSlotsLoading ||
+    !hasValue(state.userId) ||
+    !hasValue(state.packageId) ||
+    !hasValue(state.variantId) ||
+    !hasValue(state.backgroundId) ||
+    !hasValue(state.bookingDate) ||
+    !hasValue(state.startTime) ||
+    !hasValue(state.bookingStatus);
 
   const submit = async () => {
     state.isLoading = true;
@@ -81,30 +96,32 @@ export default function useCreateForm({ state }) {
       start_time: state.startTime,
       status: state.bookingStatus,
       send_wa_notification: state.sendWaNotification,
-      addons: state.addons.filter((a) => a.addon_id).map((item) => {
-          const addon = state.allAddons.find((a) => a.id == item.addon_id);
+      addons: state.addons
+        .filter((a) => a.addon_id)
+        .map((item) => {
+          const addon = findAddon(item.addon_id);
           return { ...item, quantity: addon && !addon.has_quantity ? 1 : item.quantity };
-      }),
+        }),
     };
 
     const parsed = formSchema.safeParse(payload);
     if (!parsed.success) {
       state.errors = parsed.error.flatten().fieldErrors;
-      Toast.fire({ icon: "warning", title: "Periksa kembali isian form." });
+      Toast.fire({ icon: "warning", title: "Periksa kembali isian formulir" });
       state.isLoading = false;
       return;
     }
 
     try {
       await axiosInstance.post(route("backdoor.booking-management.store"), payload);
-      Toast.fire({ icon: "success", title: "Booking berhasil dibuat." });
+      Toast.fire({ icon: "success", title: "Booking berhasil dibuat" });
       window.location.href = route("backdoor.booking-management.index");
     } catch (err) {
       if (err.response?.status === 422) {
-          state.errors = err.response.data.errors;
-        Toast.fire({ icon: "warning", title: err.response.data.message });
+        state.errors = err.response.data?.errors || {};
+        Toast.fire({ icon: "warning", title: err.response.data?.message || "Periksa kembali isian formulir" });
       } else {
-        Toast.fire({ icon: "error", title: "Terjadi kesalahan." });
+        Toast.fire({ icon: "error", title: "Terjadi kesalahan sistem saat membuat booking" });
       }
     } finally {
       state.isLoading = false;
@@ -112,6 +129,7 @@ export default function useCreateForm({ state }) {
   };
 
   return {
+    findAddon,
     loadTimeSlots,
     addAddonRow,
     removeAddonRow,

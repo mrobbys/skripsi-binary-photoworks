@@ -43,12 +43,62 @@ h6 {
   padding: 0;
 }
 
-/* Choices Class */
+/* Choices Styling for ThoughtStream Design System */
 .choices {
   margin-bottom: 0 !important;
+  font-size: 0.875rem !important;
 }
-.choices__inner{
+
+.choices__inner {
   background-color: #ffffff !important;
+  border: 1px solid #d6d3d1 !important;
+  border-radius: 0 !important;
+  min-height: 42px !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: #1c1917 !important;
+}
+
+.choices__list--single {
+  padding: 0 !important;
+}
+
+.choices[data-type*="select-one"] .choices__inner {
+  padding-bottom: 0.5rem !important;
+}
+
+.choices[data-type*="select-one"]::after {
+  border-color: #78716c transparent transparent transparent !important;
+  right: 14px !important;
+}
+
+.choices[data-type*="select-one"].is-open::after {
+  border-color: transparent transparent #78716c transparent !important;
+  margin-top: -7.5px !important;
+}
+
+.choices.is-disabled .choices__inner {
+  background-color: #f5f5f4 !important;
+  border-color: #d6d3d1 !important;
+  cursor: not-allowed !important;
+}
+
+.choices.is-disabled .choices__item,
+.choices.is-disabled .choices__placeholder {
+  color: #a8a29e !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+.choices__list--dropdown {
+  border-radius: 0 !important;
+  border: 1px solid #d6d3d1 !important;
+  box-shadow: none !important;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+  background-color: #f5f5f4 !important;
+  color: #1c1917 !important;
 }
 
 /* Flatpickr Border Radius Override (NO ROUNDED CORNERS) */

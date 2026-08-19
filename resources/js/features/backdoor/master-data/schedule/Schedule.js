@@ -36,6 +36,17 @@ export default function Schedule(Alpine) {
       defaultDate: item[type],
       disableMobile: true,
       allowInput: false,
+      onReady(selectedDates, dateStr, instance) {
+        instance.input.setAttribute("readonly", "readonly");
+        if (instance.hourElement) {
+          instance.hourElement.readOnly = true;
+          instance.hourElement.setAttribute("readonly", "readonly");
+        }
+        if (instance.minuteElement) {
+          instance.minuteElement.readOnly = true;
+          instance.minuteElement.setAttribute("readonly", "readonly");
+        }
+      },
       onClose(selectedDates, dateStr) {
         if (dateStr && dateStr !== item[type]) {
           if (type === "start_time") {
