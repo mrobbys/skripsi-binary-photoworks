@@ -4,6 +4,11 @@
       ['label' => 'Pengaturan Sistem', 'url' => '#'],
       ['label' => 'Activity Logs', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Waktu Sesi', 'Pelaku', 'Modul & ID', 'Aktivitas'];
+  if (auth()->user()->can('activityLog-management-view')) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -29,7 +34,7 @@
           </x-slot:left>
         </x-backdoor.table.header>
 
-        <x-backdoor.table.container headers="No,Waktu Sesi,Pelaku,Modul & ID,Aktivitas,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(log, index) in table.data"
             :key="log.id"
@@ -78,24 +83,26 @@
               </x-backdoor.table.cell>
               {{-- aktivitas end --}}
 
-              {{-- aksi btn detail start --}}
-              <x-backdoor.table.cell>
-                <x-shared.button
-                  x-on:click="openDetail(log.properties)"
-                  variant="outline"
-                  size="sm"
-                  value="Lihat Detail"
-                  class="whitespace-nowrap"
-                >
-                  <x-slot:iconLeft>
-                    <i
-                      class="ri-file-list-line"
-                      aria-hidden="true"
-                    ></i>
-                  </x-slot:iconLeft>
-                </x-shared.button>
-              </x-backdoor.table.cell>
-              {{-- aksi btn detail end --}}
+              @can('activityLog-management-view')
+                {{-- aksi btn detail start --}}
+                <x-backdoor.table.cell>
+                  <x-shared.button
+                    x-on:click="openDetail(log.properties)"
+                    variant="outline"
+                    size="sm"
+                    value="Lihat Detail"
+                    class="whitespace-nowrap"
+                  >
+                    <x-slot:iconLeft>
+                      <i
+                        class="ri-file-list-line"
+                        aria-hidden="true"
+                      ></i>
+                    </x-slot:iconLeft>
+                  </x-shared.button>
+                </x-backdoor.table.cell>
+                {{-- aksi btn detail end --}}
+              @endcan
 
             </tr>
           </template>

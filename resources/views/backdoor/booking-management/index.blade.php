@@ -3,6 +3,11 @@
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Manajemen Pemesanan', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Kode Booking', 'Nama Klien', 'Jadwal Sesi', 'Paket & Varian', 'Total Bayar', 'Status'];
+  if (auth()->user()->canany(['booking-management-view', 'booking-management-update'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -52,20 +57,20 @@
 
           <x-slot:right>
             {{-- tambah booking button start --}}
-            <x-backdoor.table.add-button
-              as="a"
-              :href="route('backdoor.booking-management.create')"
-              text="Tambah Booking"
-            />
+            @can('booking-management-create')
+              <x-backdoor.table.add-button
+                as="a"
+                :href="route('backdoor.booking-management.create')"
+                text="Tambah Booking"
+              />
+            @endcan
             {{-- tambah booking button end --}}
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container
-          headers="No,Kode Booking,Nama Klien,Jadwal Sesi,Paket & Varian,Total Bayar,Status,Aksi"
-        >
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(booking, index) in table.data"
             :key="booking.id"
@@ -157,37 +162,43 @@
                 </div>
               </x-backdoor.table.cell>
 
-              <x-backdoor.table.actions>
-                {{-- lihat detail start --}}
-                <x-backdoor.table.action-item
-                  x-on:click="closeDropdown()"
-                  x-bind:href="`{{ route('backdoor.booking-management.show', ':booking_code') }}`
-                  .replace(':booking_code', booking.booking_code)"
-                  color="text-blue-600"
-                  text="Lihat Detail"
-                />
-                {{-- lihat detail end --}}
+              @canany(['booking-management-view', 'booking-management-update'])
+                <x-backdoor.table.actions>
+                  {{-- lihat detail start --}}
+                  @can('booking-management-view')
+                    <x-backdoor.table.action-item
+                      x-on:click="closeDropdown()"
+                      x-bind:href="`{{ route('backdoor.booking-management.show', ':booking_code') }}`
+                      .replace(':booking_code', booking.booking_code)"
+                      color="text-blue-600"
+                      text="Lihat Detail"
+                    />
+                  @endcan
+                  {{-- lihat detail end --}}
 
-                {{-- tandai lunas start --}}
-                <template x-if="booking.status === 'DP Terbayar'">
-                  <x-backdoor.table.action-item
-                    x-on:click="closeDropdown(); settle(booking.booking_code)"
-                    color="text-lime-600"
-                    text="Tandai Lunas"
-                  />
-                </template>
-                {{-- tandai lunas end --}}
+                  @can('booking-management-update')
+                    {{-- tandai lunas start --}}
+                    <template x-if="booking.status === 'DP Terbayar'">
+                      <x-backdoor.table.action-item
+                        x-on:click="closeDropdown(); settle(booking.booking_code)"
+                        color="text-lime-600"
+                        text="Tandai Lunas"
+                      />
+                    </template>
+                    {{-- tandai lunas end --}}
 
-                {{-- batalkan booking start --}}
-                <template x-if="booking.status !== 'Batal' && booking.status !== 'Selesai'">
-                  <x-backdoor.table.action-item
-                    x-on:click="closeDropdown(); cancel(booking.booking_code)"
-                    color="text-red-600"
-                    text="Batalkan"
-                  />
-                </template>
-                {{-- batalkan booking end --}}
-              </x-backdoor.table.actions>
+                    {{-- batalkan booking start --}}
+                    <template x-if="booking.status !== 'Batal' && booking.status !== 'Selesai'">
+                      <x-backdoor.table.action-item
+                        x-on:click="closeDropdown(); cancel(booking.booking_code)"
+                        color="text-red-600"
+                        text="Batalkan"
+                      />
+                    </template>
+                    {{-- batalkan booking end --}}
+                  @endcan
+                </x-backdoor.table.actions>
+              @endcanany
             </tr>
           </template>
         </x-backdoor.table.container>

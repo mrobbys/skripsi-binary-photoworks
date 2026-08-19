@@ -3,6 +3,11 @@
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Ulasan Klien', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Nama Klien', 'Rating', 'Komentar', 'Tanggal'];
+  if (auth()->user()->can('review-client-delete')) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -55,7 +60,7 @@
           </x-slot:left>
         </x-backdoor.table.header>
 
-        <x-backdoor.table.container headers="No,Nama Klien,Rating,Komentar,Tanggal,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(review, index) in table.data"
             :key="review.id"
@@ -109,13 +114,15 @@
               />
 
               {{-- Aksi --}}
-              <x-backdoor.table.actions>
-                <x-backdoor.table.action-item
-                  x-on:click="deleteReview(review.id); closeDropdown()"
-                  color="text-red-600"
-                  text="Hapus"
-                />
-              </x-backdoor.table.actions>
+              @can('review-client-delete')
+                <x-backdoor.table.actions>
+                  <x-backdoor.table.action-item
+                    x-on:click="deleteReview(review.id); closeDropdown()"
+                    color="text-red-600"
+                    text="Hapus"
+                  />
+                </x-backdoor.table.actions>
+              @endcan
 
             </tr>
           </template>

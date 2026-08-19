@@ -4,6 +4,11 @@
       ['label' => 'Data Master', 'url' => '#'],
       ['label' => 'Kategori Foto', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Kode Kategori', 'Nama Kategori', 'Status'];
+  if (auth()->user()->canany(['category-master-update', 'category-master-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -48,16 +53,18 @@
           </x-slot:left>
 
           <x-slot:right>
-            <x-backdoor.table.add-button
-              x-on:click="openDrawer()"
-              text="Tambah Kategori"
-            />
+            @can('category-master-create')
+              <x-backdoor.table.add-button
+                x-on:click="openDrawer()"
+                text="Tambah Kategori"
+              />
+            @endcan
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No,Kode Kategori,Nama Kategori,Status,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(item, index) in table.data"
             x-bind:key="item.slug"
@@ -92,25 +99,31 @@
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
-                  x-bind:disabled="state.isLoading"
+                  x-bind:disabled="state.isLoading || {{ auth()->user()->can('category-master-update') ? 'false' : 'true' }}"
                   x-on:change="toggleCategoryStatus(item.slug, $event)"
                 />
               </x-backdoor.table.cell>
               {{-- Status toggle end --}}
 
               {{-- Aksi start --}}
-              <x-backdoor.table.actions>
-                <x-backdoor.table.action-item
-                  color="text-yellow-600"
-                  x-on:click="closeDropdown(); editCategory(item)"
-                  text="Edit"
-                />
-                <x-backdoor.table.action-item
-                  color="text-red-600"
-                  x-on:click="closeDropdown(); destroyCategory(item)"
-                  text="Hapus"
-                />
-              </x-backdoor.table.actions>
+              @canany(['category-master-update', 'category-master-delete'])
+                <x-backdoor.table.actions>
+                  @can('category-master-update')
+                    <x-backdoor.table.action-item
+                      color="text-yellow-600"
+                      x-on:click="closeDropdown(); editCategory(item)"
+                      text="Edit"
+                    />
+                  @endcan
+                  @can('category-master-delete')
+                    <x-backdoor.table.action-item
+                      color="text-red-600"
+                      x-on:click="closeDropdown(); destroyCategory(item)"
+                      text="Hapus"
+                    />
+                  @endcan
+                </x-backdoor.table.actions>
+              @endcanany
               {{-- Aksi end --}}
             </tr>
           </template>
@@ -125,7 +138,9 @@
       {{-- table card end --}}
 
       {{-- drawer form (create / update) start --}}
-      <x-backdoor.data-master.category.category-drawer-form />
+      @canany(['category-master-create', 'category-master-update'])
+        <x-backdoor.data-master.category.category-drawer-form />
+      @endcanany
       {{-- drawer form (create / update) end --}}
     </div>
   </x-slot:content>

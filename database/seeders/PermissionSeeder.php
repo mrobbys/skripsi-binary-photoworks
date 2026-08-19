@@ -12,8 +12,6 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // TODO : tambahkan permission yang belum ditambahkan
-
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 

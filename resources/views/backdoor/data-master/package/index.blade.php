@@ -4,6 +4,11 @@
       ['label' => 'Data Master', 'url' => '#'],
       ['label' => 'Paket Studio', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Nama Paket & Kategori', 'Jumlah Varian', 'Rentang Harga', 'Status'];
+  if (auth()->user()->canany(['packageVariant-master-view', 'packageVariant-master-update', 'packageVariant-master-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -61,16 +66,18 @@
           </x-slot:left>
 
           <x-slot:right>
-            <x-backdoor.table.add-button
-              x-on:click="openDrawer()"
-              text="Tambah Paket"
-            />
+            @can('packageVariant-master-create')
+              <x-backdoor.table.add-button
+                x-on:click="openDrawer()"
+                text="Tambah Paket"
+              />
+            @endcan
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No,Nama Paket & Kategori,Jumlah Varian,Rentang Harga,Status,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(item, index) in table.data"
             x-bind:key="item.slug"
@@ -127,7 +134,7 @@
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
-                  x-bind:disabled="state.isLoading"
+                  x-bind:disabled="state.isLoading || {{ auth()->user()->can('packageVariant-master-update') ? 'false' : 'true' }}"
                   x-bind:aria-label="'Status aktif ' + item.name"
                   x-on:change="togglePackageStatus(item.slug, $event)"
                 />
@@ -135,24 +142,32 @@
               {{-- status toggle end --}}
 
               {{-- aksi start --}}
-              <x-backdoor.table.actions>
-                <x-backdoor.table.action-item
-                  color="text-blue-600"
-                  x-bind:href="`{{ route('backdoor.data-master.package.show', ':slug') }}`.replace(':slug', item.slug)"
-                  text="Detail"
-                />
-                <x-backdoor.table.action-item
-                  color="text-yellow-600"
-                  x-on:click="closeDropdown(); openEditDrawer(item)"
-                  text="Edit"
-                />
-                <x-backdoor.table.action-item
-                  color="text-red-600"
-                  x-bind:disabled="state.isLoading"
-                  x-on:click="closeDropdown(); destroyPackage(item)"
-                  text="Hapus"
-                />
-              </x-backdoor.table.actions>
+              @canany(['packageVariant-master-view', 'packageVariant-master-update', 'packageVariant-master-delete'])
+                <x-backdoor.table.actions>
+                  @can('packageVariant-master-view')
+                    <x-backdoor.table.action-item
+                      color="text-blue-600"
+                      x-bind:href="`{{ route('backdoor.data-master.package.show', ':slug') }}`.replace(':slug', item.slug)"
+                      text="Detail"
+                    />
+                  @endcan
+                  @can('packageVariant-master-update')
+                    <x-backdoor.table.action-item
+                      color="text-yellow-600"
+                      x-on:click="closeDropdown(); openEditDrawer(item)"
+                      text="Edit"
+                    />
+                  @endcan
+                  @can('packageVariant-master-delete')
+                    <x-backdoor.table.action-item
+                      color="text-red-600"
+                      x-bind:disabled="state.isLoading"
+                      x-on:click="closeDropdown(); destroyPackage(item)"
+                      text="Hapus"
+                    />
+                  @endcan
+                </x-backdoor.table.actions>
+              @endcanany
               {{-- aksi end --}}
 
             </tr>
@@ -168,7 +183,9 @@
       {{-- table card end --}}
 
       {{-- drawer form start --}}
-      <x-backdoor.data-master.package.package-drawer-form :categories="$categories" />
+      @canany(['packageVariant-master-create', 'packageVariant-master-update'])
+        <x-backdoor.data-master.package.package-drawer-form :categories="$categories" />
+      @endcanany
       {{-- drawer form end --}}
 
     </div>

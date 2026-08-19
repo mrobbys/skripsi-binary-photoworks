@@ -109,31 +109,33 @@
             <x-backdoor.booking-management.show.payment-history />
             {{-- riwayat transaksi end --}}
 
-            {{-- tombol tandai lunas start --}}
-            <template
-              x-if="
-                (state.booking?.status === 'DP Terbayar' || state.booking?.status === 'Lunas') &&
-                (Number(state.booking?.total_price || 0) > Number(state.summary?.net_paid || 0))
-              "
-            >
-              <x-shared.button
-                type="button"
-                x-on:click="settle()"
-                variant="charcoal"
-                size="md"
-                class="w-full"
-                value="Tandai Lunas"
+            @can('booking-management-update')
+              {{-- tombol tandai lunas start --}}
+              <template
+                x-if="
+                  (state.booking?.status === 'DP Terbayar' || state.booking?.status === 'Lunas') &&
+                  (Number(state.booking?.total_price || 0) > Number(state.summary?.net_paid || 0))
+                "
               >
-                <x-slot:iconLeft>
-                  <i class="ri-checkbox-circle-line leading-none" aria-hidden="true"></i>
-                </x-slot:iconLeft>
-              </x-shared.button>
-            </template>
-            {{-- tombol tandai lunas end --}}
+                <x-shared.button
+                  type="button"
+                  x-on:click="settle()"
+                  variant="charcoal"
+                  size="md"
+                  class="w-full"
+                  value="Tandai Lunas"
+                >
+                  <x-slot:iconLeft>
+                    <i class="ri-checkbox-circle-line leading-none" aria-hidden="true"></i>
+                  </x-slot:iconLeft>
+                </x-shared.button>
+              </template>
+              {{-- tombol tandai lunas end --}}
 
-            {{-- form link google drive start --}}
-            <x-backdoor.booking-management.show.gdrive-form />
-            {{-- form link google drive end --}}
+              {{-- form link google drive start --}}
+              <x-backdoor.booking-management.show.gdrive-form />
+              {{-- form link google drive end --}}
+            @endcan
           </div>
           {{-- kolom kanan: keuangan, riwayat, & gdrive end --}}
         </div>
