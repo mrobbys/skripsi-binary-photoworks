@@ -4,6 +4,11 @@
       ['label' => 'Data Master', 'url' => '#'],
       ['label' => 'Background', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Preview', 'Nama Background', 'Deskripsi', 'Status'];
+  if (auth()->user()->canany(['background-master-update', 'background-master-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -48,16 +53,18 @@
           </x-slot:left>
 
           <x-slot:right>
-            <x-backdoor.table.add-button
-              x-on:click="openDrawer()"
-              text="Tambah Background"
-            />
+            @can('background-master-create')
+              <x-backdoor.table.add-button
+                x-on:click="openDrawer()"
+                text="Tambah Background"
+              />
+            @endcan
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No,Preview,Nama Background,Deskripsi,Status,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(item, index) in table.data"
             x-bind:key="item.id"
@@ -123,7 +130,7 @@
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
-                  x-bind:disabled="state.isLoading"
+                  x-bind:disabled="state.isLoading || {{ auth()->user()->can('background-master-update') ? 'false' : 'true' }}"
                   x-bind:aria-label="'Status aktif ' + item.name"
                   x-on:change="toggleBackgroundStatus(item.id)"
                 />
@@ -131,19 +138,25 @@
               {{-- status toggle end --}}
 
               {{-- aksi start --}}
-              <x-backdoor.table.actions>
-                <x-backdoor.table.action-item
-                  color="text-yellow-600"
-                  x-on:click="closeDropdown(); openEditDrawer(item)"
-                  text="Edit"
-                />
-                <x-backdoor.table.action-item
-                  color="text-red-600"
-                  x-bind:disabled="state.isLoading"
-                  x-on:click="closeDropdown(); destroyBackground(item.id, item.name)"
-                  text="Hapus"
-                />
-              </x-backdoor.table.actions>
+              @canany(['background-master-update', 'background-master-delete'])
+                <x-backdoor.table.actions>
+                  @can('background-master-update')
+                    <x-backdoor.table.action-item
+                      color="text-yellow-600"
+                      x-on:click="closeDropdown(); openEditDrawer(item)"
+                      text="Edit"
+                    />
+                  @endcan
+                  @can('background-master-delete')
+                    <x-backdoor.table.action-item
+                      color="text-red-600"
+                      x-bind:disabled="state.isLoading"
+                      x-on:click="closeDropdown(); destroyBackground(item.id, item.name)"
+                      text="Hapus"
+                    />
+                  @endcan
+                </x-backdoor.table.actions>
+              @endcanany
               {{-- aksi end --}}
             </tr>
           </template>
@@ -162,7 +175,9 @@
       {{-- preview image modal end --}}
 
       {{-- drawer form start --}}
-      <x-backdoor.data-master.background.background-drawer-form />
+      @canany(['background-master-create', 'background-master-update'])
+        <x-backdoor.data-master.background.background-drawer-form />
+      @endcanany
       {{-- drawer form end --}}
 
     </div>

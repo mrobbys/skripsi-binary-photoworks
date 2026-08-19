@@ -38,11 +38,15 @@
       {{-- table daftar varian end --}}
 
       {{-- drawer form edit package start --}}
-      <x-backdoor.data-master.package.package-drawer-form :categories="$categories" />
+      @can('packageVariant-master-update')
+        <x-backdoor.data-master.package.package-drawer-form :categories="$categories" />
+      @endcan
       {{-- drawer form edit package end --}}
 
       {{-- drawer form variant start --}}
-      <x-backdoor.data-master.package.variant-drawer-form />
+      @canany(['packageVariant-master-create', 'packageVariant-master-update'])
+        <x-backdoor.data-master.package.variant-drawer-form />
+      @endcanany
       {{-- drawer form variant end --}}
 
     </div>

@@ -4,6 +4,11 @@
       ['label' => 'Data Master', 'url' => '#'],
       ['label' => 'Layanan Tambahan (Addon)', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Nama Add-On', 'Harga', 'Tipe Input', 'Deskripsi', 'Status'];
+  if (auth()->user()->canany(['addon-master-update', 'addon-master-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -48,16 +53,18 @@
           </x-slot:left>
 
           <x-slot:right>
-            <x-backdoor.table.add-button
-              x-on:click="openDrawer()"
-              text="Tambah Add-On"
-            />
+            @can('addon-master-create')
+              <x-backdoor.table.add-button
+                x-on:click="openDrawer()"
+                text="Tambah Add-On"
+              />
+            @endcan
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No,Nama Add-On,Harga,Tipe Input,Deskripsi,Status,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(item, index) in table.data"
             x-bind:key="item.id"
@@ -123,7 +130,7 @@
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
-                  x-bind:disabled="state.isLoading"
+                  x-bind:disabled="state.isLoading || {{ auth()->user()->can('addon-master-update') ? 'false' : 'true' }}"
                   x-bind:aria-label="'Status aktif ' + item.name"
                   x-on:change="toggleAddonStatus(item.id)"
                 />
@@ -131,19 +138,25 @@
               {{-- status toggle end --}}
 
               {{-- aksi start --}}
-              <x-backdoor.table.actions>
-                <x-backdoor.table.action-item
-                  color="text-yellow-600"
-                  x-on:click="closeDropdown(); openEditDrawer(item)"
-                  text="Edit"
-                />
-                <x-backdoor.table.action-item
-                  color="text-red-600"
-                  x-bind:disabled="state.isLoading"
-                  x-on:click="closeDropdown(); destroyAddon(item.id, item.name)"
-                  text="Hapus"
-                />
-              </x-backdoor.table.actions>
+              @canany(['addon-master-update', 'addon-master-delete'])
+                <x-backdoor.table.actions>
+                  @can('addon-master-update')
+                    <x-backdoor.table.action-item
+                      color="text-yellow-600"
+                      x-on:click="closeDropdown(); openEditDrawer(item)"
+                      text="Edit"
+                    />
+                  @endcan
+                  @can('addon-master-delete')
+                    <x-backdoor.table.action-item
+                      color="text-red-600"
+                      x-bind:disabled="state.isLoading"
+                      x-on:click="closeDropdown(); destroyAddon(item.id, item.name)"
+                      text="Hapus"
+                    />
+                  @endcan
+                </x-backdoor.table.actions>
+              @endcanany
               {{-- aksi end --}}
 
             </tr>
@@ -159,7 +172,9 @@
       {{-- table card end --}}
 
       {{-- drawer form start --}}
-      <x-backdoor.data-master.addon.addon-drawer-form />
+      @canany(['addon-master-create', 'addon-master-update'])
+        <x-backdoor.data-master.addon.addon-drawer-form />
+      @endcanany
       {{-- drawer form end --}}
 
     </div>

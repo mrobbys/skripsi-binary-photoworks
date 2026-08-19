@@ -3,6 +3,11 @@
       ['label' => 'Dashboard', 'url' => route('backdoor.dashboard.index')],
       ['label' => 'Data Klien', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Nama Klien', 'Email', 'Nomor HP', 'Tgl. Bergabung', 'Total Booking'];
+  if (auth()->user()->can('clientData-view')) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -47,7 +52,7 @@
         </x-backdoor.table.header>
 
         {{-- Table --}}
-        <x-backdoor.table.container headers="No,Nama Klien,Email,Nomor HP,Tgl. Bergabung,Total Booking,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(client, index) in table.data"
             :key="client.uuid"
@@ -91,15 +96,17 @@
                 <span class="text-xs text-stone-500"> Sesi</span>
               </x-backdoor.table.cell>
 
-              <x-backdoor.table.actions>
-                <x-backdoor.table.action-item
-                  x-on:click="closeDropdown()"
-                  x-bind:href="`{{ route('backdoor.client-data.show', ':uuid') }}`
-                  .replace(':uuid', client.uuid)"
-                  color="text-blue-600"
-                  text="Lihat Detail"
-                />
-              </x-backdoor.table.actions>
+              @can('clientData-view')
+                <x-backdoor.table.actions>
+                  <x-backdoor.table.action-item
+                    x-on:click="closeDropdown()"
+                    x-bind:href="`{{ route('backdoor.client-data.show', ':uuid') }}`
+                    .replace(':uuid', client.uuid)"
+                    color="text-blue-600"
+                    text="Lihat Detail"
+                  />
+                </x-backdoor.table.actions>
+              @endcan
 
             </tr>
           </template>

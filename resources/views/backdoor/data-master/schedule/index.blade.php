@@ -53,10 +53,12 @@
                   readonly
                   x-bind:id="'start-time-' + item.id"
                   x-bind:value="item.start_time"
-                  x-bind:disabled="state.savingIds.has(item.id)"
+                  x-bind:disabled="state.savingIds.has(item.id) || {{ auth()->user()->can('schedule-master-update') ? 'false' : 'true' }}"
                   x-bind:aria-label="'Jam buka ' + item.day_label"
                   placeholder="00:00"
-                  x-init="initTimePicker($el, item, 'start_time')"
+                  @can('schedule-master-update')
+                    x-init="initTimePicker($el, item, 'start_time')"
+                  @endcan
                   class="w-24 cursor-pointer border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </x-backdoor.table.cell>
@@ -69,10 +71,12 @@
                   readonly
                   x-bind:id="'end-time-' + item.id"
                   x-bind:value="item.end_time"
-                  x-bind:disabled="state.savingIds.has(item.id)"
+                  x-bind:disabled="state.savingIds.has(item.id) || {{ auth()->user()->can('schedule-master-update') ? 'false' : 'true' }}"
                   x-bind:aria-label="'Jam tutup ' + item.day_label"
                   placeholder="00:00"
-                  x-init="initTimePicker($el, item, 'end_time')"
+                  @can('schedule-master-update')
+                    x-init="initTimePicker($el, item, 'end_time')"
+                  @endcan
                   class="w-24 cursor-pointer border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </x-backdoor.table.cell>
@@ -82,7 +86,7 @@
               <x-backdoor.table.cell>
                 <x-backdoor.shared.toggle
                   x-bind:checked="item.is_active"
-                  x-bind:disabled="state.savingIds.has(item.id)"
+                  x-bind:disabled="state.savingIds.has(item.id) || {{ auth()->user()->can('schedule-master-update') ? 'false' : 'true' }}"
                   x-bind:aria-label="'Status aktif ' + item.day_label"
                   x-on:change="toggleScheduleStatus(item.id)"
                 />

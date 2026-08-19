@@ -4,6 +4,11 @@
       ['label' => 'Pengaturan Sistem', 'url' => '#'],
       ['label' => 'Manajemen Role', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Nama Role', 'Jumlah Permission'];
+  if (auth()->user()->canany(['role-management-view', 'role-management-update', 'role-management-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -31,17 +36,19 @@
             <x-backdoor.table.search placeholder="Cari nama role..." />
           </x-slot:left>
           <x-slot:right>
-            <x-backdoor.table.add-button
-              as="a"
-              :href="route('backdoor.system-settings.roles.create')"
-              text="Tambah Role"
-            />
+            @can('role-management-create')
+              <x-backdoor.table.add-button
+                as="a"
+                :href="route('backdoor.system-settings.roles.create')"
+                text="Tambah Role"
+              />
+            @endcan
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No,Nama Role,Jumlah Permission,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(role, index) in table.data"
             :key="role.id"
@@ -74,56 +81,64 @@
               {{-- jumlah permission end --}}
 
               {{-- aksi start --}}
-              <td class="p-3 md:px-6 md:py-4">
-                <div class="flex items-center gap-3">
+              @canany(['role-management-view', 'role-management-update', 'role-management-delete'])
+                <td class="p-3 md:px-6 md:py-4">
+                  <div class="flex items-center gap-3">
 
-                  {{-- btn detail start --}}
-                  <a
-                    :href="role.show_url"
-                    class="text-stone-600 transition hover:text-stone-900"
-                    title="Lihat Detail"
-                    aria-label="Lihat Detail Role"
-                  >
-                    <i
-                      class="ri-eye-line text-lg"
-                      aria-hidden="true"
-                    ></i>
-                  </a>
-                  {{-- btn detail end --}}
+                    {{-- btn detail start --}}
+                    @can('role-management-view')
+                      <a
+                        :href="role.show_url"
+                        class="text-stone-600 transition hover:text-stone-900"
+                        title="Lihat Detail"
+                        aria-label="Lihat Detail Role"
+                      >
+                        <i
+                          class="ri-eye-line text-lg"
+                          aria-hidden="true"
+                        ></i>
+                      </a>
+                    @endcan
+                    {{-- btn detail end --}}
 
-                  {{-- btn edit start --}}
-                  <a
-                    x-show="role.name.toLowerCase() !== 'superadmin'"
-                    :href="role.edit_url"
-                    class="text-yellow-600 transition hover:text-yellow-800"
-                    title="Edit Role"
-                    aria-label="Edit Role"
-                  >
-                    <i
-                      class="ri-pencil-line text-lg"
-                      aria-hidden="true"
-                    ></i>
-                  </a>
-                  {{-- btn edit end --}}
+                    {{-- btn edit start --}}
+                    @can('role-management-update')
+                      <a
+                        x-show="role.name.toLowerCase() !== 'superadmin'"
+                        :href="role.edit_url"
+                        class="text-yellow-600 transition hover:text-yellow-800"
+                        title="Edit Role"
+                        aria-label="Edit Role"
+                      >
+                        <i
+                          class="ri-pencil-line text-lg"
+                          aria-hidden="true"
+                        ></i>
+                      </a>
+                    @endcan
+                    {{-- btn edit end --}}
 
-                  {{-- btn hapus start --}}
-                  <button
-                    type="button"
-                    x-show="role.name.toLowerCase() !== 'superadmin'"
-                    x-on:click="deleteRole(role.id, role.name)"
-                    class="text-red-600 transition hover:text-red-800"
-                    title="Hapus Role"
-                    aria-label="Hapus Role"
-                  >
-                    <i
-                      class="ri-delete-bin-line text-lg"
-                      aria-hidden="true"
-                    ></i>
-                  </button>
-                  {{-- btn hapus end --}}
+                    {{-- btn hapus start --}}
+                    @can('role-management-delete')
+                      <button
+                        type="button"
+                        x-show="role.name.toLowerCase() !== 'superadmin'"
+                        x-on:click="deleteRole(role.id, role.name)"
+                        class="text-red-600 transition hover:text-red-800"
+                        title="Hapus Role"
+                        aria-label="Hapus Role"
+                      >
+                        <i
+                          class="ri-delete-bin-line text-lg"
+                          aria-hidden="true"
+                        ></i>
+                      </button>
+                    @endcan
+                    {{-- btn hapus end --}}
 
-                </div>
-              </td>
+                  </div>
+                </td>
+              @endcanany
               {{-- aksi end --}}
 
             </tr>

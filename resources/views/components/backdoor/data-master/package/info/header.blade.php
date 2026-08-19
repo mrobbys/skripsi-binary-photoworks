@@ -16,16 +16,18 @@
       ></p>
     </template>
   </div>
-  <button
-    type="button"
-    x-on:click="openEditDrawer(state.packageInfo)"
-    class="inline-flex w-fit shrink-0 items-center justify-center gap-2 border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 active:scale-[0.97] cursor-pointer"
-  >
-    <i
-      class="ri-pencil-fill"
-      aria-hidden="true"
-    ></i>
-    <span>Edit Info Paket</span>
-  </button>
+  @can('packageVariant-master-update')
+    <button
+      type="button"
+      x-on:click="openEditDrawer(state.packageInfo)"
+      class="inline-flex w-fit shrink-0 items-center justify-center gap-2 border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 active:scale-[0.97] cursor-pointer"
+    >
+      <i
+        class="ri-pencil-fill"
+        aria-hidden="true"
+      ></i>
+      <span>Edit Info Paket</span>
+    </button>
+  @endcan
 </div>
 {{-- header info end --}}

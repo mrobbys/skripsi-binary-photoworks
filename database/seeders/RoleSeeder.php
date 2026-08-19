@@ -15,14 +15,14 @@ class RoleSeeder extends Seeder
     {
 
         // * Role superadmin untuk permissionnya didaftarkan di AppServiceProvider
-        $roleSuperadmin = Role::create(['name' => RoleType::SUPERADMIN->value]);
-        $roleAdmin = Role::create(['name' => RoleType::ADMIN->value]);
-        $roleOwner = Role::create(['name' => RoleType::OWNER->value]);
-        $roleUser = Role::create(['name' => RoleType::USER->value]);
+        $roleSuperadmin = Role::firstOrCreate(['name' => RoleType::SUPERADMIN->value]);
+        $roleAdmin = Role::firstOrCreate(['name' => RoleType::ADMIN->value]);
+        $roleOwner = Role::firstOrCreate(['name' => RoleType::OWNER->value]);
+        $roleUser = Role::firstOrCreate(['name' => RoleType::USER->value]);
 
         // Memberikan permission ke role admin
-        // Untuk permission kecuali 'system settings'
-        $roleAdmin->givePermissionTo([
+        // Untuk operasional studio penuh (kecuali system settings)
+        $roleAdmin->syncPermissions([
             'dashboard-admin-view',
 
             'scheduleSession-view',
@@ -31,6 +31,8 @@ class RoleSeeder extends Seeder
             'booking-management-view',
             'booking-management-create',
             'booking-management-update',
+
+            'clientData-view',
 
             'category-master-view',
             'category-master-create',
@@ -62,8 +64,8 @@ class RoleSeeder extends Seeder
         ]);
 
         // Memberikan permission ke role owner
-        // Untuk permission hanya view saja
-        $roleOwner->givePermissionTo([
+        // Untuk monitoring bisnis, audit activity log, dan cetak laporan
+        $roleOwner->syncPermissions([
             'dashboard-admin-view',
 
             'scheduleSession-view',
@@ -71,9 +73,19 @@ class RoleSeeder extends Seeder
 
             'booking-management-view',
 
+            'clientData-view',
+
+            'category-master-view',
+            'packageVariant-master-view',
+            'background-master-view',
+            'addon-master-view',
+            'schedule-master-view',
+
             'review-client-view',
 
             'report-view',
+
+            'activityLog-management-view',
         ]);
     }
 }

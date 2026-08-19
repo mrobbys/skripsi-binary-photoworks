@@ -1,3 +1,10 @@
+@php
+  $tableHeaders = ['No', 'Nama Varian & Fasilitas', 'Harga', 'Durasi', 'Status'];
+  if (auth()->user()->canany(['packageVariant-master-update', 'packageVariant-master-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
+@endphp
+
 <div class="relative overflow-visible border border-stone-200 bg-stone-50 p-6">
   {{-- table header start --}}
   <x-backdoor.table.header>
@@ -8,16 +15,18 @@
     </x-slot:left>
 
     <x-slot:right>
-      <x-backdoor.table.add-button
-        x-on:click="openVariantDrawer(state.packageSlug)"
-        text="Tambah Varian"
-      />
+      @can('packageVariant-master-create')
+        <x-backdoor.table.add-button
+          x-on:click="openVariantDrawer(state.packageSlug)"
+          text="Tambah Varian"
+        />
+      @endcan
     </x-slot:right>
   </x-backdoor.table.header>
   {{-- table header end --}}
 
   {{-- table container start --}}
-  <x-backdoor.table.container headers="No,Nama Varian & Fasilitas,Harga,Durasi,Status,Aksi">
+  <x-backdoor.table.container :headers="$tableHeaders">
     <template
       x-for="(item, index) in table.data"
       x-bind:key="item.id"
@@ -112,7 +121,7 @@
         <x-backdoor.table.cell>
           <x-backdoor.shared.toggle
             x-bind:checked="item.is_active"
-            x-bind:disabled="state.isLoading"
+            x-bind:disabled="state.isLoading || {{ auth()->user()->can('packageVariant-master-update') ? 'false' : 'true' }}"
             x-bind:aria-label="'Status aktif ' + item.name"
             x-on:change="toggleVariantStatus(state.packageSlug, item.id, $event)"
           />
@@ -120,19 +129,25 @@
         {{-- status toggle end --}}
 
         {{-- aksi start --}}
-        <x-backdoor.table.actions>
-          <x-backdoor.table.action-item
-            color="text-yellow-600"
-            x-on:click="closeDropdown(); editVariant(item, state.packageSlug)"
-            text="Edit"
-          />
-          <x-backdoor.table.action-item
-            color="text-red-600"
-            x-bind:disabled="state.isLoading"
-            x-on:click="closeDropdown(); destroyVariant(state.packageSlug, item.id, item.name)"
-            text="Hapus"
-          />
-        </x-backdoor.table.actions>
+        @canany(['packageVariant-master-update', 'packageVariant-master-delete'])
+          <x-backdoor.table.actions>
+            @can('packageVariant-master-update')
+              <x-backdoor.table.action-item
+                color="text-yellow-600"
+                x-on:click="closeDropdown(); editVariant(item, state.packageSlug)"
+                text="Edit"
+              />
+            @endcan
+            @can('packageVariant-master-delete')
+              <x-backdoor.table.action-item
+                color="text-red-600"
+                x-bind:disabled="state.isLoading"
+                x-on:click="closeDropdown(); destroyVariant(state.packageSlug, item.id, item.name)"
+                text="Hapus"
+              />
+            @endcan
+          </x-backdoor.table.actions>
+        @endcanany
         {{-- aksi end --}}
 
       </tr>

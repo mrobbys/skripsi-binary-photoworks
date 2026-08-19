@@ -9,6 +9,11 @@
   ];
 
   $jadwal_hari_ini = Formatter::dateId(Carbon::now(), 'l, d F Y');
+
+  $tableHeaders = ['No', 'Waktu Sesi', 'Nama Klien', 'Paket Foto', 'Background', 'Status Sesi'];
+  if (auth()->user()->can('scheduleSession-view')) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -94,25 +99,27 @@
 
           <x-slot:right>
             {{-- cetak jadwal button start --}}
-            <x-shared.button
-              as="a"
-              :href="route('session-schedule.daily-report')"
-              target="_blank"
-              variant="charcoal"
-              size="md"
-              value="Cetak Jadwal Hari Ini"
-            >
-              <x-slot:iconLeft>
-                <i class="ri-printer-line leading-none"></i>
-              </x-slot:iconLeft>
-            </x-shared.button>
+            @can('report-view')
+              <x-shared.button
+                as="a"
+                :href="route('session-schedule.daily-report')"
+                target="_blank"
+                variant="charcoal"
+                size="md"
+                value="Cetak Jadwal Hari Ini"
+              >
+                <x-slot:iconLeft>
+                  <i class="ri-printer-line leading-none"></i>
+                </x-slot:iconLeft>
+              </x-shared.button>
+            @endcan
             {{-- cetak jadwal button end --}}
           </x-slot:right>
         </x-backdoor.table.header>
         {{-- table header end --}}
 
         {{-- table container start --}}
-        <x-backdoor.table.container headers="No,Waktu Sesi,Nama Klien,Paket Foto,Background,Status Sesi,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(schedule, index) in table.data"
             :key="schedule.id"
@@ -207,18 +214,20 @@
                 />
               </x-backdoor.table.cell>
 
-              {{-- aksi btn detail start --}}
-              <x-backdoor.table.cell>
-                <x-shared.button
-                  as="a"
-                  x-bind:href="`{{ route('backdoor.session-schedule.list.show', ':booking_code') }}`.replace(':booking_code', schedule.booking_code)"
-                  variant="outline"
-                  size="sm"
-                  value="Lihat Detail"
-                  class="whitespace-nowrap"
-                />
-              </x-backdoor.table.cell>
-              {{-- aksi btn detail end --}}
+              @can('scheduleSession-view')
+                {{-- aksi btn detail start --}}
+                <x-backdoor.table.cell>
+                  <x-shared.button
+                    as="a"
+                    x-bind:href="`{{ route('backdoor.session-schedule.list.show', ':booking_code') }}`.replace(':booking_code', schedule.booking_code)"
+                    variant="outline"
+                    size="sm"
+                    value="Lihat Detail"
+                    class="whitespace-nowrap"
+                  />
+                </x-backdoor.table.cell>
+                {{-- aksi btn detail end --}}
+              @endcan
 
             </tr>
           </template>

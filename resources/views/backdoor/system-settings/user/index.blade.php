@@ -4,6 +4,11 @@
       ['label' => 'Pengaturan Sistem', 'url' => '#'],
       ['label' => 'Manajemen User', 'url' => ''],
   ];
+
+  $tableHeaders = ['No', 'Nama', 'Email', 'Nomor HP', 'Role'];
+  if (auth()->user()->canany(['user-management-update', 'user-management-delete'])) {
+      $tableHeaders[] = 'Aksi';
+  }
 @endphp
 
 <x-layouts.backdoor.index
@@ -28,14 +33,16 @@
             <x-backdoor.table.search placeholder="Cari nama, email, no. HP..." />
           </x-slot:left>
           <x-slot:right>
-            <x-backdoor.table.add-button
-              x-on:click="openDrawer()"
-              text="Tambah User"
-            />
+            @can('user-management-create')
+              <x-backdoor.table.add-button
+                x-on:click="openDrawer()"
+                text="Tambah User"
+              />
+            @endcan
           </x-slot:right>
         </x-backdoor.table.header>
 
-        <x-backdoor.table.container headers="No,Nama,Email,Nomor HP,Role,Aksi">
+        <x-backdoor.table.container :headers="$tableHeaders">
           <template
             x-for="(user, index) in table.data"
             :key="user.id"
@@ -85,28 +92,34 @@
               {{-- role end --}}
 
               {{-- aksi dropdown start --}}
-              <x-backdoor.table.actions>
-                {{-- Edit --}}
-                <x-backdoor.table.action-item
-                  x-on:click="editUser(user); closeDropdown()"
-                  color="text-yellow-600"
-                  text="Edit"
-                />
+              @canany(['user-management-update', 'user-management-delete'])
+                <x-backdoor.table.actions>
+                  @can('user-management-update')
+                    {{-- Edit --}}
+                    <x-backdoor.table.action-item
+                      x-on:click="editUser(user); closeDropdown()"
+                      color="text-yellow-600"
+                      text="Edit"
+                    />
 
-                {{-- Reset Password --}}
-                <x-backdoor.table.action-item
-                  x-on:click="resetPassword(user.id, user.name); closeDropdown()"
-                  color="text-sky-600"
-                  text="Reset Password"
-                />
+                    {{-- Reset Password --}}
+                    <x-backdoor.table.action-item
+                      x-on:click="resetPassword(user.id, user.name); closeDropdown()"
+                      color="text-sky-600"
+                      text="Reset Password"
+                    />
+                  @endcan
 
-                {{-- Hapus --}}
-                <x-backdoor.table.action-item
-                  x-on:click="destroyUser(user.id, user.name); closeDropdown()"
-                  color="text-red-600"
-                  text="Hapus"
-                />
-              </x-backdoor.table.actions>
+                  @can('user-management-delete')
+                    {{-- Hapus --}}
+                    <x-backdoor.table.action-item
+                      x-on:click="destroyUser(user.id, user.name); closeDropdown()"
+                      color="text-red-600"
+                      text="Hapus"
+                    />
+                  @endcan
+                </x-backdoor.table.actions>
+              @endcanany
               {{-- aksi dropdown end --}}
 
             </tr>
@@ -119,7 +132,9 @@
       {{-- table card end --}}
 
       {{-- drawer user start --}}
-      <x-backdoor.system-settings.user.user-drawer-form :roles="$roles" />
+      @canany(['user-management-create', 'user-management-update'])
+        <x-backdoor.system-settings.user.user-drawer-form :roles="$roles" />
+      @endcanany
       {{-- drawer user end --}}
 
     </div>
