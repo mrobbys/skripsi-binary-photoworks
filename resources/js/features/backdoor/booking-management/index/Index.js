@@ -27,7 +27,7 @@ export default function Index(Alpine) {
       if (res.count_success !== undefined) state.countSuccess = res.count_success;
       if (res.count_dp_paid !== undefined) state.countDpPaid = res.count_dp_paid;
     },
-    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data pemesanan." }),
+    onError: () => Toast.fire({ icon: "error", title: "Gagal memuat data pemesanan" }),
   });
 
   Object.assign(table, { fetch, setSearch, nextPage, prevPage, goToPage, reload, getPages });

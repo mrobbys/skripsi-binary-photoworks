@@ -6,7 +6,8 @@ export default function useState(Alpine) {
     isPageLoading: true,
 
     gdriveLink: "",
-    gdriveErrors: {},
+    errors: {},
+    dismissedErrors: {},
     isGdriveLoading: false,
     sendWaNotificationGdrive: true,
 

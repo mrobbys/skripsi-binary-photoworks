@@ -50,13 +50,14 @@
               <x-backdoor.table.cell>
                 <input
                   type="text"
+                  readonly
                   x-bind:id="'start-time-' + item.id"
                   x-bind:value="item.start_time"
                   x-bind:disabled="state.savingIds.has(item.id)"
                   x-bind:aria-label="'Jam buka ' + item.day_label"
                   placeholder="00:00"
                   x-init="initTimePicker($el, item, 'start_time')"
-                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="w-24 cursor-pointer border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </x-backdoor.table.cell>
               {{-- jam buka end --}}
@@ -65,13 +66,14 @@
               <x-backdoor.table.cell>
                 <input
                   type="text"
+                  readonly
                   x-bind:id="'end-time-' + item.id"
                   x-bind:value="item.end_time"
                   x-bind:disabled="state.savingIds.has(item.id)"
                   x-bind:aria-label="'Jam tutup ' + item.day_label"
                   placeholder="00:00"
                   x-init="initTimePicker($el, item, 'end_time')"
-                  class="w-24 border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="w-24 cursor-pointer border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </x-backdoor.table.cell>
               {{-- jam tutup end --}}

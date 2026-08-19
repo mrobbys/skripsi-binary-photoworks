@@ -5,6 +5,7 @@ import route from "@/lib/route";
 import axiosInstance from "@/lib/axiosInstance";
 import { Toast } from "@/lib/sweetalert";
 import useChoices from "@/lib/useChoices";
+import formatRupiah from "@/utils/formatRupiah";
 
 export default function Show(Alpine) {
   if (Alpine) {
@@ -22,7 +23,7 @@ export default function Show(Alpine) {
       state.gdriveLink = data.booking.gdrive_link ?? "";
     } catch (err) {
       console.error(err);
-      Toast.fire({ icon: "error", title: "Gagal memuat data" });
+      Toast.fire({ icon: "error", title: "Gagal memuat data booking" });
     } finally {
       state.isPageLoading = false;
     }
@@ -44,7 +45,7 @@ export default function Show(Alpine) {
     fetchBooking();
   };
 
-  const { settle, submitGdrive, refund } = useBookingActions({ state, fetchBooking });
+  const { settle, submitGdrive, refund, validateField } = useBookingActions({ state, fetchBooking });
   const { submitUpsell, onUpsellAddonChange, removeAddon } = useUpsellAddon({ state, fetchBooking });
 
   return {
@@ -57,6 +58,7 @@ export default function Show(Alpine) {
     submitUpsell,
     onUpsellAddonChange,
     removeAddon,
-    formatRupiah: (num) => "Rp " + Number(num).toLocaleString("id-ID"),
+    formatRupiah,
+    validateField,
   };
 }
