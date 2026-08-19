@@ -37,16 +37,18 @@
           </div>
           <div class="flex items-center gap-2">
             <label for="yearPicker" class="text-xs font-semibold uppercase tracking-wider text-stone-500">Tahun</label>
-            <select
-              id="yearPicker"
-              x-data="choices({ searchEnabled: false, itemSelectText: '', shouldSort: false })"
-              x-model="state.selectedYear"
-              x-on:change="debouncedFetchCharts"
-            >
-              @foreach ($availableYears as $y)
-                <option value="{{ $y }}">{{ $y }}</option>
-              @endforeach
-            </select>
+            <div class="w-24">
+              <select
+                id="yearPicker"
+                x-data="choices({ searchEnabled: false, itemSelectText: '', shouldSort: false })"
+                x-model="state.selectedYear"
+                x-on:change="debouncedFetchCharts"
+              >
+                @foreach ($availableYears as $y)
+                  <option value="{{ $y }}">{{ $y }}</option>
+                @endforeach
+              </select>
+            </div>
           </div>
         </div>
 
