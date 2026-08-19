@@ -14,15 +14,18 @@
   <div
     x-show="!state.isLoadingCharts && !hasChartData(state.chartData.bookingTrend)"
     x-cloak
-    class="flex h-72 items-center justify-center text-sm text-stone-400"
+    class="flex h-64 items-center justify-center text-sm text-stone-400 sm:h-72"
   >
     Belum ada data reservasi pada tahun ini
   </div>
   {{-- empty state end --}}
 
   {{-- chart canvas start --}}
-  <div x-show="!state.isLoadingCharts && hasChartData(state.chartData.bookingTrend)">
-    <canvas id="bookingTrendChart" class="max-h-72 w-full"></canvas>
+  <div
+    x-show="!state.isLoadingCharts && hasChartData(state.chartData.bookingTrend)"
+    class="relative h-64 w-full sm:h-72"
+  >
+    <canvas id="bookingTrendChart"></canvas>
   </div>
   {{-- chart canvas end --}}
 </div>

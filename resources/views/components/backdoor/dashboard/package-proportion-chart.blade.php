@@ -14,15 +14,18 @@
   <div
     x-show="!state.isLoadingCharts && !hasChartData(state.chartData.package)"
     x-cloak
-    class="flex h-72 items-center justify-center text-sm text-stone-400"
+    class="flex h-64 items-center justify-center text-sm text-stone-400 sm:h-72"
   >
     Belum ada data paket pada tahun ini
   </div>
   {{-- empty state end --}}
 
   {{-- chart canvas start --}}
-  <div x-show="!state.isLoadingCharts && hasChartData(state.chartData.package)">
-    <canvas id="packageChart" class="max-h-72 w-full"></canvas>
+  <div
+    x-show="!state.isLoadingCharts && hasChartData(state.chartData.package)"
+    class="relative h-64 w-full sm:h-72"
+  >
+    <canvas id="packageChart"></canvas>
   </div>
   {{-- chart canvas end --}}
 </div>

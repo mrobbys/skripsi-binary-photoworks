@@ -45,7 +45,7 @@ export default function useDashboardCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
       },
@@ -81,7 +81,7 @@ export default function useDashboardCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           y: {
@@ -122,7 +122,7 @@ export default function useDashboardCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: "bottom" } },
       },
     });
@@ -151,7 +151,7 @@ export default function useDashboardCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: "bottom" } },
       },
     });
