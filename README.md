@@ -2,11 +2,11 @@
   <h1 align="center">Aplikasi Pemesanan dan Penjadwalan Layanan Pada Studio Foto Binary Photoworks</h1>
   
   <p align="center">
-    <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 13" />
-    <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3+" />
-    <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
-    <img src="https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white" alt="AlpineJS" />
+    <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 13" /></a>
+    <a href="https://www.php.net"><img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3+" /></a>
+    <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" /></a>
+    <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" /></a>
+    <a href="https://alpinejs.dev"><img src="https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white" alt="AlpineJS" /></a>
   </p>
 </div>
 
@@ -60,7 +60,7 @@ Aplikasi ini dibagi menjadi dua bagian utama:
 ## Tech Stack
 
 - **Framework Backend:** Laravel 13 (PHP 8.3+)
-- **Frontend / UI:** Alpine.js, Tailwind CSS v4, Blade Components
+- **Frontend / UI:** Alpine.js, Tailwind CSS v4
 - **Database / Storage:** PostgreSQL (Supabase), S3-compatible Object Storage
 - **Ekstensi Backend (Composer):** 
   - Spatie Laravel Permission *(Role-Based Access Control)*
