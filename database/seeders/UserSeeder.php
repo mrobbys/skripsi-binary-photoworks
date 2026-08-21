@@ -33,7 +33,13 @@ class UserSeeder extends Seeder
       'email' => 'admin@gmail.com',
     ]);
     $adminAccount->assignRole(RoleType::ADMIN->value);
-    
+
+    $userAccount = User::factory()->create([
+      'name' => 'user',
+      'email' => 'user@gmail.com',
+    ]);
+    $userAccount->assignRole(RoleType::USER->value);
+
     $personalAccount = User::factory()->create([
       'name' => 'robby',
       'email' => 'robby@gmail.com',
