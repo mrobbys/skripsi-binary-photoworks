@@ -74,11 +74,12 @@
           >
             <button
               type="button"
+              tabindex="-1"
               :id="'faq-header-' + i"
               :aria-controls="'faq-answer-' + i"
               x-bind:aria-expanded="state.openIndex === i ? 'true' : 'false'"
-              class="group flex w-full items-center justify-between gap-4 px-2 py-4 text-left transition-colors duration-300 hover:bg-stone-100 focus:outline-none"
-              x-on:click="toggle(i)"
+              class="group flex w-full items-center justify-between gap-4 px-2 py-4 text-left transition-colors duration-300 hover:bg-stone-100 focus:outline-none select-none"
+              x-on:click="toggle(i); $el.blur()"
             >
               <span
                 class="text-sm text-stone-900 sm:text-base"
@@ -94,16 +95,17 @@
             <div
               x-cloak
               x-show="state.openIndex === i"
-              x-collapse
+              x-collapse.duration.300ms
               :id="'faq-answer-' + i"
               :aria-labelledby="'faq-header-' + i"
               role="region"
-              class="bg-stone-100 p-2"
             >
-              <p
-                class="pb-5 text-sm text-stone-700 sm:text-base"
-                x-text="item.a"
-              ></p>
+              <div class="bg-stone-100 p-4">
+                <p
+                  class="text-sm leading-relaxed text-stone-700 sm:text-base"
+                  x-text="item.a"
+                ></p>
+              </div>
             </div>
           </div>
         </template>
