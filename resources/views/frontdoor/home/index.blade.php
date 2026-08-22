@@ -28,6 +28,10 @@
       {{-- section faq start --}}
       <x-frontdoor.home.faq-section />
       {{-- section faq end --}}
+
+      {{-- scroll to top button start --}}
+      <x-frontdoor.home.scroll-to-top />
+      {{-- scroll to top button end --}}
     </div>
   </x-slot:content>
 
