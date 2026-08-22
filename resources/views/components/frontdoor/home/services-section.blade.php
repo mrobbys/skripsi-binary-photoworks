@@ -3,13 +3,13 @@
 ])
 
 <section class="w-full">
-  <div class="mb-18 text-center">
+  <div data-animate="services-header" class="mb-18 text-center">
     <h2 class="font-serif text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl">
       Layanan Kami
     </h2>
   </div>
 
-  <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:gap-10">
+  <div id="services-grid" class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:gap-10">
     @forelse ($packages as $package)
       <x-frontdoor.home.service-card :package="$package" />
     @empty
@@ -19,7 +19,7 @@
     @endforelse
   </div>
 
-  <div class="mt-10 text-center">
+  <div data-animate="services-footer" class="mt-10 text-center">
     <x-shared.button
       as="a"
       href="{{ route('frontdoor.services.index') }}"

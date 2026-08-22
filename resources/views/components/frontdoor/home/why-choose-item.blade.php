@@ -3,7 +3,7 @@
     'description' => '',
 ])
 
-<div class="flex items-start gap-4 sm:gap-5">
+<div data-animate="why-choose-item" class="flex items-start gap-4 sm:gap-5">
   {{-- Square Icon Container --}}
   <div class="mt-1 h-6 w-6 shrink-0 bg-stone-500"></div>
 

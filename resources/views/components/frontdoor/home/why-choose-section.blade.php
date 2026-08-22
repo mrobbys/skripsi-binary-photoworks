@@ -2,7 +2,10 @@
   <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
 
     {{-- kiri start --}}
-    <div class="relative order-2 h-[450px] w-full overflow-hidden sm:h-[550px] lg:order-1 lg:h-[650px]">
+    <div
+      data-animate="why-choose-image"
+      class="h-112.5 sm:h-137.5 lg:h-162.5 relative order-2 w-full overflow-hidden lg:order-1"
+    >
       <img
         src="{{ asset('assets/images/why-choose-us.webp') }}"
         alt="Fotografer profesional sedang mengambil foto model di studio"
@@ -14,11 +17,17 @@
 
     {{-- kanan start --}}
     <div class="order-1 flex flex-col space-y-8 lg:order-2">
-      <h2 class="font-serif text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl">
+      <h2
+        data-animate="why-choose-header"
+        class="font-serif text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl"
+      >
         Mengapa Memilih Binary?
       </h2>
 
-      <div class="space-y-6 sm:space-y-8">
+      <div
+        id="why-choose-list"
+        class="space-y-6 sm:space-y-8"
+      >
         <x-frontdoor.home.why-choose-item
           title="Authenticity & Tranquility"
           description="Kami menangkap setiap momen kegembiraan Anda dengan keaslian dan ketenangan untuk menciptakan kenangan terbaik."
