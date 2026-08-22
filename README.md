@@ -71,6 +71,7 @@ Aplikasi ini dibagi menjadi dua bagian utama:
   - Tightenco Ziggy *(Routing Laravel di JavaScript)*
   - League Flysystem AWS S3 *(Driver Supabase Storage)*
 - **Pustaka Frontend (NPM):**
+  - Motion *(Animasi scroll interaktif & transisi UI modern via motion.dev)*
   - Axios *(HTTP Client)*
   - FullCalendar *(Visualisasi kalender jadwal)*
   - Chart.js *(Grafik dasbor analitik)*

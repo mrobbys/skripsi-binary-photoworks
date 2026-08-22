@@ -1,6 +1,9 @@
 <section class="w-full">
   {{-- header start --}}
-  <div class="mb-18 text-center">
+  <div
+    data-animate="faq-header"
+    class="mb-18 text-center"
+  >
     <h2 class="font-serif text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl">
       Hal yang Sering Ditanyakan
     </h2>
@@ -8,15 +11,28 @@
   {{-- header end --}}
 
   {{-- accordion list start --}}
-  <div class="mx-auto max-w-3xl divide-y divide-stone-200 border-t border-b border-stone-200">
-    <template x-for="(item, i) in state.faqs" :key="i">
-      <div class="py-2" x-cloak>
+  <div
+    id="faq-list"
+    class="mx-auto max-w-3xl border-t border-stone-200"
+  >
+    <template
+      x-for="(item, i) in state.faqs"
+      :key="i"
+    >
+      <div
+        data-animate="faq-item"
+        class="border-b border-stone-200 py-2"
+        x-cloak
+      >
         {{-- btn start --}}
         <button
           type="button"
-          class="group flex w-full items-center justify-between gap-4 px-2 py-4 text-left transition-colors duration-300 hover:bg-stone-50"
-          x-on:click="toggle(i)"
+          tabindex="-1"
+          :id="'faq-header-' + i"
+          :aria-controls="'faq-answer-' + i"
           x-bind:aria-expanded="state.openIndex === i ? 'true' : 'false'"
+          class="group flex w-full select-none items-center justify-between gap-4 px-2 py-4 text-left transition-colors duration-300 hover:bg-stone-100 focus:outline-none"
+          x-on:click="toggle(i); $el.blur()"
         >
           <span
             class="text-sm text-stone-900 sm:text-base"
@@ -35,10 +51,17 @@
         <div
           x-cloak
           x-show="state.openIndex === i"
-          x-collapse
-          class="px-2 pb-4 pt-1"
+          x-collapse.duration.300ms
+          :id="'faq-answer-' + i"
+          :aria-labelledby="'faq-header-' + i"
+          role="region"
         >
-          <p class="text-sm leading-relaxed text-stone-600 sm:text-base" x-text="item.a"></p>
+          <div class="bg-stone-100 p-4">
+            <p
+              class="text-sm leading-relaxed text-stone-700 sm:text-base"
+              x-text="item.a"
+            ></p>
+          </div>
         </div>
         {{-- answer end --}}
       </div>
@@ -47,7 +70,10 @@
   {{-- accordion list end --}}
 
   {{-- link start --}}
-  <div class="mt-10 text-center">
+  <div
+    data-animate="faq-footer"
+    class="mt-10 text-center"
+  >
     <x-shared.button
       as="a"
       href="{{ route('frontdoor.faq') }}"
@@ -57,6 +83,5 @@
       class="hover:scale-105"
     />
   </div>
-
   {{-- link end --}}
 </section>

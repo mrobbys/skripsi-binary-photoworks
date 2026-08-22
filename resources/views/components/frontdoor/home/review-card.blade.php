@@ -1,6 +1,6 @@
 @props(['review'])
 
-<div class="flex flex-col justify-between border border-stone-200 bg-stone-50/60 p-6 text-left sm:p-8">
+<div data-animate="review-card" class="flex flex-col justify-between border border-stone-200 bg-stone-50/60 p-6 text-left sm:p-8">
   <div class="space-y-4">
     {{-- star rating start --}}
     <div

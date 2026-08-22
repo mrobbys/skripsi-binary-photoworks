@@ -1,14 +1,15 @@
 @props(['package'])
 
 <a
+  data-animate="service-card"
   href="{{ route('frontdoor.booking.flow', $package->slug) }}"
   class="group block transition-transform duration-300"
 >
   <div class="aspect-3/4 relative w-full overflow-hidden bg-stone-100">
     <img
       src="{{ $package->getFirstMediaUrl('package-image') }}"
-      alt=""
-      class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105 grayscale"
+      alt="{{ $package->name }}"
+      class="h-full w-full object-cover object-center grayscale transition-transform duration-500 group-hover:scale-105"
       loading="lazy"
     />
   </div>

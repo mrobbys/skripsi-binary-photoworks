@@ -117,3 +117,7 @@ h6 {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+[data-animate] {
+  opacity: 0;
+}

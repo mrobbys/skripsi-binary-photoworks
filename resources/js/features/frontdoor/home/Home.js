@@ -1,4 +1,5 @@
 import faqData from "../faq/faqData.js";
+import useAnimations from "./useAnimations.js";
 
 export default function Home(Alpine) {
   // Ambil 5 data
@@ -19,8 +20,15 @@ export default function Home(Alpine) {
     state.openIndex = state.openIndex === index ? null : index;
   };
 
+  const { initAnimations } = useAnimations();
+
   return {
     state,
     toggle,
+    init() {
+      Alpine.nextTick(() => {
+        initAnimations();
+      });
+    },
   };
 }
