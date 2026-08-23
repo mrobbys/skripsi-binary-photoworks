@@ -187,7 +187,7 @@ Booking Anda dengan rincian berikut telah *DIBATALKAN*:
 *Detail Booking:*
 *Kode Booking*: {$code}
 *Paket*: {$package} - ({$variant})
-*Jadwal*: {$bookingDate} | {$sessionTime} WITA
+*Jadwal*: {$bookingDate} | {$sessionTime}
 
 Dana Anda sebesar {$amount} telah *dikembalikan (Refund)*. Proses pengembalian dana mungkin memakan waktu beberapa hari kerja tergantung metode pembayaran (QRIS/Transfer Bank/E-Wallet) yang Anda gunakan.
 

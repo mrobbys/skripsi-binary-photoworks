@@ -173,7 +173,7 @@ Berikut adalah rincian booking Anda:
 *Kode Booking*: {$code}
 *Paket*: {$package} ({$variant})
 *Tanggal*: {$bookingDate}
-*Waktu*: {$sessionTime} WITA
+*Waktu*: {$sessionTime}
 *Total Biaya*: {$totalPrice}
 *Status Pembayaran*: {$statusStr}
 

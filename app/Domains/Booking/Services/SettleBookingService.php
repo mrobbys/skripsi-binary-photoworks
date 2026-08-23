@@ -94,7 +94,7 @@ Terima kasih, pembayaran pelunasan untuk sesi foto Anda telah kami terima!
 *Rincian Transaksi:*
 *Kode Booking*: {$code}
 *Paket*: {$package} ({$variant})
-*Jadwal*: {$bookingDate} | {$sessionTime} WITA
+*Jadwal*: {$bookingDate} | {$sessionTime}
 *Total Biaya*: {$totalPrice}
 *Status Pembayaran*: LUNAS
 

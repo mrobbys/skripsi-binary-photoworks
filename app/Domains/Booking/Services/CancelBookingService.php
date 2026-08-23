@@ -92,7 +92,7 @@ Informasi penting mengenai jadwal sesi foto Anda. Booking dengan rincian berikut
 *Detail Booking:*
 *Kode Booking*: {$code}
 *Paket*: {$package} - ({$variant})
-*Jadwal Sebelumnya*: {$bookingDate} | {$sessionTime} WITA
+*Jadwal Sebelumnya*: {$bookingDate} | {$sessionTime}
 
 Jika Anda merasa tidak melakukan permintaan pembatalan ini atau membutuhkan bantuan lebih lanjut terkait pengembalian dana (refund) / penjadwalan ulang (reschedule), silakan hubungi Customer Service kami segera dengan membalas pesan ini.
 
@@ -108,7 +108,7 @@ Booking Anda dengan rincian berikut telah berhasil *DIBATALKAN*:
 *Detail Booking:*
 *Kode Booking*: {$code}
 *Paket*: {$package} - ({$variant})
-*Jadwal*: {$bookingDate} | {$sessionTime} WITA
+*Jadwal*: {$bookingDate} | {$sessionTime}
 
 Jika ini adalah kesalahan atau Anda ingin membuat jadwal baru, silakan lakukan pemesanan kembali melalui tautan berikut:
 {$servicesUrl}
