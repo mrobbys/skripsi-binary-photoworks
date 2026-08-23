@@ -16,6 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 #[Fillable('category_id', 'name', 'description', 'slug', 'is_active')]
 class Package extends Model implements HasMedia
@@ -45,6 +46,13 @@ class Package extends Model implements HasMedia
         $this->addMediaCollection('package-image')
             ->useDisk(env('MEDIA_DISK', 's3'))
             ->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->nonQueued();
     }
 
     /**

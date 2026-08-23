@@ -76,7 +76,7 @@ class BookingService
 				'min_price_formatted' => Formatter::rupiah($minPrice),
 				'category_name' => $package->category?->name ?? '',
 				'is_whatsapp_only' => $isWhatsappOnly,
-				'image_url' => $package->getFirstMediaUrl('package-image'),
+				'image_url' => $package->getFirstMediaUrl('package-image', 'webp') ?: $package->getFirstMediaUrl('package-image'),
 			];
 		});
 
@@ -198,17 +198,17 @@ class BookingService
 						'source' => BookingSource::FRONTDOOR,
 					]);
 
-// sync addons pakai preloaded, bukan query ulang
-                    if ($preloadedAddons) {
-                        $syncData = [];
-                        foreach ($data->addons as $item) {
-                            $addon = $preloadedAddons->get($item['addon_id']);
-                            $quantity = $addon && !$addon->has_quantity ? 1 : ($item['quantity'] ?? 1);
-                            $syncData[$item['addon_id']] = [
-                                'price_at_purchase' => $addon ? $addon->price : 0,
-                                'quantity' => $quantity,
-                            ];
-                        }
+					// sync addons pakai preloaded, bukan query ulang
+					if ($preloadedAddons) {
+						$syncData = [];
+						foreach ($data->addons as $item) {
+							$addon = $preloadedAddons->get($item['addon_id']);
+							$quantity = $addon && !$addon->has_quantity ? 1 : ($item['quantity'] ?? 1);
+							$syncData[$item['addon_id']] = [
+								'price_at_purchase' => $addon ? $addon->price : 0,
+								'quantity' => $quantity,
+							];
+						}
 						$booking->addons()->sync($syncData);
 					}
 
