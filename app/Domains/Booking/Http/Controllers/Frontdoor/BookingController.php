@@ -15,6 +15,7 @@ use App\Domains\MasterData\Models\PackageVariant;
 use App\Domains\MasterData\Models\Schedule;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -51,56 +52,68 @@ class BookingController extends Controller
 	 * Halaman flow booking paket
 	 * @param Package $package
 	 */
-    public function flow(Package $package): View
-    {
-        abort_if(! $package->is_active, 404);
+	public function flow(Package $package): View|RedirectResponse
+	{
+		// cek apakah user sudah mengisi nomor hp / whatsapp
+		if (empty(Auth::user()->phone)) {
+			return redirect()->route('frontdoor.dashboard.profile')->with(
+				'alert',
+				[
+					'type' => 'warning',
+					'title' => 'Lengkapi Profil',
+					'message' => 'Silakan lengkapi nomor WhatsApp Anda terlebih dahulu sebelum melakukan pemesanan.',
+				]
+			);
+		}
 
-        $package->load(['features', 'media']);
+		abort_if(! $package->is_active, 404);
 
-        $variants = PackageVariant::with([
-            'features' => fn($q) => $q->select('id', 'description', 'featureable_id', 'featureable_type'),
-        ])
-            ->select('id', 'package_id', 'name', 'price', 'duration', 'is_whatsapp_only')
-            ->where('package_id', $package->id)
-            ->where('is_active', true)
-            ->orderBy('price')
-            ->get();
+		$package->load(['features', 'media']);
 
-        $addons = Addon::select('id', 'name', 'price', 'description', 'has_quantity')
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
+		$variants = PackageVariant::with([
+			'features' => fn($q) => $q->select('id', 'description', 'featureable_id', 'featureable_type'),
+		])
+			->select('id', 'package_id', 'name', 'price', 'duration', 'is_whatsapp_only')
+			->where('package_id', $package->id)
+			->where('is_active', true)
+			->orderBy('price')
+			->get();
 
-        $activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
+		$addons = Addon::select('id', 'name', 'price', 'description', 'has_quantity')
+			->where('is_active', true)
+			->orderBy('name')
+			->get();
 
-        $backgrounds = Background::with('media')
-            ->select('id', 'name')
-            ->where('is_active', true)
-            ->get()
-            ->map(fn($bg) => [
-                'id' => $bg->id,
-                'name' => $bg->name,
-                'image_url' => $bg->getFirstMediaUrl('background-image', 'thumb') ?: $bg->getFirstMediaUrl('background-image'),
-            ]);
+		$activeDays = Schedule::where('is_active', true)->pluck('day')->toArray();
 
-        return view('frontdoor.booking.flow', compact('package', 'variants', 'addons', 'activeDays', 'backgrounds'));
-    }
+		$backgrounds = Background::with('media')
+			->select('id', 'name')
+			->where('is_active', true)
+			->get()
+			->map(fn($bg) => [
+				'id' => $bg->id,
+				'name' => $bg->name,
+				'image_url' => $bg->getFirstMediaUrl('background-image', 'thumb') ?: $bg->getFirstMediaUrl('background-image'),
+			]);
 
-    /**
-     * Ambil slot waktu yang tersedia dari Schedule
-     * @param Request $request
-     */
-    public function getAvailableSlots(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'date' => ['required', 'date'],
-            'duration' => ['required', 'integer', 'min:1'],
-        ]);
+		return view('frontdoor.booking.flow', compact('package', 'variants', 'addons', 'activeDays', 'backgrounds'));
+	}
 
-        $slots = $this->bookingService->getAvailableSlots($validated['date'], (int) $validated['duration']);
+	/**
+	 * Ambil slot waktu yang tersedia dari Schedule
+	 * @param Request $request
+	 */
+	public function getAvailableSlots(Request $request): JsonResponse
+	{
+		$validated = $request->validate([
+			'date' => ['required', 'date'],
+			'duration' => ['required', 'integer', 'min:1'],
+		]);
 
-        return response()->json(['slots' => $slots]);
-    }
+		$slots = $this->bookingService->getAvailableSlots($validated['date'], (int) $validated['duration']);
+
+		return response()->json(['slots' => $slots]);
+	}
 
 	/**
 	 * Proses checkout
@@ -131,25 +144,25 @@ class BookingController extends Controller
 			);
 		}
 	}
-	
+
 	/**
 	 * Halaman booking berhasil
 	 * @param string $bookingCode
 	 */
-    public function success(string $bookingCode): View
-    {
-        $booking = Booking::where('booking_code', $bookingCode)
-            ->with([
-                'user:id,name,phone',
-                'packageVariant:id,name,package_id',
-                'packageVariant.package:id,name',
-                'background:id,name',
-                'payments:id,booking_id,amount,order_id,status',
-            ])
-            ->first();
-        abort_if(! $booking || $booking->user_id !== Auth::id(), 404);
-        $bookingData = BookingViewData::fromModel($booking);
+	public function success(string $bookingCode): View
+	{
+		$booking = Booking::where('booking_code', $bookingCode)
+			->with([
+				'user:id,name,phone',
+				'packageVariant:id,name,package_id',
+				'packageVariant.package:id,name',
+				'background:id,name',
+				'payments:id,booking_id,amount,order_id,status',
+			])
+			->first();
+		abort_if(! $booking || $booking->user_id !== Auth::id(), 404);
+		$bookingData = BookingViewData::fromModel($booking);
 
-        return view('frontdoor.booking.booking-success', ['booking' => $bookingData]);
-    }
+		return view('frontdoor.booking.booking-success', ['booking' => $bookingData]);
+	}
 }

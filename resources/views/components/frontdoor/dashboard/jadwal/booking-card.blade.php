@@ -140,7 +140,6 @@
           {{-- btn batal start --}}
           <x-shared.button
             variant="ghost"
-  
             value="Batalkan Reservasi"
             xLoading="state.isCancelling === appointment.booking_code"
             loadingText="Membatalkan..."
