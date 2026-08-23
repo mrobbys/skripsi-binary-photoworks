@@ -31,9 +31,15 @@ class PackageSeeder extends Seeder
                 'is_active' => true,
             ]);
 
-            // Tambahkan gambar dummy dari Unsplash
-            $package->addMediaFromUrl('https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800')
-                    ->toMediaCollection('package-image');
+            // Ambil URL gambar dari data (jika tidak ada, gunakan gambar fallback)
+            $imageUrl = $packageData['image'] ?? 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800&q=80';
+
+            try {
+                $package->addMediaFromUrl($imageUrl)
+                        ->toMediaCollection('package-image');
+            } catch (\Exception $e) {
+                $this->command->warn("Gagal mengunduh gambar untuk paket {$packageData['name']}: " . $e->getMessage());
+            }
 
             if (!empty($packageData['features'])) {
                 $package->features()->createMany(

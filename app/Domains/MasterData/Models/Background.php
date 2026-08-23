@@ -39,6 +39,11 @@ class Background extends Model implements HasMedia
     {
         $this->addMediaConversion('thumb')
             ->fit(Fit::Crop, 100, 100)
+            ->format('webp')
+            ->nonQueued();
+
+        $this->addMediaConversion('webp')
+            ->format('webp')
             ->nonQueued();
     }
 

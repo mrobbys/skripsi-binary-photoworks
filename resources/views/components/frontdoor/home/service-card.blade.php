@@ -7,7 +7,7 @@
 >
   <div class="aspect-3/4 relative w-full overflow-hidden bg-stone-100">
     <img
-      src="{{ $package->getFirstMediaUrl('package-image') }}"
+      src="{{ $package->getFirstMediaUrl('package-image', 'webp') ?: $package->getFirstMediaUrl('package-image') }}"
       alt="{{ $package->name }}"
       class="h-full w-full object-cover object-center grayscale transition-transform duration-500 group-hover:scale-105"
       loading="lazy"

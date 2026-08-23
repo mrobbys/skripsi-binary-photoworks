@@ -41,7 +41,7 @@ class BackgroundController extends Controller
 			'description' => $bg->description,
 			'is_active' => $bg->is_active,
 			'image_url' => $bg->getFirstMediaUrl('background-image', 'thumb') ?: $bg->getFirstMediaUrl('background-image'),
-			'original_url' => $bg->getFirstMediaUrl('background-image'),
+			'original_url' => $bg->getFirstMediaUrl('background-image', 'webp') ?: $bg->getFirstMediaUrl('background-image'),
 			'created_at' => $bg->created_at,
 		]);
 

@@ -88,7 +88,7 @@ class PackageController extends Controller
 
 		return response()->json([
 			'data' => array_merge($package->toArray(), [
-				'image_url' => $package->getFirstMediaUrl('package-image'),
+				'image_url' => $package->getFirstMediaUrl('package-image', 'webp') ?: $package->getFirstMediaUrl('package-image'),
 				'features' => $package->features->pluck('description')->values()->all()
 			]),
 		]);
