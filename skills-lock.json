@@ -13,6 +13,12 @@
       "skillPath": "alpinejs/SKILL.md",
       "computedHash": "4952716ebe84faa812f6dcb3f921a85e84327891a2767ecea9601bc23e06e01c"
     },
+    "antislop": {
+      "source": "miqdadbadjuber/anti-slop",
+      "sourceType": "github",
+      "skillPath": "skills/antislop/SKILL.md",
+      "computedHash": "ecc5443cb4a7f98b70ee88e77b5ef33cfbb77e7e9c02125c8f93749741c0be3f"
+    },
     "brainstorming": {
       "source": "obra/superpowers",
       "sourceType": "github",
