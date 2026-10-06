@@ -50,16 +50,26 @@ class DashboardService
       ->where('user_id', $userId);
 
     if ($tab === 'upcoming') {
+      // filter booking aktif yang tanggalnya hari ini atau di masa depan
       $query->whereIn('status', [
         BookingStatus::PENDING,
         BookingStatus::DP_PAID,
         BookingStatus::SUCCESS
-      ]);
+      ])->where('booking_date', '>=', Carbon::today()->toDateString());
     } else {
-      $query->whereIn('status', [
-        BookingStatus::DONE,
-        BookingStatus::CANCELLED
-      ]);
+      // filter booking yang sudah selesai/batal atau booking yang tanggalnya sudah lewat dari hari ini
+      $query->where(function ($q) {
+        $q->whereIn('status', [
+          BookingStatus::DONE,
+          BookingStatus::CANCELLED
+        ])->orWhere(function ($q2) {
+          $q2->whereIn('status', [
+            BookingStatus::PENDING,
+            BookingStatus::DP_PAID,
+            BookingStatus::SUCCESS,
+          ])->where('booking_date', '<', Carbon::today()->toDateString());
+        });
+      });
     }
 
     $paginated = $query->orderBy('created_at', 'desc')
