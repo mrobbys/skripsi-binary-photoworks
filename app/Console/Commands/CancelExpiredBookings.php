@@ -9,8 +9,10 @@ use App\Domains\Payment\Models\Payment;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\Booking\Enums\BookingStatus;
 use Carbon\Carbon;
+use Symfony\Component\Console\Attribute\AsCommand;
 
 #[Signature('booking:cancel-expired')]
+#[AsCommand(name: 'booking:cancel-expired')]
 #[Description('Membatalkan otomatis booking yang belum dibayar hingga batas waktu habis')]
 class CancelExpiredBookings extends Command
 {

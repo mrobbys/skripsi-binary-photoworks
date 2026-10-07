@@ -19,7 +19,7 @@
         x-model="state.gdriveLink"
         x-on:blur="validateField('gdrive_link')"
         x-on:input="validateField('gdrive_link')"
-        x-bind:disabled="state.isGdriveLoading || ['Menunggu', 'DP Terbayar', 'Batal'].includes(state.booking?.status)"
+        x-bind:disabled="state.isGdriveLoading || ['Menunggu', 'DP Terbayar', 'Waiting List', 'Batal'].includes(state.booking?.status)"
         class="disabled:cursor-not-allowed disabled:bg-stone-50 disabled:opacity-50"
       />
     </x-shared.input.field>
@@ -45,7 +45,7 @@
       variant="charcoal"
       size="md"
       class="w-full"
-      x-bind:disabled="state.isGdriveLoading || !state.gdriveLink || Boolean(state.errors.gdrive_link) || (state.booking?.gdrive_link === state.gdriveLink) || ['Menunggu', 'DP Terbayar', 'Batal'].includes(state.booking?.status)"
+      x-bind:disabled="state.isGdriveLoading || !state.gdriveLink || Boolean(state.errors.gdrive_link) || (state.booking?.gdrive_link === state.gdriveLink) || ['Menunggu', 'DP Terbayar', 'Waiting List', 'Batal'].includes(state.booking?.status)"
     >
       <span x-text="state.isGdriveLoading ? 'Menyimpan Link...' : 'Simpan Link'"></span>
     </x-shared.button>

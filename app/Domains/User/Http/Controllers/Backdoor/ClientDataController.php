@@ -74,6 +74,7 @@ class ClientDataController extends Controller
     $user->loadCount([
       'bookings as total_all',
       'bookings as total_pending' => fn($q) => $q->where('status', BookingStatus::PENDING),
+      'bookings as total_waiting_list' => fn($q) => $q->where('status', BookingStatus::WAITING_LIST),
       'bookings as total_dp' => fn($q) => $q->where('status', BookingStatus::DP_PAID),
       'bookings as total_success' => fn($q) => $q->where('status', BookingStatus::SUCCESS),
       'bookings as total_done' => fn($q) => $q->where('status', BookingStatus::DONE),

@@ -1,5 +1,5 @@
 import route from "@/lib/route";
-import { Toast } from "@/lib/sweetalert";
+import { Toast, Modal } from "@/lib/sweetalert";
 import axiosInstance from "@/lib/axiosInstance";
 
 export default function useCheckout({ state, buildAddonsPayload }) {
@@ -20,6 +20,18 @@ export default function useCheckout({ state, buildAddonsPayload }) {
       const { data } = await axiosInstance.post(route("frontdoor.booking.checkout"), payload);
 
       state.bookingCode = data.booking_code;
+
+      if (data.is_waiting_list) {
+        Modal.fire({
+          icon: "info",
+          title: "Pemberitahuan",
+          text: data.message,
+          confirmButtonText: "Mengerti"
+        }).then(() => {
+          window.location.href = route("frontdoor.dashboard.index");
+        });
+        return;
+      }
 
       const finishCheckout = (icon, title) => {
         Toast.fire({ icon, title });

@@ -154,6 +154,12 @@
                     x-text="booking.status"
                   />
                   <x-shared.badge
+                    alpine="booking.status === 'Waiting List'"
+                    size="xs"
+                    variant="secondary"
+                    x-text="booking.status"
+                  />
+                  <x-shared.badge
                     alpine="booking.status === 'Batal'"
                     size="xs"
                     variant="danger"

@@ -72,6 +72,12 @@
               size="sm"
               x-text="state.booking?.status"
             />
+            <x-shared.badge
+              alpine="state.booking?.status === 'Waiting List'"
+              variant="secondary"
+              size="sm"
+              x-text="state.booking?.status"
+            />
           </x-slot:badge>
 
           <x-slot:subcontent>

@@ -169,7 +169,7 @@ class DashboardService
   public function getTodaySchedule(): Collection
   {
     return Booking::whereDate('booking_date', Carbon::today())
-      ->whereNotIn('status', [BookingStatus::PENDING, BookingStatus::CANCELLED])
+      ->whereNotIn('status', [BookingStatus::PENDING, BookingStatus::CANCELLED, BookingStatus::WAITING_LIST])
       ->with([
         'user:id,name',
         'packageVariant:id,package_id',
