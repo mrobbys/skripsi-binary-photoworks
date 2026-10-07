@@ -59,6 +59,11 @@
             x-text="booking.status"
           />
           <x-shared.badge
+            alpine="booking.status === 'Waiting List'"
+            variant="secondary"
+            x-text="booking.status"
+          />
+          <x-shared.badge
             alpine="booking.status === 'Batal'"
             variant="danger"
             x-text="booking.status"

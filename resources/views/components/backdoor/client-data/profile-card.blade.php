@@ -47,6 +47,12 @@
         </span>
       </div>
       <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-stone-600">Waiting List</span>
+        <span class="border border-stone-300 bg-stone-100 px-2 py-0.5 text-xs font-bold text-stone-600">
+          {{ $client->total_waiting_list }}
+        </span>
+      </div>
+      <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-stone-600">DP Terbayar</span>
         <span class="border border-stone-300 bg-stone-200 px-2 py-0.5 text-xs font-bold text-stone-700">
           {{ $client->total_dp }}
