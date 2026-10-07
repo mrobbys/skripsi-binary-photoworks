@@ -6,6 +6,7 @@ use App\Domains\Booking\DTOs\BookingHistoryData;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\Booking\Services\SlotAvailabilityService;
+use App\Domains\Booking\Traits\ResolvesQueuePosition;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\User\Models\User;
 use Carbon\Carbon;
@@ -14,6 +15,8 @@ use RuntimeException;
 
 class DashboardService
 {
+  use ResolvesQueuePosition;
+
   public function __construct(
     private readonly SlotAvailabilityService $slotAvailabilityService,
   ) {}
@@ -54,7 +57,8 @@ class DashboardService
       $query->whereIn('status', [
         BookingStatus::PENDING,
         BookingStatus::DP_PAID,
-        BookingStatus::SUCCESS
+        BookingStatus::SUCCESS,
+        BookingStatus::WAITING_LIST
       ])->where('booking_date', '>=', Carbon::today()->toDateString());
     } else {
       // filter booking yang sudah selesai/batal atau booking yang tanggalnya sudah lewat dari hari ini
@@ -76,7 +80,11 @@ class DashboardService
       ->orderBy('start_time', 'desc')
       ->paginate($limit);
 
-    return $paginated->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
+    // return $paginated->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
+    return $paginated->through(function (Booking $b) {
+      $queuePos = $this->calculateQueuePosition($b);
+      return BookingHistoryData::fromModel($b, $queuePos);
+    });
   }
 
   /**

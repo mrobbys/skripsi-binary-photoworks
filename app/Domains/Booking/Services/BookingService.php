@@ -22,11 +22,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Domains\Booking\Traits\CalculatesBookingTotal;
+use App\Domains\Booking\Traits\ResolvesQueuePosition;
+use App\Jobs\SendWhatsappNotificationJob;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 
 class BookingService
 {
-	use CalculatesBookingTotal;
+	use CalculatesBookingTotal, ResolvesQueuePosition;
 
 	public function __construct(
 		private readonly SlotAvailabilityService $slotAvailabilityService,
@@ -173,15 +175,15 @@ class BookingService
 						->addMinutes($variant->duration)
 						->format('H:i');
 
-					if ($this->slotAvailabilityService->isSlotOccupied($data->booking_date, $data->start_time, $endTime)) {
-						throw new \RuntimeException('Slot waktu sudah terisi. Silakan pilih jam lain.');
-					}
+					$isOccupied = $this->slotAvailabilityService->isSlotOccupied($data->booking_date, $data->start_time, $endTime);
 
 					$bookingCode = $this->codeGenerator->generate(
 						$variant->package->category->category_code,
 						$variant->id,
 						$data->booking_date,
 					);
+
+					$bookingStatus = $isOccupied ? BookingStatus::WAITING_LIST : BookingStatus::PENDING;
 
 					$booking = Booking::create([
 						'user_id' => $user->id,
@@ -194,7 +196,7 @@ class BookingService
 						'total_price' => $totalPrice,
 						'payment_scheme' => $data->payment_scheme,
 						'notes' => $data->notes,
-						'status' => BookingStatus::PENDING,
+						'status' => $bookingStatus,
 						'source' => BookingSource::FRONTDOOR,
 					]);
 
@@ -210,6 +212,19 @@ class BookingService
 							];
 						}
 						$booking->addons()->sync($syncData);
+					}
+
+					if ($isOccupied) {
+						$queuePosition = $this->calculateQueuePosition($booking);
+
+						SendWhatsappNotificationJob::dispatch($user->phone, $this->buildMessage($booking, $user, $bookingCode, $queuePosition));
+
+						return [
+							'queue_position' => $queuePosition,
+							'booking_code' => $bookingCode,
+							'snap_token' => null,
+							'is_waiting_list' => true
+						];
 					}
 
 					$grossAmount = $data->payment_scheme === PaymentScheme::DP
@@ -241,11 +256,29 @@ class BookingService
 						'status' => PaymentStatus::PENDING,
 					]);
 
-					return ['booking_code' => $bookingCode, 'snap_token' => $snapToken];
+					return [
+						'booking_code' => $bookingCode,
+						'snap_token' => $snapToken,
+						'is_waiting_list' => false
+					];
 				});
 			});
 		} catch (LockTimeoutException $e) {
 			throw new \RuntimeException('Sistem sedang memproses pesanan di tanggal ini secara bersamaan, silakan coba lagi.');
 		}
+	}
+
+	private function buildMessage(Booking $booking, User $user, string $bookingCode, int $queuePosition): string
+	{
+		$date = Formatter::dateId($booking->booking_date, 'l, d F Y');
+		$time = Formatter::timeRange($booking->start_time, $booking->end_time);
+
+		return "Halo {$user->name},\n\n"
+			. "Informasi penting mengenai jadwal sesi foto Anda. Booking dengan rincian berikut masuk ke dalam *Waiting List #{$queuePosition}*.\n\n"
+			. "*Detail Booking:*\n"
+			. "- Kode Booking : {$bookingCode}\n"
+			. "- Jadwal Sesi : {$date} | {$time}\n\n"
+			. "Mohon maaf, jadwal yang Anda pilih telah dipesan oleh orang lain. Jika mereka membatalkan booking, kami akan langsung menghubungi Anda.\n\n"
+			. "Terima kasih atas pengertian Anda.";
 	}
 }
