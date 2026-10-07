@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 // TODO: hapus komen jika ingin diaktifkan
 Schedule::command('booking:cancel-expired')->everyMinute();
 Schedule::command('booking:send-reminders')->dailyAt('09:00');
+Schedule::command('waitinglist:clean-expired')->everyMinute();
+Schedule::command('waitinglist:promote')->everyMinute()->withoutOverlapping();

@@ -11,8 +11,10 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use App\Support\Formatter;
+use Symfony\Component\Console\Attribute\AsCommand;
 
 #[Signature('booking:send-reminders')]
+#[AsCommand(name: 'booking:send-reminders')]
 #[Description('Mengirim notifikasi WhatsApp pengingat H-1 jadwal pemotretan ke pelanggan')]
 class SendBookingReminders extends Command
 {
