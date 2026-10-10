@@ -16,7 +16,7 @@ trait ResolvesQueuePosition
             return 0;
         }
 
-        return Booking::where('booking_date', $booking->booking_date->format('Y-m-d'))
+        return Booking::whereDate('booking_date', $booking->booking_date->format('Y-m-d'))
             ->where('start_time', $booking->start_time->format('H:i'))
             ->where('status', BookingStatus::WAITING_LIST)
             ->where('id', '<=', $booking->id)

@@ -19,7 +19,7 @@ class SlotAvailabilityService
 	 */
 	public function isSlotOccupied(string $date, string $startTime, string $endTime): bool
 	{
-		$query = Booking::where('booking_date', $date)
+		$query = Booking::whereDate('booking_date', $date)
 			->where(
 				fn($q) => $q
 					->where('start_time', '<', $endTime)
@@ -39,7 +39,7 @@ class SlotAvailabilityService
 	 */
 	public function isSlotOccupiedExcluding(string $date, string $startTime, string $endTime, int $excludeBookingId): bool
 	{
-		$query = Booking::where('booking_date', $date)
+		$query = Booking::whereDate('booking_date', $date)
 			->where('id', '!=', $excludeBookingId)
 			->where(function ($query) use ($startTime, $endTime) {
 				$query->where('start_time', '<', $endTime)
@@ -56,7 +56,7 @@ class SlotAvailabilityService
 	public function getOccupiedSlotsByDate(string $date): Collection
 	{
 		$query = Booking::select('start_time', 'end_time')
-			->where('booking_date', $date);
+			->whereDate('booking_date', $date);
 
 		return $this->applyActiveSlotFilter($query)->get();
 	}
