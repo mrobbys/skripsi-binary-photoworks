@@ -12,6 +12,7 @@ use App\Domains\Payment\Models\Payment;
 use App\Jobs\SendWhatsappNotificationJob;
 use App\Support\Formatter;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -31,24 +32,32 @@ class PromoteWaitingListCommand extends Command
         // Ambil slot (booking_date & start_time) yang masih memiliki WAITING_LIST mulai hari ini ke depan.
         $waitingSlots = Booking::select('booking_date', 'start_time')
             ->where('status', BookingStatus::WAITING_LIST)
-            ->where('booking_date', '>=', $today)
+            ->whereDate('booking_date', '>=', $today)
             ->distinct()
             ->get();
 
         $promotedCount = 0;
 
         foreach ($waitingSlots as $slot) {
+            $dateString = $slot->booking_date instanceof CarbonInterface
+                ? $slot->booking_date->format('Y-m-d')
+                : (string) $slot->booking_date;
+
+            $timeString = $slot->start_time instanceof CarbonInterface
+                ? $slot->start_time->format('H:i')
+                : (string) $slot->start_time;
+
             // Cek apakah ada yang menempati slot ini (PENDING / DP_PAID / SUCCESS)
-            $isOccupied = Booking::where('booking_date', $slot->booking_date)
-                ->where('start_time', $slot->start_time)
+            $isOccupied = Booking::whereDate('booking_date', $dateString)
+                ->where('start_time', $timeString)
                 ->whereIn('status', [BookingStatus::PENDING, BookingStatus::DP_PAID, BookingStatus::SUCCESS])
                 ->exists();
 
             if (!$isOccupied) {
                 // Tarik antrean paling depan
                 $promotedBooking = Booking::with(['user', 'packageVariant.package.category'])
-                    ->where('booking_date', $slot->booking_date)
-                    ->where('start_time', $slot->start_time)
+                    ->whereDate('booking_date', $dateString)
+                    ->where('start_time', $timeString)
                     ->where('status', BookingStatus::WAITING_LIST)
                     ->orderBy('id', 'asc')
                     ->first();
