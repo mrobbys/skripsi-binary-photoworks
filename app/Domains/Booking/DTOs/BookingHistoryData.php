@@ -30,12 +30,18 @@ class BookingHistoryData extends Data
     public readonly ?string $receipt_url,
   ) {}
 
-  public static function fromModel(Booking $booking): self
+  public static function fromModel(Booking $booking, int $queuePosition): self
   {
     // Tombol "Bayar Sekarang" hanya muncul jika status masih PENDING
     $canPay = $booking->status === BookingStatus::PENDING;
-    // Tombol "Batal" hanya muncul jika status masih PENDING
-    $canCancel = $booking->status === BookingStatus::PENDING;
+    // Tombol "Batal" muncul jika status PENDING atau WAITING_LIST
+    $canCancel = in_array($booking->status, [BookingStatus::PENDING, BookingStatus::WAITING_LIST]);
+
+    $statusLabel = $booking->status->label();
+
+    if ($booking->status === BookingStatus::WAITING_LIST) {
+      $statusLabel = "Waiting List #" . $queuePosition;
+    }
 
     /**
      * Reschedule hanya jika status PENDING, DP_PAID, atau SUCCESS
@@ -71,7 +77,7 @@ class BookingHistoryData extends Data
       formatted_date: Formatter::dateId($booking->booking_date, 'l, d F Y'),
       formatted_time: Formatter::timeRange($booking->start_time, $booking->end_time),
       status: $booking->status->value,
-      status_label: $booking->status->label(),
+      status_label: $statusLabel,
       can_pay: $canPay,
       can_cancel: $canCancel,
       can_reschedule: $canReschedule,

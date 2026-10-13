@@ -43,7 +43,7 @@ class CancelBookingService
     DB::transaction(function () use ($booking, $isAdmin) {
       $lockedBooking = Booking::where('id', $booking->id)->lockForUpdate()->first();
 
-      if (! $isAdmin && $lockedBooking->status !== BookingStatus::PENDING) {
+      if (! $isAdmin && $lockedBooking->status !== BookingStatus::PENDING && $lockedBooking->status !== BookingStatus::WAITING_LIST) {
         throw new RuntimeException('Booking ini tidak dapat dibatalkan atau statusnya sudah berubah.');
       }
 

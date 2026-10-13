@@ -5,6 +5,7 @@
 
   $getBadgeVariant = fn(BookingStatus $status) => match ($status) {
       BookingStatus::PENDING => 'warning',
+      BookingStatus::WAITING_LIST => 'secondary',
       BookingStatus::DP_PAID => 'info',
       BookingStatus::SUCCESS => 'success',
       BookingStatus::CANCELLED => 'danger',

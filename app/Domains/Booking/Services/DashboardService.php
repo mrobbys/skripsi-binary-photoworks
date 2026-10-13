@@ -6,6 +6,7 @@ use App\Domains\Booking\DTOs\BookingHistoryData;
 use App\Domains\Booking\Enums\BookingStatus;
 use App\Domains\Booking\Models\Booking;
 use App\Domains\Booking\Services\SlotAvailabilityService;
+use App\Domains\Booking\Traits\ResolvesQueuePosition;
 use App\Domains\Payment\Enums\PaymentStatus;
 use App\Domains\User\Models\User;
 use Carbon\Carbon;
@@ -14,6 +15,8 @@ use RuntimeException;
 
 class DashboardService
 {
+  use ResolvesQueuePosition;
+
   public function __construct(
     private readonly SlotAvailabilityService $slotAvailabilityService,
   ) {}
@@ -50,23 +53,38 @@ class DashboardService
       ->where('user_id', $userId);
 
     if ($tab === 'upcoming') {
+      // filter booking aktif yang tanggalnya hari ini atau di masa depan
       $query->whereIn('status', [
         BookingStatus::PENDING,
         BookingStatus::DP_PAID,
-        BookingStatus::SUCCESS
-      ]);
+        BookingStatus::SUCCESS,
+        BookingStatus::WAITING_LIST
+      ])->where('booking_date', '>=', Carbon::today()->toDateString());
     } else {
-      $query->whereIn('status', [
-        BookingStatus::DONE,
-        BookingStatus::CANCELLED
-      ]);
+      // filter booking yang sudah selesai/batal atau booking yang tanggalnya sudah lewat dari hari ini
+      $query->where(function ($q) {
+        $q->whereIn('status', [
+          BookingStatus::DONE,
+          BookingStatus::CANCELLED
+        ])->orWhere(function ($q2) {
+          $q2->whereIn('status', [
+            BookingStatus::PENDING,
+            BookingStatus::DP_PAID,
+            BookingStatus::SUCCESS,
+          ])->where('booking_date', '<', Carbon::today()->toDateString());
+        });
+      });
     }
 
     $paginated = $query->orderBy('created_at', 'desc')
       ->orderBy('start_time', 'desc')
       ->paginate($limit);
 
-    return $paginated->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
+    // return $paginated->through(fn(Booking $b) => BookingHistoryData::fromModel($b));
+    return $paginated->through(function (Booking $b) {
+      $queuePos = $this->calculateQueuePosition($b);
+      return BookingHistoryData::fromModel($b, $queuePos);
+    });
   }
 
   /**

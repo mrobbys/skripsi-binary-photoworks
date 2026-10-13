@@ -39,9 +39,11 @@ class FonnteWhatsappService
                 'message' => $message,
             ]);
 
-        // Log jika gagal
-        if (! $response->ok()) {
-            Log::channel('whatsapp')->error('Fonnte send failed', [
+        $result = $response->json();
+
+        // Log jika HTTP gagal atau status dari Fonnte false
+        if (! $response->ok() || (isset($result['status']) && $result['status'] === false)) {
+            Log::error('Fonnte send failed', [
                 'phone' => $normalized,
                 'response' => $response->body(),
             ]);

@@ -9,6 +9,7 @@ enum BookingStatus: string
     case SUCCESS = 'Lunas';
     case CANCELLED = 'Batal';
     case DONE = 'Selesai';
+    case WAITING_LIST = 'Waiting List';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum BookingStatus: string
             self::SUCCESS => 'Lunas (100%)',
             self::CANCELLED => 'Dibatalkan',
             self::DONE => 'Selesai',
+            self::WAITING_LIST => 'Waiting List',
         };
     }
 }

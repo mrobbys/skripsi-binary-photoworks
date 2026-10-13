@@ -18,10 +18,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class BookingController extends Controller
-{
+{	
 	public function __construct(
 		private readonly BookingService $bookingService,
 	) {}
@@ -125,6 +126,17 @@ class BookingController extends Controller
 			$data = CheckoutData::fromRequest($request);
 			$result = $this->bookingService->processCheckout(Auth::user(), $data);
 
+			if ($result['is_waiting_list']) {
+				return $this->successResponse(
+					message: "Slot waktu tersebut baru saja terisi di saat yang sama. Pemesanan Anda otomatis masuk ke daftar Waiting List #{$result['queue_position']}. Detail telah dikirimkan ke WhatsApp Anda.",
+					extra: [
+						'booking_code' => $result['booking_code'],
+						'snap_token' => null,
+						'is_waiting_list' => true,
+					],
+				);
+			}
+
 			return $this->successResponse(
 				message: 'Checkout berhasil',
 				extra: [
@@ -138,6 +150,7 @@ class BookingController extends Controller
 				status: 422,
 			);
 		} catch (\Exception $e) {
+            Log::error('Checkout Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
 			return $this->errorResponse(
 				message: 'Terjadi kesalahan sistem. Silakan coba lagi.',
 				status: 500,

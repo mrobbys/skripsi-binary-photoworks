@@ -36,6 +36,7 @@ class FetchManageBookingDataService
         ])
             ->whereIn('status', [
                 BookingStatus::PENDING,
+                BookingStatus::WAITING_LIST,
                 BookingStatus::DP_PAID,
                 BookingStatus::SUCCESS,
                 BookingStatus::CANCELLED,
